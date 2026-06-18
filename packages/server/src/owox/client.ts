@@ -25,8 +25,10 @@ export function decodeProjectFromToken(token: string): { projectTitle?: string; 
 }
 
 export class OwoxClient {
-  constructor(private origin: string, private token: string, private f: FetchFn = fetch) {}
-  private h() { return { "x-owox-authorization": `Bearer ${this.token}`, "Authorization": `Bearer ${this.token}`, "Content-Type": "application/json" }; }
+  constructor(private origin: string, private token: string, private keyId: string, private f: FetchFn = fetch) {}
+  // Every /api/* call needs BOTH x-owox-authorization AND X-OWOX-Api-Key-Id;
+  // missing the key-id header makes OWOX respond 403 (confirmed against the live API).
+  private h() { return { "x-owox-authorization": `Bearer ${this.token}`, "X-OWOX-Api-Key-Id": this.keyId, "Content-Type": "application/json" }; }
   private async json<T>(method: string, path: string, body?: unknown): Promise<T> {
     const res = await this.f(`${this.origin}${path}`, { method, headers: this.h(), body: body ? JSON.stringify(body) : undefined });
     if (!res.ok) throw new Error(`OWOX ${method} ${path} -> ${res.status} ${await res.text().catch(() => "")}`.slice(0, 300));

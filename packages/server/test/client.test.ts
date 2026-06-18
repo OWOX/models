@@ -28,7 +28,16 @@ describe("OwoxClient.listDataMarts", () => {
       new Response(JSON.stringify({ items: [{ id: "b" }], nextOffset: null }), { status: 200 }),
     ];
     const fetchMock = vi.fn(async () => pages.shift()!);
-    const c = new OwoxClient("https://app.owox.com", "tok_1", fetchMock as any);
+    const c = new OwoxClient("https://app.owox.com", "tok_1", "kid_1", fetchMock as any);
     expect((await c.listDataMarts()).map(m => m.id)).toEqual(["a", "b"]);
+  });
+
+  it("sends both x-owox-authorization and X-OWOX-Api-Key-Id headers", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ items: [], nextOffset: null }), { status: 200 }));
+    const c = new OwoxClient("https://app.owox.com", "tok_1", "kid_1", fetchMock as any);
+    await c.listDataMarts();
+    const headers = (fetchMock.mock.calls[0][1] as any).headers;
+    expect(headers["x-owox-authorization"]).toBe("Bearer tok_1");
+    expect(headers["X-OWOX-Api-Key-Id"]).toBe("kid_1");
   });
 });
