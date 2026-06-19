@@ -5,7 +5,21 @@ export function graphToBundleFiles(g: ModelGraph, projectTitle: string): Record<
 }
 
 export function filesToGraph(files: Record<string, string>): ModelGraph {
-  return parseBundle(files);
+  return parseBundle(expandBundles(files));
+}
+
+// A downloaded OKF bundle is a single .md file with every doc concatenated
+// behind `<!-- path -->` markers (see downloadBundle). When such a file is
+// uploaded, expand it back into its constituent files so each doc keeps its
+// own frontmatter; otherwise parseBundle treats the whole blob as one document.
+const BUNDLE_MARKER = /<!--\s*.+?\s*-->\n/;
+function expandBundles(files: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [name, content] of Object.entries(files)) {
+    if (BUNDLE_MARKER.test(content)) Object.assign(out, parsePastedMarkdown(content));
+    else out[name] = content;
+  }
+  return out;
 }
 
 export function downloadBundle(files: Record<string, string>, name = "model-okf") {
