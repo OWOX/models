@@ -1,6 +1,6 @@
 import type { ModelStore } from "../state/model";
 import { api as defaultApi } from "../lib/api";
-import { slugify } from "@mc/okf";
+import { slugify, type ModelNode } from "@mc/okf";
 
 type Api = typeof defaultApi;
 
@@ -55,9 +55,13 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       if (n.description) {
         await api(`/api/data-marts/${out.id}/description`, { method: "PUT", body: JSON.stringify({ description: n.description }) }).catch(() => {});
       }
-      // Best-effort: push the optional source definition (format unconfirmed → swallow).
-      if (n.definition && n.definition.trim()) {
-        await api(`/api/data-marts/${out.id}/definition`, { method: "PUT", body: JSON.stringify({ definition: n.definition }) }).catch(() => {});
+      // Best-effort: push the source definition together with its input-source
+      // type so the mart keeps SQL / TABLE / VIEW (instead of staying a typeless
+      // draft). Uses OWOX's definition envelope { definitionType, definition };
+      // swallowed on error so an unconfirmed edge case never fails the mart.
+      const defBody = definitionBody(n);
+      if (defBody) {
+        await api(`/api/data-marts/${out.id}/definition`, { method: "PUT", body: JSON.stringify(defBody) }).catch(() => {});
       }
       // Push the output schema (fields + types + PK). Best-effort: a schema error
       // doesn't fail the mart itself, but it's surfaced in the result.
@@ -128,6 +132,21 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   }
 
   return res;
+}
+
+// Map a node's input source + definition text to OWOX's definition envelope.
+// SQL/VIEW carry a SQL query (matching how the canvas authors them); TABLE
+// carries a fully-qualified table reference. CONNECTOR config can't be
+// synthesized here, so it's skipped. Returns null when there's nothing to send.
+function definitionBody(n: ModelNode): unknown | null {
+  const text = n.definition?.trim();
+  if (!text) return null;
+  switch (n.inputSource) {
+    case "SQL":   return { definitionType: "SQL",   definition: { sqlQuery: text } };
+    case "VIEW":  return { definitionType: "VIEW",  definition: { sqlQuery: text } };
+    case "TABLE": return { definitionType: "TABLE", definition: { fullyQualifiedName: text } };
+    default:      return null; // CONNECTOR / unknown
+  }
 }
 
 // Add a field to a node's output schema if it isn't there yet (default STRING).

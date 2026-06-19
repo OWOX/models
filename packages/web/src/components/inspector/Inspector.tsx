@@ -73,7 +73,9 @@ export function Inspector({
     ? edges.find(e => e.id === selection.id)
     : undefined;
 
-  const title = selectedNode ? "Object" : selectedEdge ? "Relationship" : "Inspector";
+  const title = selectedNode
+    ? (selectedNode.title.trim() || "Untitled")
+    : selectedEdge ? "Relationship" : "Inspector";
 
   // Resize drag handlers
   const onResizeMouseDown = useCallback((e: React.MouseEvent) => {

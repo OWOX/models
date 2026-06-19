@@ -23,6 +23,7 @@ import dagre from "@dagrejs/dagre";
 import { X } from "lucide-react";
 
 import { createModelStore } from "../../state/model";
+import { loadPersistedGraph, persistGraph } from "../../state/persist";
 import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 
 import { graphToBundleFiles, downloadBundle } from "../../okf/io";
@@ -42,7 +43,8 @@ import { Inspector } from "../inspector/Inspector";
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
 // ── store singleton (exported so external modules can share this instance) ───
-export const store = createModelStore();
+// Rehydrate from localStorage so a refresh doesn't wipe the in-session model.
+export const store = createModelStore(loadPersistedGraph());
 
 // ── helpers to convert between model and RF types ───────────────────────────
 function toRFNode(n: ModelNode): Node {
@@ -137,6 +139,22 @@ function CanvasInner() {
   useEffect(() => { setRfNodes(graph.nodes.map(toRFNode)); }, [graph.nodes, setRfNodes]);
   useEffect(() => { setRfEdges(graph.edges.map(toRFEdge)); }, [graph.edges, setRfEdges]);
 
+  // Mirror the model to localStorage on every change so a refresh/crash doesn't
+  // lose work (Push to OWOX remains the real save).
+  useEffect(() => { persistGraph(graph); }, [graph]);
+
+  // Warn before leaving while there's unpushed work — the model lives in the
+  // session and may not all be in OWOX yet.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!store.get().nodes.some(n => n.status !== "created")) return;
+      e.preventDefault();
+      e.returnValue = ""; // required for Chrome to show the native prompt
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     onRfNodesChange(changes);                       // animate the drag live
     for (const c of changes) {
@@ -158,7 +176,10 @@ function CanvasInner() {
 
   const onConnect = useCallback((connection: Connection) => {
     if (!connection.source || !connection.target) return;
-    store.addEdge(connection.source, connection.target, connection.sourceHandle, connection.targetHandle);
+    // Open the new edge in the inspector right away so the user can set join
+    // keys without an extra click to select the freshly-drawn line.
+    const e = store.addEdge(connection.source, connection.target, connection.sourceHandle, connection.targetHandle);
+    if (e) setSelection({ type: "edge", id: e.id });
   }, []);
 
   // ── Pane click → add (in Add tool) or deselect ────────────────────────────
