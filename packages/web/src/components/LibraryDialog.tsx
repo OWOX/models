@@ -61,7 +61,7 @@ function TemplateRow({ template, open, onToggle, onUse }: { template: Template; 
       </div>
 
       {open && (
-        <div className="px-4 pb-4 pt-1 bg-[#fbfcfe] border-t border-[#eef1f5]">
+        <div className="px-4 pb-4 pt-1 bg-[#fbfcfe] border-t border-[#eef1f5] overflow-y-auto" style={{ maxHeight: "46vh" }}>
           <div className="flex flex-col gap-1.5 mt-2">
             {nodes.map(n => <MartRow key={n.key} title={n.title} fields={n.schema} />)}
           </div>
