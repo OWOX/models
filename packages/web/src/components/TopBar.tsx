@@ -1,5 +1,10 @@
+import { useEffect, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
+
+// First-visit onboarding hint pointing at the Library. Persisted so it only
+// ever shows once per browser; dismissed as soon as the user hovers it.
+const LIBRARY_HINT_KEY = "mc.libraryHint.v1";
 
 export interface StorageOption { id: string; title: string; type: string; }
 
@@ -46,6 +51,15 @@ export function TopBar({
   onImport, onExport, onPush, onLibrary,
   signedIn, projectTitle, onSignIn, onSignOut,
 }: TopBarProps) {
+  // Show the Library hint on first ever visit; stays lit until hovered.
+  const [showLibraryHint, setShowLibraryHint] = useState(false);
+  useEffect(() => {
+    try { if (!localStorage.getItem(LIBRARY_HINT_KEY)) setShowLibraryHint(true); } catch { /* private mode */ }
+  }, []);
+  const dismissLibraryHint = () => {
+    setShowLibraryHint(false);
+    try { localStorage.setItem(LIBRARY_HINT_KEY, "seen"); } catch { /* private mode */ }
+  };
 
   return (
     <div className="flex items-center gap-3 px-4 py-[9px] bg-white border-b border-[#d8dee8] flex-shrink-0 z-30">
@@ -80,13 +94,29 @@ export function TopBar({
       <div className="flex-1" />
 
       {/* Template library */}
-      <button
-        onClick={onLibrary}
-        title="Template library"
-        className="text-slate-600 border border-[#d8dee8] bg-white rounded-lg p-[7px] cursor-pointer flex items-center hover:bg-[#f1f3f7]"
-      >
-        <LibraryIcon size={16} />
-      </button>
+      <div className="relative">
+        {/* Pulsing ring highlights the Library control on first visit */}
+        {showLibraryHint && (
+          <span className="absolute -inset-[3px] rounded-[10px] ring-2 ring-[#4f46e5]/60 animate-pulse pointer-events-none" />
+        )}
+        <button
+          onClick={() => { dismissLibraryHint(); onLibrary?.(); }}
+          title="Template library"
+          className="text-[13px] font-[550] text-slate-900 border border-[#d8dee8] bg-white rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
+        >
+          <LibraryIcon size={15} /> Library
+        </button>
+        {showLibraryHint && (
+          <div
+            role="tooltip"
+            onMouseEnter={dismissLibraryHint}
+            className="absolute top-[calc(100%+11px)] right-0 z-40 w-[232px] rounded-lg bg-slate-900 text-white text-[12.5px] leading-[1.45] px-3 py-2.5 shadow-[0_8px_24px_rgba(15,23,42,0.28)] cursor-default"
+          >
+            <span className="absolute -top-[5px] right-[18px] w-[10px] h-[10px] bg-slate-900 rotate-45" />
+            Roll out a basic model of your business from the library — or build it from scratch.
+          </div>
+        )}
+      </div>
 
       {/* Import OKF */}
       <button

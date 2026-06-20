@@ -8,7 +8,7 @@ describe("SignInModal", () => {
     const onConnected = vi.fn();
     render(<SignInModal mode="push" connect={connect} onConnected={onConnected} onClose={() => {}} />);
 
-    fireEvent.change(screen.getByPlaceholderText("pek_…"), { target: { value: "pmk_abc" } });
+    fireEvent.change(screen.getByPlaceholderText("owox_key_…"), { target: { value: "pmk_abc" } });
     fireEvent.click(screen.getByText("Connect & push"));
 
     await waitFor(() => expect(connect).toHaveBeenCalledWith("pmk_abc"));
@@ -20,7 +20,7 @@ describe("SignInModal", () => {
     const onConnected = vi.fn();
     render(<SignInModal mode="push" connect={connect} onConnected={onConnected} onClose={() => {}} />);
 
-    fireEvent.change(screen.getByPlaceholderText("pek_…"), { target: { value: "bad" } });
+    fireEvent.change(screen.getByPlaceholderText("owox_key_…"), { target: { value: "bad" } });
     fireEvent.click(screen.getByText("Connect & push"));
 
     await waitFor(() => expect(screen.getByText("Invalid key")).toBeTruthy());

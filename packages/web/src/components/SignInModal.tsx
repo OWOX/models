@@ -48,7 +48,7 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
           value={key}
           onChange={e => setKey(e.target.value)}
           onKeyDown={e => e.key === "Enter" && submit()}
-          placeholder="pek_…"
+          placeholder="owox_key_…"
           className="mt-2 w-full rounded-lg border border-[#d8dee8] px-3 py-3 text-sm outline-none focus:border-indigo-500"
         />
         {err && <p className="mt-2 text-sm text-red-500">{err}</p>}
@@ -71,7 +71,7 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
           <ol className="mt-2 list-decimal pl-5 text-[13px] leading-relaxed text-slate-600">
             <li>In OWOX, open the project menu (top-left) → <b>Project settings</b>.</li>
             <li>Go to <b>My API Keys</b>.</li>
-            <li>Click <b>Create API Key</b> and copy the key (<code>pek_…</code>).</li>
+            <li>Click <b>Create API Key</b> and copy the key (<code>owox_key_…</code>).</li>
           </ol>
           <img
             src="/owox-api-key-guide.png"

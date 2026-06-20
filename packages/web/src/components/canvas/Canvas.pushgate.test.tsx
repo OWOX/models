@@ -41,7 +41,7 @@ describe("Canvas push gate (App-level wiring)", () => {
     expect(pushModel).not.toHaveBeenCalled();
 
     // Enter a key and submit — this calls connect() → POST /api/auth/connect.
-    fireEvent.change(screen.getByPlaceholderText("pek_…"), { target: { value: "pmk_test123" } });
+    fireEvent.change(screen.getByPlaceholderText("owox_key_…"), { target: { value: "pmk_test123" } });
     fireEvent.click(screen.getByText("Connect & push"));
 
     // A successful connect in push mode should resume the push automatically.
