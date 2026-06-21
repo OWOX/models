@@ -54,3 +54,38 @@ describe("serializeBundle (OWOX superset)", () => {
     expect(orders).toContain("- [Customers](./customers.md) — `customer_id = id`");
   });
 });
+
+import { describe as describeCard, it as itCard, expect as expectCard } from "vitest";
+import { serializeBundle as serializeCard } from "../src/serialize";
+import type { ModelGraph as ModelGraphCard } from "../src/types";
+
+describeCard("serialize cardinality suffix", () => {
+  const base = (cardinality: any, bidirectional = false): ModelGraphCard => ({
+    storageId: null,
+    nodes: [
+      { key: "tx", title: "Transactions", inputSource: "TABLE", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+        schema: [{ name: "block_hash", type: "STRING", pk: true }] },
+      { key: "blocks", title: "Blocks", inputSource: "TABLE", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+        schema: [{ name: "hash", type: "STRING", pk: true }] },
+    ],
+    edges: [{ id: "e1", from: "tx", to: "blocks", keys: [{ left: "block_hash", right: "hash" }], bidirectional, cardinality }],
+  });
+
+  itCard("appends [N:1] on the source line", () => {
+    const tx = serializeCard(base("N:1"), "Demo").files["demo/transactions.md"];
+    expectCard(tx).toContain("- [Blocks](./blocks.md) — `block_hash = hash` [N:1]");
+  });
+
+  itCard("flips on the bidirectional mirror line", () => {
+    const files = serializeCard(base("N:1", true), "Demo").files;
+    expectCard(files["demo/transactions.md"]).toContain("`block_hash = hash` [N:1]");
+    // mirror line rendered from Blocks → Transactions carries the flipped value
+    expectCard(files["demo/blocks.md"]).toContain("`hash = block_hash` [1:N]");
+  });
+
+  itCard("omits the suffix when unspecified", () => {
+    const tx = serializeCard(base(undefined), "Demo").files["demo/transactions.md"];
+    expectCard(tx).toContain("- [Blocks](./blocks.md) — `block_hash = hash`");
+    expectCard(tx).not.toContain("— `block_hash = hash` [");
+  });
+});

@@ -1,5 +1,6 @@
 export type InputSource = "SQL" | "CONNECTOR" | "VIEW" | "TABLE";
 export type NodeStatus = "pending" | "creating" | "created" | "error";
+export type Cardinality = "1:1" | "1:N" | "N:1" | "N:N";
 
 export interface SchemaField { name: string; type: string; pk: boolean; alias?: string; description?: string; }
 export interface JoinKey { left: string; right: string; }
@@ -24,6 +25,7 @@ export interface ModelEdge {
   to: string;
   keys: JoinKey[];
   bidirectional: boolean;
+  cardinality?: Cardinality;
   // Canvas-only hints for which ports the edge attaches to (not encoded in OKF).
   sourceHandle?: string | null;
   targetHandle?: string | null;

@@ -1,5 +1,7 @@
-import type { ModelGraph, ModelNode } from "./types";
+import type { ModelGraph, ModelNode, Cardinality } from "./types";
 import { slugify, renderFrontmatter } from "./slug";
+
+const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
 export interface OkfBundle { files: Record<string, string>; }
 
@@ -73,11 +75,14 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
   const outgoing = g.edges.filter(e => e.from === n.key || (e.bidirectional && e.to === n.key));
   const joins = outgoing.length
     ? "## Joins\n\n" + outgoing.map(e => {
-        const otherKey = e.from === n.key ? e.to : e.from;
+        const forward = e.from === n.key;
+        const otherKey = forward ? e.to : e.from;
         const other = g.nodes.find(x => x.key === otherKey)!;
-        const keys = e.from === n.key ? e.keys : e.keys.map(k => ({ left: k.right, right: k.left }));
+        const keys = forward ? e.keys : e.keys.map(k => ({ left: k.right, right: k.left }));
         const cond = keys.map(k => `\`${k.left} = ${k.right}\``).join(", ");
-        return `- [${other.title}](./${slugByKey.get(otherKey)}.md) — ${cond}`;
+        const card = e.cardinality ? (forward ? e.cardinality : FLIP_CARDINALITY[e.cardinality]) : undefined;
+        const suffix = card ? ` [${card}]` : "";
+        return `- [${other.title}](./${slugByKey.get(otherKey)}.md) — ${cond}${suffix}`;
       }).join("\n") + "\n"
     : "";
 
