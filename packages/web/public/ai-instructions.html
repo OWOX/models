@@ -45,53 +45,57 @@
   </div>
 
   <h2>1. What is OKF</h2>
-  <p><b>Open Knowledge Format (OKF)</b> is a vendor-neutral way to represent metadata as a directory of Markdown files with YAML frontmatter. Reference: <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog" target="_blank" rel="noopener">github.com/GoogleCloudPlatform/knowledge-catalog</a> (see the <code>okf/</code> spec). This canvas uses a small <b>authoring profile</b> of OKF: one concept document per Data Mart, plus an <code>owox:</code> frontmatter block and a <code>## Joins</code> section that the canvas understands.</p>
+  <p><b>Open Knowledge Format (OKF)</b> represents metadata as a folder of Markdown files with YAML frontmatter. Reference: <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog" target="_blank" rel="noopener">GoogleCloudPlatform/knowledge-catalog</a> (the <code>okf/</code> spec) and OWOX's own bundles at <a href="https://github.com/OWOX/models" target="_blank" rel="noopener">github.com/OWOX/models</a>. This canvas reads and writes that bundle format: one document per Data Mart, a <code>## Overview</code> block, a <code># Schema</code> table, and a <code>## Joins</code> section. <b>Export OKF on the canvas produces exactly this format</b>, so anything you generate here round-trips.</p>
 
-  <h2>2. Bundle structure</h2>
-  <p>A model is a set of Markdown files — one per Data Mart. You may output them as separate files, or as a single pasted document where each file is preceded by a marker comment:</p>
-  <pre><code>&lt;!-- ecommerce/customers.md --&gt;
+  <h2>2. Two ways to provide a model</h2>
+  <p>Both use the <b>same per-document format</b> (section 3) and differ only in packaging:</p>
+  <ul>
+    <li><b>A — Single file / paste.</b> Put every document in one <code>.md</code> (or paste them), each preceded by a marker comment <code>&lt;!-- path/slug.md --&gt;</code> that separates the docs:
+      <pre><code>&lt;!-- shop/customers.md --&gt;
 ---
 ...frontmatter...
 ---
 # Customers
 ...
 
-&lt;!-- ecommerce/orders.md --&gt;
+&lt;!-- shop/orders.md --&gt;
 ---
 ...frontmatter...
 ---
 # Orders
 ...</code></pre>
-  <p>When pasting, the <code>&lt;!-- path/file.md --&gt;</code> markers separate documents. When uploading, just provide one <code>.md</code> file per Data Mart.</p>
+      The <code>&lt;!-- path --&gt;</code> markers are this canvas's convention for packing several documents into one file.</li>
+    <li><b>B — ZIP bundle.</b> A folder with an <code>index.md</code> plus one <code>&lt;slug&gt;.md</code> per Data Mart, zipped. This is <b>exactly what Export OKF downloads</b> and matches the <code>OWOX/models</code> layout. The user uploads the single <code>.zip</code> in Import OKF and the whole model loads at once — no need to upload files one by one.</li>
+  </ul>
+  <p>Pick whichever fits your workflow; the canvas imports both.</p>
 
   <h2>3. Anatomy of a Data Mart document</h2>
   <pre><code>---
 type: "OWOX Data Mart"
 title: "Orders"
 description: "One row per order"
-tags: ["owox", "sql"]
-timestamp: 2026-06-19T10:00:00Z
-owox:
-  key: orders                 # local id used to wire relationships (unique in the model)
-  inputSource: SQL            # SQL | CONNECTOR | VIEW | TABLE  (default SQL)
-  storageId: ""               # leave empty — the canvas sets the selected storage
-  status: DRAFT
-  id: null                    # leave null — filled after Push
-  position: { x: 0, y: 0 }    # optional; the canvas auto-lays-out on import
+tags: ["owox", "sql"]          # 2nd tag = input source (lowercased), used as a fallback
 ---
 
 # Orders
 
 One row per order, used for revenue and retention.
 
-## Schema
+## Overview
 
-| Column | Type | PK | Alias | Description |
-|--------|------|----|-------|-------------|
-| `id` | STRING | ✓ | order_id | Unique order identifier |
-| `customer_id` | STRING | | | FK to Customers |
-| `order_date` | DATE | | | |
-| `total` | FLOAT | | revenue | Order total, gross |
+- **ID:** `—`                  # leave as — ; filled after Push to OWOX
+- **Status:** DRAFT
+- **Definition type:** SQL      # SQL | CONNECTOR | VIEW | TABLE — sets the input source
+- **Storage:** —               # leave as — ; the canvas applies the selected storage
+
+# Schema
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | STRING | PK. Unique order identifier |
+| `customer_id` | STRING | FK to [Customers](./customers.md) |
+| `order_date` | DATE | |
+| `total` | FLOAT | Order total, gross |
 
 ## Definition
 
@@ -106,29 +110,29 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
   <h3>Frontmatter fields</h3>
   <ul>
     <li><code>type</code> — always <code>"OWOX Data Mart"</code>.</li>
-    <li><code>title</code> — human title (shown on the node).</li>
+    <li><code>title</code> — human title (shown on the node). The relationship id is the title's slug — lowercase, spaces → hyphens (e.g. <code>Order Items</code> → <code>order-items.md</code>) — so keep titles distinct.</li>
     <li><code>description</code> — one-line summary (optional).</li>
-    <li><code>owox.key</code> — a short stable local id (e.g. <code>orders</code>); relationships reference it. Must be unique within the model.</li>
-    <li><code>owox.inputSource</code> — one of <span class="chip">SQL</span><span class="chip">CONNECTOR</span><span class="chip">VIEW</span><span class="chip">TABLE</span>. Defaults to <code>SQL</code>.</li>
-    <li><code>owox.storageId</code> — leave empty; the canvas applies the storage the user selects (one storage per model).</li>
-    <li><code>owox.position</code> — optional; omit or <code>{ x: 0, y: 0 }</code> — the canvas auto-arranges.</li>
+    <li><code>tags</code> — <code>["owox", "&lt;input source lowercased&gt;"]</code>, e.g. <code>["owox","view"]</code>.</li>
   </ul>
+  <p class="note">No <code>owox:</code> frontmatter block is needed anymore. Identity (input source, status, id) lives in the <code>## Overview</code> section. The older format — an <code>owox:</code> block plus a 5-column <code>| Column | Type | PK | Alias | Description |</code> schema — still imports for backward compatibility, but prefer the format above.</p>
 
   <h2>4. Output schema (fields)</h2>
-  <p>Define the mart's columns in a <code>## Schema</code> table. Columns:</p>
+  <p>List the mart's columns in a <code># Schema</code> table with three columns:</p>
   <ul>
-    <li><code>Column</code> — field name (required).</li>
+    <li><code>Column</code> — field name in backticks (required).</li>
     <li><code>Type</code> — one of the allowed types below (required).</li>
-    <li><code>PK</code> — put <code>✓</code> for primary keys (optional).</li>
-    <li><code>Alias</code> — a friendly display name for the field (optional).</li>
-    <li><code>Description</code> — a short per-field note (optional).</li>
+    <li><code>Description</code> — a short note (optional). Two markers live here:
+      <ul>
+        <li><b>Primary key</b> — start the Description with <code>PK.</code> (e.g. <code>PK. Unique id</code>).</li>
+        <li><b>Foreign key</b> — write <code>FK to [Target Title](./target-slug.md)</code>.</li>
+      </ul>
+    </li>
   </ul>
-  <p>All five are pushed to the Data Mart's output schema (name, type, PK, alias, description per field). <code>Alias</code> and <code>Description</code> may be left blank; the older 3-column form (<code>Column · Type · PK</code>) still imports.</p>
   <p><b>Allowed types</b> (cross-storage canonical set — do not use others like <code>DATETIME</code>):</p>
   <p><span class="chip">STRING</span><span class="chip">INTEGER</span><span class="chip">FLOAT</span><span class="chip">NUMERIC</span><span class="chip">BOOLEAN</span><span class="chip">DATE</span><span class="chip">TIME</span><span class="chip">TIMESTAMP</span><span class="chip">BYTES</span><span class="chip">GEOGRAPHY</span><span class="chip">VARIANT</span></p>
 
   <h2>5. Definition (optional)</h2>
-  <p>Optionally include a <code>## Definition</code> fenced code block. Its meaning depends on <code>inputSource</code>:</p>
+  <p>Optionally include a <code>## Definition</code> fenced code block. Its meaning depends on the <b>Definition type</b> in Overview:</p>
   <ul>
     <li><code>SQL</code> — a SQL query (use a <code>```sql</code> fence), e.g. <code>SELECT … FROM `project.dataset.table`</code>.</li>
     <li><code>TABLE</code> — a fully-qualified table name, e.g. <code>project.dataset.table</code>.</li>
@@ -145,7 +149,7 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
   <ul>
     <li>Format: <code>- [Target Title](./target-slug.md) — `leftField = rightField`</code>. Multiple keys: comma-separate the backticked pairs.</li>
     <li>The filename slug is the target title lowercased with spaces → hyphens (e.g. <code>Order Items</code> → <code>order-items.md</code>).</li>
-    <li>Join fields should exist in both marts' <code>## Schema</code>. If they don't, the canvas auto-adds them (as <code>STRING</code>) — but it's cleaner to define them.</li>
+    <li>Join fields should exist in both marts' <code># Schema</code>. It also helps to mark the source field with <code>FK to [Target](./target-slug.md)</code> in its Description.</li>
     <li><b>Bidirectional</b> relationship: add a matching Joins line in <i>both</i> documents (with the key sides swapped). The canvas renders it as a double-headed arrow.</li>
   </ul>
 
@@ -155,45 +159,49 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
 type: "OWOX Data Mart"
 title: "Customers"
 tags: ["owox", "view"]
-owox:
-  key: customers
-  inputSource: VIEW
 ---
 # Customers
-## Schema
-| Column | Type | PK | Alias | Description |
-|--------|------|----|-------|-------------|
-| `id` | STRING | ✓ | customer_id | Unique customer id |
-| `email` | STRING | | | Primary contact email |
+
+## Overview
+- **Definition type:** VIEW
+
+# Schema
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | STRING | PK. Unique customer id |
+| `email` | STRING | Primary contact email |
 
 &lt;!-- shop/orders.md --&gt;
 ---
 type: "OWOX Data Mart"
 title: "Orders"
 tags: ["owox", "view"]
-owox:
-  key: orders
-  inputSource: VIEW
 ---
 # Orders
-## Schema
-| Column | Type | PK | Alias | Description |
-|--------|------|----|-------|-------------|
-| `id` | STRING | ✓ | order_id | Unique order id |
-| `customer_id` | STRING | | | FK to Customers |
+
+## Overview
+- **Definition type:** VIEW
+
+# Schema
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | STRING | PK. Unique order id |
+| `customer_id` | STRING | FK to [Customers](./customers.md) |
+
 ## Joins
 - [Customers](./customers.md) — `customer_id = id`</code></pre>
 
   <h2>8. Workflow</h2>
   <ol>
-    <li>Generate the documents above for the user's domain.</li>
-    <li>User opens <b>Import OKF</b>, pastes the documents (with <code>&lt;!-- path --&gt;</code> markers) or uploads the <code>.md</code> files, clicks <b>Import</b>.</li>
+    <li>Generate the documents above for the user's domain — as a single file with <code>&lt;!-- path --&gt;</code> markers, or as a ZIP bundle.</li>
+    <li>User opens <b>Import OKF</b>, pastes the text / uploads the <code>.md</code> / uploads the <code>.zip</code>, clicks <b>Import</b>.</li>
     <li>The canvas renders nodes + relationships; the user reviews and tweaks.</li>
     <li>User picks a <b>Storage</b> and clicks <b>Push to OWOX</b> → draft Data Marts, output schemas and joinable relationships are created in the OWOX project.</li>
+    <li>Optional: <b>Export OKF</b> downloads the model as a <code>.zip</code> bundle in this same format; re-importing that <code>.zip</code> restores the model.</li>
   </ol>
 
   <div class="note">
-    <b>Rules of thumb.</b> One storage per model. Keep <code>owox.key</code> unique and stable. Use only the allowed schema types. Reference real fields in joins. Leave <code>storageId</code>/<code>id</code> empty — the canvas fills them.
+    <b>Rules of thumb.</b> Keep titles distinct (the slug wires relationships). Use only the allowed schema types. Mark one <code>PK.</code> per mart and reference real fields in joins. Leave <b>ID</b>/<b>Storage</b> as <code>—</code> — the canvas fills them.
   </div>
 
   <footer>OWOX Model Canvas · OKF authoring profile. Built on the Open Knowledge Format.</footer>

@@ -1,4 +1,5 @@
 import { serializeBundle, parseBundle, type ModelGraph } from "@mc/okf";
+import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 export function graphToBundleFiles(g: ModelGraph, projectTitle: string): Record<string, string> {
   return serializeBundle(g, projectTitle).files;
@@ -22,14 +23,27 @@ function expandBundles(files: Record<string, string>): Record<string, string> {
   return out;
 }
 
+export function bundleToZip(files: Record<string, string>): Uint8Array {
+  const entries: Record<string, Uint8Array> = {};
+  for (const [path, content] of Object.entries(files)) entries[path] = strToU8(content);
+  return zipSync(entries, { level: 6 });
+}
+
+export function zipToFiles(buf: Uint8Array): Record<string, string> {
+  const out: Record<string, string> = {};
+  const unzipped = unzipSync(buf);
+  for (const [path, bytes] of Object.entries(unzipped)) {
+    if (path.endsWith("/")) continue;
+    out[path] = strFromU8(bytes);
+  }
+  return out;
+}
+
 export function downloadBundle(files: Record<string, string>, name = "model-okf") {
-  const blob = new Blob(
-    [Object.entries(files).map(([p, c]) => `<!-- ${p} -->\n${c}`).join("\n\n")],
-    { type: "text/markdown" },
-  );
+  const blob = new Blob([bundleToZip(files).slice()], { type: "application/zip" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `${name}.md`;
+  a.download = `${name}.zip`;
   a.click();
 }
 

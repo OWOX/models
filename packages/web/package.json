@@ -1,4 +1,32 @@
-{ "name": "@mc/web", "version": "0.0.0", "type": "module",
-  "scripts": { "dev": "vite", "build": "tsc && vite build", "test": "vitest run --passWithNoTests" },
-  "dependencies": { "react": "^18.3.0", "react-dom": "^18.3.0", "@xyflow/react": "^12.3.0", "@dagrejs/dagre": "^1.1.0", "lucide-react": "^0.460.0", "@mc/okf": "workspace:*" },
-  "devDependencies": { "vite": "^5.4.0", "@vitejs/plugin-react": "^4.3.0", "tailwindcss": "^3.4.0", "postcss": "^8.4.0", "autoprefixer": "^10.4.0", "vitest": "^2.1.0", "jsdom": "^25.0.0", "@testing-library/react": "^16.0.0", "typescript": "^5.6.0", "@types/react": "^18.3.0", "@types/react-dom": "^18.3.0" } }
+{
+  "name": "@mc/web",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.1.0",
+    "@mc/okf": "workspace:*",
+    "@xyflow/react": "^12.3.0",
+    "fflate": "^0.8.3",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.0",
+    "jsdom": "^25.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  }
+}

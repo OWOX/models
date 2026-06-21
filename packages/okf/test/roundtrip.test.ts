@@ -21,11 +21,11 @@ describe("okf round-trip", () => {
     expect(Object.keys(bundle.files)).toContain("demo/facebook-ads.md");
     expect(bundle.files["demo/facebook-ads.md"]).toContain("## Joins");
     const back = parseBundle(bundle.files);
-    expect(back.nodes.map(n => n.key).sort()).toEqual(["camp", "fb"]);
+    expect(back.nodes.map(n => n.key).sort()).toEqual(["campaigns", "facebook-ads"]);
     expect(back.edges).toHaveLength(1);
-    expect(back.edges[0]).toMatchObject({ from: "fb", to: "camp", keys: [{ left: "campaign_id", right: "id" }] });
+    expect(back.edges[0]).toMatchObject({ from: "facebook-ads", to: "campaigns", keys: [{ left: "campaign_id", right: "id" }] });
   });
-  it("round-trips per-field alias and description, and reads the legacy 3-column form", () => {
+  it("round-trips per-field description (alias is not preserved in the superset format), and reads the legacy 3-column form", () => {
     const g: ModelGraph = {
       storageId: null,
       nodes: [{
@@ -39,7 +39,7 @@ describe("okf round-trip", () => {
     };
     const back = parseBundle(serializeBundle(g, "P").files);
     expect(back.nodes[0].schema).toEqual([
-      { name: "id", type: "STRING", pk: true, alias: "user_id", description: "Unique id" },
+      { name: "id", type: "STRING", pk: true, description: "Unique id" },
       { name: "email", type: "STRING", pk: false },
     ]);
     // Legacy 3-column table still imports.
@@ -62,3 +62,57 @@ describe("okf round-trip", () => {
 function frontless(key: string, title: string) {
   return `---\ntype: "OWOX Data Mart"\ntitle: "${title}"\nowox:\n  key: "${key}"\n  inputSource: "SQL"\n  position: { x: 0, y: 0 }\n---\n# ${title}`;
 }
+
+describe("serialize → parse round-trip (superset)", () => {
+  const graph: ModelGraph = {
+    storageId: null,
+    nodes: [
+      { key: "orders", title: "Orders", inputSource: "VIEW", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+        schema: [
+          { name: "order_id", type: "STRING", pk: true, description: "Unique order id" },
+          { name: "customer_id", type: "INTEGER", pk: false },
+        ] },
+      { key: "customers", title: "Customers", inputSource: "TABLE", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+        schema: [{ name: "id", type: "INTEGER", pk: true }] },
+    ],
+    edges: [{ id: "e1", from: "orders", to: "customers", keys: [{ left: "customer_id", right: "id" }], bidirectional: false }],
+  };
+
+  it("preserves nodes, PK, types and join keys", () => {
+    const { files } = serializeBundle(graph, "Demo");
+    const back = parseBundle(files);
+    const orders = back.nodes.find(n => n.key === "orders")!;
+    expect(orders.inputSource).toBe("VIEW");
+    expect(orders.schema.find(f => f.name === "order_id")).toMatchObject({ pk: true, type: "STRING" });
+    expect(back.edges).toHaveLength(1);
+    expect(back.edges[0]).toMatchObject({ from: "orders", to: "customers", keys: [{ left: "customer_id", right: "id" }] });
+  });
+
+  it("keeps both nodes when two titles slugify to the same value", () => {
+    const collidingGraph: ModelGraph = {
+      storageId: null,
+      nodes: [
+        { key: "posts", title: "Posts Answers", inputSource: "SQL", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+          schema: [{ name: "id", type: "STRING", pk: true }] },
+        { key: "answers", title: "Posts & Answers", inputSource: "SQL", status: "pending", owoxId: null, position: { x: 0, y: 0 },
+          schema: [{ name: "post_id", type: "STRING", pk: false }] },
+      ],
+      edges: [{ id: "e1", from: "posts", to: "answers", keys: [{ left: "id", right: "post_id" }], bidirectional: false }],
+    };
+
+    const { files } = serializeBundle(collidingGraph, "Demo");
+    const martFiles = Object.keys(files).filter(f => !f.endsWith("index.md"));
+    expect(martFiles).toHaveLength(2);
+
+    const back = parseBundle(files);
+    expect(back.nodes).toHaveLength(2);
+    const keys = back.nodes.map(n => n.key);
+    expect(new Set(keys).size).toBe(2);
+
+    expect(back.edges).toHaveLength(1);
+    const edge = back.edges[0];
+    expect(edge.from).not.toBe(edge.to);
+    expect(keys).toContain(edge.from);
+    expect(keys).toContain(edge.to);
+  });
+});
