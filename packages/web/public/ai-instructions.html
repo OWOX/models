@@ -151,6 +151,7 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
     <li>The filename slug is the target title lowercased with spaces → hyphens (e.g. <code>Order Items</code> → <code>order-items.md</code>).</li>
     <li>Join fields should exist in both marts' <code># Schema</code>. It also helps to mark the source field with <code>FK to [Target](./target-slug.md)</code> in its Description.</li>
     <li><b>Bidirectional</b> relationship: add a matching Joins line in <i>both</i> documents (with the key sides swapped). The canvas renders it as a double-headed arrow.</li>
+    <li><b>Cardinality</b> (optional): append a classic ER cardinality after the keys — <code>- [Target](./target-slug.md) — `leftField = rightField` [1:N]</code>. Allowed: <code>1:1</code>, <code>1:N</code>, <code>N:1</code>, <code>N:N</code>, oriented source → target. It is for modeling/visualization only (shown as a pill on the canvas); it is ignored by OWOX (its SQL aggregates) and does not affect Push.</li>
   </ul>
 
   <h2>7. Complete minimal example</h2>
