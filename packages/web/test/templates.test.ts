@@ -3,8 +3,8 @@ import { TEMPLATES } from "../src/templates";
 import { serializeBundle, parseBundle } from "@mc/okf";
 
 describe("templates", () => {
-  it("ships the four base models", () => {
-    expect(TEMPLATES.map(t => t.id).sort()).toEqual(["crypto_bitcoin", "ecommerce", "finance", "medical", "saas"]);
+  it("ships the base models", () => {
+    expect(TEMPLATES.map(t => t.id).sort()).toEqual(["crypto_bitcoin", "ecommerce", "finance", "medical", "saas", "stackoverflow"]);
   });
 
   for (const t of TEMPLATES) {
@@ -49,4 +49,24 @@ it("crypto_bitcoin template resolves all edges and FK columns", () => {
       expect(to.schema.some(s => s.name === k.right)).toBe(true);
     }
   }
+});
+
+it("stackoverflow template resolves all edges and FK columns", () => {
+  const t = TEMPLATES.find(x => x.id === "stackoverflow")!;
+  expect(t).toBeTruthy();
+  const keys = new Set(t.graph.nodes.map(n => n.key));
+  for (const e of t.graph.edges) {
+    expect(keys.has(e.from)).toBe(true);
+    expect(keys.has(e.to)).toBe(true);
+    const from = t.graph.nodes.find(n => n.key === e.from)!;
+    const to = t.graph.nodes.find(n => n.key === e.to)!;
+    for (const k of e.keys) {
+      expect(from.schema.some(s => s.name === k.left)).toBe(true);
+      expect(to.schema.some(s => s.name === k.right)).toBe(true);
+    }
+  }
+});
+
+it("stackoverflow is the last template", () => {
+  expect(TEMPLATES[TEMPLATES.length - 1].id).toBe("stackoverflow");
 });

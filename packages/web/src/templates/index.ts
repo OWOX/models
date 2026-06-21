@@ -118,10 +118,52 @@ const crypto_bitcoin: ModelGraph = {
   ],
 };
 
+const stackoverflow: ModelGraph = {
+  storageId: null,
+  nodes: [
+    mart("users", "Users", "TABLE", [
+      f("id", "INTEGER", true), f("display_name", "STRING"), f("reputation", "INTEGER"),
+      f("creation_date", "TIMESTAMP"), f("location", "STRING"), f("up_votes", "INTEGER"), f("down_votes", "INTEGER"),
+    ]),
+    mart("posts_questions", "Posts Questions", "TABLE", [
+      f("id", "INTEGER", true), f("title", "STRING"), f("body", "STRING"), f("owner_user_id", "INTEGER"),
+      f("creation_date", "TIMESTAMP"), f("score", "INTEGER"), f("view_count", "INTEGER"),
+      f("answer_count", "INTEGER"), f("tags", "STRING"),
+    ]),
+    mart("posts_answers", "Posts Answers", "TABLE", [
+      f("id", "INTEGER", true), f("parent_id", "INTEGER"), f("owner_user_id", "INTEGER"),
+      f("body", "STRING"), f("creation_date", "TIMESTAMP"), f("score", "INTEGER"),
+    ]),
+    mart("comments", "Comments", "TABLE", [
+      f("id", "INTEGER", true), f("post_id", "INTEGER"), f("user_id", "INTEGER"),
+      f("text", "STRING"), f("creation_date", "TIMESTAMP"), f("score", "INTEGER"),
+    ]),
+    mart("votes", "Votes", "TABLE", [
+      f("id", "INTEGER", true), f("post_id", "INTEGER"), f("vote_type_id", "INTEGER"), f("creation_date", "TIMESTAMP"),
+    ]),
+    mart("badges", "Badges", "TABLE", [
+      f("id", "INTEGER", true), f("user_id", "INTEGER"), f("name", "STRING"), f("date", "TIMESTAMP"), f("class", "INTEGER"),
+    ]),
+    mart("tags", "Tags", "TABLE", [
+      f("id", "INTEGER", true), f("tag_name", "STRING"), f("count", "INTEGER"), f("excerpt_post_id", "INTEGER"),
+    ]),
+  ],
+  edges: [
+    rel("e1", "posts_questions", "users", "owner_user_id", "id"),
+    rel("e2", "posts_answers", "posts_questions", "parent_id", "id"),
+    rel("e3", "posts_answers", "users", "owner_user_id", "id"),
+    rel("e4", "comments", "posts_questions", "post_id", "id"),
+    rel("e5", "comments", "users", "user_id", "id"),
+    rel("e6", "votes", "posts_questions", "post_id", "id"),
+    rel("e7", "badges", "users", "user_id", "id"),
+  ],
+};
+
 export const TEMPLATES: Template[] = [
   { id: "ecommerce", name: "E-commerce", description: "Orders, products, customers and web sessions.", graph: ecommerce },
   { id: "saas", name: "SaaS", description: "Accounts, users, subscriptions, invoices and usage.", graph: saas },
   { id: "finance", name: "Finance", description: "Customers, accounts, transactions and branches.", graph: finance },
   { id: "medical", name: "Medical clinics", description: "Patients, doctors, appointments, visits and billing.", graph: medical },
   { id: "crypto_bitcoin", name: "Bitcoin (crypto)", description: "Blocks, transactions, inputs and outputs from the public Bitcoin BigQuery dataset.", graph: crypto_bitcoin },
+  { id: "stackoverflow", name: "Stack Overflow", description: "Users, questions, answers, comments, votes, badges and tags from the public Stack Overflow BigQuery dataset.", graph: stackoverflow },
 ];
