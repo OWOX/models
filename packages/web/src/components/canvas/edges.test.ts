@@ -61,3 +61,20 @@ describe("buildRfEdges", () => {
     expect(out[0].targetHandle).toBe("left");
   });
 });
+
+describe("buildRfEdges cardinality passthrough", () => {
+  const nodes: ModelNode[] = [
+    { key: "a", title: "A", inputSource: "TABLE", status: "pending", owoxId: null, position: { x: 0, y: 0 }, schema: [{ name: "x", type: "STRING", pk: true }] },
+    { key: "b", title: "B", inputSource: "TABLE", status: "pending", owoxId: null, position: { x: 0, y: 0 }, schema: [{ name: "y", type: "STRING", pk: true }] },
+  ];
+  const edges: ModelEdge[] = [{ id: "e1", from: "a", to: "b", keys: [{ left: "x", right: "y" }], bidirectional: false, cardinality: "N:1" }];
+
+  it("includes cardinality in compact edge data", () => {
+    const rf = buildRfEdges(edges, nodes, "compact");
+    expect((rf[0].data as any).cardinality).toBe("N:1");
+  });
+  it("includes cardinality in ERD edge data", () => {
+    const rf = buildRfEdges(edges, nodes, "erd");
+    expect((rf[0].data as any).cardinality).toBe("N:1");
+  });
+});

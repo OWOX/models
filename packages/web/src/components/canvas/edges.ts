@@ -10,7 +10,7 @@ function compactEdge(e: ModelEdge): Edge {
     sourceHandle: e.sourceHandle ?? undefined,
     targetHandle: e.targetHandle ?? undefined,
     type: "rel",
-    data: { keys: e.keys, bidirectional: e.bidirectional, modelEdgeId: e.id } as unknown as Record<string, unknown>,
+    data: { keys: e.keys, bidirectional: e.bidirectional, cardinality: e.cardinality, modelEdgeId: e.id } as unknown as Record<string, unknown>,
   };
 }
 
@@ -42,7 +42,7 @@ export function buildRfEdges(edges: ModelEdge[], nodes: ModelNode[], viewMode: V
       sourceHandle: k.left && srcFields?.has(k.left) ? `${srcSide}:${k.left}` : (e.sourceHandle ?? "right"),
       targetHandle: k.right && tgtFields?.has(k.right) ? `${tgtSide}:${k.right}` : (e.targetHandle ?? "left"),
       type: "rel",
-      data: { keys: [k], bidirectional: e.bidirectional, modelEdgeId: e.id } as unknown as Record<string, unknown>,
+      data: { keys: [k], bidirectional: e.bidirectional, cardinality: e.cardinality, modelEdgeId: e.id } as unknown as Record<string, unknown>,
     }));
   });
 }
