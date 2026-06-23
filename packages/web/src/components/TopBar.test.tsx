@@ -41,10 +41,15 @@ describe("TopBar", () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
-  it("renders a Business Goal button and fires onOpenGoal", () => {
+  it("renders a Business Goal button and fires onOpenGoal when questions are enabled", () => {
     const onOpenGoal = vi.fn();
-    render(<TopBar signedIn={false} onOpenGoal={onOpenGoal} />);
+    render(<TopBar signedIn={false} onOpenGoal={onOpenGoal} questionsEnabled />);
     fireEvent.click(screen.getByRole("button", { name: /business goal/i }));
     expect(onOpenGoal).toHaveBeenCalled();
+  });
+
+  it("hides the Business Goal button when questions are disabled (no GEMINI key)", () => {
+    render(<TopBar signedIn={false} onOpenGoal={() => {}} questionsEnabled={false} />);
+    expect(screen.queryByRole("button", { name: /business goal/i })).toBeNull();
   });
 });

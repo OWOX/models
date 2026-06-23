@@ -24,6 +24,7 @@ export interface TopBarProps {
   onSignOut?: () => void;
   onOpenGoal?: () => void;
   goalSet?: boolean;
+  questionsEnabled?: boolean;
 }
 
 const LOGO = (
@@ -53,7 +54,7 @@ export function TopBar({
   pendingCount = 0, storages = [], storageId, onStorageChange,
   onImport, onImportFromOwox, onExport, onPush, onLibrary,
   signedIn, projectTitle, onSignIn, onSignOut,
-  onOpenGoal, goalSet = false,
+  onOpenGoal, goalSet = false, questionsEnabled = false,
 }: TopBarProps) {
   // Push split-button menu (holds the signed-in "Import from OWOX project" action).
   const [menuOpen, setMenuOpen] = useState(false);
@@ -75,15 +76,19 @@ export function TopBar({
         <span>Model Canvas</span>
       </div>
 
-      {/* Business Goal — low-key icon-only entry point for Insight Questions */}
-      <button
-        onClick={onOpenGoal}
-        aria-label="Business Goal"
-        title="Business Goal — see questions your model unlocks"
-        className={`w-[30px] h-[30px] rounded-lg flex items-center justify-center cursor-pointer transition-colors ${goalSet ? "text-[#4f46e5] bg-[#eef0fe]" : "text-slate-400 hover:bg-[#f1f3f7] hover:text-slate-600"}`}
-      >
-        <Target size={17} />
-      </button>
+      {/* Business Goal — low-key icon-only entry point for Insight Questions.
+          Hidden unless the server reports GEMINI_API_KEY is set (questionsEnabled),
+          so the experimental feature is a pure env-only on/off switch. */}
+      {questionsEnabled && (
+        <button
+          onClick={onOpenGoal}
+          aria-label="Business Goal"
+          title="Business Goal — see questions your model unlocks"
+          className={`w-[30px] h-[30px] rounded-lg flex items-center justify-center cursor-pointer transition-colors ${goalSet ? "text-[#4f46e5] bg-[#eef0fe]" : "text-slate-400 hover:bg-[#f1f3f7] hover:text-slate-600"}`}
+        >
+          <Target size={17} />
+        </button>
+      )}
 
       {/* Project picker chip */}
       {signedIn && (

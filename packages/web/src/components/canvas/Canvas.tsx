@@ -105,6 +105,14 @@ function CanvasInner() {
   const [selection, setSelection] = useState<Selection>(null);
   const [goal, setGoalState] = useState<BusinessGoal | null>(loadGoal());
   const [showGoal, setShowGoal] = useState(false);
+  // Server tells us whether the Insight Questions feature is on (GEMINI_API_KEY
+  // set). Gates the Business Goal button so the feature is a pure env switch.
+  const [questionsEnabled, setQuestionsEnabled] = useState(false);
+  useEffect(() => {
+    api<{ questionsEnabled: boolean }>("/api/config")
+      .then(c => setQuestionsEnabled(!!c.questionsEnabled))
+      .catch(() => setQuestionsEnabled(false));
+  }, []);
   const [tool, setTool] = useState<Tool>("select");
   const [viewMode, setViewMode] = useState<ViewMode>(loadViewMode());
   const [showImport, setShowImport] = useState(false);
@@ -398,6 +406,7 @@ function CanvasInner() {
         onLibrary={() => setShowLibrary(true)}
         onOpenGoal={() => setShowGoal(true)}
         goalSet={!!goal}
+        questionsEnabled={questionsEnabled}
         signedIn={!!me}
         projectTitle={me?.projectTitle}
         onSignIn={() => setSignIn({ mode: "connect" })}
