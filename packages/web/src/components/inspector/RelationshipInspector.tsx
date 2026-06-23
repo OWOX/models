@@ -58,7 +58,7 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
               onChange={e => updateKey(i, { left: e.target.value })}
               onBlur={e => e.target.value && onEnsureField(edge.from, e.target.value.trim())}
               placeholder={`${fromTitle} field`}
-              className="flex-1 min-w-0 text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+              className="flex-1 min-w-0 text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
             />
             <span className="text-slate-500 font-bold">=</span>
             <input
@@ -66,7 +66,7 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
               onChange={e => updateKey(i, { right: e.target.value })}
               onBlur={e => e.target.value && onEnsureField(edge.to, e.target.value.trim())}
               placeholder={`${toTitle} field`}
-              className="flex-1 min-w-0 text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+              className="flex-1 min-w-0 text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
             />
             <button
               onClick={() => removeKey(i)} title="Remove"
@@ -99,7 +99,7 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
             <input
               type="checkbox" checked={edge.bidirectional}
               onChange={e => onUpdate({ bidirectional: e.target.checked })}
-              className="w-4 h-4 mt-[1px] accent-[#4f46e5] cursor-pointer"
+              className="w-4 h-4 mt-[1px] accent-[#1e88e5] cursor-pointer"
             />
             <span className="text-[12.5px]">
               <strong className="text-[13px] block">Bidirectional relationship</strong>
@@ -116,7 +116,7 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
               id="rel-cardinality" aria-label="Cardinality"
               value={edge.cardinality ?? ""}
               onChange={e => onUpdate({ cardinality: (e.target.value || undefined) as Cardinality | undefined })}
-              className="text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 bg-white focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+              className="text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 bg-white focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
             >
               <option value="">Unspecified</option>
               <option value="1:1">1:1</option>

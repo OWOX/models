@@ -63,7 +63,7 @@ function ToolButton({ icon, tip, active, onClick }: ToolButtonProps) {
       className={`
         w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
         ${active
-          ? "bg-[#eef0fe] text-[#4f46e5]"
+          ? "bg-[#e6f1fb] text-[#1e88e5]"
           : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
         }
       `}
@@ -125,7 +125,7 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView }: DockP
         className={`
           w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
           ${viewMode === "erd"
-            ? "bg-[#eef0fe] text-[#4f46e5]"
+            ? "bg-[#e6f1fb] text-[#1e88e5]"
             : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
           }
         `}

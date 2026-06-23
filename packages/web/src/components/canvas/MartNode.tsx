@@ -26,7 +26,7 @@ function StatusDot({ status }: { status: string }) {
   const colors: Record<string, string> = {
     created: "bg-[#10b981]",
     pending: "bg-slate-300",
-    creating: "bg-[#4f46e5] animate-pulse",
+    creating: "bg-[#1e88e5] animate-pulse",
     error: "bg-[#ef4444]",
   };
   return (
@@ -38,7 +38,7 @@ function StatusDot({ status }: { status: string }) {
 function NodePorts() {
   const common = {
     width: 13, height: 13, borderRadius: "50%",
-    background: "#fff", border: "2px solid #4f46e5",
+    background: "#fff", border: "2px solid #1e88e5",
     top: 24, opacity: 0, transition: "opacity 0.12s",
   } as const;
   return (

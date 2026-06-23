@@ -40,7 +40,7 @@ export function GoalDialog({ current, onConfirm, onClear, onClose }: GoalDialogP
             <button
               key={n.id}
               onClick={() => { setNiche(n); setGoal(""); }}
-              className={`text-[12.5px] text-left px-3 py-2 rounded-lg border ${niche?.label === n.label ? "border-[#4f46e5] bg-[#eef0fe] text-[#4f46e5]" : "border-[#d8dee8] text-slate-900 hover:bg-[#f1f3f7]"}`}
+              className={`text-[12.5px] text-left px-3 py-2 rounded-lg border ${niche?.label === n.label ? "border-[#1e88e5] bg-[#e6f1fb] text-[#1e88e5]" : "border-[#d8dee8] text-slate-900 hover:bg-[#f1f3f7]"}`}
             >
               {n.label}
             </button>
@@ -54,7 +54,7 @@ export function GoalDialog({ current, onConfirm, onClear, onClose }: GoalDialogP
             <button
               key={g}
               onClick={() => setGoal(g)}
-              className={`text-[12.5px] text-left px-3 py-2 rounded-lg border ${goal === g ? "border-[#4f46e5] bg-[#eef0fe] text-[#4f46e5]" : "border-[#d8dee8] text-slate-900 hover:bg-[#f1f3f7]"}`}
+              className={`text-[12.5px] text-left px-3 py-2 rounded-lg border ${goal === g ? "border-[#1e88e5] bg-[#e6f1fb] text-[#1e88e5]" : "border-[#d8dee8] text-slate-900 hover:bg-[#f1f3f7]"}`}
             >
               {g}
             </button>
@@ -65,14 +65,14 @@ export function GoalDialog({ current, onConfirm, onClear, onClose }: GoalDialogP
           value={goal}
           onChange={e => setGoal(e.target.value)}
           placeholder="…or type your own goal"
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe] mb-4"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb] mb-4"
         />
 
         <div className="flex items-center gap-2">
           <button
             disabled={!canApply}
             onClick={() => canApply && onConfirm({ niche: niche!.label, goal: goal.trim() })}
-            className="text-[13px] font-[550] bg-[#4f46e5] text-white rounded-lg px-4 py-[8px] cursor-pointer hover:bg-[#4338ca] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="text-[13px] font-[550] bg-[#1e88e5] text-white rounded-lg px-4 py-[8px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Apply
           </button>

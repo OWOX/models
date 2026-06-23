@@ -16,12 +16,12 @@
 
 /* Node selected ring */
 .react-flow__node.selected > div {
-  border-color: #4f46e5 !important;
-  box-shadow: 0 0 0 3px #eef0fe, 0 6px 18px rgba(79, 70, 229, 0.15) !important;
+  border-color: #1e88e5 !important;
+  box-shadow: 0 0 0 3px #e6f1fb, 0 6px 18px rgba(30, 136, 229, 0.15) !important;
 }
 
 /* Edge selected */
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #4f46e5;
+  stroke: #1e88e5;
   stroke-width: 2.5;
 }

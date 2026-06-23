@@ -54,7 +54,7 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
           type="text"
           value={node.title}
           onChange={e => onUpdate({ title: e.target.value })}
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
         />
       </div>
 
@@ -73,7 +73,7 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
         <select
           value={node.inputSource}
           onChange={e => onUpdate({ inputSource: e.target.value as InputSource })}
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
         >
           {INPUT_SOURCES.map(s => (
             <option key={s} value={s}>{s}</option>
@@ -99,7 +99,7 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
               onChange={e => onUpdate({ definition: e.target.value })}
               placeholder={defHint.placeholder}
               rows={4}
-              className="w-full text-[12px] font-mono px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[64px] focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+              className="w-full text-[12px] font-mono px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[64px] focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
             />
           </div>
         )}
@@ -114,7 +114,7 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
           value={node.description ?? ""}
           onChange={e => onUpdate({ description: e.target.value })}
           rows={3}
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[60px] focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[60px] focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
         />
       </div>
 

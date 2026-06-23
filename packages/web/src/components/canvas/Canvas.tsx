@@ -39,6 +39,7 @@ import { OwoxImportDialog } from "../OwoxImportDialog";
 import { mergeGraphs } from "../../sync/owoxImport";
 import { LibraryDialog } from "../LibraryDialog";
 import { TemplateApplyDialog } from "../TemplateApplyDialog";
+import { WelcomeDialog } from "../WelcomeDialog";
 import { SignInModal } from "../SignInModal";
 import { PushConfirmDialog } from "../PushConfirmDialog";
 import { pushIntent } from "../../sync/pushGate";
@@ -57,7 +58,14 @@ const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
 // ── store singleton (exported so external modules can share this instance) ───
 // Rehydrate from localStorage so a refresh doesn't wipe the in-session model.
-export const store = createModelStore(loadPersistedGraph());
+const persistedGraph = loadPersistedGraph();
+export const store = createModelStore(persistedGraph);
+
+// A truly first-ever visit has no persisted model yet. Captured at module load —
+// before the persist effect writes an (empty) graph — so it stays true for the
+// session. Used to show the first-screen "start" chooser exactly once for new
+// visitors, and never over a returning user's existing model.
+const isFirstVisit = persistedGraph === undefined;
 
 // ── helpers to convert between model and RF types ───────────────────────────
 function toRFNode(n: ModelNode, viewMode: ViewMode): Node {
@@ -122,6 +130,8 @@ function CanvasInner() {
   // A template chosen from the library while the canvas already had content —
   // held until the user confirms Replace vs Merge in the TemplateApplyDialog.
   const [pendingTemplate, setPendingTemplate] = useState<{ graph: ModelGraph; name: string } | null>(null);
+  // First-screen chooser — shown once to brand-new visitors (no persisted model).
+  const [showWelcome, setShowWelcome] = useState(isFirstVisit);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
   const [storages, setStorages] = useState<StorageOption[]>([]);
@@ -463,6 +473,13 @@ function CanvasInner() {
           onConfirm={() => { setShowPushConfirm(false); void runPush(); }}
           onChangeProject={handleChangeProject}
           onClose={() => setShowPushConfirm(false)}
+        />
+      )}
+      {showWelcome && (
+        <WelcomeDialog
+          onUseTemplate={g => { handleUseTemplate(g); setShowWelcome(false); }}
+          onStartBlank={() => setShowWelcome(false)}
+          onImport={() => { setShowWelcome(false); setShowImport(true); }}
         />
       )}
       {showLibrary && (

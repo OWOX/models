@@ -34,7 +34,7 @@ function RelEdgeInner(props: EdgeProps) {
     ? keys.map(k => `${k.left || "?"} = ${k.right || "?"}`).join(", ")
     : "";
 
-  const strokeColor = selected ? "#4f46e5" : "#94a3b8";
+  const strokeColor = selected ? "#1e88e5" : "#94a3b8";
   const strokeWidth = selected ? 2.5 : 2;
 
   return (
@@ -80,7 +80,7 @@ function RelEdgeInner(props: EdgeProps) {
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: "all",
               background: "#fff",
-              border: `1px solid ${selected ? "#4f46e5" : "#d8dee8"}`,
+              border: `1px solid ${selected ? "#1e88e5" : "#d8dee8"}`,
               borderRadius: 6,
               padding: "2px 8px",
               fontSize: 11,
@@ -100,8 +100,8 @@ function RelEdgeInner(props: EdgeProps) {
                 style={{
                   padding: "0 5px",
                   borderRadius: 4,
-                  background: "#eef0fe",
-                  color: "#4f46e5",
+                  background: "#e6f1fb",
+                  color: "#1e88e5",
                   fontSize: 10,
                   fontWeight: 700,
                 }}

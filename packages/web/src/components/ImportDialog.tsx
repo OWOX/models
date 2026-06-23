@@ -64,7 +64,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
           href="/ai-instructions.html"
           target="_blank"
           rel="noopener"
-          className="text-[13px] text-indigo-600 hover:text-indigo-700 underline underline-offset-2 -mt-1"
+          className="text-[13px] text-[#1e88e5] hover:text-[#1976d2] underline underline-offset-2 -mt-1"
         >
           Instructions for AI — how to generate an OKF model ↗
         </a>
@@ -94,7 +94,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
             onChange={(e) => { setPasteText(e.target.value); void refresh(e.target.value); }}
             placeholder={"<!-- path/to/file.md -->\n...content..."}
             rows={6}
-            className="w-full text-[13px] font-mono border border-[#d8dee8] rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full text-[13px] font-mono border border-[#d8dee8] rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
           />
         </div>
 
@@ -130,7 +130,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
           <button
             onClick={() => preview && onConfirm(preview, mode)}
             disabled={!preview}
-            className="text-[13px] font-[550] bg-[#4f46e5] text-white border border-[#4f46e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#4338ca] disabled:opacity-50"
+            className="text-[13px] font-[550] bg-[#1e88e5] text-white border border-[#1e88e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-50"
           >
             Import
           </button>

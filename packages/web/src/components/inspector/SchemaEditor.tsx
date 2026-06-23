@@ -25,7 +25,7 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
   // Name · Type · PK · Alias · Description · remove. Wider than the inspector,
   // so the grid scrolls horizontally inside the bordered box.
   const cols = "minmax(110px,1fr) 96px 30px minmax(110px,1fr) minmax(150px,1.4fr) 24px";
-  const inputCls = "w-full text-[12.5px] px-[7px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]";
+  const inputCls = "w-full text-[12.5px] px-[7px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]";
 
   return (
     <div className="border border-[#d8dee8] rounded-[10px] overflow-hidden">
@@ -61,7 +61,7 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
               <select
                 value={field.type}
                 onChange={e => updateField(i, { type: e.target.value })}
-                className="w-full text-[11.5px] px-[6px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#eef0fe]"
+                className="w-full text-[11.5px] px-[6px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
               >
                 {FIELD_TYPES.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -72,7 +72,7 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
                 checked={field.pk}
                 onChange={e => updateField(i, { pk: e.target.checked })}
                 title="Primary key"
-                className="w-4 h-4 mx-auto block cursor-pointer accent-[#4f46e5]"
+                className="w-4 h-4 mx-auto block cursor-pointer accent-[#1e88e5]"
               />
               <input
                 type="text"
@@ -103,7 +103,7 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
       {/* Add field */}
       <button
         onClick={addField}
-        className="w-full border-none bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#4f46e5] cursor-pointer hover:bg-[#f8fafc] transition-colors border-t border-[#eef1f5]"
+        className="w-full border-none bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors border-t border-[#eef1f5]"
       >
         + Add field
       </button>

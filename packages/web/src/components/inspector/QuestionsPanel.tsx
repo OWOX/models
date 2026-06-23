@@ -48,7 +48,7 @@ export function QuestionsPanel({ node, nodes, edges, goal, onEditGoal }: Questio
       <div className="flex items-center gap-2 mb-[10px]">
         <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] flex-1">Questions this unlocks</h4>
         {state.kind === "ready" && (
-          <button onClick={() => void generate(true)} className="text-[11px] text-[#4f46e5] hover:underline cursor-pointer">
+          <button onClick={() => void generate(true)} className="text-[11px] text-[#1e88e5] hover:underline cursor-pointer">
             Regenerate
           </button>
         )}

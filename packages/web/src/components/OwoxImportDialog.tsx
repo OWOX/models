@@ -58,7 +58,7 @@ export function OwoxImportDialog({ storages, onConfirm, onClose }: Props) {
             <p className="text-[13px] text-slate-600 -mt-1">Choose a storage. Import is scoped to one storage at a time.</p>
             <div className="flex flex-col gap-1.5 max-h-[40vh] overflow-y-auto">
               {storages.map(s => (
-                <label key={s.id} className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-[13px] ${storageId === s.id ? "border-indigo-400 bg-indigo-50" : "border-[#d8dee8] hover:bg-[#f1f3f7]"}`}>
+                <label key={s.id} className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-[13px] ${storageId === s.id ? "border-[#1e88e5] bg-[#e6f1fb]" : "border-[#d8dee8] hover:bg-[#f1f3f7]"}`}>
                   <input type="radio" name="storage" checked={storageId === s.id} onChange={() => setStorageId(s.id)} />
                   <span className="font-semibold text-slate-900">{s.title}</span>
                   <span className="text-slate-500">— {s.type}</span>
@@ -70,7 +70,7 @@ export function OwoxImportDialog({ storages, onConfirm, onClose }: Props) {
             <div className="flex gap-2 justify-end">
               <button onClick={onClose} className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#f1f3f7]">Cancel</button>
               <button onClick={loadGraph} disabled={!storageId || loading}
-                className="text-[13px] font-[550] bg-[#4f46e5] text-white border border-[#4f46e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#4338ca] disabled:opacity-50">
+                className="text-[13px] font-[550] bg-[#1e88e5] text-white border border-[#1e88e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-50">
                 {loading ? "Loading…" : "Continue"}
               </button>
             </div>
@@ -105,7 +105,7 @@ export function OwoxImportDialog({ storages, onConfirm, onClose }: Props) {
             <div className="flex gap-2 justify-end">
               <button onClick={() => setStep("storage")} className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#f1f3f7]">Back</button>
               <button onClick={() => onConfirm(payloadToGraph(payload, filter), mode)} disabled={counts.marts === 0}
-                className="text-[13px] font-[550] bg-[#4f46e5] text-white border border-[#4f46e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#4338ca] disabled:opacity-50">
+                className="text-[13px] font-[550] bg-[#1e88e5] text-white border border-[#1e88e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-50">
                 Import
               </button>
             </div>

@@ -19,7 +19,7 @@ export function LibraryDialog({ onUse, onClose }: Props) {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 px-5 py-4 border-b border-[#d8dee8] flex-shrink-0">
-          <LibraryIcon size={18} className="text-indigo-600" />
+          <LibraryIcon size={18} className="text-[#1e88e5]" />
           <h2 className="text-[15px] font-semibold flex-1">Template library</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
         </div>
@@ -54,7 +54,7 @@ function TemplateRow({ template, open, onToggle, onUse }: { template: Template; 
         <button
           onClick={e => { e.stopPropagation(); onUse(); }}
           title="Roll out this model onto the canvas"
-          className="flex items-center gap-[6px] rounded-lg bg-[#4f46e5] px-3 py-[6px] text-[12px] font-semibold text-white hover:bg-[#4338ca] whitespace-nowrap"
+          className="flex items-center gap-[6px] rounded-lg bg-[#1e88e5] px-3 py-[6px] text-[12px] font-semibold text-white hover:bg-[#1976d2] whitespace-nowrap"
         >
           <Rocket size={13} /> Use
         </button>
@@ -109,7 +109,7 @@ function MartRow({ title, fields }: { title: string; fields: { name: string; typ
               <tr key={f.name} className="border-b border-[#f3f5f8] last:border-0">
                 <td className="px-3 py-1.5 font-mono text-slate-700">{f.name}</td>
                 <td className="px-3 py-1.5 text-slate-500">{f.type}</td>
-                <td className="px-3 py-1.5 text-right text-[10.5px] text-indigo-600 font-semibold">{f.pk ? "PK" : ""}</td>
+                <td className="px-3 py-1.5 text-right text-[10.5px] text-[#1e88e5] font-semibold">{f.pk ? "PK" : ""}</td>
               </tr>
             ))}
           </tbody>

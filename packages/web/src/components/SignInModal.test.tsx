@@ -15,6 +15,14 @@ describe("SignInModal", () => {
     await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
   });
 
+  it("offers a free-signup bridge for visitors without an OWOX account", () => {
+    render(<SignInModal mode="connect" connect={vi.fn()} onConnected={vi.fn()} onClose={() => {}} />);
+    const link = screen.getByText("Start free →").closest("a") as HTMLAnchorElement;
+    expect(link).toBeTruthy();
+    expect(link.href).toContain("owox.com/app-signup");
+    expect(link.href).toContain("utm_content=signin_modal");
+  });
+
   it("shows the error and does not signal success when connect fails", async () => {
     const connect = vi.fn().mockRejectedValue(new Error("Invalid key"));
     const onConnected = vi.fn();

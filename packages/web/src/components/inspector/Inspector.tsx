@@ -138,7 +138,7 @@ export function Inspector({
         className="absolute left-0 top-0 w-[7px] h-full cursor-col-resize z-[18] group"
         title="Drag to resize"
       >
-        <div className="absolute left-[2px] top-0 w-[2px] h-full bg-transparent group-hover:bg-[#4f46e5] transition-colors" />
+        <div className="absolute left-[2px] top-0 w-[2px] h-full bg-transparent group-hover:bg-[#1e88e5] transition-colors" />
       </div>
 
       {/* Header */}

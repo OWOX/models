@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { OwoxDataMartsHero } from "./OwoxDataMartsHero";
+import { signupUrl } from "../lib/links";
 
 export interface SignInModalProps {
   /** "connect" = just sign in; "push" = sign in then resume a push. */
@@ -96,7 +97,7 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
           onChange={e => setKey(e.target.value)}
           onKeyDown={e => e.key === "Enter" && submit()}
           placeholder="owox_key_…"
-          className="mt-2 w-full rounded-lg border border-[#d8dee8] px-3 py-3 text-sm outline-none focus:border-indigo-500"
+          className="mt-2 w-full rounded-lg border border-[#d8dee8] px-3 py-3 text-sm outline-none focus:border-[#1e88e5]"
         />
         {err && <p className="mt-2 text-sm text-red-500">{err}</p>}
 
@@ -125,6 +126,20 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
             alt="OWOX → Project settings → My API Keys → Create API Key"
             className="mt-3 w-full rounded-lg border border-[#e6e9f0]"
           />
+        </div>
+
+        {/* Conversion bridge: anonymous visitors without an OWOX account can't
+            create a key. Give them a way forward instead of a dead end. */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-slate-500">
+          <span>Don't have an OWOX account yet?</span>
+          <a
+            href={signupUrl("signin_modal")}
+            target="_blank"
+            rel="noopener"
+            className="font-semibold text-[#1e88e5] hover:underline"
+          >
+            Start free →
+          </a>
         </div>
       </div>
     </div>
