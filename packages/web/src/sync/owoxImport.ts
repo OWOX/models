@@ -60,7 +60,7 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
     const existing = seen.get(pair);
     if (existing) { existing.bidirectional = true; continue; }
     const keys = r.joinConditions.map(j => ({ left: j.sourceFieldName, right: j.targetFieldName }));
-    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false };
+    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true };
     edges.push(e); seen.set(pair, e);
   }
   return { storageId: payload.storageId, nodes, edges };

@@ -33,6 +33,11 @@ describe("payloadToGraph", () => {
     expect(g.edges).toHaveLength(1);
     expect(g.edges[0].bidirectional).toBe(true);
   });
+  it("marks every imported edge as existing (already in OWOX — push must skip it)", () => {
+    const g = payloadToGraph(base, "all");
+    expect(g.edges).toHaveLength(1);
+    expect(g.edges[0].existing).toBe(true);
+  });
   it("drops edges to marts outside the selection", () => {
     const g = payloadToGraph(base, "published"); // a,b selected; both rel ends in set → 1 edge
     expect(g.nodes.map(n => n.owoxId).sort()).toEqual(["a", "b"]);

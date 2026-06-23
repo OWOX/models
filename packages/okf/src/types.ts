@@ -29,6 +29,8 @@ export interface ModelEdge {
   // Canvas-only hints for which ports the edge attaches to (not encoded in OKF).
   sourceHandle?: string | null;
   targetHandle?: string | null;
+  // True for edges imported from OWOX (already exist there) — push skips them.
+  existing?: boolean;
 }
 export interface ModelGraph {
   storageId: string | null;

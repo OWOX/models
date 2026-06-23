@@ -108,6 +108,9 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   const titleByKey = new Map(g.nodes.map(n => [n.key, n.title]));
 
   for (const e of g.edges) {
+    // Imported edges already exist in OWOX (they came from a real relationship
+    // there) — pushing them again would create duplicate joins or error out.
+    if (e.existing) continue;
     const keys = e.keys.filter(k => k.left && k.right);
     const directions: Array<[string, string, { left: string; right: string }[]]> = e.bidirectional
       ? [[e.from, e.to, keys], [e.to, e.from, keys.map(k => ({ left: k.right, right: k.left }))]]

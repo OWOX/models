@@ -86,6 +86,30 @@ describe("pushModel", () => {
     for (const b of relationshipBodies) expect(b).not.toContain("cardinality");
   });
 
+  it("skips an imported edge (existing: true) — no relationship POST for a join that already exists in OWOX", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [{ name: "customer_id", type: "STRING", pk: false }], position: { x: 0, y: 0 }, status: "created", owoxId: "owox_a" },
+        { key: "n2", title: "Customers", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 100, y: 0 }, status: "created", owoxId: "owox_b" },
+      ],
+      edges: [
+        { id: "e1", from: "n1", to: "n2", keys: [{ left: "customer_id", right: "id" }], bidirectional: false, existing: true },
+      ],
+    });
+    const relationshipCalls: string[] = [];
+    const apiMock = vi.fn(async (path: string) => {
+      if (path.includes("/relationships")) relationshipCalls.push(path);
+      return { id: "owox_rel" };
+    });
+    const res = await pushModel(s, apiMock as any);
+    expect(relationshipCalls).toHaveLength(0);
+    expect(res.relationshipsCreated).toBe(0);
+    expect(res.relationshipsFailed).toBe(0);
+    expect(res.errors).toHaveLength(0);
+  });
+
   it("uses an underscore identifier (not a hyphenated slug) for targetAlias", async () => {
     const s = createModelStore({ storageId: "stor_1" });
     s.set({
