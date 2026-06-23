@@ -5,6 +5,7 @@ import rateLimit from "@fastify/rate-limit";
 import { authRoutes } from "./routes/auth";
 import { dataMartRoutes } from "./routes/datamarts";
 import { metaRoutes } from "./routes/meta";
+import { questionsRoutes } from "./routes/questions";
 
 export function buildApp() {
   // trustProxy: Render terminates TLS and forwards via its load balancer, so
@@ -51,6 +52,7 @@ export function buildApp() {
   app.register(authRoutes);
   app.register(dataMartRoutes);
   app.register(metaRoutes);
+  app.register(questionsRoutes);
   // Surface the real upstream error (OwoxClient throws with the OWOX status +
   // body) instead of Fastify's generic "Internal Server Error". Preserve any
   // explicit statusCode (e.g. the rate limiter's 429); default to 502 for
