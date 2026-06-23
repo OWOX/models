@@ -1,0 +1,4 @@
+[
+  { "targetDataMartId": "dm_2", "targetAlias": "customers",
+    "joinConditions": [ { "sourceFieldName": "customer_id", "targetFieldName": "id" } ] }
+]

@@ -1,0 +1,12 @@
+{
+  "id": "dm_1",
+  "title": "Orders",
+  "status": "PUBLISHED",
+  "storageId": "st_1",
+  "definitionType": "SQL",
+  "definition": { "sqlQuery": "SELECT * FROM orders" },
+  "schema": { "fields": [
+    { "name": "id", "type": "INTEGER", "isPrimaryKey": true },
+    { "name": "customer_id", "type": "INTEGER" }
+  ] }
+}
