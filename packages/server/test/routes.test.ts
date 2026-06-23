@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { buildApp } from "../src/app";
 import * as client from "../src/owox/client";
+import * as importMod from "../src/owox/import";
 
 const KEY = "owox_key_" + Buffer.from(JSON.stringify({ apiOrigin: "https://app.owox.com", apiKeyId: "k", apiKeySecret: "s" })).toString("base64url");
 
@@ -33,5 +34,33 @@ describe("auth", () => {
     }
     expect(codes.slice(0, 10).every((c) => c === 400)).toBe(true);
     expect(codes[10]).toBe(429);
+  });
+});
+
+describe("owox-import route", () => {
+  it("401 without a session", async () => {
+    const app = buildApp();
+    expect((await app.inject({ method: "GET", url: "/api/owox-import?storageId=st_1" })).statusCode).toBe(401);
+  });
+
+  it("400 without storageId", async () => {
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    expect((await app.inject({ method: "GET", url: "/api/owox-import", cookies: { mc_sid: sid } })).statusCode).toBe(400);
+  });
+
+  it("returns the aggregated payload for a session", async () => {
+    vi.spyOn(importMod, "buildImportPayload").mockResolvedValue({
+      storageId: "st_1", total: 1, truncated: false,
+      marts: [{ id: "m0", title: "M0", status: "DRAFT", schema: [], inputSource: "SQL", definition: null }],
+      relationships: [],
+    });
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    const res = await app.inject({ method: "GET", url: "/api/owox-import?storageId=st_1", cookies: { mc_sid: sid } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ storageId: "st_1", total: 1, truncated: false });
   });
 });
