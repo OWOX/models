@@ -6,7 +6,7 @@ export interface InsightQuestion {
 export interface FocusMart {
   title: string;
   description?: string;
-  fields: { name: string; type: string; pk: boolean }[];
+  fields: { name: string; type: string; pk: boolean; alias?: string; description?: string }[];
   role: "selected" | "neighbour";
 }
 
@@ -31,8 +31,14 @@ export function buildPrompt(input: GenerateInput): string {
   const { niche, goal, focus } = input;
   const marts = focus.marts
     .map(m => {
-      const fields = m.fields.map(f => `${f.name}:${f.type}${f.pk ? " (PK)" : ""}`).join(", ");
-      return `- ${m.title}${m.role === "selected" ? " [SELECTED]" : ""}${m.description ? ` — ${m.description}` : ""}\n  fields: ${fields || "(none)"}`;
+      const fields = m.fields
+        .map(f => {
+          const label = f.alias && f.alias !== f.name ? ` "${f.alias}"` : "";
+          const note = f.description ? ` — ${f.description}` : "";
+          return `${f.name}:${f.type}${f.pk ? " (PK)" : ""}${label}${note}`;
+        })
+        .join("\n    ");
+      return `- ${m.title}${m.role === "selected" ? " [SELECTED]" : ""}${m.description ? ` — ${m.description}` : ""}\n  fields:\n    ${fields || "(none)"}`;
     })
     .join("\n");
   const joins = focus.joins.length

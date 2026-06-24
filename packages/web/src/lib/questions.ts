@@ -20,7 +20,7 @@ export class AiLimitError extends Error {
 export interface FocusMart {
   title: string;
   description?: string;
-  fields: { name: string; type: string; pk: boolean }[];
+  fields: { name: string; type: string; pk: boolean; alias?: string; description?: string }[];
   role: "selected" | "neighbour";
 }
 
@@ -39,7 +39,7 @@ function martToFocus(node: ModelNode, role: "selected" | "neighbour"): FocusMart
   return {
     title: node.title.trim() || "Untitled",
     description: node.description,
-    fields: node.schema.map(f => ({ name: f.name, type: f.type, pk: f.pk })),
+    fields: node.schema.map(f => ({ name: f.name, type: f.type, pk: f.pk, alias: f.alias, description: f.description })),
     role,
   };
 }
