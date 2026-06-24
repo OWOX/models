@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Upload, ChevronDown, Target } from "lucide-react";
+import { Download, Upload, ChevronDown, Target, Share2 } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
 
 // First-visit onboarding hint pointing at the Library. Persisted so it only
@@ -16,6 +16,8 @@ export interface TopBarProps {
   onImport?: () => void;
   onImportFromOwox?: () => void;
   onExport?: () => void;
+  onShare?: () => void;
+  shareDisabled?: boolean;
   onPush?: () => void;
   onLibrary?: () => void;
   signedIn: boolean;
@@ -52,7 +54,7 @@ const LOGO = (
 
 export function TopBar({
   pendingCount = 0, storages = [], storageId, onStorageChange,
-  onImport, onImportFromOwox, onExport, onPush, onLibrary,
+  onImport, onImportFromOwox, onExport, onShare, shareDisabled = false, onPush, onLibrary,
   signedIn, projectTitle, onSignIn, onSignOut,
   onOpenGoal, goalSet = false, questionsEnabled = false,
 }: TopBarProps) {
@@ -85,19 +87,17 @@ export function TopBar({
         <span>Model Canvas</span>
       </div>
 
-      {/* Business Goal — low-key icon-only entry point for Insight Questions.
-          Hidden unless the server reports GEMINI_API_KEY is set (questionsEnabled),
-          so the experimental feature is a pure env-only on/off switch. */}
-      {questionsEnabled && (
-        <button
-          onClick={onOpenGoal}
-          aria-label="Business Goal"
-          title="Business Goal — see questions your model unlocks"
-          className={`w-[30px] h-[30px] rounded-lg flex items-center justify-center cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-400 hover:bg-[#f1f3f7] hover:text-slate-600"}`}
-        >
-          <Target size={17} />
-        </button>
-      )}
+      {/* Business Goal — always-visible entry point for Insight Questions, so the
+          feature is discoverable in the nav and never silently disappears. When
+          the AI key isn't configured the panel shows a graceful note instead. */}
+      <button
+        onClick={onOpenGoal}
+        aria-label="Business goal — see the questions your model unlocks"
+        title="Set a business goal to see the questions your model unlocks"
+        className={`flex items-center gap-[6px] rounded-lg px-[10px] py-[6px] text-[13px] font-[550] cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"}`}
+      >
+        <Target size={16} /> {goalSet ? "Business goal" : "Set business goal"}
+      </button>
 
       {/* Project picker chip */}
       {signedIn && (
@@ -153,7 +153,7 @@ export function TopBar({
         onClick={onImport}
         className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
       >
-        <Download size={15} /> Import OKF
+        <Download size={15} /> Import
       </button>
 
       {/* Export OKF */}
@@ -162,6 +162,16 @@ export function TopBar({
         className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
       >
         <Upload size={15} /> Export OKF
+      </button>
+
+      {/* Share — copy a link that reopens this exact model (no sign-in needed) */}
+      <button
+        onClick={onShare}
+        disabled={shareDisabled}
+        title={shareDisabled ? "Add a mart first, then share" : "Copy a shareable link to this model"}
+        className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7] disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Share2 size={15} /> Share
       </button>
 
       {/* Push to OWOX — split button: primary push + caret menu (signed-in only)

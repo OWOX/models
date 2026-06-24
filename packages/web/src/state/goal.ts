@@ -41,7 +41,7 @@ export const NICHE_PRESETS: NichePreset[] = [
     goals: [
       "Improve MQL → SQL → Closed-Won conversion across the funnel",
       "Lower blended cost per SQL by channel",
-      "Fix multi-touch attribution to closed-won revenue",
+      "Tie cross-channel touchpoints to closed-won revenue",
       "Shorten sales-cycle length for mid-market deals",
       "Raise pipeline velocity (deals × win-rate × ACV ÷ cycle)",
     ],

@@ -1,9 +1,10 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { KeyRound } from "lucide-react";
-import type { ModelNode } from "@mc/okf";
+import { KeyRound, ChevronDown, ChevronRight } from "lucide-react";
+import type { ModelNode, SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import { DataMartIcon } from "../../lib/icons";
+import { ERD_COLLAPSED_ROWS } from "./layoutSize";
 
 const SOURCE_COLOR: Record<string, string> = {
   SQL: "#10b981",
@@ -19,7 +20,7 @@ const STATUS_TIP: Record<string, string> = {
   error: "Error — check details",
 };
 
-export type MartNodeData = ModelNode & { _viewMode?: ViewMode };
+export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[] };
 
 function StatusDot({ status }: { status: string }) {
   const base = "absolute top-[10px] right-[10px] w-[9px] h-[9px] rounded-full z-10";
@@ -73,25 +74,51 @@ function FieldAnchors({ name }: { name: string }) {
   );
 }
 
+function FieldRow({ f }: { f: SchemaField }) {
+  return (
+    <div className="relative flex items-center gap-2 px-3 py-[5px] text-[11.5px] border-b border-[#f3f5f8] last:border-b-0">
+      <FieldAnchors name={f.name} />
+      {f.pk
+        ? <KeyRound size={11} className="text-amber-500 flex-shrink-0" />
+        : <span className="w-[11px] flex-shrink-0" />}
+      <span className="flex-1 text-slate-800 truncate" title={f.alias || f.name}>{f.alias || f.name}</span>
+      <span className="text-slate-400 font-mono text-[10.5px] truncate">{f.type}</span>
+    </div>
+  );
+}
+
+// ERD body shows at most ERD_COLLAPSED_ROWS fields by default so dense marts stay
+// readable; the rest hide behind a "+N more" toggle. PK and relationship-key
+// fields are always kept in the visible set so their edge handles exist even
+// while collapsed (edges anchor to those field rows).
 function ErdBody({ node }: { node: MartNodeData }) {
-  if (node.schema.length === 0) {
+  const [expanded, setExpanded] = useState(false);
+  const schema = node.schema;
+  if (schema.length === 0) {
     return <div className="px-3 pb-[10px] text-[11px] text-slate-400">no fields</div>;
   }
+
+  const keyFields = new Set(node._keyFields ?? []);
+  const isKey = (f: SchemaField) => f.pk || keyFields.has(f.name);
+  // Keys first, then the rest — keeps a stable order whether collapsed or expanded.
+  const ordered = [...schema.filter(isKey), ...schema.filter(f => !isKey(f))];
+  const collapsedCount = Math.max(ERD_COLLAPSED_ROWS, ordered.filter(isKey).length);
+  const visible = expanded ? ordered : ordered.slice(0, collapsedCount);
+  const hidden = schema.length - collapsedCount;
+
   return (
     <div className="border-t border-[#eef1f5]">
-      {node.schema.map(f => (
-        <div
-          key={f.name}
-          className="relative flex items-center gap-2 px-3 py-[5px] text-[11.5px] border-b border-[#f3f5f8] last:border-b-0"
+      {visible.map(f => <FieldRow key={f.name} f={f} />)}
+      {hidden > 0 && (
+        <button
+          onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+          className="w-full flex items-center justify-center gap-1 px-3 py-[5px] text-[11px] font-medium text-[#1e88e5] hover:bg-[#f1f5fb] border-t border-[#f3f5f8]"
         >
-          <FieldAnchors name={f.name} />
-          {f.pk
-            ? <KeyRound size={11} className="text-amber-500 flex-shrink-0" />
-            : <span className="w-[11px] flex-shrink-0" />}
-          <span className="flex-1 text-slate-800 truncate">{f.name}</span>
-          <span className="text-slate-400 font-mono text-[10.5px] truncate">{f.type}</span>
-        </div>
-      ))}
+          {expanded
+            ? <><ChevronDown size={12} /> Show less</>
+            : <><ChevronRight size={12} /> +{hidden} more field{hidden > 1 ? "s" : ""}</>}
+        </button>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from "react";
+import { PanelRightOpen } from "lucide-react";
 import type { ModelNode, ModelEdge } from "@mc/okf";
 import { ObjectInspector } from "./ObjectInspector";
 import { RelationshipInspector } from "./RelationshipInspector";
@@ -46,17 +47,18 @@ function EmptyState() {
   );
 }
 
-// Small tab visible when inspector is collapsed
+// Clean icon tab shown when the inspector is collapsed (no awkward rotated text).
 function ReopenTab({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       title="Open inspector"
-      className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white border border-[#d8dee8] border-r-0 rounded-l-lg shadow-sm px-1 py-3 flex items-center cursor-pointer hover:bg-[#f1f3f7] transition-colors"
-      style={{ writingMode: "vertical-rl" }}
+      aria-label="Open inspector"
+      className="group absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-[46px] w-[32px] items-center justify-center rounded-l-xl border border-r-0 border-[#d8dee8] bg-white text-slate-500 shadow-[-3px_0_12px_rgba(15,23,42,0.07)] cursor-pointer transition-colors hover:bg-[#f1f3f7] hover:text-[#1e88e5]"
     >
-      <span className="text-[11px] font-semibold text-slate-500 tracking-wide" style={{ writingMode: "horizontal-tb", transform: "rotate(-90deg)" }}>
-        Inspector
+      <PanelRightOpen size={18} />
+      <span className="pointer-events-none absolute right-[calc(100%+8px)] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+        Open inspector
       </span>
     </button>
   );
@@ -161,15 +163,14 @@ export function Inspector({
               node={selectedNode}
               onUpdate={patch => onUpdateNode(selectedNode.key, patch)}
             />
-            {questionsEnabled && (
-              <QuestionsPanel
-                node={selectedNode}
-                nodes={nodes}
-                edges={edges}
-                goal={goal ?? null}
-                onEditGoal={onEditGoal ?? (() => {})}
-              />
-            )}
+            <QuestionsPanel
+              node={selectedNode}
+              nodes={nodes}
+              edges={edges}
+              goal={goal ?? null}
+              aiEnabled={questionsEnabled ?? false}
+              onEditGoal={onEditGoal ?? (() => {})}
+            />
           </>
         ) : selectedEdge ? (
           <RelationshipInspector

@@ -55,21 +55,34 @@ interface ToolButtonProps {
   onClick: () => void;
 }
 
+// Styled hover tooltip shown to the right of a dock button (the dock sits on the
+// left edge). Clearer and faster than the native title tooltip.
+function DockTip({ label }: { label: string }) {
+  return (
+    <span className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 text-white text-[12px] font-medium px-2 py-1 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all z-50 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+      {label}
+    </span>
+  );
+}
+
 function ToolButton({ icon, tip, active, onClick }: ToolButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      title={tip}
-      className={`
-        w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
-        ${active
-          ? "bg-[#e6f1fb] text-[#1e88e5]"
-          : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
-        }
-      `}
-    >
-      {icon}
-    </button>
+    <div className="relative group">
+      <button
+        onClick={onClick}
+        aria-label={tip}
+        className={`
+          w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
+          ${active
+            ? "bg-[#e6f1fb] text-[#1e88e5]"
+            : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
+          }
+        `}
+      >
+        {icon}
+      </button>
+      <DockTip label={tip} />
+    </div>
   );
 }
 
@@ -118,20 +131,23 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView }: DockP
         onClick={() => onToolChange("layout")}
       />
       <div className="h-px bg-[#d8dee8] mx-1 my-[3px]" />
-      <button
-        onClick={onToggleView}
-        title="ERD view — show fields & field-level links"
-        aria-pressed={viewMode === "erd"}
-        className={`
-          w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
-          ${viewMode === "erd"
-            ? "bg-[#e6f1fb] text-[#1e88e5]"
-            : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
-          }
-        `}
-      >
-        <ErdIcon />
-      </button>
+      <div className="relative group">
+        <button
+          onClick={onToggleView}
+          aria-label="ERD view — show fields & field-level links"
+          aria-pressed={viewMode === "erd"}
+          className={`
+            w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
+            ${viewMode === "erd"
+              ? "bg-[#e6f1fb] text-[#1e88e5]"
+              : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
+            }
+          `}
+        >
+          <ErdIcon />
+        </button>
+        <DockTip label={viewMode === "erd" ? "ERD view — fields & field-level links (on)" : "ERD view — show fields & field-level links"} />
+      </div>
     </div>
   );
 }

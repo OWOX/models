@@ -79,7 +79,7 @@ const ecommerce: ModelGraph = {
       f("device", "STRING"), f("landing_page", "STRING"),
       f("pageviews", "INTEGER"),
       f("add_to_cart", "BOOLEAN"), f("reached_checkout", "BOOLEAN"), f("converted", "BOOLEAN"),
-    ], "One row per web/app session from the analytics stream — funnel and attribution source."),
+    ], "One row per web/app session from the analytics stream — funnel and acquisition source."),
     mart("fct_returns", "Returns", "VIEW", [
       f("return_id", "STRING", true), f("order_item_id", "STRING", false, "Returned line."),
       f("product_id", "STRING"),
@@ -398,9 +398,9 @@ const mobile_gaming: ModelGraph = {
   ],
 };
 
-// B2B Marketing / Lead-gen — funnel + attribution model. fct_ad_spend gives the
-// cost side by channel/campaign; fct_touchpoints is the multi-touch path with
-// per-touch attribution weights; the funnel runs dim_lead → fct_opportunities
+// B2B Marketing / Lead-gen — spend + funnel model. fct_ad_spend gives the cost
+// side by channel/campaign; fct_touchpoints records each marketing touch with a
+// per-touch credit weight; the funnel runs dim_lead → fct_opportunities
 // (MQL → SQL → Closed-Won) so spend can be tied to closed revenue.
 const marketing_ads: ModelGraph = {
   storageId: null,
@@ -426,9 +426,9 @@ const marketing_ads: ModelGraph = {
       f("touchpoint_id", "STRING", true),
       f("lead_id", "STRING"), f("campaign_id", "STRING"),
       f("occurred_at", "TIMESTAMP"), f("channel", "STRING"), f("touch_type", "STRING"),
-      f("attribution_weight", "FLOAT", false, "Credit assigned by the attribution model (sums to 1 per lead)."),
+      f("touch_credit", "FLOAT", false, "Credit assigned to this marketing touch (sums to 1 per lead)."),
       f("is_first_touch", "BOOLEAN"), f("is_lead_create", "BOOLEAN"),
-    ], "One row per marketing touch. Multi-touch attribution path to conversion."),
+    ], "One row per marketing touch on the path to conversion."),
     mart("fct_opportunities", "Opportunities", "VIEW", [
       f("opportunity_id", "STRING", true), f("lead_id", "STRING"),
       f("created_at", "DATE"), f("stage", "STRING"),
@@ -524,7 +524,7 @@ export const TEMPLATES: Template[] = [
   { id: "ecommerce", name: "E-commerce / Retail", description: "Sales star schema: order & line-item margin, web sessions and returns over conformed customer/product dimensions.", graph: ecommerce },
   { id: "saas", name: "SaaS / Subscription", description: "Recurring revenue: accounts, seats, MRR-movement events, invoices, daily product usage and support.", graph: saas },
   { id: "marketplace", name: "Marketplace", description: "Two-sided platform: buyers, sellers, listings, search demand, GMV/take-rate orders and reviews.", graph: marketplace },
-  { id: "marketing_ads", name: "Marketing / Lead-gen", description: "B2B funnel: cross-channel ad spend, campaigns, multi-touch attribution, leads and pipeline opportunities.", graph: marketing_ads },
+  { id: "marketing_ads", name: "Marketing / Lead-gen", description: "B2B funnel: cross-channel ad spend, campaigns, marketing touchpoints, leads and pipeline opportunities.", graph: marketing_ads },
   { id: "mobile_gaming", name: "Mobile / Gaming", description: "Free-to-play telemetry: players, sessions, events, IAP, ad impressions and user-acquisition spend.", graph: mobile_gaming },
   { id: "finance", name: "Finance / Fintech", description: "Neobank & lending: customers (KYC/risk), accounts, transactions, loan origination and repayments.", graph: finance },
   { id: "medical", name: "Healthcare", description: "Provider analytics: patients, providers, appointments, encounters (LOS/readmission) and claims/denials.", graph: medical },

@@ -8,7 +8,7 @@ describe("Dock ERD toggle", () => {
     render(
       <Dock activeTool="select" onToolChange={() => {}} viewMode="compact" onToggleView={onToggleView} />,
     );
-    const toggle = screen.getByTitle(/ERD view/i);
+    const toggle = screen.getByRole("button", { name: /ERD view/i });
     fireEvent.click(toggle);
     expect(onToggleView).toHaveBeenCalledTimes(1);
   });
@@ -17,6 +17,6 @@ describe("Dock ERD toggle", () => {
     render(
       <Dock activeTool="select" onToolChange={() => {}} viewMode="erd" onToggleView={() => {}} />,
     );
-    expect(screen.getByTitle(/ERD view/i).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: /ERD view/i }).getAttribute("aria-pressed")).toBe("true");
   });
 });

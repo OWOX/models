@@ -28,6 +28,7 @@ import { loadViewMode, persistViewMode, type ViewMode } from "../../state/viewMo
 import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 
 import { graphToBundleFiles, downloadBundle } from "../../okf/io";
+import { buildShareUrl, readSharedModel, clearSharedModelFromUrl } from "../../share/url";
 import { pushModel, pushPreview, type PushResult } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
 
@@ -57,24 +58,48 @@ import { loadGoal, persistGoal, type BusinessGoal } from "../../state/goal";
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
 // ── store singleton (exported so external modules can share this instance) ───
-// Rehydrate from localStorage so a refresh doesn't wipe the in-session model.
+// A shared link (#m=…) wins over localStorage: opening it reopens that exact
+// model. Otherwise rehydrate from localStorage so a refresh doesn't wipe work.
+const sharedGraph = readSharedModel();
 const persistedGraph = loadPersistedGraph();
-export const store = createModelStore(persistedGraph);
+export const store = createModelStore(sharedGraph ?? persistedGraph);
+if (sharedGraph) {
+  // Persist the opened model right away — it's the store's initial value, so it
+  // never fires a change that the mirror-to-localStorage effect would catch; a
+  // refresh would otherwise lose it once the hash is cleared.
+  persistGraph(store.get());
+  // Drop the payload from the address bar so a refresh doesn't re-clobber the
+  // canvas and the URL stays clean.
+  clearSharedModelFromUrl();
+}
 
-// A truly first-ever visit has no persisted model yet. Captured at module load —
-// before the persist effect writes an (empty) graph — so it stays true for the
-// session. Used to show the first-screen "start" chooser exactly once for new
-// visitors, and never over a returning user's existing model.
-const isFirstVisit = persistedGraph === undefined;
+// A truly first-ever visit has no persisted model and no shared link. Captured at
+// module load — before the persist effect writes an (empty) graph — so it stays
+// true for the session. Gates the first-screen "start" chooser: shown once for
+// new visitors, never over a returning user's model or an opened shared link.
+const isFirstVisit = !sharedGraph && persistedGraph === undefined;
 
 // ── helpers to convert between model and RF types ───────────────────────────
-function toRFNode(n: ModelNode, viewMode: ViewMode): Node {
+function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node {
   return {
     id: n.key,
     type: "mart",
     position: n.position,
-    data: { ...n, _viewMode: viewMode } as unknown as Record<string, unknown>,
+    data: { ...n, _viewMode: viewMode, _keyFields: keyFields } as unknown as Record<string, unknown>,
   };
+}
+
+// Field names involved in a relationship, per node key — so the ERD node can keep
+// its join keys visible even when it collapses the rest of its fields behind the
+// expand toggle (edges anchor to those field handles).
+function keyFieldsByNode(edges: ModelEdge[]): Map<string, Set<string>> {
+  const m = new Map<string, Set<string>>();
+  const add = (key: string, field?: string) => {
+    if (!field) return;
+    (m.get(key) ?? m.set(key, new Set()).get(key)!).add(field);
+  };
+  for (const e of edges) for (const k of e.keys) { add(e.from, k.left); add(e.to, k.right); }
+  return m;
 }
 
 // ── Dagre auto-layout ────────────────────────────────────────────────────────
@@ -134,6 +159,7 @@ function CanvasInner() {
   const [showWelcome, setShowWelcome] = useState(isFirstVisit);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
+  const [shareToast, setShareToast] = useState<string | null>(null);
   const [storages, setStorages] = useState<StorageOption[]>([]);
   const [signIn, setSignIn] = useState<{ mode: "connect" | "push" } | null>(null);
   const [showPushConfirm, setShowPushConfirm] = useState(false);
@@ -174,7 +200,10 @@ function CanvasInner() {
   const [rfNodes, setRfNodes, onRfNodesChange] = useNodesState<Node>([]);
   const [rfEdges, setRfEdges, onRfEdgesChange] = useEdgesState<Edge>([]);
 
-  useEffect(() => { setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode))); }, [graph.nodes, viewMode, setRfNodes]);
+  useEffect(() => {
+    const kf = keyFieldsByNode(graph.edges);
+    setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode, [...(kf.get(n.key) ?? [])])));
+  }, [graph.nodes, graph.edges, viewMode, setRfNodes]);
   useEffect(() => { setRfEdges(buildRfEdges(graph.edges, graph.nodes, viewMode)); }, [graph.edges, graph.nodes, viewMode, setRfEdges]);
 
   // Mark only the selected relationship as reconnectable so dragging an endpoint
@@ -316,6 +345,25 @@ function CanvasInner() {
     downloadBundle(files, title);
   }, [me]);
 
+  // Copy a shareable link that reopens this exact model. Falls back to a prompt
+  // if the clipboard API is blocked (insecure context / permissions).
+  const handleShare = useCallback(async () => {
+    const url = buildShareUrl(store.get());
+    // The whole model rides in the link's #hash, so it works on whatever origin
+    // serves the app. On localhost that's only this machine — flag it so a local
+    // dev doesn't think the link is broken; on model.owox.com it just works.
+    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+    const msg = isLocal
+      ? "Link copied — note: a localhost link only opens on this machine. Deploy to share it."
+      : "Link copied — anyone with it can open this model.";
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareToast(msg);
+    } catch {
+      window.prompt("Copy this shareable link:", url);
+    }
+  }, []);
+
   // Auto-layout a freshly loaded graph (import or template). The OKF format does
   // not persist node positions (Dagre re-lays out on load, by design), so without
   // this every imported node piles up at the origin and must be dragged apart.
@@ -434,6 +482,8 @@ function CanvasInner() {
         onImport={() => setShowImport(true)}
         onImportFromOwox={() => setShowOwoxImport(true)}
         onExport={handleExport}
+        onShare={handleShare}
+        shareDisabled={graph.nodes.length === 0}
         onPush={handlePush}
         onLibrary={() => setShowLibrary(true)}
         onOpenGoal={() => setShowGoal(true)}
@@ -444,6 +494,7 @@ function CanvasInner() {
         onSignIn={() => setSignIn({ mode: "connect" })}
         onSignOut={handleSignOut}
       />
+      {shareToast && <ShareToast message={shareToast} onClose={() => setShareToast(null)} />}
       {pushing && (
         <div className="fixed bottom-4 right-4 z-50 bg-slate-900 text-white text-[13px] px-4 py-2 rounded-lg shadow-lg">
           Pushing to OWOX…
@@ -617,6 +668,20 @@ function PushToast({ result, onClose }: { result: PushResult; onClose: () => voi
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+// ── Share confirmation toast (auto-dismisses) ─────────────────────────────────
+function ShareToast({ message, onClose }: { message: string; onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3500);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-emerald-300 bg-white px-4 py-3 text-[13px] shadow-2xl">
+      <span className="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0" />
+      <span className="text-slate-800">{message}</span>
     </div>
   );
 }

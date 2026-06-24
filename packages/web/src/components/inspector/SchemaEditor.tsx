@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { GripVertical } from "lucide-react";
 import type { SchemaField } from "@mc/okf";
 
 // Canonical OWOX schema types — the set accepted across storages (BigQuery,
@@ -10,6 +12,10 @@ interface SchemaEditorProps {
 }
 
 export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
+  // Row being dragged and the row it's hovering over — for reordering fields.
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+
   function updateField(i: number, patch: Partial<SchemaField>) {
     onChange(schema.map((f, idx) => idx === i ? { ...f, ...patch } : f));
   }
@@ -22,20 +28,30 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
     onChange([...schema, { name: "", type: "STRING", pk: false }]);
   }
 
-  // Name · Type · PK · Alias · Description · remove. Wider than the inspector,
-  // so the grid scrolls horizontally inside the bordered box.
-  const cols = "minmax(110px,1fr) 96px 30px minmax(110px,1fr) minmax(150px,1.4fr) 24px";
+  // Move a field from one position to another, preserving the order of the rest.
+  function moveField(from: number, to: number) {
+    if (from === to || from < 0 || to < 0) return;
+    const next = schema.slice();
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  }
+
+  // Handle · Name · Type · PK · Alias · Description · remove. Wider than the
+  // inspector, so the grid scrolls horizontally inside the bordered box.
+  const cols = "16px minmax(110px,1fr) 96px 30px minmax(110px,1fr) minmax(150px,1.4fr) 24px";
   const inputCls = "w-full text-[12.5px] px-[7px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]";
 
   return (
     <div className="border border-[#d8dee8] rounded-[10px] overflow-hidden">
       <div className="overflow-x-auto">
-        <div className="min-w-[560px]">
+        <div className="min-w-[576px]">
           {/* Header */}
           <div
             className="grid bg-[#f8fafc] px-[10px] py-[7px] text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.3px] border-b border-[#d8dee8] gap-[6px]"
             style={{ gridTemplateColumns: cols }}
           >
+            <span />
             <span>Name</span>
             <span>Type</span>
             <span>PK</span>
@@ -44,13 +60,24 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
             <span />
           </div>
 
-          {/* Rows */}
+          {/* Rows — drag the grip handle to reorder */}
           {schema.map((field, i) => (
             <div
               key={i}
-              className="grid px-[10px] py-[6px] border-b border-[#eef1f5] last:border-b-0 items-center gap-[6px]"
+              onDragOver={e => { if (dragIdx === null) return; e.preventDefault(); if (overIdx !== i) setOverIdx(i); }}
+              onDrop={e => { e.preventDefault(); if (dragIdx !== null) moveField(dragIdx, i); setDragIdx(null); setOverIdx(null); }}
+              className={`grid px-[10px] py-[6px] border-b border-[#eef1f5] last:border-b-0 items-center gap-[6px] transition-colors ${dragIdx === i ? "opacity-40" : ""} ${overIdx === i && dragIdx !== null && dragIdx !== i ? "bg-[#e6f1fb]" : ""}`}
               style={{ gridTemplateColumns: cols }}
             >
+              <span
+                draggable
+                onDragStart={e => { setDragIdx(i); e.dataTransfer.effectAllowed = "move"; }}
+                onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                title="Drag to reorder"
+                className="flex items-center justify-center text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing"
+              >
+                <GripVertical size={13} />
+              </span>
               <input
                 type="text"
                 value={field.name}
