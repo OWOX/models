@@ -25,12 +25,11 @@ describe("Inspector + QuestionsPanel", () => {
     expect(spy).not.toHaveBeenCalled(); // generation is click-only
   });
 
-  it("still shows the questions block when AI is off, with a graceful note", () => {
+  it("hides the questions block entirely when AI is off", () => {
     render(
       <Inspector selection={{ type: "node", id: "a" }} nodes={[node]} edges={[]} goal={GOAL}
         questionsEnabled={false} onEditGoal={noop} onUpdateNode={noop} onUpdateEdge={noop} onClose={noop} />,
     );
-    expect(screen.getByText(/Questions this unlocks/i)).toBeTruthy();
-    expect(screen.getByText(/aren't enabled on this deployment/i)).toBeTruthy();
+    expect(screen.queryByText(/Questions this unlocks/i)).toBeNull();
   });
 });

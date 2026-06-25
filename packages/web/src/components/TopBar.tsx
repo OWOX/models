@@ -92,17 +92,20 @@ export function TopBar({
         <span>Model Canvas</span>
       </div>
 
-      {/* Business Goal — always-visible entry point for Insight Questions, so the
-          feature is discoverable in the nav and never silently disappears. When
-          the AI key isn't configured the panel shows a graceful note instead. */}
-      <button
-        onClick={onOpenGoal}
-        aria-label="Business goal — see the questions your model unlocks"
-        title="Set a business goal to see the questions your model unlocks"
-        className={`flex items-center gap-[6px] rounded-lg px-[10px] py-[6px] text-[13px] font-[550] cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"}`}
-      >
-        <Target size={16} /> {goalSet ? "Business goal" : "Set business goal"}
-      </button>
+      {/* Business Goal — entry point for Insight Questions. Hidden unless the
+          server reports GEMINI_API_KEY is set (questionsEnabled), so it's a pure
+          env switch: drop the key and the whole AI feature disappears, no
+          redeploy of code needed. */}
+      {questionsEnabled && (
+        <button
+          onClick={onOpenGoal}
+          aria-label="Business goal — see the questions your model unlocks"
+          title="Set a business goal to see the questions your model unlocks"
+          className={`flex items-center gap-[6px] rounded-lg px-[10px] py-[6px] text-[13px] font-[550] cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"}`}
+        >
+          <Target size={16} /> {goalSet ? "Business goal" : "Set business goal"}
+        </button>
+      )}
 
       {/* Project picker chip */}
       {signedIn && (

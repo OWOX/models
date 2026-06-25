@@ -48,8 +48,8 @@ describe("TopBar", () => {
     expect(onOpenGoal).toHaveBeenCalled();
   });
 
-  it("shows the Business Goal button even when the AI key is not configured", () => {
+  it("hides the Business Goal button when the AI key is not configured", () => {
     render(<TopBar signedIn={false} onOpenGoal={() => {}} questionsEnabled={false} />);
-    expect(screen.getByRole("button", { name: /business goal/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /business goal/i })).toBeNull();
   });
 });

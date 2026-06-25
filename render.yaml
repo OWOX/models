@@ -11,9 +11,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # AI "Insight Questions" key. Without it the Business Goal nav still shows,
-      # but the panel shows a graceful "AI not enabled" note instead of
-      # generating. Not inherited by preview/branch deploys → AI is off there.
+      # AI "Insight Questions" key. Acts as a kill-switch: when it's unset the
+      # whole AI feature (Business Goal nav + questions panel) disappears, so if
+      # the API quota runs out you can drop the key to turn it off without a code
+      # redeploy. Not inherited by preview/branch deploys → AI is off there.
       - key: GEMINI_API_KEY
         sync: false
       # PostHog project token (public). Inlined into the web build by Vite at
