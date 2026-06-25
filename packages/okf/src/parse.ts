@@ -3,6 +3,11 @@ import { parseFrontmatter } from "./slug";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
+// Resolve a link target by its file slug, tolerating ./rel, /abs, and nested dirs.
+function basename(path: string): string {
+  return path.split(/[\\/]/).pop()!.replace(/\.md$/i, "");
+}
+
 export function parseBundle(files: Record<string, string>): ModelGraph {
   const docs = Object.entries(files)
     .filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"))
@@ -38,7 +43,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     for (const ln of body.split("\n")) {
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
       if (!m) continue;
-      const toKey = slugToKey.get(m[1]); if (!toKey) continue;
+      const toKey = slugToKey.get(basename(m[1])); if (!toKey) continue;
       let keys = [...m[2].matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
       if (keys.length === 0) {
         // Faithful-OWOX join: recover from a `FK to [Target]` note + target PK.

@@ -54,3 +54,24 @@ describe("Google OKF v0.1 — bullet schema", () => {
     expect(field(g, "users", "id")?.type).toBe("INTEGER");
   });
 });
+
+describe("join target path normalization", () => {
+  it("resolves a strict ## Joins link given a nested relative path", () => {
+    const files = {
+      "orders.md": [
+        "---", 'type: "OWOX Data Mart"', "title: Orders", "---", "",
+        "# Orders", "", "## Schema", "", "| Column | Type | Description |",
+        "|--------|------|-------------|", "| `customer_id` | STRING | PK. |", "",
+        "## Joins", "", "- [Customers](./sub/dir/customers.md) — `customer_id = id`", "",
+      ].join("\n"),
+      "customers.md": [
+        "---", 'type: "OWOX Data Mart"', "title: Customers", "---", "",
+        "# Customers", "", "## Schema", "", "| Column | Type | Description |",
+        "|--------|------|-------------|", "| `id` | STRING | PK. |", "",
+      ].join("\n"),
+    };
+    const g = parseBundle(files);
+    expect(g.edges).toHaveLength(1);
+    expect(g.edges[0].keys).toEqual([{ left: "customer_id", right: "id" }]);
+  });
+});
