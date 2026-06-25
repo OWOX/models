@@ -30,6 +30,9 @@ interface ObjectInspectorProps {
 export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
   const isCreated = node.status === "created";
   const [defOpen, setDefOpen] = useState(false);
+  // Input source / definition / output schema live under a collapsed "Advanced"
+  // section so the title, description and the Questions panel are visible first.
+  const [advOpen, setAdvOpen] = useState(false);
   const defHint = DEFINITION_HINT[node.inputSource];
 
   const statusClass = isCreated
@@ -59,52 +62,8 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
         />
       </div>
 
-      {/* Input source */}
-      <div>
-        <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
-          <InputSourceIcon size={13} className="text-slate-400" />
-          Input source
-          <InfoTip text="How this Data Mart gets its data. New marts default to SQL; can also be Connector, View or Table." />
-        </label>
-        <select
-          value={node.inputSource}
-          onChange={e => onUpdate({ inputSource: e.target.value as InputSource })}
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
-        >
-          {INPUT_SOURCES.map(s => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Definition (collapsible, optional) */}
-      <div className="border border-[#d8dee8] rounded-lg overflow-hidden">
-        <button
-          onClick={() => setDefOpen(o => !o)}
-          className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[#f8fafc]"
-        >
-          {defOpen ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronRight size={14} className="text-slate-400" />}
-          <span className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] flex-1">
-            Definition
-            <InfoTip text="The mart's source: a SQL query, or a fully-qualified View/Table reference. Optional — leave blank to set it in OWOX after Push." />
-          </span>
-          <span className="text-[11px] text-slate-400">{node.definition?.trim() ? "set" : "optional"}</span>
-        </button>
-        {defOpen && (
-          <div className="px-3 pb-3 pt-1 border-t border-[#eef1f5]">
-            <label className="block text-[11px] text-slate-500 mb-[5px]">{defHint.label}</label>
-            <textarea
-              value={node.definition ?? ""}
-              onChange={e => onUpdate({ definition: e.target.value })}
-              placeholder={defHint.placeholder}
-              rows={4}
-              className="w-full text-[12px] font-mono px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[64px] focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Description */}
+      {/* Description — kept right under the title so the mart reads clearly and
+          the Questions panel below stays within easy reach. */}
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
           Description
@@ -118,17 +77,80 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
         />
       </div>
 
-      {/* Output schema */}
-      <div>
-        <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
-          <OutputSchemaIcon size={13} className="text-slate-400" />
-          Output schema
-          <InfoTip text="Fields this Data Mart outputs. Set the data type and mark primary keys — these are pushed to the mart schema. Drag the handle to reorder." />
-        </label>
-        <SchemaEditor
-          schema={node.schema}
-          onChange={schema => onUpdate({ schema: schema as SchemaField[] })}
-        />
+      {/* Advanced — input source, definition and output schema. Collapsed by
+          default to keep the panel light; expand to edit the mart's plumbing. */}
+      <div className="border border-[#d8dee8] rounded-lg overflow-hidden">
+        <button
+          onClick={() => setAdvOpen(o => !o)}
+          className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[#f8fafc]"
+        >
+          {advOpen ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronRight size={14} className="text-slate-400" />}
+          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] flex-1">
+            Advanced
+          </span>
+          <span className="text-[11px] text-slate-400">input source · schema</span>
+        </button>
+        {advOpen && (
+          <div className="px-3 pb-3 pt-3 border-t border-[#eef1f5] flex flex-col gap-[15px]">
+            {/* Input source */}
+            <div>
+              <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                <InputSourceIcon size={13} className="text-slate-400" />
+                Input source
+                <InfoTip text="How this Data Mart gets its data. New marts default to SQL; can also be Connector, View or Table." />
+              </label>
+              <select
+                value={node.inputSource}
+                onChange={e => onUpdate({ inputSource: e.target.value as InputSource })}
+                className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+              >
+                {INPUT_SOURCES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Definition (collapsible, optional) */}
+            <div className="border border-[#d8dee8] rounded-lg overflow-hidden">
+              <button
+                onClick={() => setDefOpen(o => !o)}
+                className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[#f8fafc]"
+              >
+                {defOpen ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronRight size={14} className="text-slate-400" />}
+                <span className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] flex-1">
+                  Definition
+                  <InfoTip text="The mart's source: a SQL query, or a fully-qualified View/Table reference. Optional — leave blank to set it in OWOX after Push." />
+                </span>
+                <span className="text-[11px] text-slate-400">{node.definition?.trim() ? "set" : "optional"}</span>
+              </button>
+              {defOpen && (
+                <div className="px-3 pb-3 pt-1 border-t border-[#eef1f5]">
+                  <label className="block text-[11px] text-slate-500 mb-[5px]">{defHint.label}</label>
+                  <textarea
+                    value={node.definition ?? ""}
+                    onChange={e => onUpdate({ definition: e.target.value })}
+                    placeholder={defHint.placeholder}
+                    rows={4}
+                    className="w-full text-[12px] font-mono px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[64px] focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Output schema */}
+            <div>
+              <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                <OutputSchemaIcon size={13} className="text-slate-400" />
+                Output schema
+                <InfoTip text="Fields this Data Mart outputs. Set the data type and mark primary keys — these are pushed to the mart schema. Drag the handle to reorder." />
+              </label>
+              <SchemaEditor
+                schema={node.schema}
+                onChange={schema => onUpdate({ schema: schema as SchemaField[] })}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Details */}

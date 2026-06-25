@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { NICHE_PRESETS, type BusinessGoal, type NichePreset } from "../state/goal";
 
 const DISCLAIMER =
@@ -26,8 +27,33 @@ export function GoalDialog({ current, suggestedNiche, onConfirm, onClear, onClos
   );
   const [goal, setGoal] = useState<string>(current?.goal ?? "");
 
+  // A goal that's currently in effect — drives the green success notice. Seeded
+  // from `current` so reopening with a saved goal shows the notice right away.
+  const [appliedGoal, setAppliedGoal] = useState<BusinessGoal | null>(current);
+  // Briefly true right after Apply to pulse the notice green and pull focus.
+  const [highlight, setHighlight] = useState(false);
+  const noticeRef = useRef<HTMLDivElement>(null);
+
   const presetGoals = niche && "goals" in niche ? niche.goals : [];
   const canApply = !!niche?.label && goal.trim().length > 0;
+
+  function handleApply() {
+    if (!canApply) return;
+    const g: BusinessGoal = { niche: niche!.label, goal: goal.trim() };
+    onConfirm(g);
+    setAppliedGoal(g);
+    setHighlight(true);
+  }
+
+  // After Apply, scroll the notice into view and move focus to it so the user
+  // can see — and a screen reader announces — that the goal took effect.
+  useEffect(() => {
+    if (!highlight || !noticeRef.current) return;
+    noticeRef.current.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+    noticeRef.current.focus();
+    const t = setTimeout(() => setHighlight(false), 2200);
+    return () => clearTimeout(t);
+  }, [highlight]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
@@ -38,6 +64,27 @@ export function GoalDialog({ current, suggestedNiche, onConfirm, onClear, onClos
       >
         <h3 className="text-[15px] font-[650] text-slate-900 mb-2">Business Goal</h3>
         <p className="text-[12px] text-slate-500 leading-[1.5] mb-4">{DISCLAIMER}</p>
+
+        {/* Success notice — stays visible while a goal is set. Pulses green and
+            grabs focus right after Apply so the user knows it worked. */}
+        {appliedGoal && (
+          <div
+            ref={noticeRef}
+            tabIndex={-1}
+            className={`flex items-start gap-2 rounded-lg border px-3 py-[10px] mb-4 outline-none transition-shadow ${
+              highlight
+                ? "border-[#10b981] bg-[#ecfdf5] ring-2 ring-[#10b981]/50"
+                : "border-[#a7f3d0] bg-[#ecfdf5]"
+            }`}
+          >
+            <CheckCircle2 size={16} className="text-[#059669] mt-[1px] flex-shrink-0" />
+            <div className="text-[12px] leading-[1.5] text-[#065f46]">
+              <strong className="font-semibold">Goal applied.</strong> Select any data mart on the
+              canvas to see its <em className="not-italic font-medium">“Questions this unlocks”</em>{" "}
+              section and generate questions.
+            </div>
+          </div>
+        )}
 
         {/* Step 1 — niche */}
         <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">Niche</label>
@@ -77,7 +124,7 @@ export function GoalDialog({ current, suggestedNiche, onConfirm, onClear, onClos
         <div className="flex items-center gap-2">
           <button
             disabled={!canApply}
-            onClick={() => canApply && onConfirm({ niche: niche!.label, goal: goal.trim() })}
+            onClick={handleApply}
             className="text-[13px] font-[550] bg-[#1e88e5] text-white rounded-lg px-4 py-[8px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Apply
