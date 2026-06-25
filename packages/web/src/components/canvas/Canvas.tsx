@@ -20,7 +20,7 @@ import "@xyflow/react/dist/style.css";
 import "./canvas.css";
 
 import dagre from "@dagrejs/dagre";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, MessageSquare } from "lucide-react";
 
 import { createModelStore } from "../../state/model";
 import { loadPersistedGraph, persistGraph } from "../../state/persist";
@@ -649,8 +649,21 @@ function CanvasInner() {
             deleteKeyCode={null}
           >
             <Background variant={BackgroundVariant.Dots} gap={22} size={1.3} color="#e2e6ec" />
-            <Controls />
+            {/* Nudged up to leave room for the feedback link directly below. */}
+            <Controls position="bottom-left" style={{ bottom: 60, left: 15, margin: 0 }} />
           </ReactFlow>
+
+          {/* Feedback link — bottom-left, directly under the zoom controls.
+              Opens the Google Form in a new tab. */}
+          <a
+            href="https://forms.gle/CRLzZzdvHRqErkfG7"
+            target="_blank"
+            rel="noreferrer"
+            title="Share your feedback on Model Canvas"
+            className="absolute bottom-[16px] left-[15px] z-[5] flex items-center gap-[6px] rounded-lg bg-white/90 px-[10px] py-[6px] text-[12px] font-[550] text-slate-500 shadow-[0_1px_3px_rgba(15,23,42,0.1)] backdrop-blur-sm transition-colors hover:text-slate-900"
+          >
+            <MessageSquare size={14} /> Feedback
+          </a>
 
           {/* Empty canvas CTA */}
           {graph.nodes.length === 0 && (
