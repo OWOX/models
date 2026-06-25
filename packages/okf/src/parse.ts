@@ -1,10 +1,18 @@
-import type { ModelGraph, ModelNode, ModelEdge, InputSource, Cardinality } from "./types";
+import type { ModelGraph, ModelNode, ModelEdge, InputSource, Cardinality, SchemaField } from "./types";
 import { parseFrontmatter } from "./slug";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
+// Resolve a link target by its basename, tolerating ./rel paths, nested dirs,
+// and (in the prose pass) absolute paths. The strict join regex only produces ./rel.
+function basename(path: string): string {
+  return path.split(/[\\/]/).pop()!.replace(/\.md$/i, "");
+}
+
 export function parseBundle(files: Record<string, string>): ModelGraph {
-  const docs = Object.entries(files).filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"));
+  const docs = Object.entries(files)
+    .filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"))
+    .filter(([, text]) => isMartDoc(text));
   const nodes: ModelNode[] = []; const slugToKey = new Map<string, string>();
   const pkByKey = new Map<string, string | undefined>();
   for (const [path, text] of docs) {
@@ -17,7 +25,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     slugToKey.set(fileSlug, key);
     const schema = parseSchema(body);
     pkByKey.set(key, schema.find(f => f.pk)?.name);
-    const inputSource = (owox.inputSource || ov.definitionType || inferSource(data.tags) || "SQL") as InputSource;
+    const inputSource = (owox.inputSource || ov.definitionType || inferSource(data.tags) || sourceFromType(data.type) || "SQL") as InputSource;
     const owoxId = owox.id ?? (ov.id && ov.id !== "—" ? ov.id : null);
     nodes.push({
       key, title, inputSource,
@@ -36,7 +44,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     for (const ln of body.split("\n")) {
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
       if (!m) continue;
-      const toKey = slugToKey.get(m[1]); if (!toKey) continue;
+      const toKey = slugToKey.get(basename(m[1])); if (!toKey) continue;
       let keys = [...m[2].matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
       if (keys.length === 0) {
         // Faithful-OWOX join: recover from a `FK to [Target]` note + target PK.
@@ -50,6 +58,46 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       raw.push({ from: fromKey, to: toKey, keys, cardinality });
     }
   }
+
+  // Tolerant pass for Google OKF v0.1 prose joins, e.g.
+  //   "...can be joined with the [users](users.md) table on `user_id`..."
+  // Conservative: only lines that mention "join" AND link to a known mart, and
+  // never list-item lines (those are the strict parser's job). An `on `key``
+  // binds to the most recent preceding link; links without a key become keyless
+  // edges. A discovered key upgrades an existing keyless edge for the same pair.
+  const addProseEdge = (from: string, to: string, key: string | undefined) => {
+    const keys = key ? [{ left: key, right: pkByKey.get(to) ?? key }] : [];
+    const ex = raw.find(r => (r.from === from && r.to === to) || (r.from === to && r.to === from));
+    if (ex) {
+      if (keys.length && ex.keys.length === 0) {
+        ex.keys = ex.from === from ? keys : keys.map(k => ({ left: k.right, right: k.left }));
+      }
+      return;
+    }
+    raw.push({ from, to, keys });
+  };
+  for (const [path, text] of docs) {
+    const { data, body } = parseFrontmatter(text);
+    if (typeof data.type === "string" && /^owox data mart$/i.test(data.type.trim())) continue;
+    const fromKey = (data.owox && data.owox.key) || basename(path);
+    for (const ln of body.split("\n")) {
+      if (!/join/i.test(ln)) continue;
+      if (/^[-*]\s+\[/.test(ln.trim())) continue;      // strict-parser list items
+      let pending: string | null = null;
+      for (const tk of ln.matchAll(/\[[^\]]+\]\(([^)]+\.md)\)|on\s+`([^`]+)`/gi)) {
+        if (tk[1]) {
+          if (pending) addProseEdge(fromKey, pending, undefined);
+          const toKey = slugToKey.get(basename(tk[1]));
+          pending = toKey && toKey !== fromKey ? toKey : null;
+        } else if (tk[2] && pending) {
+          addProseEdge(fromKey, pending, tk[2].trim());
+          pending = null;
+        }
+      }
+      if (pending) addProseEdge(fromKey, pending, undefined);
+    }
+  }
+
   const edges: ModelEdge[] = []; const seen = new Map<string, ModelEdge>();
   for (const r of raw) {
     const pairKey = [r.from, r.to].sort().join("|");
@@ -72,6 +120,23 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
 function inferSource(tags: unknown): InputSource | undefined {
   const list = (Array.isArray(tags) ? tags : []).map(t => String(t).toUpperCase());
   return (["SQL", "CONNECTOR", "VIEW", "TABLE"] as const).find(s => list.includes(s));
+}
+
+// A doc is a mart unless its OKF type marks it as a non-table reference/dataset.
+// OWOX docs (type: "OWOX Data Mart") and untyped docs are always marts.
+const NON_MART_TYPE = /^(reference|bigquery dataset)\b/i;
+function isMartDoc(text: string): boolean {
+  const t = parseFrontmatter(text).data.type;
+  return !(typeof t === "string" && NON_MART_TYPE.test(t.trim()));
+}
+
+// Map Google's frontmatter type onto our InputSource. OWOX docs never reach the
+// "SQL" fallback via this path because they carry owox.inputSource/Overview.
+function sourceFromType(type: unknown): InputSource | undefined {
+  const t = String(type ?? "").toLowerCase();
+  if (t.startsWith("bigquery view")) return "VIEW";
+  if (t.startsWith("bigquery table")) return "TABLE";
+  return undefined;
 }
 
 function parseOverview(body: string): { id?: string; status?: string; definitionType?: string } {
@@ -114,7 +179,56 @@ function parseSchema(body: string): import("./types").SchemaField[] {
     }
     out.push(field);
   }
+  if (out.length === 0) return parseSchemaBullets(body);
   return out;
+}
+
+const TYPE_WORDS =
+  "STRING|BYTES|INTEGER|INT64|FLOAT|FLOAT64|NUMERIC|BIGNUMERIC|BOOLEAN|BOOL|" +
+  "TIMESTAMP|DATE|DATETIME|TIME|RECORD|STRUCT|GEOGRAPHY|JSON|INTERVAL";
+const TYPE_RE = new RegExp(`\\b(${TYPE_WORDS})\\b`, "i");
+
+// Fallback for Google OKF v0.1 bundles, whose `# Schema` sections are bullet
+// lists rather than markdown tables. Top-level bullets only; nested RECORD
+// children (indented) are skipped. Runs only when the table parser found nothing.
+function parseSchemaBullets(body: string): SchemaField[] {
+  const out: SchemaField[] = [];
+  let inSchema = false; let schemaLevel = 0;
+  for (const ln of body.split("\n")) {
+    const h = ln.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      const level = h[1].length;
+      if (/^schema\b/i.test(h[2].trim())) { inSchema = true; schemaLevel = level; continue; }
+      if (inSchema && level <= schemaLevel) break;   // section ends at same/higher heading
+      continue;                                       // sub-header inside Schema (GA4 "## event")
+    }
+    if (!inSchema) continue;
+    const m = ln.match(/^[-*]\s+`([^`]+)`(.*)$/);     // top-level bullet, no leading indent
+    if (!m) continue;
+    const name = m[1].trim();
+    if (!/^[\w.]+$/.test(name)) continue;             // skip enum-value rows like `key = 'x'`
+    out.push(parseFieldRest(name, m[2]));
+  }
+  return out;
+}
+
+// Extract type + description from the text after a field's backticked name,
+// tolerating: " (TYPE): desc", " (TYPE) - desc", " TYPE MODE: desc", ": TYPE".
+function parseFieldRest(name: string, rest: string): SchemaField {
+  let type = "STRING"; let description = "";
+  const paren = rest.match(/^\s*\(([^)]+)\)\s*[-:]?\s*(.*)$/);
+  if (paren) {
+    type = (paren[1].match(TYPE_RE)?.[1] ?? paren[1].trim()).toUpperCase();
+    description = paren[2].trim();
+  } else {
+    const tail = rest.replace(/^\s*[-:]\s*/, "");     // drop a leading separator
+    type = (tail.match(TYPE_RE)?.[1] ?? "STRING").toUpperCase();
+    const colon = tail.indexOf(":");
+    description = colon >= 0 ? tail.slice(colon + 1).trim() : "";
+  }
+  const field: SchemaField = { name, type, pk: false };
+  if (description) field.description = description;
+  return field;
 }
 
 function parseDefinition(body: string): string | null {
