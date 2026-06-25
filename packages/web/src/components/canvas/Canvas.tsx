@@ -589,7 +589,7 @@ function CanvasInner() {
         <GoalDialog
           current={goal}
           suggestedNiche={suggestedNiche}
-          onConfirm={g => { setGoalState(g); persistGoal(g); setShowGoal(false); }}
+          onConfirm={g => { setGoalState(g); persistGoal(g); }}
           onClear={() => { setGoalState(null); persistGoal(null); setShowGoal(false); }}
           onClose={() => setShowGoal(false)}
         />

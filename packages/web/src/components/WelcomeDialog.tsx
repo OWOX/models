@@ -18,9 +18,9 @@ interface Props {
 // is treated as "start blank".
 export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onStartBlank}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-3 sm:p-4" onClick={onStartBlank}>
       <div
-        className="w-[640px] max-h-[88vh] flex flex-col rounded-2xl border border-[#d8dee8] bg-white shadow-2xl"
+        className="w-full max-w-[640px] max-h-[90vh] flex flex-col rounded-2xl border border-[#d8dee8] bg-white shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -59,7 +59,7 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
         </div>
 
         {/* Footer: start blank / import */}
-        <div className="flex items-center gap-3 px-6 py-4 border-t border-[#e6e9f0] flex-shrink-0">
+        <div className="flex items-center flex-wrap gap-x-3 gap-y-2 px-6 py-4 border-t border-[#e6e9f0] flex-shrink-0">
           <button
             onClick={onStartBlank}
             className="flex items-center gap-[7px] text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[8px] cursor-pointer hover:bg-[#f1f3f7]"
