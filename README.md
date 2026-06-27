@@ -1,8 +1,6 @@
 # OWOX Model Canvas
 
-<p align="center">
-  <img src=".github/assets/hero.png" alt="OWOX Model Canvas — a data model of six connected data marts (Customers, Orders, Web Sessions, Product, Order Items, Returns) on the canvas in field-level ERD view" width="900">
-</p>
+<img width="1920" height="1200" alt="1782428766581" src="https://github.com/user-attachments/assets/0cdc74a8-c28a-4e77-a637-6b9c2bef65fd" />
 
 > Draw a data model on a free, anonymous canvas — then push it into OWOX Data Marts in one click.
 
