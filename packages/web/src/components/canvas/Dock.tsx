@@ -8,6 +8,8 @@ interface DockProps {
   onToolChange: (tool: Tool) => void;
   viewMode: ViewMode;
   onToggleView: () => void;
+  onClear: () => void;
+  clearDisabled?: boolean;
 }
 
 const SelectIcon = () => (
@@ -45,6 +47,15 @@ const ErdIcon = () => (
     <rect x="3" y="4" width="8" height="16" rx="1" />
     <rect x="14" y="4" width="7" height="9" rx="1" />
     <path d="M11 8h3M7 9v6M17 13v3M17 16h-6" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={19} height={19}>
+    <path d="M3 6h18" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" />
   </svg>
 );
 
@@ -86,7 +97,7 @@ function ToolButton({ icon, tip, active, onClick }: ToolButtonProps) {
   );
 }
 
-export function Dock({ activeTool, onToolChange, viewMode, onToggleView }: DockProps) {
+export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear, clearDisabled }: DockProps) {
   // Keyboard shortcuts V/N/C
   useEffect(() => {
     function handler(e: KeyboardEvent) {
@@ -102,7 +113,7 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView }: DockP
 
   return (
     <div
-      className="absolute left-[14px] top-1/2 -translate-y-1/2 bg-white border border-[#d8dee8] rounded-xl p-[6px] flex flex-col gap-1 z-20 shadow-[0_4px_16px_rgba(15,23,42,0.06)]"
+      className="absolute left-[14px] top-[calc(50%-34px)] -translate-y-1/2 bg-white border border-[#d8dee8] rounded-xl p-[6px] flex flex-col gap-1 z-20 shadow-[0_4px_16px_rgba(15,23,42,0.06)]"
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif" }}
     >
       <ToolButton
@@ -147,6 +158,24 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView }: DockP
           <ErdIcon />
         </button>
         <DockTip label={viewMode === "erd" ? "ERD view — fields & field-level links (on)" : "ERD view — show fields & field-level links"} />
+      </div>
+      <div className="h-px bg-[#d8dee8] mx-1 my-[3px]" />
+      <div className="relative group">
+        <button
+          onClick={onClear}
+          disabled={clearDisabled}
+          aria-label="Clear canvas — delete everything"
+          className={`
+            w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center transition-colors
+            ${clearDisabled
+              ? "bg-transparent text-slate-300 cursor-not-allowed"
+              : "bg-transparent text-slate-500 cursor-pointer hover:bg-[#fdf2f2] hover:text-[#dc2626]"
+            }
+          `}
+        >
+          <TrashIcon />
+        </button>
+        <DockTip label={clearDisabled ? "Clear canvas — nothing to clear" : "Clear canvas — delete everything"} />
       </div>
     </div>
   );

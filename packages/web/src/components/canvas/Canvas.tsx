@@ -44,6 +44,7 @@ import { TemplateApplyDialog } from "../TemplateApplyDialog";
 import { WelcomeDialog } from "../WelcomeDialog";
 import { SignInModal } from "../SignInModal";
 import { PushConfirmDialog } from "../PushConfirmDialog";
+import { ClearCanvasDialog } from "../ClearCanvasDialog";
 import { pushIntent } from "../../sync/pushGate";
 import { reconcileStorageId } from "../../sync/storageReconcile";
 import { Dock, type Tool } from "./Dock";
@@ -183,6 +184,7 @@ function CanvasInner() {
   const [storages, setStorages] = useState<StorageOption[]>([]);
   const [signIn, setSignIn] = useState<{ mode: "connect" | "push" } | null>(null);
   const [showPushConfirm, setShowPushConfirm] = useState(false);
+  const [showClear, setShowClear] = useState(false);
   const { me, connect, signOut } = useAuth();
 
   // Load the project's storages once signed in; retry through OWOX's transient
@@ -370,6 +372,19 @@ function CanvasInner() {
     const files = graphToBundleFiles(store.get(), title);
     downloadBundle(files, title);
   }, [me]);
+
+  // Clear the canvas: permanently wipe every node + edge (keep the selected
+  // storage). No undo — the dialog warns and offers an OKF export first.
+  const clearCanvas = useCallback(() => {
+    store.set({ storageId: store.get().storageId, nodes: [], edges: [] });
+    setSelection(null);
+    setShowClear(false);
+  }, []);
+
+  const handleExportAndClear = useCallback(() => {
+    handleExport();
+    clearCanvas();
+  }, [handleExport, clearCanvas]);
 
   // Export the canvas as an SVG (whole model, OWOX watermark). Uses the live RF
   // node list (measured sizes) to frame the export.
@@ -564,6 +579,14 @@ function CanvasInner() {
           onClose={() => setShowPushConfirm(false)}
         />
       )}
+      {showClear && (
+        <ClearCanvasDialog
+          counts={{ marts: graph.nodes.length, relationships: graph.edges.length }}
+          onDelete={clearCanvas}
+          onExportAndDelete={handleExportAndClear}
+          onClose={() => setShowClear(false)}
+        />
+      )}
       {showWelcome && (
         <WelcomeDialog
           onUseTemplate={(g, name) => { handleUseTemplate(g, name); setShowWelcome(false); }}
@@ -616,7 +639,7 @@ function CanvasInner() {
 
       <div className="flex flex-1 min-h-0 relative">
         {/* Left tool dock */}
-        <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} />
+        <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} />
 
         {/* React Flow canvas */}
         <div
