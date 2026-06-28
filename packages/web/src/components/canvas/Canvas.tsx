@@ -29,6 +29,7 @@ import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 
 import { graphToBundleFiles, downloadBundle } from "../../okf/io";
 import { buildShareUrl, readSharedModel, clearSharedModelFromUrl } from "../../share/url";
+import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
 import { exportCanvasSvg } from "../../share/exportImage";
 import { pushModel, pushPreview, type PushResult } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
@@ -60,26 +61,39 @@ import { loadGoal, persistGoal, type BusinessGoal } from "../../state/goal";
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
 // ── store singleton (exported so external modules can share this instance) ───
-// A shared link (#m=…) wins over localStorage: opening it reopens that exact
-// model. Otherwise rehydrate from localStorage so a refresh doesn't wipe work.
-const sharedGraph = readSharedModel();
-const persistedGraph = loadPersistedGraph();
-export const store = createModelStore(sharedGraph ?? persistedGraph);
-if (sharedGraph) {
-  // Persist the opened model right away — it's the store's initial value, so it
-  // never fires a change that the mirror-to-localStorage effect would catch; a
-  // refresh would otherwise lose it once the hash is cleared.
-  persistGraph(store.get());
-  // Drop the payload from the address bar so a refresh doesn't re-clobber the
-  // canvas and the URL stays clean.
-  clearSharedModelFromUrl();
+// Precedence: a `?template=<id>` deep-link and a `#m=…` share link are both
+// explicit "open this model" intents, so they win over localStorage; otherwise
+// rehydrate from localStorage so a refresh doesn't wipe work.
+//
+// `?template=<id>` opens a named built-in template (the CTA target for the blog
+// gallery, launch emails and posts). Templates ship at (0,0), so we Dagre-lay it
+// out here — runDagreLayout is a hoisted function declaration, available now.
+const templateGraph = readTemplateModel();
+clearTemplateFromUrl(); // strip the param (clean URL on refresh) even if the id was unknown
+let templateInitial: ModelGraph | undefined;
+if (templateGraph) {
+  const positions = runDagreLayout(templateGraph.nodes, templateGraph.edges, loadViewMode());
+  templateInitial = { ...templateGraph, nodes: templateGraph.nodes.map(n => ({ ...n, position: positions.get(n.key) ?? n.position })) };
 }
 
-// A truly first-ever visit has no persisted model and no shared link. Captured at
-// module load — before the persist effect writes an (empty) graph — so it stays
-// true for the session. Gates the first-screen "start" chooser: shown once for
-// new visitors, never over a returning user's model or an opened shared link.
-const isFirstVisit = !sharedGraph && persistedGraph === undefined;
+const sharedGraph = readSharedModel();
+const persistedGraph = loadPersistedGraph();
+export const store = createModelStore(templateInitial ?? sharedGraph ?? persistedGraph);
+if (templateInitial || sharedGraph) {
+  // Persist the opened model right away — it's the store's initial value, so it
+  // never fires a change that the mirror-to-localStorage effect would catch; a
+  // refresh would otherwise lose it once the URL is cleaned.
+  persistGraph(store.get());
+}
+// Drop the share payload from the address bar so a refresh doesn't re-clobber the
+// canvas and the URL stays clean (the template param is already cleared above).
+if (sharedGraph) clearSharedModelFromUrl();
+
+// A truly first-ever visit has no template deep-link, no persisted model and no
+// shared link. Captured at module load — before the persist effect writes an
+// (empty) graph — so it stays true for the session. Gates the first-screen
+// "start" chooser: shown once for new visitors, never over an opened model.
+const isFirstVisit = !templateInitial && !sharedGraph && persistedGraph === undefined;
 
 // Map a loaded template (by its display name) to the closest Insight-Questions
 // niche, so opening the Business Goal dialog after a template can pre-pick it.
