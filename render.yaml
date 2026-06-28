@@ -22,3 +22,11 @@ services:
       # preview deploys → analytics stays off there.
       - key: VITE_POSTHOG_KEY
         sync: false
+      # Supabase "sign up to save". Public client-side values (RLS is the security
+      # boundary), inlined into the web build by Vite — so they must be present at
+      # build time. Unset → the account/save feature self-disables. Set both in the
+      # dashboard.
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false

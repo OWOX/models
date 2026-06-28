@@ -35,6 +35,11 @@ import { detachFromOwox } from "../../sync/detach";
 
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
+import { useAccount } from "../../lib/account";
+import { supabaseEnabled } from "../../lib/supabase";
+import { createModel, updateModel } from "../../lib/models";
+import { AccountDialog } from "../AccountDialog";
+import { MyModelsDialog } from "../MyModelsDialog";
 import { TopBar, type StorageOption } from "../TopBar";
 import { ImportDialog } from "../ImportDialog";
 import { OwoxImportDialog } from "../OwoxImportDialog";
@@ -186,6 +191,14 @@ function CanvasInner() {
   const [showPushConfirm, setShowPushConfirm] = useState(false);
   const [showClear, setShowClear] = useState(false);
   const { me, connect, signOut } = useAuth();
+  // Supabase account ("Save your model") — independent of the OWOX connect above.
+  const { user: account, signOut: accountSignOut } = useAccount();
+  const [showAccount, setShowAccount] = useState(false);
+  const [showMyModels, setShowMyModels] = useState(false);
+  const [saving, setSaving] = useState(false);
+  // The id of the saved model currently open (so Save updates it instead of
+  // creating a duplicate). Reset on Clear / opening a different model.
+  const [savedModelId, setSavedModelId] = useState<string | null>(null);
 
   // Load the project's storages once signed in; retry through OWOX's transient
   // 500s. Anonymous users have no session, so we skip the call entirely and
@@ -379,6 +392,7 @@ function CanvasInner() {
     store.set({ storageId: store.get().storageId, nodes: [], edges: [] });
     setSelection(null);
     setShowClear(false);
+    setSavedModelId(null); // a cleared canvas is a fresh model — next Save creates a new row
   }, []);
 
   const handleExportAndClear = useCallback(() => {
@@ -451,6 +465,37 @@ function CanvasInner() {
     if (mode === "merge") applyMergeWithLayout(g);
     else store.set({ ...withLayout(g), storageId: store.get().storageId });
   }, [withLayout, applyMergeWithLayout]);
+
+  // Save to the Supabase account. Anonymous-first: if not signed in, open the
+  // sign-in dialog instead (the user clicks Save again after returning). On an
+  // already-saved model, update it in place; otherwise create a new row.
+  const handleSave = useCallback(async () => {
+    if (!account) { setShowAccount(true); return; }
+    setSaving(true);
+    try {
+      const graph = store.get();
+      if (savedModelId) {
+        await updateModel(savedModelId, { graph });
+      } else {
+        const name = window.prompt("Name this model:", "Untitled model");
+        if (name === null) return; // cancelled
+        const id = await createModel(name.trim() || "Untitled model", graph);
+        setSavedModelId(id);
+      }
+      setShareToast("Model saved");
+    } catch (e) {
+      setShareToast(`Save failed: ${(e as Error).message}`);
+    } finally {
+      setSaving(false);
+    }
+  }, [account, savedModelId]);
+
+  // Open a saved model. It already carries layout positions, so load it straight
+  // in (no re-layout) and remember its id so the next Save updates it.
+  const handleOpenSaved = useCallback((g: ModelGraph, id: string) => {
+    store.set({ ...g });
+    setSavedModelId(id);
+  }, []);
 
   const handleUseTemplate = useCallback((g: ModelGraph, name: string) => {
     // Remember the matching niche so the Business Goal dialog can pre-pick it.
@@ -546,7 +591,15 @@ function CanvasInner() {
         projectTitle={me?.projectTitle}
         onSignIn={() => setSignIn({ mode: "connect" })}
         onSignOut={handleSignOut}
+        supabaseEnabled={supabaseEnabled}
+        accountEmail={account?.email ?? null}
+        onSave={handleSave}
+        saving={saving}
+        onMyModels={() => setShowMyModels(true)}
+        onAccountSignOut={() => { void accountSignOut(); setSavedModelId(null); }}
       />
+      {showAccount && <AccountDialog onClose={() => setShowAccount(false)} />}
+      {showMyModels && <MyModelsDialog onOpen={handleOpenSaved} onClose={() => setShowMyModels(false)} />}
       {shareToast && <ShareToast message={shareToast} onClose={() => setShareToast(null)} />}
       {pushing && (
         <div className="fixed bottom-4 right-4 z-50 bg-slate-900 text-white text-[13px] px-4 py-2 rounded-lg shadow-lg">

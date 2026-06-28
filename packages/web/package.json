@@ -11,6 +11,7 @@
   "dependencies": {
     "@dagrejs/dagre": "^1.1.0",
     "@mc/okf": "workspace:*",
+    "@supabase/supabase-js": "^2.108.2",
     "@xyflow/react": "^12.3.0",
     "fflate": "^0.8.3",
     "html-to-image": "^1.11.13",

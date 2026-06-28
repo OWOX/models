@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Upload, ChevronDown, Target, Share2, FileText, Image as ImageIcon } from "lucide-react";
+import { Download, Upload, ChevronDown, Target, Share2, FileText, Image as ImageIcon, Save, FolderOpen, LogOut } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
 
 // First-visit onboarding hint pointing at the Library. Persisted so it only
@@ -29,6 +29,13 @@ export interface TopBarProps {
   onOpenGoal?: () => void;
   goalSet?: boolean;
   questionsEnabled?: boolean;
+  // Supabase account ("Save"). Independent of the OWOX connect/sign-in above.
+  supabaseEnabled?: boolean;
+  accountEmail?: string | null;
+  onSave?: () => void;
+  saving?: boolean;
+  onMyModels?: () => void;
+  onAccountSignOut?: () => void;
 }
 
 const LOGO = (
@@ -60,9 +67,12 @@ export function TopBar({
   onShare, shareDisabled = false, onPush, onLibrary,
   signedIn, projectTitle, onSignIn, onSignOut,
   onOpenGoal, goalSet = false, questionsEnabled = false,
+  supabaseEnabled = false, accountEmail, onSave, saving = false, onMyModels, onAccountSignOut,
 }: TopBarProps) {
   // Push split-button menu (holds the signed-in "Import from OWOX project" action).
   const [menuOpen, setMenuOpen] = useState(false);
+  // Supabase account dropdown.
+  const [acctOpen, setAcctOpen] = useState(false);
   // Export dropdown (OKF markdown / PNG / SVG).
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   // Show the Library hint on first ever visit; stays lit until hovered.
@@ -200,6 +210,52 @@ export function TopBar({
       >
         <Share2 size={15} /> Share
       </button>
+
+      {/* Save to your account (Supabase). Anonymous-first: clicking while signed
+          out opens the sign-in dialog; create/edit/export never need an account.
+          Hidden entirely when Supabase isn't configured (env kill-switch). */}
+      {supabaseEnabled && (
+        <>
+          <button
+            onClick={onSave}
+            disabled={saving}
+            title={accountEmail ? "Save this model to your account" : "Sign in to save this model"}
+            className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Save size={15} /> {saving ? "Saving…" : "Save"}
+          </button>
+          {accountEmail && (
+            <div className="relative">
+              <button
+                onClick={() => setAcctOpen(o => !o)}
+                aria-haspopup="menu"
+                aria-expanded={acctOpen}
+                title={accountEmail}
+                className="flex items-center gap-[6px] rounded-lg border border-[#d8dee8] bg-white px-[8px] py-[5px] cursor-pointer hover:bg-[#f1f3f7]"
+              >
+                <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#1e88e5] text-[12px] font-semibold text-white">
+                  {accountEmail.trim().charAt(0).toUpperCase()}
+                </span>
+                <ChevronDown size={14} className="text-slate-400" />
+              </button>
+              {acctOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setAcctOpen(false)} />
+                  <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[232px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
+                    <div className="truncate px-3 py-2 text-[12px] text-slate-400 border-b border-[#eef1f5]">{accountEmail}</div>
+                    <button role="menuitem" onClick={() => { setAcctOpen(false); onMyModels?.(); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
+                      <FolderOpen size={15} className="text-slate-500" /> My models
+                    </button>
+                    <button role="menuitem" onClick={() => { setAcctOpen(false); onAccountSignOut?.(); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
+                      <LogOut size={15} className="text-slate-500" /> Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </>
+      )}
 
       {/* Push to OWOX — split button: primary push + caret menu (signed-in only)
           holding the less-common "Import from OWOX project" action. */}
