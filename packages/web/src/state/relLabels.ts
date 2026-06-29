@@ -8,7 +8,7 @@ const MODES: readonly RelLabelMode[] = ["all", "defined", "undefined", "hidden"]
 export function loadRelLabelMode(): RelLabelMode {
   try {
     const v = localStorage.getItem(KEY);
-    return MODES.includes(v as RelLabelMode) ? (v as RelLabelMode) : "all";
+    return v !== null && MODES.includes(v as RelLabelMode) ? (v as RelLabelMode) : "all";
   } catch {
     return "all";
   }
