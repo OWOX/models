@@ -6,8 +6,11 @@ import {
   type EdgeProps,
 } from "@xyflow/react";
 import type { ModelEdge } from "@mc/okf";
+import { visibleKeys, showCardinality, type RelLabelMode } from "../../state/relLabels";
 
-export type RelEdgeData = Pick<ModelEdge, "keys" | "bidirectional" | "cardinality">;
+export type RelEdgeData = Pick<ModelEdge, "keys" | "bidirectional" | "cardinality"> & {
+  relLabelMode?: RelLabelMode;
+};
 
 function RelEdgeInner(props: EdgeProps) {
   // Custom <marker> defs are built inline below; RF's markerEnd/markerStart
@@ -24,15 +27,18 @@ function RelEdgeInner(props: EdgeProps) {
   const keys = edgeData?.keys ?? [];
   const bidirectional = edgeData?.bidirectional ?? false;
   const cardinality = edgeData?.cardinality;
+  const mode: RelLabelMode = edgeData?.relLabelMode ?? "all";
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX, sourceY, sourcePosition,
     targetX, targetY, targetPosition,
   });
 
-  const label = keys.length > 0
-    ? keys.map(k => `${k.left || "?"} = ${k.right || "?"}`).join(", ")
+  const shownKeys = visibleKeys(keys, mode);
+  const label = shownKeys.length > 0
+    ? shownKeys.map(k => `${k.left || "?"} = ${k.right || "?"}`).join(", ")
     : "";
+  const cardShown = Boolean(cardinality) && showCardinality(keys, mode);
 
   const strokeColor = selected ? "#1e88e5" : "#94a3b8";
   const strokeWidth = selected ? 2.5 : 2;
@@ -72,7 +78,7 @@ function RelEdgeInner(props: EdgeProps) {
         markerStart={bidirectional ? `url(#arr-start-${id})` : undefined}
         style={{ stroke: strokeColor, strokeWidth }}
       />
-      {(label || cardinality) && (
+      {(label || cardShown) && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -95,7 +101,7 @@ function RelEdgeInner(props: EdgeProps) {
             className="nodrag nopan"
           >
             {label}
-            {cardinality && (
+            {cardShown && (
               <span
                 style={{
                   padding: "0 5px",
