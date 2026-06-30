@@ -16,7 +16,7 @@ export interface EnableControlProps {
  */
 export function EnableControl({ signedIn, modelName, onClick }: EnableControlProps) {
   const label = signedIn ? "Enabled" : "Enable";
-  const subtext = signedIn && modelName ? modelName : "History, Saves and more";
+  const subtext = signedIn && modelName ? modelName : "History, Saves …";
 
   return (
     <button

@@ -8,7 +8,7 @@ describe("TopBar", () => {
   it("shows Enable (gray) when no account", () => {
     render(<TopBar signedIn={false} supabaseEnabled accountEmail={null} onEnable={() => {}} />);
     const en = screen.getByRole("button", { name: /enable/i });
-    expect(en.textContent).toMatch(/History, Saves and more/);
+    expect(en.textContent).toMatch(/History, Saves …/);
     expect(screen.queryByText("Sign in")).toBeNull();
   });
 
