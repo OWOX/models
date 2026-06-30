@@ -106,9 +106,9 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
         <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#e6e9f0] bg-[#f7f8fa] px-3 py-2.5 text-[12px] leading-relaxed text-slate-600">
           <ShieldCheck size={15} className="mt-[1px] flex-shrink-0 text-[#1e88e5]" />
           <span>
-            We exchange your key for a short-lived access token held <b>only in memory</b> on the server —
-            never stored at rest, and used solely to push your model. The key stays in your browser and is
-            cleared when you sign out. It's{" "}
+            We exchange your key for an access token held <b>only in memory</b> on the server —
+            never stored at rest, and used only for this session to read and update Data Marts in your
+            project. The key stays in your browser and is cleared when you sign out. It's{" "}
             <a
               href="https://github.com/OWOX/owox-model-canvas/blob/main/packages/server/src/auth/session.ts"
               target="_blank"
