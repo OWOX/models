@@ -21,6 +21,7 @@ import { customer_support } from "./customer-support";
 import { hr_people } from "./hr-people";
 import { telecom } from "./telecom";
 import { hospitality } from "./hospitality";
+import { restaurants } from "./restaurants";
 import { crypto_bitcoin } from "./bitcoin";
 import { stackoverflow } from "./stackoverflow";
 
@@ -40,6 +41,7 @@ export const TEMPLATES: Template[] = [
   hr_people,
   telecom,
   hospitality,
+  restaurants,
   crypto_bitcoin,
   stackoverflow,
 ];

@@ -7,7 +7,7 @@ import { serializeBundle, parseBundle } from "@mc/okf";
 const EXPECTED_INDUSTRY_IDS = [
   "ecommerce", "saas", "marketplace", "marketing_ads", "mobile_gaming", "finance", "medical",
   "ott_media", "delivery_logistics", "insurance", "b2b_sales", "customer_support",
-  "hr_people", "telecom", "hospitality",
+  "hr_people", "telecom", "hospitality", "restaurants",
 ];
 const EXPECTED_DATASET_IDS = ["crypto_bitcoin", "stackoverflow"];
 
