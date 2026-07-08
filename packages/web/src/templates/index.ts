@@ -16,6 +16,7 @@ import { medical } from "./medical";
 import { ott_media } from "./ott-media";
 import { delivery_logistics } from "./delivery-logistics";
 import { insurance } from "./insurance";
+import { b2b_sales } from "./b2b-sales";
 import { crypto_bitcoin } from "./bitcoin";
 import { stackoverflow } from "./stackoverflow";
 
@@ -30,6 +31,7 @@ export const TEMPLATES: Template[] = [
   ott_media,
   delivery_logistics,
   insurance,
+  b2b_sales,
   crypto_bitcoin,
   stackoverflow,
 ];
