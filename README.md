@@ -1,5 +1,7 @@
 # OWOX Model Canvas
 
+[![BundleDex](https://bundledex.net/badge/owox-model-canvas.svg)](https://bundledex.net/bundles/owox-model-canvas/)
+
 <img width="1920" height="1200" alt="1782428766581" src="https://github.com/user-attachments/assets/0cdc74a8-c28a-4e77-a637-6b9c2bef65fd" />
 
 > Draw a data model on a free, anonymous canvas — then push it into OWOX Data Marts in one click.
