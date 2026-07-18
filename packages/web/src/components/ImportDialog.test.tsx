@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { strFromU8, unzipSync } from "fflate";
 import { bundleToZip, filesToGraph } from "../okf/io";
@@ -51,5 +51,35 @@ describe("ImportDialog UI", () => {
     expect(graph.nodes.map((n: { title: string }) => n.title)).toContain("Customers");
     expect(graph.nodes[0].status).toBe("pending");
     expect(mode).toBe("merge");
+  });
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("ImportDialog GitHub URL import", () => {
+  it("renders the GitHub URL input", () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    expect(screen.getByPlaceholderText(/github\.com/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /fetch/i })).toBeTruthy();
+  });
+
+  it("prefills and auto-fetches when initialUrl is given, then previews the bundle", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const bodies: Record<string, string> = {
+        [base + "index.md"]: "[Orders](./orders.md)",
+        [base + "orders.md"]: "---\ntitle: Orders\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
+      };
+      const body = bodies[url];
+      return { ok: body != null, status: body != null ? 200 : 404, text: async () => body ?? "" } as Response;
+    }));
+
+    const url = "https://github.com/OWOX/models/tree/main/bundles/demo-project";
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl={url} />);
+
+    const input = screen.getByPlaceholderText(/github\.com/i) as HTMLInputElement;
+    expect(input.value).toBe(url);
+    await waitFor(() => expect(screen.getByText(/Will import/i)).toBeTruthy());
+    expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy();
   });
 });

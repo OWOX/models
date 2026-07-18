@@ -1,20 +1,27 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { filesToGraph, parsePastedMarkdown, zipToFiles } from "../okf/io";
+import { fetchOkfBundleFromUrl } from "../okf/github";
 import type { ModelGraph } from "@mc/okf";
 
 interface ImportDialogProps {
   onConfirm: (graph: ModelGraph, mode: "replace" | "merge") => void;
   onClose: () => void;
+  /** When set (from a `?okf=` deeplink), prefill the GitHub URL field and
+   *  auto-fetch on mount so the preview is ready. */
+  initialUrl?: string;
 }
 
-export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
+export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogProps) {
   const [pasteText, setPasteText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<ModelGraph | null>(null);
   const [mode, setMode] = useState<"replace" | "merge">("replace");
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [url, setUrl] = useState(initialUrl ?? "");
+  const [fetching, setFetching] = useState(false);
+  const [fetchedFiles, setFetchedFiles] = useState<Record<string, string> | null>(null);
 
   // Copy the AI authoring guide to the clipboard so the user can paste it into
   // Claude/ChatGPT to generate an importable OKF model. Falls back to opening
@@ -31,9 +38,10 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
   }
 
   // Parse the current inputs into a ModelGraph (pending nodes — OKF carries no
-  // OWOX identity). Throws on empty/invalid input.
-  async function buildGraph(paste: string): Promise<ModelGraph> {
-    let files: Record<string, string> = {};
+  // OWOX identity). Merges three sources: fetched-from-URL, uploaded files, and
+  // pasted markdown. Throws on empty/invalid input.
+  async function buildGraph(paste: string, fetched: Record<string, string> | null): Promise<ModelGraph> {
+    let files: Record<string, string> = { ...(fetched ?? {}) };
     const uploaded = fileInputRef.current?.files;
     if (uploaded && uploaded.length > 0) {
       for (const file of Array.from(uploaded)) {
@@ -45,19 +53,46 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
       }
     }
     if (paste.trim()) files = { ...files, ...parsePastedMarkdown(paste.trim()) };
-    if (Object.keys(files).length === 0) throw new Error("Provide a file or paste markdown content.");
+    if (Object.keys(files).length === 0) throw new Error("Provide a file, paste markdown, or fetch from a URL.");
     const graph = filesToGraph(files);
     return { ...graph, nodes: graph.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
   }
 
   // Re-parse to drive the live preview/count. Empty input clears both; a parse
   // error is shown (and clears the preview) so the count never lies.
-  async function refresh(paste: string) {
-    const hasInput = (fileInputRef.current?.files?.length ?? 0) > 0 || paste.trim().length > 0;
+  async function refresh(paste: string, fetched: Record<string, string> | null = fetchedFiles) {
+    const hasInput =
+      (fileInputRef.current?.files?.length ?? 0) > 0 ||
+      paste.trim().length > 0 ||
+      (fetched != null && Object.keys(fetched).length > 0);
     if (!hasInput) { setPreview(null); setError(null); return; }
-    try { setPreview(await buildGraph(paste)); setError(null); }
+    try { setPreview(await buildGraph(paste, fetched)); setError(null); }
     catch (e) { setPreview(null); setError((e as Error).message ?? "Failed to parse OKF bundle."); }
   }
+
+  // Fetch a public OKF bundle from a GitHub URL and fold it into the preview.
+  async function fetchFromUrl(target: string) {
+    const trimmed = target.trim();
+    if (!trimmed) return;
+    setFetching(true); setError(null);
+    try {
+      const files = await fetchOkfBundleFromUrl(trimmed);
+      setFetchedFiles(files);
+      await refresh(pasteText, files);
+    } catch (e) {
+      setFetchedFiles(null);
+      setPreview(null);
+      setError((e as Error).message ?? "Failed to fetch bundle.");
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  // Deeplink entry: prefill + auto-fetch once on mount.
+  useEffect(() => {
+    if (initialUrl) void fetchFromUrl(initialUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     /* Backdrop */
@@ -112,6 +147,34 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
             onChange={() => void refresh(pasteText)}
             className="block w-full text-[13px] text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border file:border-[#d8dee8] file:bg-white file:text-[13px] file:font-medium file:cursor-pointer hover:file:bg-[#f1f3f7]"
           />
+        </div>
+
+        {/* Import from a public GitHub URL — fetches the bundle client-side from
+            raw.githubusercontent.com and folds it into the same preview. */}
+        <div>
+          <label className="block text-[13px] font-medium text-slate-700 mb-1">
+            Or import from a public GitHub URL
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void fetchFromUrl(url); } }}
+              placeholder="https://github.com/OWOX/models/tree/main/bundles/demo-project"
+              className="flex-1 min-w-0 text-[13px] border border-[#d8dee8] rounded-lg px-3 py-[7px] focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
+            />
+            <button
+              onClick={() => void fetchFromUrl(url)}
+              disabled={!url.trim() || fetching}
+              className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer hover:bg-[#f1f3f7] disabled:opacity-50 whitespace-nowrap"
+            >
+              {fetching ? "Fetching…" : "Fetch"}
+            </button>
+          </div>
+          <p className="mt-1 text-[12px] text-slate-500">
+            Paste a link to an OKF bundle folder. Works with any public GitHub repo in the OKF format (like OWOX/models).
+          </p>
         </div>
 
         {/* Paste area */}
