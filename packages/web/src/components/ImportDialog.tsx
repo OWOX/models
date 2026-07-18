@@ -160,7 +160,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void fetchFromUrl(url); } }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (fetching) return; void fetchFromUrl(url); } }}
               placeholder="https://github.com/OWOX/models/tree/main/bundles/demo-project"
               className="flex-1 min-w-0 text-[13px] border border-[#d8dee8] rounded-lg px-3 py-[7px] focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
             />

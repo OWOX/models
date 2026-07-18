@@ -147,6 +147,21 @@ describe("fetchOkfBundleFromUrl", () => {
     ).rejects.toThrow(/too large/i);
   });
 
+  it("rejects (does not silently fall back) on a transient non-404 index.md failure", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/x/";
+    const api = "https://api.github.com/repos/OWOX/models/contents/bundles/x?ref=main";
+    mockFetch({
+      [base + "index.md"]: { status: 500, body: "server error" },
+      // If the (buggy) code fell back to the API, this would let the fallback
+      // succeed — so a passing test here proves we didn't take that path.
+      [api]: { body: JSON.stringify([{ name: "orders.md", type: "file" }]) },
+      [base + "orders.md"]: { body: "# orders" },
+    });
+    await expect(
+      fetchOkfBundleFromUrl("https://github.com/OWOX/models/tree/main/bundles/x"),
+    ).rejects.toThrow(/500/);
+  });
+
   it("falls back to the Contents API when there is no index.md", async () => {
     const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/x/";
     const api = "https://api.github.com/repos/OWOX/models/contents/bundles/x?ref=main";

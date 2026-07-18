@@ -75,11 +75,15 @@ describe("ImportDialog GitHub URL import", () => {
     }));
 
     const url = "https://github.com/OWOX/models/tree/main/bundles/demo-project";
-    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl={url} />);
+    const onConfirm = vi.fn();
+    render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} initialUrl={url} />);
 
     const input = screen.getByPlaceholderText(/github\.com/i) as HTMLInputElement;
     expect(input.value).toBe(url);
     await waitFor(() => expect(screen.getByText(/Will import/i)).toBeTruthy());
     expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy();
+    // Deeplink previews the bundle but never auto-applies it — Import stays a
+    // manual, deliberate click.
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 });

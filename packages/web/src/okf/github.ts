@@ -17,7 +17,9 @@ export interface GithubBundleRef {
 
 /** All user-facing fetch/parse failures are thrown as this type so the dialog
  *  can render `err.message` verbatim. */
-export class OkfFetchError extends Error {}
+export class OkfFetchError extends Error {
+  status?: number;
+}
 
 export function isAllowedGithubHost(url: string): boolean {
   try { return ALLOWED_HOSTS.has(new URL(url).host); } catch { return false; }
@@ -100,7 +102,11 @@ async function fetchText(url: string, signal?: AbortSignal): Promise<string> {
     if ((e as Error).name === "AbortError") throw e;
     throw new OkfFetchError("Couldn't reach GitHub. Check the link and try again.");
   }
-  if (res.status === 404) throw new OkfFetchError(NOT_FOUND);
+  if (res.status === 404) {
+    const err = new OkfFetchError(NOT_FOUND);
+    err.status = 404;
+    throw err;
+  }
   if (!res.ok) throw new OkfFetchError(`GitHub returned ${res.status}. Try again.`);
   return res.text();
 }
@@ -147,7 +153,15 @@ export async function fetchOkfBundleFromUrl(
     index = await fetchText(base + "index.md", signal);
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
-    index = null; // fall through to the API listing
+    // Only a genuine 404 (no index.md) falls through to the Contents-API
+    // fallback. Any other failure (transient 500/429, network error) is a real
+    // error and must surface — silently falling back would hit GitHub's
+    // 60/hour rate limit on a bundle that actually has an index.md.
+    if ((e as OkfFetchError).status === 404) {
+      index = null; // fall through to the API listing
+    } else {
+      throw e;
+    }
   }
 
   const relPaths = index != null ? extractMdLinks(index) : await listMdFilesViaApi(ref, signal);

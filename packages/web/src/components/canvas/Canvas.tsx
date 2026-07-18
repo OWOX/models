@@ -242,7 +242,7 @@ function CanvasInner() {
   // held until the user confirms Replace vs Merge in the TemplateApplyDialog.
   const [pendingTemplate, setPendingTemplate] = useState<{ graph: ModelGraph; name: string } | null>(null);
   // First-screen chooser — shown once to brand-new visitors (no persisted model).
-  const [showWelcome, setShowWelcome] = useState(isFirstVisit);
+  const [showWelcome, setShowWelcome] = useState(isFirstVisit && !okfImportUrl);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
   const [shareToast, setShareToast] = useState<string | null>(null);
@@ -555,6 +555,7 @@ function CanvasInner() {
       store.set({ ...withLayout(g), storageId: store.get().storageId ?? g.storageId });
     }
     setShowImport(false);
+    setOkfInitialUrl(null);
   }, [withLayout, applyMergeWithLayout]);
 
   const handleOwoxImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
