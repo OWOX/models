@@ -31,7 +31,11 @@ export function parseGithubBundleUrl(input: string): GithubBundleRef {
   try { u = new URL(input.trim()); } catch { throw new OkfFetchError("Enter a valid URL."); }
   if (!ALLOWED_HOSTS.has(u.host)) throw new OkfFetchError("Only public GitHub links are supported.");
 
-  const segs = u.pathname.split("/").filter(Boolean).map(decodeURIComponent);
+  // Keep segments percent-encoded exactly as `pathname` gives them: decoding here
+  // (a) could throw on malformed escapes like "%zz" outside our try/catch, and
+  // (b) would lose encoding of reserved chars (e.g. "%23" -> "#") before we
+  // rejoin them into a raw URL, corrupting the fetch path.
+  const segs = u.pathname.split("/").filter(Boolean);
   const kindOf = (path: string): "dir" | "file" => (path.toLowerCase().endsWith(".md") ? "file" : "dir");
 
   if (u.host === "raw.githubusercontent.com") {

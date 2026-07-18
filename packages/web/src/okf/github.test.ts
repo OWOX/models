@@ -41,6 +41,12 @@ describe("parseGithubBundleUrl", () => {
   it("rejects a malformed URL", () => {
     expect(() => parseGithubBundleUrl("not a url")).toThrow(OkfFetchError);
   });
+
+  it("does not throw on malformed percent-encoding in the path", () => {
+    const r = parseGithubBundleUrl("https://github.com/OWOX/models/blob/main/bundles/x/bad%zz.md");
+    expect(r.kind).toBe("file");
+    expect(r.path.endsWith("bad%zz.md")).toBe(true);
+  });
 });
 
 describe("isAllowedGithubHost", () => {
@@ -66,5 +72,10 @@ describe("rawDirBase / rawFileUrl", () => {
   it("builds a raw file url", () => {
     const r = parseGithubBundleUrl("https://github.com/OWOX/models/blob/main/bundles/demo-project/orders.md");
     expect(rawFileUrl(r)).toBe("https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/orders.md");
+  });
+
+  it("preserves percent-encoded reserved chars in a filename (e.g. %23 stays encoded, not a literal #)", () => {
+    const r = parseGithubBundleUrl("https://github.com/OWOX/models/blob/main/bundles/x/notes%231.md");
+    expect(rawFileUrl(r).endsWith("notes%231.md")).toBe(true);
   });
 });
