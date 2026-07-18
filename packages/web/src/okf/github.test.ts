@@ -137,4 +137,28 @@ describe("fetchOkfBundleFromUrl", () => {
       fetchOkfBundleFromUrl("https://raw.githubusercontent.com/OWOX/models/main/bundles/x/orders.md"),
     ).rejects.toThrow(/public/i);
   });
+
+  it("rejects a bundle over the file cap", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/x/";
+    const links = Array.from({ length: 101 }, (_, i) => `[m${i}](./m${i}.md)`).join("\n");
+    mockFetch({ [base + "index.md"]: { body: links } });
+    await expect(
+      fetchOkfBundleFromUrl("https://github.com/OWOX/models/tree/main/bundles/x"),
+    ).rejects.toThrow(/too large/i);
+  });
+
+  it("falls back to the Contents API when there is no index.md", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/x/";
+    const api = "https://api.github.com/repos/OWOX/models/contents/bundles/x?ref=main";
+    mockFetch({
+      [api]: { body: JSON.stringify([
+        { name: "orders.md", type: "file" },
+        { name: "index.md", type: "file" },
+        { name: "sub", type: "dir" },
+      ]) },
+      [base + "orders.md"]: { body: "# orders" },
+    });
+    const files = await fetchOkfBundleFromUrl("https://github.com/OWOX/models/tree/main/bundles/x");
+    expect(files).toEqual({ "orders.md": "# orders" });
+  });
 });
