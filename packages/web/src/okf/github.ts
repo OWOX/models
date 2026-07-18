@@ -71,3 +71,95 @@ export function rawFileUrl(ref: GithubBundleRef): string {
   const segs = [ref.owner, ref.repo, ref.ref, ref.path].filter(Boolean);
   return `${RAW_HOST}/${segs.join("/")}`;
 }
+
+export const MAX_BUNDLE_FILES = 100;
+
+const NOT_FOUND = "Couldn't fetch. Make sure the repo is public and the URL points to an OKF bundle folder.";
+
+/** Extract relative `.md` targets from a markdown body (the bundle index). Skips
+ *  external (http/https) links, self-links to index.md, and anchors; strips a
+ *  leading `./`; dedupes. */
+export function extractMdLinks(indexMd: string): string[] {
+  const re = /\]\(\s*([^)\s]+?\.md)(?:#[^)]*)?\s*\)/gi;
+  const out = new Set<string>();
+  for (let m = re.exec(indexMd); m; m = re.exec(indexMd)) {
+    let p = m[1];
+    if (/^https?:/i.test(p)) continue;
+    p = p.replace(/^\.\//, "");
+    if (p === "index.md") continue;
+    out.add(p);
+  }
+  return [...out];
+}
+
+async function fetchText(url: string, signal?: AbortSignal): Promise<string> {
+  let res: Response;
+  try {
+    res = await fetch(url, { signal });
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    throw new OkfFetchError("Couldn't reach GitHub. Check the link and try again.");
+  }
+  if (res.status === 404) throw new OkfFetchError(NOT_FOUND);
+  if (!res.ok) throw new OkfFetchError(`GitHub returned ${res.status}. Try again.`);
+  return res.text();
+}
+
+// Fallback for bundles without an index.md: list the folder via the Contents API
+// (CORS-enabled). This path is subject to GitHub's 60 req/hour unauthenticated
+// limit, so index.md remains the primary route.
+async function listMdFilesViaApi(ref: GithubBundleRef, signal?: AbortSignal): Promise<string[]> {
+  const api = `https://api.github.com/repos/${ref.owner}/${ref.repo}/contents/${ref.path}?ref=${encodeURIComponent(ref.ref)}`;
+  let res: Response;
+  try {
+    res = await fetch(api, { signal, headers: { Accept: "application/vnd.github+json" } });
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    throw new OkfFetchError("Couldn't reach GitHub. Check the link and try again.");
+  }
+  if (res.status === 403) throw new OkfFetchError("GitHub rate limit hit — try again shortly, or use a bundle with an index.md.");
+  if (!res.ok) throw new OkfFetchError(NOT_FOUND);
+  const items = (await res.json()) as Array<{ name: string; type: string }>;
+  return items
+    .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".md") && i.name !== "index.md")
+    .map(i => i.name);
+}
+
+/** Fetch a public OKF bundle from GitHub into a `Record<path, content>` map ready
+ *  for `filesToGraph`. Single-file refs fetch just that file; folder refs fetch
+ *  index.md, then its linked files in parallel (Contents-API fallback if there is
+ *  no index.md). Throws `OkfFetchError` with a user-facing message on any failure. */
+export async function fetchOkfBundleFromUrl(
+  input: string,
+  opts: { signal?: AbortSignal } = {},
+): Promise<Record<string, string>> {
+  const ref = parseGithubBundleUrl(input);
+  const { signal } = opts;
+
+  if (ref.kind === "file") {
+    const content = await fetchText(rawFileUrl(ref), signal);
+    return { [ref.path.split("/").pop() as string]: content };
+  }
+
+  const base = rawDirBase(ref);
+  let index: string | null = null;
+  try {
+    index = await fetchText(base + "index.md", signal);
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    index = null; // fall through to the API listing
+  }
+
+  const relPaths = index != null ? extractMdLinks(index) : await listMdFilesViaApi(ref, signal);
+
+  if (index == null && relPaths.length === 0) throw new OkfFetchError(NOT_FOUND);
+  if (relPaths.length + (index != null ? 1 : 0) > MAX_BUNDLE_FILES) {
+    throw new OkfFetchError(`Bundle too large (max ${MAX_BUNDLE_FILES} files).`);
+  }
+
+  const files: Record<string, string> = {};
+  if (index != null) files["index.md"] = index;
+  const contents = await Promise.all(relPaths.map(p => fetchText(base + p, signal)));
+  relPaths.forEach((p, i) => { files[p] = contents[i]; });
+  return files;
+}

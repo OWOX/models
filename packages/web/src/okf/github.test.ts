@@ -1,10 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import {
   parseGithubBundleUrl,
   isAllowedGithubHost,
   rawDirBase,
   rawFileUrl,
   OkfFetchError,
+  extractMdLinks,
+  fetchOkfBundleFromUrl,
 } from "./github";
 
 describe("parseGithubBundleUrl", () => {
@@ -77,5 +79,62 @@ describe("rawDirBase / rawFileUrl", () => {
   it("preserves percent-encoded reserved chars in a filename (e.g. %23 stays encoded, not a literal #)", () => {
     const r = parseGithubBundleUrl("https://github.com/OWOX/models/blob/main/bundles/x/notes%231.md");
     expect(rawFileUrl(r).endsWith("notes%231.md")).toBe(true);
+  });
+});
+
+describe("extractMdLinks", () => {
+  it("extracts relative .md links, strips ./, dedupes, drops index.md and externals", () => {
+    const md = [
+      "| [Orders](./orders.md) | VIEW |",
+      "| [Customers](customers.md) | SQL |",
+      "| [Orders again](./orders.md) | VIEW |",
+      "| [Self](./index.md) | INDEX |",
+      "| [External](https://example.com/x.md) | X |",
+      "| [Docs](../readme.md) | X |",
+    ].join("\n");
+    expect(extractMdLinks(md).sort()).toEqual(["../readme.md", "customers.md", "orders.md"].sort());
+  });
+
+  it("returns an empty array when there are no md links", () => {
+    expect(extractMdLinks("# Title\n\nNo links here.")).toEqual([]);
+  });
+});
+
+describe("fetchOkfBundleFromUrl", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const mockFetch = (map: Record<string, { status?: number; body: string }>) => {
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const hit = map[url];
+      if (!hit) return { ok: false, status: 404, text: async () => "not found" } as Response;
+      const status = hit.status ?? 200;
+      return { ok: status >= 200 && status < 300, status, text: async () => hit.body, json: async () => JSON.parse(hit.body) } as Response;
+    }));
+  };
+
+  it("fetches index.md then all linked files (raw, no API)", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
+    mockFetch({
+      [base + "index.md"]: { body: "[Orders](./orders.md)\n[Customers](./customers.md)" },
+      [base + "orders.md"]: { body: "# orders" },
+      [base + "customers.md"]: { body: "# customers" },
+    });
+    const files = await fetchOkfBundleFromUrl("https://github.com/OWOX/models/tree/main/bundles/demo-project");
+    expect(Object.keys(files).sort()).toEqual(["customers.md", "index.md", "orders.md"]);
+    expect(files["orders.md"]).toBe("# orders");
+  });
+
+  it("fetches a single .md file ref alone", async () => {
+    const raw = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/orders.md";
+    mockFetch({ [raw]: { body: "# just orders" } });
+    const files = await fetchOkfBundleFromUrl("https://github.com/OWOX/models/blob/main/bundles/demo-project/orders.md");
+    expect(files).toEqual({ "orders.md": "# just orders" });
+  });
+
+  it("throws a friendly error on 404", async () => {
+    mockFetch({}); // everything 404s
+    await expect(
+      fetchOkfBundleFromUrl("https://raw.githubusercontent.com/OWOX/models/main/bundles/x/orders.md"),
+    ).rejects.toThrow(/public/i);
   });
 });
