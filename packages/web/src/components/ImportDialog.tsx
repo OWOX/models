@@ -17,9 +17,13 @@ interface ImportDialogProps {
   /** When set (from a `?okf=` deeplink), open the GitHub tab, prefill the URL,
    *  and auto-fetch on mount so the preview is ready. */
   initialUrl?: string;
+  /** Whether the canvas already holds a model. When false (e.g. a first-time
+   *  visitor via deeplink), the Replace/Merge choice is meaningless and hidden;
+   *  the import just populates the empty canvas. */
+  hasExistingModel?: boolean;
 }
 
-export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogProps) {
+export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel = false }: ImportDialogProps) {
   const [activeTab, setActiveTab] = useState<TabId>(initialUrl ? "github" : "upload");
   const [pasteText, setPasteText] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -301,13 +305,20 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
                 ))}
               </div>
             )}
-            <span className="text-[12px] font-medium text-slate-500 mt-1">When applying to the canvas</span>
-            {(["replace", "merge"] as const).map(m => (
-              <label key={m} className="flex items-center gap-2 text-[13px] text-slate-800 cursor-pointer">
-                <input type="radio" name="okf-mode" checked={mode === m} onChange={() => setMode(m)} />
-                {m === "replace" ? "Replace the canvas" : "Merge into the canvas"}
-              </label>
-            ))}
+            {/* The Replace/Merge choice only makes sense when there's already a
+                model on the canvas — a first-time visitor lands on an empty
+                canvas, so the import simply populates it. */}
+            {hasExistingModel && (
+              <>
+                <span className="text-[12px] font-medium text-slate-500 mt-1">When applying to the canvas</span>
+                {(["replace", "merge"] as const).map(m => (
+                  <label key={m} className="flex items-center gap-2 text-[13px] text-slate-800 cursor-pointer">
+                    <input type="radio" name="okf-mode" checked={mode === m} onChange={() => setMode(m)} />
+                    {m === "replace" ? "Replace the canvas" : "Merge into the canvas"}
+                  </label>
+                ))}
+              </>
+            )}
             <p className="text-[12px] text-slate-500">
               Will import {preview.nodes.length} marts, {preview.edges.length} relationships.
             </p>

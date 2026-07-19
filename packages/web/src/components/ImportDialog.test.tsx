@@ -39,7 +39,8 @@ describe("import zipped bundle", () => {
 describe("ImportDialog UI", () => {
   it("previews counts after paste (on the Paste tab) and confirms with the chosen mode", async () => {
     const onConfirm = vi.fn();
-    render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
+    // hasExistingModel: the canvas already has a model, so Replace/Merge shows.
+    render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} hasExistingModel />);
     // No preview/counts before any input.
     expect(screen.queryByText(/Will import/i)).toBeNull();
     // The paste textarea lives on the "Paste markdown" tab.
@@ -53,6 +54,21 @@ describe("ImportDialog UI", () => {
     expect(graph.nodes.map((n: { title: string }) => n.title)).toContain("Customers");
     expect(graph.nodes[0].status).toBe("pending");
     expect(mode).toBe("merge");
+  });
+
+  it("hides Replace/Merge on an empty canvas and imports as replace", async () => {
+    const onConfirm = vi.fn();
+    // Default hasExistingModel=false → empty canvas, no apply-mode question.
+    render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
+    await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
+    // The apply-mode block is absent.
+    expect(screen.queryByText(/When applying to the canvas/i)).toBeNull();
+    expect(screen.queryByText(/Replace the canvas/i)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^import$/i }));
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onConfirm.mock.calls[0][1]).toBe("replace");
   });
 
   it("switches tabs via the segmented control", () => {

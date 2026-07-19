@@ -831,6 +831,7 @@ function CanvasInner() {
       {showImport && (
         <ImportDialog
           initialUrl={okfInitialUrl ?? undefined}
+          hasExistingModel={graph.nodes.length > 0}
           onConfirm={handleImportConfirm}
           onClose={() => { setShowImport(false); setOkfInitialUrl(null); }}
         />
