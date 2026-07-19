@@ -70,11 +70,33 @@ describe("ImportDialog UI", () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("ImportDialog GitHub URL import", () => {
-  it("renders the GitHub URL input on the GitHub tab", () => {
+  it("renders the GitHub URL input on the GitHub tab (no Fetch button — it auto-loads)", () => {
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: /from github/i }));
     expect(screen.getByPlaceholderText(/github\.com/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^fetch$/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^fetch$/i })).toBeNull();
+  });
+
+  it("auto-fetches on paste (no button click needed)", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => {
+      const bodies: Record<string, string> = {
+        [base + "index.md"]: "---\ntitle: Demo Project\n---\n[Orders](./orders.md)",
+        [base + "orders.md"]: "---\ntitle: Orders\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
+      };
+      const body = bodies[u];
+      return { ok: body != null, status: body != null ? 200 : 404, text: async () => body ?? "" } as Response;
+    }));
+
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /from github/i }));
+    const input = screen.getByPlaceholderText(/github\.com/i) as HTMLInputElement;
+    const url = "https://github.com/OWOX/models/tree/main/bundles/demo-project";
+    // Simulate a paste: value is set, then the paste handler fires.
+    input.value = url;
+    fireEvent.paste(input);
+    await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
+    expect(screen.getByText(/Demo Project/i)).toBeTruthy();
   });
 
   it("opens the GitHub tab, prefills, auto-fetches, and previews the model (name + objects) when initialUrl is given", async () => {

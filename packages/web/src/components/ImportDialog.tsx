@@ -28,9 +28,13 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
   const [mode, setMode] = useState<"replace" | "merge">("replace");
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState(initialUrl ?? "");
   const [fetching, setFetching] = useState(false);
   const [fetchedFiles, setFetchedFiles] = useState<Record<string, string> | null>(null);
+  // Last URL that fetched successfully — so a blur/paste re-trigger for the same
+  // already-loaded link is a no-op (but a failed URL can still be retried).
+  const lastFetchedRef = useRef<string | null>(null);
 
   // Copy the AI authoring guide to the clipboard so the user can paste it into
   // Claude/ChatGPT to generate an importable OKF model. Falls back to opening
@@ -112,15 +116,20 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
   }
 
   // Fetch a public OKF bundle from a GitHub URL into the GitHub tab's preview.
+  // Auto-triggered on paste / blur / Enter / deeplink — there is no Fetch button.
+  // Skips re-fetching a URL that already loaded; a failed URL can be retried.
   async function fetchFromUrl(target: string) {
     const trimmed = target.trim();
-    if (!trimmed) return;
+    if (!trimmed || fetching) return;
+    if (trimmed === lastFetchedRef.current && preview) return;
     setFetching(true); setError(null);
     try {
       const files = await fetchOkfBundleFromUrl(trimmed);
+      lastFetchedRef.current = trimmed;
       setFetchedFiles(files);
       await refresh("github", { fetched: files });
     } catch (e) {
+      lastFetchedRef.current = null;
       setFetchedFiles(null);
       setPreview(null); setModelName(null);
       setError((e as Error).message ?? "Failed to fetch bundle.");
@@ -134,6 +143,14 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
     if (initialUrl) void fetchFromUrl(initialUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Reveal the END of the URL (where the bundle/model name is) whenever it's set
+  // programmatically — deeplink prefill or paste — without disturbing active
+  // typing (a focused input already scrolls to the caret).
+  useEffect(() => {
+    const el = urlInputRef.current;
+    if (el && document.activeElement !== el) el.scrollLeft = el.scrollWidth;
+  }, [url]);
 
   // "No model yet? Generate one with AI" — shown on the upload & paste tabs.
   const aiBlock = (
@@ -238,25 +255,21 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
             <label className="block text-[13px] font-medium text-slate-700 mb-1">
               Import from a public GitHub URL
             </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (fetching) return; void fetchFromUrl(url); } }}
-                placeholder="https://github.com/OWOX/models/tree/main/bundles/demo-project"
-                className="flex-1 min-w-0 text-[13px] border border-[#d8dee8] rounded-lg px-3 py-[7px] focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
-              />
-              <button
-                onClick={() => void fetchFromUrl(url)}
-                disabled={!url.trim() || fetching}
-                className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer hover:bg-[#f1f3f7] disabled:opacity-50 whitespace-nowrap"
-              >
-                {fetching ? "Fetching…" : "Fetch"}
-              </button>
-            </div>
+            <input
+              ref={urlInputRef}
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onPaste={(e) => { const el = e.currentTarget; setTimeout(() => { setUrl(el.value); void fetchFromUrl(el.value); }, 0); }}
+              onBlur={() => { if (url.trim()) void fetchFromUrl(url); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void fetchFromUrl(url); } }}
+              placeholder="https://github.com/OWOX/models/tree/main/bundles/demo-project"
+              className="w-full text-[13px] border border-[#d8dee8] rounded-lg px-3 py-[7px] focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
+            />
             <p className="mt-1 text-[12px] text-slate-500">
-              Paste a link to an OKF bundle folder. Works with any public GitHub repo in the OKF format (like OWOX/models).
+              {fetching
+                ? "Fetching bundle…"
+                : "Paste a link to an OKF bundle folder — it loads automatically. Works with any public GitHub repo in the OKF format (like OWOX/models)."}
             </p>
           </div>
         )}
