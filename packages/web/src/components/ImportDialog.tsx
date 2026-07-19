@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { filesToGraph, parsePastedMarkdown, zipToFiles } from "../okf/io";
-import { fetchOkfBundleFromUrl } from "../okf/github";
+import { fetchOkfBundleFromUrl, isAllowedGithubHost } from "../okf/github";
+import { buildOkfDeeplink } from "../share/okfLink";
 import { parseFrontmatter, type ModelGraph } from "@mc/okf";
 
 type TabId = "upload" | "paste" | "github";
@@ -36,6 +37,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
   const [url, setUrl] = useState(initialUrl ?? "");
   const [fetching, setFetching] = useState(false);
   const [fetchedFiles, setFetchedFiles] = useState<Record<string, string> | null>(null);
+  const [deeplinkCopied, setDeeplinkCopied] = useState(false);
   // Last URL that fetched successfully — so a blur/paste re-trigger for the same
   // already-loaded link is a no-op (but a failed URL can still be retried).
   const lastFetchedRef = useRef<string | null>(null);
@@ -156,6 +158,18 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Copy a shareable deeplink for the current GitHub URL to the clipboard — lets
+  // users and marketing generate valid ?okf= links without hand-crafting them.
+  async function copyDeeplink() {
+    try {
+      await navigator.clipboard.writeText(buildOkfDeeplink(url.trim()));
+      setDeeplinkCopied(true);
+      setTimeout(() => setDeeplinkCopied(false), 2500);
+    } catch {
+      /* clipboard blocked — no-op */
+    }
+  }
+
   // Reveal the END of the URL (where the bundle/model name is) whenever it's set
   // programmatically — deeplink prefill or paste — without disturbing active
   // typing (a focused input already scrolls to the caret).
@@ -264,14 +278,28 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         {/* GitHub tab — fetches the bundle client-side from raw.githubusercontent.com. */}
         {activeTab === "github" && (
           <div>
-            <label className="block text-[13px] font-medium text-slate-700 mb-1">
-              Import from a public GitHub URL
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[13px] font-medium text-slate-700">
+                Import from a public GitHub URL
+              </label>
+              {isAllowedGithubHost(url.trim()) && (
+                <button
+                  type="button"
+                  onClick={copyDeeplink}
+                  title="Copy a shareable deeplink to this model"
+                  className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-slate-600"
+                >
+                  {deeplinkCopied
+                    ? <><Check size={12} /> Deeplink copied</>
+                    : <><Copy size={12} /> Share</>}
+                </button>
+              )}
+            </div>
             <input
               ref={urlInputRef}
               type="url"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => { setUrl(e.target.value); setDeeplinkCopied(false); }}
               onPaste={(e) => { const el = e.currentTarget; setTimeout(() => { setUrl(el.value); void fetchFromUrl(el.value); }, 0); }}
               onBlur={() => { if (url.trim()) void fetchFromUrl(url); }}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void fetchFromUrl(url); } }}

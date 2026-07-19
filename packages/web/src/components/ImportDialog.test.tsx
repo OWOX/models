@@ -93,6 +93,25 @@ describe("ImportDialog GitHub URL import", () => {
     expect(screen.queryByRole("button", { name: /^fetch$/i })).toBeNull();
   });
 
+  it("shows Share for a valid GitHub URL and copies the readable deeplink", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /from github/i }));
+    const input = screen.getByPlaceholderText(/github\.com/i);
+    // No Share control until a valid GitHub URL is present.
+    expect(screen.queryByRole("button", { name: /share/i })).toBeNull();
+
+    const bundle = "https://github.com/OWOX/models/tree/main/bundles/saas";
+    fireEvent.change(input, { target: { value: bundle } });
+    const share = await screen.findByRole("button", { name: /share/i });
+    fireEvent.click(share);
+
+    expect(writeText).toHaveBeenCalledWith(location.origin + "/?okf=" + bundle);
+    await waitFor(() => expect(screen.getByText(/deeplink copied/i)).toBeTruthy());
+  });
+
   it("auto-fetches on paste (no button click needed)", async () => {
     const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
     vi.stubGlobal("fetch", vi.fn(async (u: string) => {
