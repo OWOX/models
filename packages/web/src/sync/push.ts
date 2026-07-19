@@ -30,10 +30,17 @@ export function pushPreview(graph: ModelGraph, storageId: string | null): { mart
   return { marts, relationships };
 }
 
-// OWOX validates the output schema with a storage-specific discriminator, e.g.
-// GOOGLE_BIGQUERY → "bigquery-data-mart-schema", SNOWFLAKE → "snowflake-data-mart-schema".
+// OWOX validates the output schema with a discriminator keyed on the storage
+// ENGINE, not its full type: GOOGLE_BIGQUERY and LEGACY_GOOGLE_BIGQUERY both use
+// "bigquery-data-mart-schema"; SNOWFLAKE → "snowflake-data-mart-schema". Strip
+// the vendor/legacy prefixes (LEGACY_ before GOOGLE_, so LEGACY_GOOGLE_BIGQUERY
+// collapses to "bigquery") to land on the engine name OWOX expects.
 function schemaDiscriminator(storageType: string): string {
-  const base = storageType.replace(/^GOOGLE_/, "").replace(/^AWS_/, "").toLowerCase();
+  const base = storageType
+    .replace(/^LEGACY_/, "")
+    .replace(/^GOOGLE_/, "")
+    .replace(/^AWS_/, "")
+    .toLowerCase();
   return `${base}-data-mart-schema`;
 }
 
