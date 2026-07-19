@@ -104,4 +104,34 @@ describe("ImportDialog GitHub URL import", () => {
     // manual, deliberate click.
     expect(onConfirm).not.toHaveBeenCalled();
   });
+
+  it("keeps each tab autonomous: the GitHub preview does not show on other tabs", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const bodies: Record<string, string> = {
+        [base + "index.md"]: "---\ntitle: Demo Project\n---\n[Orders](./orders.md)",
+        [base + "orders.md"]: "---\ntitle: Orders\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
+      };
+      const body = bodies[url];
+      return { ok: body != null, status: body != null ? 200 : 404, text: async () => body ?? "" } as Response;
+    }));
+
+    const url = "https://github.com/OWOX/models/tree/main/bundles/demo-project";
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl={url} />);
+
+    // GitHub tab shows the preview and an enabled Import button.
+    await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
+    expect((screen.getByRole("button", { name: /^import$/i }) as HTMLButtonElement).disabled).toBe(false);
+
+    // Switching to the Upload tab (no input there) hides the preview and
+    // disables Import — the fetched model belongs to the GitHub tab only.
+    fireEvent.click(screen.getByRole("button", { name: /upload files/i }));
+    await waitFor(() => expect(screen.queryByText(/Will import/i)).toBeNull());
+    expect(screen.queryByText(/Demo Project/i)).toBeNull();
+    expect((screen.getByRole("button", { name: /^import$/i }) as HTMLButtonElement).disabled).toBe(true);
+
+    // Switching back restores the GitHub tab's own preview.
+    fireEvent.click(screen.getByRole("button", { name: /from github/i }));
+    await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
+  });
 });

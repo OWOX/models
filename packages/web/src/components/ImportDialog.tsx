@@ -46,22 +46,25 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
     }
   }
 
-  // Merge the three input sources (fetched-from-URL, uploaded files, pasted
-  // markdown) into one path→content map.
-  async function collectFiles(paste: string, fetched: Record<string, string> | null): Promise<Record<string, string>> {
-    let files: Record<string, string> = { ...(fetched ?? {}) };
-    const uploaded = fileInputRef.current?.files;
-    if (uploaded && uploaded.length > 0) {
-      for (const file of Array.from(uploaded)) {
-        if (file.name.endsWith(".zip")) {
-          Object.assign(files, zipToFiles(new Uint8Array(await file.arrayBuffer())));
-        } else {
-          files[file.name] = await file.text();
+  // Collect the files for a single tab only — each tab is an autonomous source,
+  // so the preview reflects just the active tab's input (never a merge).
+  async function filesForTab(tab: TabId, paste: string, fetched: Record<string, string> | null): Promise<Record<string, string>> {
+    if (tab === "upload") {
+      const files: Record<string, string> = {};
+      const uploaded = fileInputRef.current?.files;
+      if (uploaded && uploaded.length > 0) {
+        for (const file of Array.from(uploaded)) {
+          if (file.name.endsWith(".zip")) {
+            Object.assign(files, zipToFiles(new Uint8Array(await file.arrayBuffer())));
+          } else {
+            files[file.name] = await file.text();
+          }
         }
       }
+      return files;
     }
-    if (paste.trim()) files = { ...files, ...parsePastedMarkdown(paste.trim()) };
-    return files;
+    if (tab === "paste") return paste.trim() ? parsePastedMarkdown(paste.trim()) : {};
+    return fetched ?? {}; // github
   }
 
   // Parse into a ModelGraph with pending nodes (OKF carries no OWOX identity).
@@ -82,17 +85,15 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
     }
   }
 
-  // Re-parse to drive the live preview/count. Empty input clears it; a parse
-  // error is shown (and clears the preview) so the count never lies.
-  async function refresh(paste: string, fetched: Record<string, string> | null = fetchedFiles) {
-    const hasInput =
-      (fileInputRef.current?.files?.length ?? 0) > 0 ||
-      paste.trim().length > 0 ||
-      (fetched != null && Object.keys(fetched).length > 0);
-    if (!hasInput) { setPreview(null); setModelName(null); setError(null); return; }
+  // Re-parse the ACTIVE tab's source to drive the live preview/count. Empty
+  // input clears it; a parse error is shown (and clears the preview) so the
+  // count never lies. Only the active tab ever shows a preview + enabled Import.
+  async function refresh(tab: TabId, opts?: { paste?: string; fetched?: Record<string, string> | null }) {
+    const paste = opts?.paste ?? pasteText;
+    const fetched = opts?.fetched ?? fetchedFiles;
     try {
-      const files = await collectFiles(paste, fetched);
-      if (Object.keys(files).length === 0) { setPreview(null); setModelName(null); setError(null); return; }
+      const files = await filesForTab(tab, paste, fetched);
+      if (Object.keys(files).length === 0) { setPreview(null); setModelName(null); return; }
       setPreview(toPendingGraph(files));
       setModelName(modelNameOf(files));
       setError(null);
@@ -102,7 +103,15 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
     }
   }
 
-  // Fetch a public OKF bundle from a GitHub URL and fold it into the preview.
+  // Switch tabs: each tab is autonomous, so clear any transient error and
+  // recompute the preview from the newly-active tab's own input.
+  function selectTab(tab: TabId) {
+    setActiveTab(tab);
+    setError(null);
+    void refresh(tab);
+  }
+
+  // Fetch a public OKF bundle from a GitHub URL into the GitHub tab's preview.
   async function fetchFromUrl(target: string) {
     const trimmed = target.trim();
     if (!trimmed) return;
@@ -110,7 +119,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
     try {
       const files = await fetchOkfBundleFromUrl(trimmed);
       setFetchedFiles(files);
-      await refresh(pasteText, files);
+      await refresh("github", { fetched: files });
     } catch (e) {
       setFetchedFiles(null);
       setPreview(null); setModelName(null);
@@ -171,7 +180,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
           {TABS.map(t => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => selectTab(t.id)}
               className={
                 "flex-1 rounded-md px-3 py-[6px] text-[12.5px] font-[550] transition " +
                 (activeTab === t.id
@@ -197,7 +206,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
                 type="file"
                 accept=".md,.txt,.zip"
                 multiple
-                onChange={() => void refresh(pasteText)}
+                onChange={() => void refresh("upload")}
                 className="block w-full text-[13px] text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border file:border-[#d8dee8] file:bg-white file:text-[13px] file:font-medium file:cursor-pointer hover:file:bg-[#f1f3f7]"
               />
             </div>
@@ -214,7 +223,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl }: ImportDialogPro
               </label>
               <textarea
                 value={pasteText}
-                onChange={(e) => { setPasteText(e.target.value); void refresh(e.target.value); }}
+                onChange={(e) => { setPasteText(e.target.value); void refresh("paste", { paste: e.target.value }); }}
                 placeholder={"<!-- path/to/file.md -->\n...content..."}
                 rows={6}
                 className="w-full text-[13px] font-mono border border-[#d8dee8] rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#1e88e5]"
