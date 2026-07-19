@@ -143,6 +143,23 @@ describe("ImportDialog GitHub URL import", () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
+  it("rejects a URL with no OKF marts: shows an error, no count, Import disabled", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/";
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => {
+      // index.md exists but only links to sub-folders (no .md marts).
+      const bodies: Record<string, string> = {
+        [base + "index.md"]: "# Bundles\n\n- [demo-project](./demo-project)\n",
+      };
+      const body = bodies[u];
+      return { ok: body != null, status: body != null ? 200 : 404, text: async () => body ?? "" } as Response;
+    }));
+
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl="https://github.com/OWOX/models/tree/main/bundles" />);
+    await waitFor(() => expect(screen.getByText(/no okf marts found/i)).toBeTruthy());
+    expect(screen.queryByText(/Will import/i)).toBeNull();
+    expect((screen.getByRole("button", { name: /^import$/i }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it("keeps each tab autonomous: the GitHub preview does not show on other tabs", async () => {
     const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
     vi.stubGlobal("fetch", vi.fn(async (url: string) => {

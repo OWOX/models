@@ -102,7 +102,15 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     try {
       const files = await filesForTab(tab, paste, fetched);
       if (Object.keys(files).length === 0) { setPreview(null); setModelName(null); return; }
-      setPreview(toPendingGraph(files));
+      const graph = toPendingGraph(files);
+      // Content fetched/provided but no marts parsed out (e.g. a URL to a folder
+      // whose index.md lists sub-bundles, not models). Nothing to import.
+      if (graph.nodes.length === 0) {
+        setPreview(null); setModelName(null);
+        setError("No OKF marts found here — check that this is a valid OKF bundle.");
+        return;
+      }
+      setPreview(graph);
       setModelName(modelNameOf(files));
       setError(null);
     } catch (e) {
