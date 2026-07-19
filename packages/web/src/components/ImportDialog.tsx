@@ -295,12 +295,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
                 {preview.nodes.map(n => (
                   <div key={n.key} className="flex items-center justify-between gap-2 px-2.5 py-1.5">
                     <span className="truncate text-[12.5px] text-slate-800">{n.title}</span>
-                    <span className="flex items-center gap-2 shrink-0">
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-medium uppercase tracking-wide text-slate-500">
-                        {n.inputSource}
-                      </span>
-                      <span className="text-[11px] text-slate-400">{n.schema.length} fields</span>
-                    </span>
+                    <span className="shrink-0 text-[11px] text-slate-400">{n.schema.length} fields</span>
                   </div>
                 ))}
               </div>
