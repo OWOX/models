@@ -48,7 +48,17 @@ export function buildApp() {
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "blob:"],
         fontSrc: ["'self'", "data:"],
-        connectSrc: ["'self'", POSTHOG_PROXY, ...supabaseConnect],
+        // raw.githubusercontent.com: client-side OKF-bundle import fetches the
+        // markdown files directly; api.github.com: fallback folder listing when a
+        // bundle has no index.md. Both are static/public read endpoints — no SSRF
+        // surface (the fetch is client-side to fixed hosts).
+        connectSrc: [
+          "'self'",
+          POSTHOG_PROXY,
+          ...supabaseConnect,
+          "https://raw.githubusercontent.com",
+          "https://api.github.com",
+        ],
         workerSrc: ["'self'", "blob:"],
         objectSrc: ["'none'"],
         frameAncestors: ["'none'"],

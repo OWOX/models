@@ -32,6 +32,7 @@ import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 import { graphToBundleFiles, downloadBundle } from "../../okf/io";
 import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl } from "../../share/url";
 import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
+import { readOkfImportUrl, clearOkfFromUrl } from "../../share/okfLink";
 import { exportCanvasSvg } from "../../share/exportImage";
 import { pushModel, pushPreview, type PushResult } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
@@ -111,6 +112,11 @@ if (sharedGraph) clearSharedModelFromUrl();
 // (empty) graph — so it stays true for the session. Gates the first-screen
 // "start" chooser: shown once for new visitors, never over an opened model.
 const isFirstVisit = !templateInitial && !sharedGraph && persistedGraph === undefined;
+
+// `?okf=<github-url>` opens the Import dialog pre-filled with a public bundle URL
+// (marketing CTA for individual models). Captured at module load; the actual
+// fetch is async, so CanvasInner opens the dialog on mount and clears the param.
+const okfImportUrl = readOkfImportUrl();
 
 // Map a loaded template (by its display name) to the closest Insight-Questions
 // niche, so opening the Business Goal dialog after a template can pre-pick it.
@@ -220,13 +226,23 @@ function CanvasInner() {
     persistRelLabelMode(mode);
   }, []);
   const [showImport, setShowImport] = useState(false);
+  // Deeplink: open Import pre-filled for a `?okf=` bundle URL, once, on mount.
+  const [okfInitialUrl, setOkfInitialUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (okfImportUrl) {
+      setOkfInitialUrl(okfImportUrl);
+      setShowImport(true);
+      clearOkfFromUrl();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [showOwoxImport, setShowOwoxImport] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   // A template chosen from the library while the canvas already had content —
   // held until the user confirms Replace vs Merge in the TemplateApplyDialog.
   const [pendingTemplate, setPendingTemplate] = useState<{ graph: ModelGraph; name: string } | null>(null);
   // First-screen chooser — shown once to brand-new visitors (no persisted model).
-  const [showWelcome, setShowWelcome] = useState(isFirstVisit);
+  const [showWelcome, setShowWelcome] = useState(isFirstVisit && !okfImportUrl);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
   const [shareToast, setShareToast] = useState<string | null>(null);
@@ -539,6 +555,7 @@ function CanvasInner() {
       store.set({ ...withLayout(g), storageId: store.get().storageId ?? g.storageId });
     }
     setShowImport(false);
+    setOkfInitialUrl(null);
   }, [withLayout, applyMergeWithLayout]);
 
   const handleOwoxImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
@@ -813,8 +830,10 @@ function CanvasInner() {
       )}
       {showImport && (
         <ImportDialog
+          initialUrl={okfInitialUrl ?? undefined}
+          hasExistingModel={graph.nodes.length > 0}
           onConfirm={handleImportConfirm}
-          onClose={() => setShowImport(false)}
+          onClose={() => { setShowImport(false); setOkfInitialUrl(null); }}
         />
       )}
       {showOwoxImport && (
