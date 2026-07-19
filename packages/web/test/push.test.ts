@@ -94,6 +94,26 @@ describe("pushModel", () => {
     expect(field).toMatchObject({ name: "id", alias: "user_id", description: "Unique id", isPrimaryKey: true });
   });
 
+  it("derives the schema discriminator by storage engine, stripping LEGACY_/GOOGLE_/AWS_ prefixes", async () => {
+    const cases: Array<[string, string]> = [
+      ["GOOGLE_BIGQUERY", "bigquery-data-mart-schema"],
+      ["LEGACY_GOOGLE_BIGQUERY", "bigquery-data-mart-schema"],
+      ["AWS_ATHENA", "athena-data-mart-schema"],
+    ];
+    for (const [storageType, expected] of cases) {
+      const s = createModelStore({ storageId: "stor_1" });
+      const n = s.addNode({ x: 0, y: 0 });
+      s.updateNode(n.key, { schema: [{ name: "id", type: "STRING", pk: true }] });
+      const bodies: Record<string, any> = {};
+      const apiMock = vi.fn(async (path: string, init?: any) => {
+        if (init?.body) bodies[path] = JSON.parse(init.body);
+        return { id: "owox_a" };
+      });
+      await pushModel(s, apiMock as any, storageType);
+      expect(bodies["/api/data-marts/owox_a/schema"].schema.type).toBe(expected);
+    }
+  });
+
   it("marks a node error on failure and counts it", async () => {
     const s = createModelStore({ storageId: "stor_1" }); s.addNode({ x: 0, y: 0 });
     const apiMock = vi.fn(async () => { throw new Error("boom"); });
