@@ -37,11 +37,13 @@ describe("import zipped bundle", () => {
 });
 
 describe("ImportDialog UI", () => {
-  it("previews counts after paste and confirms with the chosen mode", async () => {
+  it("previews counts after paste (on the Paste tab) and confirms with the chosen mode", async () => {
     const onConfirm = vi.fn();
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
     // No preview/counts before any input.
     expect(screen.queryByText(/Will import/i)).toBeNull();
+    // The paste textarea lives on the "Paste markdown" tab.
+    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByText(/Will import 1 marts, 0 relationships/i)).toBeTruthy());
     fireEvent.click(screen.getByText(/Merge into the canvas/i));
@@ -52,22 +54,34 @@ describe("ImportDialog UI", () => {
     expect(graph.nodes[0].status).toBe("pending");
     expect(mode).toBe("merge");
   });
+
+  it("switches tabs via the segmented control", () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    // Upload tab is the default: the file input is present, URL input is not.
+    expect(screen.getByText(/Upload \.md/i)).toBeTruthy();
+    expect(screen.queryByPlaceholderText(/github\.com/i)).toBeNull();
+    // Switch to the GitHub tab.
+    fireEvent.click(screen.getByRole("button", { name: /from github/i }));
+    expect(screen.getByPlaceholderText(/github\.com/i)).toBeTruthy();
+    expect(screen.queryByText(/Upload \.md/i)).toBeNull();
+  });
 });
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("ImportDialog GitHub URL import", () => {
-  it("renders the GitHub URL input", () => {
+  it("renders the GitHub URL input on the GitHub tab", () => {
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /from github/i }));
     expect(screen.getByPlaceholderText(/github\.com/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /fetch/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^fetch$/i })).toBeTruthy();
   });
 
-  it("prefills and auto-fetches when initialUrl is given, then previews the bundle", async () => {
+  it("opens the GitHub tab, prefills, auto-fetches, and previews the model (name + objects) when initialUrl is given", async () => {
     const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/demo-project/";
     vi.stubGlobal("fetch", vi.fn(async (url: string) => {
       const bodies: Record<string, string> = {
-        [base + "index.md"]: "[Orders](./orders.md)",
+        [base + "index.md"]: "---\ntitle: Demo Project\n---\n[Orders](./orders.md)",
         [base + "orders.md"]: "---\ntitle: Orders\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
       };
       const body = bodies[url];
@@ -78,10 +92,14 @@ describe("ImportDialog GitHub URL import", () => {
     const onConfirm = vi.fn();
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} initialUrl={url} />);
 
+    // Deeplink opens directly on the GitHub tab with the URL prefilled.
     const input = screen.getByPlaceholderText(/github\.com/i) as HTMLInputElement;
     expect(input.value).toBe(url);
     await waitFor(() => expect(screen.getByText(/Will import/i)).toBeTruthy());
     expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy();
+    // Model name (from index.md frontmatter) and the object list are shown.
+    expect(screen.getByText(/Demo Project/i)).toBeTruthy();
+    expect(screen.getByText(/^Orders$/i)).toBeTruthy();
     // Deeplink previews the bundle but never auto-applies it — Import stays a
     // manual, deliberate click.
     expect(onConfirm).not.toHaveBeenCalled();
