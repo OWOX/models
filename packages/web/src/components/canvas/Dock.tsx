@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ViewMode } from "../../state/viewMode";
 import type { RelLabelMode } from "../../state/relLabels";
+import type { ObjLabelMode } from "../../state/objLabels";
 
 export type Tool = "select" | "add" | "connect" | "layout";
 
@@ -18,6 +19,20 @@ const REL_LABEL_OPTIONS: { mode: RelLabelMode; label: string; helper: string }[]
   { mode: "hidden", label: "Hide all labels", helper: "Just the connector lines — no keys, no cardinality" },
 ];
 
+const OBJ_LABEL_GLYPH: Record<ObjLabelMode, string> = {
+  all: "≡",
+  noSource: "⬚",
+  noFields: "#",
+  both: "⊘",
+};
+
+const OBJ_LABEL_OPTIONS: { mode: ObjLabelMode; label: string; helper: string }[] = [
+  { mode: "all", label: "Show everything", helper: "Input source and field count on every object" },
+  { mode: "noSource", label: "Hide input source", helper: "Hide the source badge (VIEW / TABLE / SQL / CONNECTOR) and its accent" },
+  { mode: "noFields", label: "Hide field count", helper: "Hide the field-count line under each object" },
+  { mode: "both", label: "Hide both", helper: "Just the object title — no source badge, no field count" },
+];
+
 interface DockProps {
   activeTool: Tool;
   onToolChange: (tool: Tool) => void;
@@ -27,6 +42,8 @@ interface DockProps {
   clearDisabled?: boolean;
   relLabelMode?: RelLabelMode;
   onRelLabelModeChange?: (mode: RelLabelMode) => void;
+  objLabelMode?: ObjLabelMode;
+  onObjLabelModeChange?: (mode: ObjLabelMode) => void;
 }
 
 const SelectIcon = () => (
@@ -203,7 +220,96 @@ function ConnectToolButton({
   );
 }
 
-export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear, clearDisabled, relLabelMode = "all", onRelLabelModeChange }: DockProps) {
+// The Add-object dock button, augmented with a hover-delay flyout for the
+// "Object labels" view setting and an always-visible corner badge showing the
+// active mode's glyph. Clicking the button activates the Add tool; the flyout
+// (revealed after ~0.5s hover) is a separate, view-only control.
+function AddObjectToolButton({
+  active,
+  onActivate,
+  objLabelMode,
+  onObjLabelModeChange,
+}: {
+  active: boolean;
+  onActivate: () => void;
+  objLabelMode: ObjLabelMode;
+  onObjLabelModeChange?: (mode: ObjLabelMode) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimer = () => {
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; }
+  };
+  const handleEnter = () => {
+    clearTimer();
+    timer.current = setTimeout(() => setOpen(true), 500);
+  };
+  const handleLeave = () => {
+    clearTimer();
+    setOpen(false);
+  };
+  useEffect(() => clearTimer, []);
+
+  return (
+    <div className="relative group" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button
+        onClick={onActivate}
+        aria-label="Add object (N) — or double-click canvas"
+        className={`
+          relative w-[38px] h-[38px] rounded-[9px] border-none flex items-center justify-center cursor-pointer transition-colors
+          ${active
+            ? "bg-[#e6f1fb] text-[#1e88e5]"
+            : "bg-transparent text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"
+          }
+        `}
+      >
+        <AddIcon />
+        <span
+          data-testid="obj-label-badge"
+          aria-hidden
+          className="absolute -top-[3px] -right-[3px] min-w-[14px] h-[14px] px-[2px] rounded-full bg-slate-900 text-white text-[9px] leading-[14px] font-semibold text-center shadow-[0_1px_2px_rgba(15,23,42,0.4)]"
+        >
+          {OBJ_LABEL_GLYPH[objLabelMode]}
+        </span>
+      </button>
+
+      {!open && <DockTip label="Add object (N) — or double-click canvas" />}
+
+      {open && (
+        <div className="absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 z-50">
+          {/* invisible bridge so the cursor can travel from button to menu without closing */}
+          <span className="absolute right-full top-0 h-full w-[12px]" />
+          <div className="w-[260px] rounded-xl border border-[#d8dee8] bg-white p-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.14)]">
+            <div className="px-2 pt-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Object labels
+            </div>
+            {OBJ_LABEL_OPTIONS.map(opt => {
+              const selected = opt.mode === objLabelMode;
+              return (
+                <button
+                  key={opt.mode}
+                  onClick={() => { onObjLabelModeChange?.(opt.mode); setOpen(false); }}
+                  className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${selected ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+                >
+                  <span className={`mt-[1px] w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${selected ? "text-[#1e88e5]" : "text-slate-400"}`}>
+                    {OBJ_LABEL_GLYPH[opt.mode]}
+                  </span>
+                  <span className="flex flex-col">
+                    <span className={`text-[13px] font-semibold ${selected ? "text-[#1e88e5]" : "text-slate-800"}`}>{opt.label}</span>
+                    <span className="text-[11px] leading-snug text-slate-500">{opt.helper}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear, clearDisabled, relLabelMode = "all", onRelLabelModeChange, objLabelMode = "all", onObjLabelModeChange }: DockProps) {
   // Keyboard shortcuts V/N/C
   useEffect(() => {
     function handler(e: KeyboardEvent) {
@@ -229,11 +335,11 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear
         active={activeTool === "select"}
         onClick={() => onToolChange("select")}
       />
-      <ToolButton
-        icon={<AddIcon />}
-        tip="Add object (N) — or double-click canvas"
+      <AddObjectToolButton
         active={activeTool === "add"}
-        onClick={() => onToolChange("add")}
+        onActivate={() => onToolChange("add")}
+        objLabelMode={objLabelMode}
+        onObjLabelModeChange={onObjLabelModeChange}
       />
       <ConnectToolButton
         active={activeTool === "connect"}
