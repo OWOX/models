@@ -26,6 +26,7 @@ import { createModelStore } from "../../state/model";
 import { loadPersistedGraph, persistGraph } from "../../state/persist";
 import { loadViewMode, persistViewMode, type ViewMode } from "../../state/viewMode";
 import { loadRelLabelMode, persistRelLabelMode, type RelLabelMode } from "../../state/relLabels";
+import { loadObjLabelMode, persistObjLabelMode, type ObjLabelMode } from "../../state/objLabels";
 import { loadModelName, persistModelName, DEFAULT_MODEL_NAME, templateModelName } from "../../state/modelName";
 import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 
@@ -131,12 +132,12 @@ const TEMPLATE_NICHE: Record<string, string> = {
 };
 
 // ── helpers to convert between model and RF types ───────────────────────────
-function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node {
+function toRFNode(n: ModelNode, viewMode: ViewMode, objLabelMode: ObjLabelMode, keyFields?: string[]): Node {
   return {
     id: n.key,
     type: "mart",
     position: n.position,
-    data: { ...n, _viewMode: viewMode, _keyFields: keyFields } as unknown as Record<string, unknown>,
+    data: { ...n, _viewMode: viewMode, _keyFields: keyFields, _objLabelMode: objLabelMode } as unknown as Record<string, unknown>,
   };
 }
 
@@ -224,6 +225,11 @@ function CanvasInner() {
   const handleRelLabelModeChange = useCallback((mode: RelLabelMode) => {
     setRelLabelMode(mode);
     persistRelLabelMode(mode);
+  }, []);
+  const [objLabelMode, setObjLabelMode] = useState<ObjLabelMode>(loadObjLabelMode());
+  const handleObjLabelModeChange = useCallback((mode: ObjLabelMode) => {
+    setObjLabelMode(mode);
+    persistObjLabelMode(mode);
   }, []);
   const [showImport, setShowImport] = useState(false);
   // Deeplink: open Import pre-filled for a `?okf=` bundle URL, once, on mount.
@@ -335,8 +341,8 @@ function CanvasInner() {
 
   useEffect(() => {
     const kf = keyFieldsByNode(graph.edges);
-    setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode, [...(kf.get(n.key) ?? [])])));
-  }, [graph.nodes, graph.edges, viewMode, setRfNodes]);
+    setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode, objLabelMode, [...(kf.get(n.key) ?? [])])));
+  }, [graph.nodes, graph.edges, viewMode, objLabelMode, setRfNodes]);
   useEffect(() => { setRfEdges(buildRfEdges(graph.edges, graph.nodes, viewMode, relLabelMode)); }, [graph.edges, graph.nodes, viewMode, relLabelMode, setRfEdges]);
 
   // Mark only the selected relationship as reconnectable so dragging an endpoint
@@ -936,7 +942,7 @@ function CanvasInner() {
         >
           {/* Tool dock — anchored to the canvas (not the outer row) so it sits
               just inside the canvas edge and slides over as the rail opens. */}
-          <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} relLabelMode={relLabelMode} onRelLabelModeChange={handleRelLabelModeChange} />
+          <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} relLabelMode={relLabelMode} onRelLabelModeChange={handleRelLabelModeChange} objLabelMode={objLabelMode} onObjLabelModeChange={handleObjLabelModeChange} />
           <ReactFlow
             nodes={rfNodes}
             edges={rfEdges}
