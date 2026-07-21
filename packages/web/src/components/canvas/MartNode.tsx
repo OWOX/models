@@ -3,6 +3,7 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { KeyRound, ChevronDown, ChevronRight } from "lucide-react";
 import type { ModelNode, SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
+import { showInputSource, showFieldCount, type ObjLabelMode } from "../../state/objLabels";
 import { DataMartIcon } from "../../lib/icons";
 import { ERD_COLLAPSED_ROWS } from "./layoutSize";
 
@@ -20,7 +21,7 @@ const STATUS_TIP: Record<string, string> = {
   error: "Error — check details",
 };
 
-export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[] };
+export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[]; _objLabelMode?: ObjLabelMode };
 
 function StatusDot({ status }: { status: string }) {
   const base = "absolute top-[10px] right-[10px] w-[9px] h-[9px] rounded-full z-10";
@@ -50,10 +51,10 @@ function NodePorts() {
   );
 }
 
-function MartHeader({ node, color }: { node: MartNodeData; color: string }) {
+function MartHeader({ node, color, showAccent }: { node: MartNodeData; color: string; showAccent: boolean }) {
   return (
     <div className="flex items-center gap-2 px-3 pt-[11px] pb-2">
-      <span className="w-1 self-stretch min-h-[18px] rounded-sm flex-shrink-0" style={{ background: color }} />
+      {showAccent && <span className="w-1 self-stretch min-h-[18px] rounded-sm flex-shrink-0" style={{ background: color }} />}
       <DataMartIcon size={15} className="text-slate-400 flex-shrink-0" />
       <span className="text-[13.5px] font-semibold flex-1 leading-tight pr-3 text-slate-900 line-clamp-2">
         {node.title}
@@ -128,6 +129,9 @@ function MartNodeInner({ data }: NodeProps) {
   const viewMode = node._viewMode ?? "compact";
   const color = SOURCE_COLOR[node.inputSource] ?? "#94a3b8";
   const isErd = viewMode === "erd";
+  const objLabelMode = node._objLabelMode ?? "all";
+  const withSource = showInputSource(objLabelMode);
+  const withFieldCount = !isErd && showFieldCount(objLabelMode);
   const fieldCount = node.schema?.length ?? 0;
   const fieldText = fieldCount > 0 ? `${fieldCount} field${fieldCount > 1 ? "s" : ""}` : "no fields";
 
@@ -137,18 +141,22 @@ function MartNodeInner({ data }: NodeProps) {
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif" }}
     >
       <StatusDot status={node.status} />
-      <MartHeader node={node} color={color} />
+      <MartHeader node={node} color={color} showAccent={withSource} />
 
-      {/* Meta row: type chip + (compact) field count */}
-      <div className="flex items-center gap-2 px-3 pb-[10px]">
-        <span
-          className="text-[10.5px] font-[650] uppercase tracking-[0.3px] px-[7px] py-[2px] rounded-full text-white"
-          style={{ background: color }}
-        >
-          {node.inputSource}
-        </span>
-        {!isErd && <span className="text-[11px] text-slate-500">{fieldText}</span>}
-      </div>
+      {/* Meta row: type chip + (compact) field count. Skipped entirely when both are hidden. */}
+      {(withSource || withFieldCount) && (
+        <div className="flex items-center gap-2 px-3 pb-[10px]">
+          {withSource && (
+            <span
+              className="text-[10.5px] font-[650] uppercase tracking-[0.3px] px-[7px] py-[2px] rounded-full text-white"
+              style={{ background: color }}
+            >
+              {node.inputSource}
+            </span>
+          )}
+          {withFieldCount && <span className="text-[11px] text-slate-500">{fieldText}</span>}
+        </div>
+      )}
 
       {isErd && <ErdBody node={node} />}
 
