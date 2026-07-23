@@ -23,7 +23,7 @@ describe("graphToBundleFiles", () => {
     const indexKey = Object.keys(files).find(k => k.endsWith("index.md"))!;
     expect(files[indexKey]).toContain("Generated with");
     expect(files[indexKey]).toContain("OWOX Data Marts");
-    expect(files[indexKey]).toContain("github.com/OWOX/owox-model-canvas");
+    expect(files[indexKey]).toContain("github.com/OWOX/models");
     const martKey = Object.keys(files).find(k => k.endsWith("orders.md"))!;
     expect(files[martKey]).not.toContain("Generated with"); // per-mart docs stay clean
   });
