@@ -7,7 +7,7 @@ const OKF_FOOTER =
   "\n\n---\n\n" +
   "_Generated with [OWOX Data Marts](https://www.owox.com/) · " +
   "[Model Canvas](https://model.owox.com/) · " +
-  "[open source](https://github.com/OWOX/owox-model-canvas)_\n";
+  "[open source](https://github.com/OWOX/models)_\n";
 
 export function graphToBundleFiles(g: ModelGraph, projectTitle: string): Record<string, string> {
   const files = serializeBundle(g, projectTitle).files;

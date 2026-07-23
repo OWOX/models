@@ -110,7 +110,7 @@ export function SignInModal({ mode, connect, onConnected, onClose }: SignInModal
             never stored at rest, and used only for this session to read and update Data Marts in your
             project. The key stays in your browser and is cleared when you sign out. It's{" "}
             <a
-              href="https://github.com/OWOX/owox-model-canvas/blob/main/packages/server/src/auth/session.ts"
+              href="https://github.com/OWOX/models/blob/main/packages/server/src/auth/session.ts"
               target="_blank"
               rel="noreferrer"
               className="font-semibold text-[#1e88e5] hover:underline"
