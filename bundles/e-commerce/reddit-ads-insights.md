@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "🥉Reddit Ads | Insights"
 description: "OWOX data mart '🥉Reddit Ads | Insights'."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-05-19T15:45:40.000Z
 ---
 

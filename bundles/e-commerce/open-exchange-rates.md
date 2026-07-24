@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
 title: "Open Exchange Rates"
 description: "OWOX data mart 'Open Exchange Rates'."
 tags: ["owox"]
-timestamp: 2026-07-23T07:00:52.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T07:00:48.000Z
 ---
 
 # Schema

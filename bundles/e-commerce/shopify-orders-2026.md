@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
 title: "Shopify Orders 2026"
 description: "OWOX data mart 'Shopify Orders 2026'."
 tags: ["owox"]
-timestamp: 2026-07-23T13:01:09.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T13:01:12.000Z
 ---
 
 # Schema

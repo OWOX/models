@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
-title: "🥈 Traffic Sources (E-Commerce)"
+title: "🥈 Traffic Sources"
 description: "This Data Mart provides a comprehensive breakdown of website traffic origins, categorizing visitors by source, medium, and specific marketing campaigns. It is used to analyze the effectiveness of different acquisition channels and distinguish between paid and organic traffic performance."
 tags: ["owox"]
-timestamp: 2026-07-16T14:08:48.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T16:39:45.000Z
 ---
 
 # Schema
