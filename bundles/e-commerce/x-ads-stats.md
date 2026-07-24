@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "X Ads Stats"
 description: "OWOX data mart 'X Ads Stats'."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-04-20T15:49:56.000Z
 ---
 

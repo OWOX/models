@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Linkedin Ads Performance Insights"
 description: "Linkedin Ads Performance Insights with ad-level granularity."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-05-26T20:08:10.000Z
 ---
 
