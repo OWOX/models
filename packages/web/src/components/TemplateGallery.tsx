@@ -33,6 +33,14 @@ const FOLDER_TO_TEMPLATE_ID: Record<string, string> = {
 function templateIdForFolder(folder: string): string {
   return FOLDER_TO_TEMPLATE_ID[folder] ?? folder.replace(/-/g, "_");
 }
+// Name to hand `onUse` for a verified bundle. When the bundle matches a built-in
+// template, use that template's name so Canvas's TEMPLATE_NICHE lookup fires
+// (Business-Goal pre-pick + niche-flavored model name); otherwise fall back to
+// the bundle's own title. The GitHub graph is used regardless — only the name.
+export function verifiedTemplateName(folder: string, fallbackTitle: string): string {
+  const id = templateIdForFolder(folder);
+  return [...INDUSTRY_TEMPLATES, ...DATASET_TEMPLATES].find(t => t.id === id)?.name ?? fallbackTitle;
+}
 // Until the verified list loads, fall back to the known set so Others never
 // flashes a duplicate for the common case.
 const DEFAULT_DEDUP = ["ecommerce", "saas", "finance", "medical", "marketing_ads"];
@@ -117,17 +125,22 @@ function VerifiedTemplateRow({
   const loadedRef = useRef(false);
   const inFlightRef = useRef<Promise<ModelGraph | null> | null>(null);
   const mountedRef = useRef(true);
+  const abortRef = useRef<AbortController | null>(null);
   const url = bundleGithubUrl(bundle.folder);
 
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  // On unmount, stop guarding state AND abort any in-flight bundle fetch so a
+  // dialog closed mid-load doesn't leave the network request running.
+  useEffect(() => () => { mountedRef.current = false; abortRef.current?.abort(); }, []);
 
   function load(): Promise<ModelGraph | null> {
     if (loadedRef.current && graph) return Promise.resolve(graph);
     if (inFlightRef.current) return inFlightRef.current;
 
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     const promise = (async () => {
       try {
-        const files = await fetchOkfBundleFromUrl(url);
+        const files = await fetchOkfBundleFromUrl(url, { signal: ctrl.signal });
         const parsed = filesToGraph(files);
         // OKF carries no OWOX identity — mark nodes pending (mirrors ImportDialog).
         const g: ModelGraph = { ...parsed, nodes: parsed.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
@@ -138,6 +151,8 @@ function VerifiedTemplateRow({
         loadedRef.current = true;
         return g;
       } catch (e) {
+        // Aborted on unmount — not a real failure, and the component is gone.
+        if ((e as Error).name === "AbortError") return null;
         if (mountedRef.current) setError((e as Error).message ?? "Failed to load bundle.");
         return null;
       } finally {
@@ -157,7 +172,7 @@ function VerifiedTemplateRow({
   async function handleUse(e: React.MouseEvent) {
     e.stopPropagation();
     const g = graph ?? (await load());
-    if (g) onUse(g, bundle.title);
+    if (g) onUse(g, verifiedTemplateName(bundle.folder, bundle.title));
   }
 
   return (

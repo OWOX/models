@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import { TemplateGallery } from "./TemplateGallery";
+import { TemplateGallery, verifiedTemplateName } from "./TemplateGallery";
 
 const TOP_INDEX = `# OKF Bundles
 - [E-Commerce](./e-commerce/index.md) — 22 concept(s)
@@ -37,5 +37,21 @@ describe("TemplateGallery", () => {
     expect(within(others).queryByText("Marketplace")).not.toBeInTheDocument();
     // A non-deduped built-in still appears.
     expect(within(others).getByText("Mobile / Gaming")).toBeInTheDocument();
+  });
+});
+
+describe("verifiedTemplateName", () => {
+  // Resolving to the built-in template name is what lets Canvas's TEMPLATE_NICHE
+  // lookup fire for verified bundles (fast-follow: niche pre-pick + model name).
+  it("maps a verified bundle folder to its matching built-in template name", () => {
+    expect(verifiedTemplateName("saas", "SaaS")).toBe("SaaS / Subscription");
+    expect(verifiedTemplateName("e-commerce", "E-Commerce")).toBe("E-commerce / Retail");
+    expect(verifiedTemplateName("marketing-leadgen", "Marketing Leadgen")).toBe("Marketing / Lead-gen");
+    expect(verifiedTemplateName("healthcare", "Healthcare")).toBe("Healthcare");
+    expect(verifiedTemplateName("marketplace", "Marketplace")).toBe("Marketplace");
+  });
+
+  it("falls back to the bundle title when no built-in template matches", () => {
+    expect(verifiedTemplateName("brand-new-vertical", "Brand New Vertical")).toBe("Brand New Vertical");
   });
 });
