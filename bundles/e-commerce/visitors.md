@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
-title: "🥈 Visitors (E-Commerce)"
+title: "🥈 Visitors"
 description: "This dataset provides a comprehensive overview of website visitor behavior and acquisition history at the individual visitor level. It tracks engagement metrics like total sessions and visit dates alongside marketing attribution details to help analyze user retention and campaign effectiveness."
 tags: ["owox"]
-timestamp: 2026-07-17T14:28:27.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T16:39:36.000Z
 ---
 
 # Schema

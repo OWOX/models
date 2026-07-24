@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
-title: "🥈 Countries (E-Commerce)"
-description: "OWOX data mart '🥈 Countries (E-Commerce)'."
+title: "🥈 Countries"
+description: "OWOX data mart '🥈 Countries'."
 tags: ["owox"]
-timestamp: 2026-07-21T01:38:40.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T16:39:23.000Z
 ---
 
 # Schema
