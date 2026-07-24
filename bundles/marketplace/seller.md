@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Seller"
 description: "The supply side — one row per seller, with rating, recency and lifecycle status."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:14.000Z
 ---
 

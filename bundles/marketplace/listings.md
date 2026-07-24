@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Listings"
 description: "One row per listing/offer — the supply inventory buyers can order from."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:14.000Z
 ---
 

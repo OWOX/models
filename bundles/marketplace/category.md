@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Category"
 description: "Reference of marketplace categories and the platform take rate charged in each."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:16.000Z
 ---
 

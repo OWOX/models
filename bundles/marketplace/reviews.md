@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Reviews"
 description: "One row per post-transaction review — rating, reviewer side and complaint flag."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:11.000Z
 ---
 

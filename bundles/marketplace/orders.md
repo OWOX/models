@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Orders"
 description: "The match — one row per order, carrying GMV, take rate, platform revenue and seller payout."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:13.000Z
 ---
 

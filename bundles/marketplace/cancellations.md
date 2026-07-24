@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Cancellations"
 description: "One row per cancelled order — the stage, cause, initiator and refund."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:13.000Z
 ---
 

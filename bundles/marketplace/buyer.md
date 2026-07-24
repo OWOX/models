@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Buyer"
 description: "The demand side — one row per buyer, with lifetime order count and repeat flag."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:16.000Z
 ---
 
