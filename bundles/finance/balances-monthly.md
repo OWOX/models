@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Balances (monthly)"
 description: |
   A month-by-month snapshot of every account's balance and the money it earns or costs the
@@ -7,6 +6,7 @@ description: |
   the view for understanding the earning power of the book over time and how balances build
   up or run down.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:48.000Z
 ---
 

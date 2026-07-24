@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Product"
 description: |
   The catalog of products the business offers — deposits, cards, loans, and
@@ -7,6 +6,7 @@ description: |
   is what the business pays the customer; for credit products it is what the customer is
   charged. This is the lookup that gives every account and loan its pricing context.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:47.000Z
 ---
 

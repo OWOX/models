@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Repayments"
 description: |
   The repayment schedule for every funded loan and how each installment actually played
@@ -7,6 +6,7 @@ description: |
   principal still outstanding, and the point at which a loan is written off. This is where
   the health of the loan book, and the losses building in it, become visible.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:49.000Z
 ---
 

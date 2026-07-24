@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Customer"
 description: |
   Everyone the business has taken on as a borrower, with the details that drive every
@@ -8,6 +7,7 @@ description: |
   to fund an account. The starting point for understanding who your customers are and where
   they come from.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:47.000Z
 ---
 
