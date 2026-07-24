@@ -32,3 +32,5 @@ timestamp: 2026-07-23T17:31:24Z
 - Do higher-risk customers who pay on time make up for the ones who default — is the pricing worth the risk?
 
 <!-- OWOX:GENERATED:END -->
+
+<img width="2306" height="1424" alt="finance" src="https://github.com/user-attachments/assets/e590a0cf-8e6a-4614-aa4d-7f48e381ff65" />
