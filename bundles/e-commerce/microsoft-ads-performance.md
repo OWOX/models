@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Microsoft Ads Performance"
 description: "OWOX data mart 'Microsoft Ads Performance'."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-05-26T20:07:10.000Z
 ---
 
