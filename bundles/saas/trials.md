@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Trials"
 description: |
   Every trial and how it ended — converted to paid or not — with when it started and expired,
   where it came from (self-serve, sales-assisted, product-led upsell), and the plan it was
   evaluating. The top of the funnel for new recurring revenue.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:27.000Z
 ---
 

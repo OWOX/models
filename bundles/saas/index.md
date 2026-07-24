@@ -1,5 +1,4 @@
 ---
-type: "index"
 title: "SaaS"
 description: |
   A B2B subscription software business modeled end to end — from the marketing that brings
@@ -8,10 +7,13 @@ description: |
   spine: every plan change flows through an MRR movement (new, expansion, contraction,
   churn), while engagement, support and payment health all feed the retention story.
 tags: ["owox", "index"]
-timestamp: 2026-07-23T17:13:48Z
+type: "index"
+timestamp: 2026-07-24T16:52:49Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
+
+**Authors:** [Vlad Flaks](https://github.com/vladflaks), [Rus Obolonsky](https://github.com/Obolrus)
 
 | Data Mart | Fields |
 |-----------|--------|
@@ -31,6 +33,12 @@ timestamp: 2026-07-23T17:13:48Z
 - What is net revenue retention, and how much of it is expansion versus what contraction and churn take back?
 - Which acquisition channels pay back their cost fastest once you account for the revenue those accounts actually retain?
 - Do accounts with deeper product usage and better support experiences expand more and churn less?
+
+# Explore this model
+
+**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/saas)**
+
+One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
 

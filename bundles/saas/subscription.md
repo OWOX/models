@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Subscription"
 description: |
   The billing spine: one row per subscription showing which account is on which plan, at what
@@ -7,6 +6,7 @@ description: |
   It also reveals where a subscription's plan has drifted from the account's current tier under
   grandfathered or discounted pricing. The source of truth for what each customer pays today.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:26.000Z
 ---
 

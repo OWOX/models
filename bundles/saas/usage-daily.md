@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Usage (daily)"
 description: |
   Daily product engagement at the account-and-user level: active minutes, high-value actions
   taken, and how many distinct features were touched — the breadth signal for activation. The
   behavioral pulse that explains why accounts expand, stall, or churn.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:28.000Z
 ---
 

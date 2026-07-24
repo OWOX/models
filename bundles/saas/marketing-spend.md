@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Marketing Spend"
 description: |
   Marketing investment by channel, campaign and day — cost, leads, and signups — attributed to
   the cohort of accounts each channel brings in rather than to individual accounts. The numerator
   and denominator of customer acquisition cost, and the starting point for payback analysis.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:25.000Z
 ---
 
