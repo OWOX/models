@@ -46,7 +46,11 @@ export function buildApp() {
         baseUri: ["'self'"],
         scriptSrc: ["'self'", POSTHOG_PROXY],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "blob:"],
+        // github.com: verified-bundle index images are raw <img> tags pointing at
+        // github.com/user-attachments/... (they 302-redirect to a short-lived S3
+        // asset URL, which the browser follows). CSP fetch directives match the
+        // initial request URL, so github.com covers the redirect.
+        imgSrc: ["'self'", "data:", "blob:", "https://github.com"],
         fontSrc: ["'self'", "data:"],
         // raw.githubusercontent.com: client-side OKF-bundle import fetches the
         // markdown files directly; api.github.com: fallback folder listing when a
