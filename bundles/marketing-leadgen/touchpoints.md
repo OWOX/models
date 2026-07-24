@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Touchpoints"
 description: |
   One row per marketing touch a lead has on the way to becoming a customer, credited under a
@@ -8,6 +7,7 @@ description: |
   that answers "which channels and campaigns actually deserve credit," rather than crediting
   only the first click or the last one.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:33.000Z
 ---
 

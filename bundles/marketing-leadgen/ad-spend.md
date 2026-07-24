@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Ad Spend"
 description: |
   Daily cost, impressions and clicks for every paid campaign, broken out by ad group. This is
@@ -7,6 +6,7 @@ description: |
   LinkedIn Ads and other platform reports every week to know what a click, a lead and ultimately
   a closed deal actually costs.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:31.000Z
 ---
 

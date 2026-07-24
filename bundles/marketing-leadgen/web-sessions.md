@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Web Sessions"
 description: |
   One row per web session, the very top of the funnel, before most visitors are ever identified
@@ -9,6 +8,7 @@ description: |
   B2B web traffic never converts or gets identified, most sessions carry no lead at all; the
   ones that do show exactly where anonymous traffic turns into a known contact.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:33.000Z
 ---
 

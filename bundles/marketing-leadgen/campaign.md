@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Campaign"
 description: |
   Reference of every marketing initiative run — paid and non-paid alike, from search and social
@@ -9,6 +8,7 @@ description: |
   sessions, touchpoints or opportunities agrees with what is declared here, so a channel-level
   report never splits into phantom categories.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:31.000Z
 ---
 
