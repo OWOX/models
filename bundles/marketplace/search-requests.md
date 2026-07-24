@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Search Requests"
 description: "One row per search/browse request — the demand and match-quality signal."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-24T10:45:11.000Z
 ---
 
