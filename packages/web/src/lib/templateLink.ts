@@ -30,3 +30,10 @@ export function clearTemplateFromUrl(): void {
   const qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : "") + location.hash);
 }
+
+/** Build a shareable deeplink for a built-in template — the Others-section
+ *  counterpart to buildOkfDeeplink (which serves the verified GitHub bundles).
+ *  `?template=<id>` is read back by readTemplateModel on load. */
+export function buildTemplateDeeplink(id: string): string {
+  return `${location.origin}/?template=${encodeURIComponent(id)}`;
+}

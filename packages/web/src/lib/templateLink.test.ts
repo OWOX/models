@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { readTemplateModel, clearTemplateFromUrl } from "./templateLink";
+import { readTemplateModel, clearTemplateFromUrl, buildTemplateDeeplink } from "./templateLink";
 
 const setUrl = (url: string) => history.replaceState(null, "", url);
 
@@ -45,5 +45,15 @@ describe("clearTemplateFromUrl", () => {
     setUrl("/?utm_source=x");
     clearTemplateFromUrl();
     expect(location.search).toBe("?utm_source=x");
+  });
+});
+
+describe("buildTemplateDeeplink", () => {
+  it("builds a ?template= deeplink at the current origin", () => {
+    expect(buildTemplateDeeplink("ecommerce")).toBe(`${location.origin}/?template=ecommerce`);
+  });
+
+  it("encodes ids with reserved characters", () => {
+    expect(buildTemplateDeeplink("a&b")).toBe(`${location.origin}/?template=a%26b`);
   });
 });
