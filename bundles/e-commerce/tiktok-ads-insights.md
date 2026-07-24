@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "TikTok Ads Insights"
 description: "TikTok Ad Insights with ad-level granularity."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-05-26T20:09:01.000Z
 ---
 

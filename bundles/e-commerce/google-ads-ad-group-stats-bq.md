@@ -1,10 +1,10 @@
 ---
-type: "OWOX Data Mart"
 title: "Google Ads Ad Group Stats BQ"
 description: |
   Google Ads Ad Group Stats. 
   Ad group granularity.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-05-26T20:09:19.000Z
 ---
 

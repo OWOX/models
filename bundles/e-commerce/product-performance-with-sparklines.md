@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "📊 Product Performance with sparklines"
 description: "OWOX data mart '📊 Product Performance with sparklines'."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-21T01:39:36.000Z
 ---
 
