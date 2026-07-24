@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Loans"
 description: |
   Every loan application and what happened to it — approved, declined, or withdrawn —
@@ -7,6 +6,7 @@ description: |
   funnel, the reasons applications are turned down, and the pricing applied to each borrower
   based on their risk. This is the origination story of the loan book.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:48.000Z
 ---
 

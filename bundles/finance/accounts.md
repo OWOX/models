@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Accounts"
 description: |
   Every product a customer has opened — the funded relationships that turn a sign-up into
@@ -7,6 +6,7 @@ description: |
   whether it is still active, dormant, frozen, closed, or written off. This is where you see
   who actually became a funded customer and how healthy those relationships are.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:48.000Z
 ---
 

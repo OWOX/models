@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Collections"
 description: |
   Every action taken to recover money from loans that have fallen behind — reminders, calls,
@@ -7,6 +6,7 @@ description: |
   recovered and how effective different approaches are once a loan is delinquent or written
   off. This is the last line of defense on losses.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T13:16:47.000Z
 ---
 

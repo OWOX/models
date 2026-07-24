@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Transactions"
 description: |
   Every payment, withdrawal, transfer, and card authorization flowing through customer
@@ -8,6 +7,7 @@ description: |
   declined, and the fraud assessment made at the time of authorization. The pulse of
   everyday customer behavior.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:02:49.000Z
 ---
 
