@@ -62,7 +62,7 @@ export function LibraryDialog({ onUse, onClose }: Props) {
             <div className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">Verified templates gallery</div>
             <p className="mt-0.5 text-[12px] text-slate-500">
               Ready-to-use, free community bundles maintained by OWOX ·{" "}
-              <a href={BUNDLES_URL} target="_blank" rel="noopener" className="text-[#1e88e5] hover:text-[#1976d2] underline underline-offset-2">
+              <a href={BUNDLES_URL} target="_blank" rel="noopener noreferrer" className="text-[#1e88e5] hover:text-[#1976d2] underline underline-offset-2">
                 browse on GitHub ↗
               </a>
             </p>
@@ -112,35 +112,40 @@ function VerifiedTemplateRow({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const loadedRef = useRef(false);
-  const loadingRef = useRef(false);
+  const inFlightRef = useRef<Promise<ModelGraph | null> | null>(null);
   const mountedRef = useRef(true);
   const url = bundleGithubUrl(bundle.folder);
 
   useEffect(() => () => { mountedRef.current = false; }, []);
 
-  async function load(): Promise<ModelGraph | null> {
-    if (loadedRef.current && graph) return graph;
-    if (loadingRef.current) return graph;
-    loadingRef.current = true;
+  function load(): Promise<ModelGraph | null> {
+    if (loadedRef.current && graph) return Promise.resolve(graph);
+    if (inFlightRef.current) return inFlightRef.current;
+
+    const promise = (async () => {
+      try {
+        const files = await fetchOkfBundleFromUrl(url);
+        const parsed = filesToGraph(files);
+        // OKF carries no OWOX identity — mark nodes pending (mirrors ImportDialog).
+        const g: ModelGraph = { ...parsed, nodes: parsed.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
+        const idx = Object.entries(files).find(([p]) => p.toLowerCase().endsWith("index.md"))?.[1] ?? "";
+        let desc: string | null = null;
+        try { const t = parseFrontmatter(idx).data.description; desc = typeof t === "string" && t.trim() ? t.trim() : null; } catch { /* ignore */ }
+        if (mountedRef.current) { setGraph(g); setDescription(desc); setImageSrc(firstImageSrc(idx)); }
+        loadedRef.current = true;
+        return g;
+      } catch (e) {
+        if (mountedRef.current) setError((e as Error).message ?? "Failed to load bundle.");
+        return null;
+      } finally {
+        inFlightRef.current = null;
+        if (mountedRef.current) setLoading(false);
+      }
+    })();
+
+    inFlightRef.current = promise;
     setLoading(true); setError(null);
-    try {
-      const files = await fetchOkfBundleFromUrl(url);
-      const parsed = filesToGraph(files);
-      // OKF carries no OWOX identity — mark nodes pending (mirrors ImportDialog).
-      const g: ModelGraph = { ...parsed, nodes: parsed.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
-      const idx = Object.entries(files).find(([p]) => p.toLowerCase().endsWith("index.md"))?.[1] ?? "";
-      let desc: string | null = null;
-      try { const t = parseFrontmatter(idx).data.description; desc = typeof t === "string" && t.trim() ? t.trim() : null; } catch { /* ignore */ }
-      if (mountedRef.current) { setGraph(g); setDescription(desc); setImageSrc(firstImageSrc(idx)); }
-      loadedRef.current = true;
-      return g;
-    } catch (e) {
-      if (mountedRef.current) setError((e as Error).message ?? "Failed to load bundle.");
-      return null;
-    } finally {
-      loadingRef.current = false;
-      if (mountedRef.current) setLoading(false);
-    }
+    return promise;
   }
 
   // Fetch the moment the row opens.
