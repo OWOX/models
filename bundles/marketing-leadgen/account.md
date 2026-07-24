@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Account"
 description: |
   One row per target company, the firmographic backbone the rest of the model hangs off. Every
@@ -9,6 +8,7 @@ description: |
   that lets leads, opportunities and touchpoints be rolled up to "who is this company, and how
   big an opportunity is it."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:31.000Z
 ---
 

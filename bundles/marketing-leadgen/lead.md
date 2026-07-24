@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Lead"
 description: |
   One row per lead or contact captured by marketing, carrying where they came from, their
@@ -9,6 +8,7 @@ description: |
   can be grouped into cohorts — "leads created in March" — and tracked through the funnel over
   time, not just counted at a single point.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:32.000Z
 ---
 

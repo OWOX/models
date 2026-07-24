@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Opportunities"
 description: |
   One row per sales opportunity — the deal object, keyed to the account rather than a single
@@ -8,6 +7,7 @@ description: |
   close date and sales-cycle length. This is where marketing-sourced pipeline turns into — or
   fails to turn into — closed revenue.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:32.000Z
 ---
 

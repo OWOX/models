@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Stage Transitions"
 description: |
   One row per pipeline stage change for a sales opportunity, tracing each deal's path through
@@ -7,6 +6,7 @@ description: |
   each stage before moving to the next is the raw material for bottleneck analysis — where deals
   get stuck, and for how long.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:32.000Z
 ---
 
