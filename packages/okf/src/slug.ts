@@ -28,13 +28,39 @@ export function parseFrontmatter(text: string): { data: Record<string, any>; bod
 }
 function parseYaml(src: string): Record<string, any> {
   const root: Record<string, any> = {}; const stack: { indent: number; obj: any }[] = [{ indent: -1, obj: root }];
-  for (const raw of src.split("\n")) {
+  const lines = src.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
     if (!raw.trim()) continue;
     const indent = raw.match(/^ */)![0].length;
     const line = raw.trim(); const ci = line.indexOf(":"); if (ci < 0) continue;
     const key = line.slice(0, ci).trim(); const rest = line.slice(ci + 1).trim();
     while (stack.length && indent <= stack[stack.length - 1].indent) stack.pop();
     const parent = stack[stack.length - 1].obj;
+    const blockMatch = rest.match(/^([|>])(?:[+-])?$/);
+    if (blockMatch) {
+      const [, style] = blockMatch;
+      const blockLines: string[] = [];
+      let j = i + 1;
+      for (; j < lines.length; j++) {
+        const l = lines[j];
+        if (!l.trim()) { blockLines.push(""); continue; }
+        const lIndent = l.match(/^ */)![0].length;
+        if (lIndent <= indent) break;
+        blockLines.push(l);
+      }
+      // Trim trailing blank lines collected before we know the base indent.
+      while (blockLines.length && blockLines[blockLines.length - 1] === "") blockLines.pop();
+      let baseIndent = 0;
+      for (const l of blockLines) { if (l.trim()) { baseIndent = l.match(/^ */)![0].length; break; } }
+      const stripped = blockLines.map(l => (l === "" ? "" : l.slice(baseIndent)));
+      // Chomping (-, +, default) all collapse to the same result here: descriptions
+      // never need a trailing newline, so trailing whitespace is always trimmed.
+      const joined = (style === "|" ? stripped.join("\n") : stripped.join(" ")).replace(/\s+$/, "");
+      parent[key] = joined;
+      i = j - 1;
+      continue;
+    }
     if (rest === "") { const obj: Record<string, any> = {}; parent[key] = obj; stack.push({ indent, obj }); }
     else parent[key] = parseValue(rest);
   }
