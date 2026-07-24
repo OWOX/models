@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Department"
 description: |
   Reference list of the clinical departments that make up the health system, each with the
@@ -7,6 +6,7 @@ description: |
   unit behind appointments, provider assignments and daily bed census — staffed beds is the
   denominator for every occupancy and capacity calculation in the model.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:11.000Z
 ---
 

@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Provider"
 description: |
   One row per clinician, the roster behind every appointment and encounter. Each provider is
@@ -8,6 +7,7 @@ description: |
   is the lens for looking at care delivery by clinician: who is seeing patients, in what
   specialty, and out of which department.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:12.000Z
 ---
 

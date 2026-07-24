@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Claims"
 description: |
   One row per claim submitted to a payer for a clinical encounter — the revenue-cycle record
@@ -8,6 +7,7 @@ description: |
   applies, and the number of days it has sat in accounts receivable. This is the mart that
   answers how well the health system gets paid for the care it delivers, and how quickly.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:13.000Z
 ---
 

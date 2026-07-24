@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Patient"
 description: |
   One row per patient, the demographic and coverage anchor for every appointment, encounter
@@ -9,6 +8,7 @@ description: |
   management to flag patients who need closer follow-up, and the date they first registered
   with the system.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:11.000Z
 ---
 
