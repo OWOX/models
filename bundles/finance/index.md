@@ -1,6 +1,5 @@
 ---
 title: "Finance"
-authors: ["[Vlad Flaks](https://github.com/vladflaks)", "[Rus Obolonsky](https://github.com/Obolrus)"]
 description: |
   A consumer-lending business modeled end to end — from how customers are acquired and
   verified, through account funding and loan origination, to repayments, missed payments,
@@ -10,7 +9,7 @@ description: |
   the money and the risk across the entire loan book.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-24T16:29:01Z
+timestamp: 2026-07-24T16:44:30Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -25,6 +24,8 @@ timestamp: 2026-07-24T16:29:01Z
 | [Product](./product.md) | 5 |
 | [Repayments](./repayments.md) | 9 |
 | [Transactions](./transactions.md) | 11 |
+
+**Authors:** [Vlad Flaks](https://github.com/vladflaks), [Rus Obolonsky](https://github.com/Obolrus)
 
 # Example Questions
 
