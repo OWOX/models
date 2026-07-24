@@ -112,10 +112,16 @@ function VerifiedTemplateRow({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const loadedRef = useRef(false);
+  const loadingRef = useRef(false);
+  const mountedRef = useRef(true);
   const url = bundleGithubUrl(bundle.folder);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   async function load(): Promise<ModelGraph | null> {
     if (loadedRef.current && graph) return graph;
+    if (loadingRef.current) return graph;
+    loadingRef.current = true;
     setLoading(true); setError(null);
     try {
       const files = await fetchOkfBundleFromUrl(url);
@@ -125,14 +131,15 @@ function VerifiedTemplateRow({
       const idx = Object.entries(files).find(([p]) => p.toLowerCase().endsWith("index.md"))?.[1] ?? "";
       let desc: string | null = null;
       try { const t = parseFrontmatter(idx).data.description; desc = typeof t === "string" && t.trim() ? t.trim() : null; } catch { /* ignore */ }
-      setGraph(g); setDescription(desc); setImageSrc(firstImageSrc(idx));
+      if (mountedRef.current) { setGraph(g); setDescription(desc); setImageSrc(firstImageSrc(idx)); }
       loadedRef.current = true;
       return g;
     } catch (e) {
-      setError((e as Error).message ?? "Failed to load bundle.");
+      if (mountedRef.current) setError((e as Error).message ?? "Failed to load bundle.");
       return null;
     } finally {
-      setLoading(false);
+      loadingRef.current = false;
+      if (mountedRef.current) setLoading(false);
     }
   }
 
