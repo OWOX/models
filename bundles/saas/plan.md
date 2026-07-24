@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Plan"
 description: |
   The price book: every sellable plan and price point — four tiers (Starter, Pro, Business,
   Enterprise), each offered monthly or annually, with its list price and whether it is
   currently sellable. The reference that gives every subscription its list pricing.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:26.000Z
 ---
 

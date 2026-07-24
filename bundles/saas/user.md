@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "User"
 description: |
   The people inside each account: one row per user seat, with role, seat type, when they were
   invited, and how recently they were active. Seat-level activity is what turns a licensed
   account into an adopted one — and idle seats are early signs of shrinking value.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:27.000Z
 ---
 

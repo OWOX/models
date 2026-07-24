@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Support Tickets"
 description: |
   Every support interaction — priority, topic, satisfaction score, time to first response, and
   resolution time. Support experience is an early churn-risk signal: unhappy, slow-to-resolve
   accounts are the ones that quietly leave.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:28.000Z
 ---
 

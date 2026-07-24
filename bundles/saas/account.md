@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Account"
 description: |
   Every customer account (a company), with the signals that frame the whole relationship:
@@ -8,6 +7,7 @@ description: |
   sit in the lifecycle (trial, active, at-risk, churned). The dimension you slice the entire
   business by.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:25.000Z
 ---
 

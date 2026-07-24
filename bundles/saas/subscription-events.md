@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Subscription Events"
 description: |
   The movement history behind recurring revenue: one row per subscription change — new,
@@ -7,6 +6,7 @@ description: |
   and the running revenue after each change. This is what reconstructs the revenue waterfall
   and the retention rates the business lives or dies by.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:27.000Z
 ---
 

@@ -1,11 +1,11 @@
 ---
-type: "OWOX Data Mart"
 title: "Invoices"
 description: |
   Every invoice and how it was paid — amount, tax, discounts and credits, payment status, and
   where it sits in the dunning cycle when a payment fails. This is where voluntary revenue meets
   involuntary churn: failed payments and collections stages that quietly erode the customer base.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T12:51:26.000Z
 ---
 
