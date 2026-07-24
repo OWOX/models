@@ -62,4 +62,53 @@ describe("block scalars", () => {
     const { data } = parseFrontmatter('---\ndescription: "hello"\n---\nbody');
     expect(data.description).toBe("hello");
   });
+
+  it("preserves extra indentation beyond the base indent", () => {
+    const src = [
+      "description: |",
+      "  Line one.",
+      "    Extra indented.",
+      "  Line two.",
+      'tags: ["owox"]',
+    ].join("\n");
+    const { data } = parseFrontmatter("---\n" + src + "\n---\nbody");
+    expect(data.description).toBe("Line one.\n  Extra indented.\nLine two.");
+    expect(data.tags).toEqual(["owox"]);
+  });
+
+  it("preserves an interior blank line inside the block", () => {
+    const src = [
+      "description: |",
+      "  Line one.",
+      "",
+      "  Line three.",
+      'tags: ["owox"]',
+    ].join("\n");
+    const { data } = parseFrontmatter("---\n" + src + "\n---\nbody");
+    expect(data.description).toBe("Line one.\n\nLine three.");
+  });
+});
+
+describe("block scalar serialization", () => {
+  it("renders a multi-line string as a literal block scalar", () => {
+    const text = renderFrontmatter({ description: "Line one.\nLine two." });
+    expect(text).toBe("description: |\n  Line one.\n  Line two.");
+  });
+
+  it("round-trips an object containing a multi-line description", () => {
+    const original = {
+      type: "OWOX Data Mart",
+      title: "A",
+      description: "Line one.\nLine two.",
+      tags: ["owox"],
+    };
+    const text = renderFrontmatter(original);
+    const { data } = parseFrontmatter("---\n" + text + "\n---\nbody");
+    expect(data).toEqual(original);
+  });
+
+  it("still quotes a single-line description (unchanged regression)", () => {
+    const text = renderFrontmatter({ description: "single line" });
+    expect(text).toBe('description: "single line"');
+  });
 });

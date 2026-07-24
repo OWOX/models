@@ -13,6 +13,10 @@ export function renderFrontmatter(obj: Record<string, unknown>, indent = ""): st
       if (allScalar && entries.length <= 2 && entries.every(([, x]) => typeof x === "number"))
         lines.push(`${indent}${k}: { ${entries.map(([ek, ev]) => `${ek}: ${ev}`).join(", ")} }`);
       else { lines.push(`${indent}${k}:`); lines.push(renderFrontmatter(v as Record<string, unknown>, indent + "  ")); }
+    } else if (typeof v === "string" && v.includes("\n")) {
+      lines.push(`${indent}${k}: |`);
+      const contentIndent = indent + "  ";
+      for (const l of v.split("\n")) lines.push(l === "" ? "" : `${contentIndent}${l}`);
     } else lines.push(`${indent}${k}: ${scalar(v)}`);
   }
   return lines.join("\n");
