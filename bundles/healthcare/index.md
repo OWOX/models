@@ -34,3 +34,6 @@ timestamp: 2026-07-23T17:42:20Z
 - Which departments are running closest to bed capacity, and how does occupancy relate to admissions and discharges over time?
 
 <!-- OWOX:GENERATED:END -->
+
+<img width="2510" height="1206" alt="healthcare" src="https://github.com/user-attachments/assets/0bd92b71-ed57-48c7-9ae8-da8ad27f8baf" />
+

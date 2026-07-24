@@ -40,3 +40,6 @@ timestamp: 2026-07-23T17:41:29Z
 - Which products and categories drive the most revenue and repeat purchasing, and how does that shift across countries and over time?
 
 <!-- OWOX:GENERATED:END -->
+
+<img width="2622" height="1156" alt="e-commerce" src="https://github.com/user-attachments/assets/70bd1d0d-1199-45a5-82b0-dfea33d31054" />
+

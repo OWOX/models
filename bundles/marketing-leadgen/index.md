@@ -33,3 +33,6 @@ timestamp: 2026-07-23T17:42:23Z
 - Do target (ABM) accounts convert, close and win at a higher rate than the rest of the book?
 
 <!-- OWOX:GENERATED:END -->
+
+<img width="2602" height="1290" alt="marketing_leadgen" src="https://github.com/user-attachments/assets/ab729633-9481-43f7-9751-9cbd6e4e41eb" />
+
