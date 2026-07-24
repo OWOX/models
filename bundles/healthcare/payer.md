@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Payer"
 description: |
   Reference list of the insurance payers and plans that reimburse the health system for care,
@@ -7,6 +6,7 @@ description: |
   claim is billed to one of these payers, so this mart is the lookup behind any payer-mix or
   reimbursement analysis.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:12.000Z
 ---
 

@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Appointments"
 description: |
   One row per scheduled appointment, capturing how a visit was booked and whether the patient
@@ -9,6 +8,7 @@ description: |
   is the front door of the clinical and revenue cycle — every encounter and claim downstream
   starts as a booked appointment here.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:12.000Z
 ---
 

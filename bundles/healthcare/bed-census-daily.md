@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Bed Census (daily)"
 description: |
   One row per department per day, tracking inpatient bed capacity and patient flow over time.
@@ -8,6 +7,7 @@ description: |
   whether a department is filling up or emptying out. This is the operational pulse of
   capacity management across the health system.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:11.000Z
 ---
 

@@ -1,5 +1,4 @@
 ---
-type: "OWOX Data Mart"
 title: "Encounters"
 description: |
   One row per clinical encounter — the actual visit that followed a scheduled appointment.
@@ -9,6 +8,7 @@ description: |
   patients are being treated for, how long they stay, and how often they come back
   unexpectedly.
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-23T17:34:13.000Z
 ---
 
