@@ -2,7 +2,7 @@
 // top-level bundles/index.md that links to each bundle's own index.md. We fetch
 // that one file on dialog open and parse the rows — so new OWOX bundles appear
 // in the gallery with no app code change. Heavy per-bundle content (mart files,
-// graph, image) is fetched lazily on row expand (see LibraryDialog).
+// graph, image) is fetched lazily on row expand (see TemplateGallery).
 
 export const VERIFIED_BUNDLES_INDEX_URL =
   "https://raw.githubusercontent.com/OWOX/models/main/bundles/index.md";
