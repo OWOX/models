@@ -1,8 +1,7 @@
-import { X, Rocket, Plus, Download, ExternalLink } from "lucide-react";
+import { X, Plus, Download, ExternalLink } from "lucide-react";
 import type { ModelGraph } from "@mc/okf";
-import { INDUSTRY_TEMPLATES, DATASET_TEMPLATES, type Template } from "../templates";
-import { LibraryIcon } from "../lib/icons";
 import { IMPORT_GUIDE_URL } from "../lib/links";
+import { TemplateGallery } from "./TemplateGallery";
 
 interface Props {
   /** Roll a template onto the canvas. */
@@ -36,15 +35,8 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
         </div>
 
         {/* Templates */}
-        <div className="overflow-y-auto px-4 py-3 flex flex-col gap-2">
-          <div className="flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            <LibraryIcon size={14} className="text-[#1e88e5]" /> Start from a template
-          </div>
-          {INDUSTRY_TEMPLATES.map(t => <TemplateChoice key={t.id} template={t} onUse={onUseTemplate} />)}
-          <div className="px-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Public datasets
-          </div>
-          {DATASET_TEMPLATES.map(t => <TemplateChoice key={t.id} template={t} onUse={onUseTemplate} />)}
+        <div className="overflow-y-auto px-4 py-3">
+          <TemplateGallery onUse={onUseTemplate} />
         </div>
 
         {/* Footer: start blank / import */}
@@ -72,25 +64,6 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
           </a>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TemplateChoice({ template: t, onUse }: { template: Template; onUse: (graph: ModelGraph, name: string) => void }) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-[#e2e6ec] px-4 py-3 hover:bg-[#f8fafc]">
-      <div className="flex-1 min-w-0">
-        <div className="text-[14px] font-semibold">{t.name}</div>
-        <div className="text-[12px] text-slate-500 truncate">{t.description}</div>
-      </div>
-      <span className="text-[11px] text-slate-500 whitespace-nowrap">{t.graph.nodes.length} marts · {t.graph.edges.length} links</span>
-      <button
-        onClick={() => onUse(structuredClone(t.graph), t.name)}
-        title={`Roll out the ${t.name} model`}
-        className="flex items-center gap-[6px] rounded-lg bg-[#1e88e5] px-3 py-[6px] text-[12px] font-semibold text-white hover:bg-[#1976d2] whitespace-nowrap"
-      >
-        <Rocket size={13} /> Use
-      </button>
     </div>
   );
 }
