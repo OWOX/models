@@ -1,9 +1,9 @@
 ---
-type: "OWOX Data Mart"
-title: "🥈 Unified Ad Spend (E-Commerce)"
+title: "🥈 Unified Ad Spend"
 description: "This dataset provides a consolidated view of daily advertising expenditures and performance metrics across multiple marketing platforms. It allows users to analyze spend, clicks, and impressions at the campaign level to evaluate cross-channel marketing efficiency."
 tags: ["owox"]
-timestamp: 2026-07-23T07:00:35.000Z
+type: "OWOX Data Mart"
+timestamp: 2026-07-24T16:39:04.000Z
 ---
 
 # Schema

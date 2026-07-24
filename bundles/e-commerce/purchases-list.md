@@ -1,8 +1,8 @@
 ---
-type: "OWOX Data Mart"
 title: "Purchases List"
 description: "This dataset contains detailed transaction records at the line-item level, including product quantities, pricing, and profitability metrics. It is primarily used to analyze sales performance, calculate margins, and track net revenue after adjustments."
 tags: ["owox"]
+type: "OWOX Data Mart"
 timestamp: 2026-07-16T11:08:35.000Z
 ---
 
