@@ -25,8 +25,8 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 # Example Questions
 
-- Which `categories` are thin on live inventory relative to the `demand` searching for them — where is supply the bottleneck?
-- How does listing price distribution differ across `categories`, and does it track the category `take rate`?
+- Which `categories` are thin on live inventory relative to the demand searching for them — where is supply the bottleneck?
+- How does listing price distribution differ across `categories`, and does it track the category take rate?
 - What share of listings ever converts into an `order`, by `category` and `seller`?
 
 ## Joins

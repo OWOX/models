@@ -27,4 +27,4 @@ timestamp: 2026-07-27T15:57:43.000Z
 
 - What share of buyers ever place a second `order`, and how does that repeat rate differ by acquisition channel or region?
 - Which channels bring in buyers who go on to `order` repeatedly, versus one-and-done?
-- How concentrated is `demand` — what fraction of all `orders` comes from repeat buyers?
+- How concentrated is demand — what fraction of all `orders` comes from repeat buyers?

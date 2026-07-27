@@ -11,7 +11,7 @@ description: |
   converts into cash, and where capacity is tight.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T16:07:00Z
+timestamp: 2026-07-27T16:53:04Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -31,9 +31,9 @@ timestamp: 2026-07-27T16:07:00Z
 
 # Example Questions
 
-- How does `no-show rate` vary by booking lead time and `insurance type`, and what would tightening scheduling windows save in lost `capacity`?
+- How does no-show rate vary by booking lead time and insurance type, and what would tightening scheduling windows save in lost capacity?
 - What is the `claim` denial rate by `payer`, and how much longer do denied claims sit in accounts receivable than clean claims?
-- Which `departments` are running closest to `bed capacity`, and how does occupancy relate to `admissions` and discharges over time?
+- Which `departments` are running closest to `bed capacity`, and how does occupancy relate to admissions and discharges over time?
 
 # Explore this model
 

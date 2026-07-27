@@ -29,7 +29,7 @@ timestamp: 2026-07-23T12:02:48.000Z
 
 # Example Questions
 
-- How do approval rates and interest rates vary across `borrower` risk tiers?
+- How do approval rates and interest rates vary across borrower risk tiers?
 - Of the loans approved, what share actually gets funded, and where does the funnel leak?
 - What are the most common reasons applications are declined, and how does that differ by risk tier?
 

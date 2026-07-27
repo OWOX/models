@@ -1,14 +1,13 @@
 ---
 title: "Purchases"
 description: |
-  Describes typical Purchases Data Mart in e-commerce domain for demo puprposes.
-
-  This Data Mart acts as the foundational layer for understanding purchasing behavior and sales performance. By breaking down transactions into specific line items, it enables the business to move beyond simple revenue tracking and dive deep into SKU-level analytics. Whether you are analyzing sales trends by currency or evaluating the quantity of specific products sold, this data provides the necessary precision for informed decision-making.
-
-  The schema is built for flexibility and scalability, supporting multi-currency transactions and varying product quantities per order. It provides a clean, standardized output that allows analysts to quickly generate insights into which products drive growth and how pricing strategies impact customer purchasing habits at the point of sale.
+  The order lines behind every order — one row per product bought, with quantity, the price
+  actually paid, the cost of goods, and the resulting revenue and profit. Revenue is
+  recognised only for completed orders, so gross booked value and settled value never get
+  confused. This is the mart that answers what the business actually earned.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:06:08.000Z
+timestamp: 2026-07-27T16:47:25.000Z
 ---
 
 # Schema
@@ -26,6 +25,12 @@ timestamp: 2026-07-27T15:06:08.000Z
 | `line_cost` | FLOAT | Cost of goods sold for this order line = Unit Cost × Quantity. Sum for total COGS. |
 | `line_net_revenue` | FLOAT | Revenue recognised only for Completed orders (Cancelled / Returned = 0). Sum for net  revenue. |
 | `line_net_profit` | FLOAT | Profit for Completed orders = (Item Sale Price − Unit Cost) × Quantity, else 0. Sum for  total net profit. |
+
+# Example Questions
+
+- What is gross versus net revenue after cancellations and returns, and how wide is the gap?
+- Which `products` and `categories` generate the most profit, as opposed to the most revenue?
+- How many units go into a typical `order`, and how does basket composition vary by market?
 
 ## Joins
 

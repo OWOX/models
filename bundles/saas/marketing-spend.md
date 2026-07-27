@@ -23,9 +23,9 @@ timestamp: 2026-07-23T12:51:25.000Z
 
 # Example Questions
 
-- What is blended and per-channel acquisition cost, and which channels turn leads into `signups` most efficiently?
+- What is blended and per-channel acquisition cost, and which channels turn leads into signups most efficiently?
 - Which channels pay back fastest once their spend is set against the revenue their cohort retains?
-- How has cost per `signup` shifted over time as spend scaled up or down?
+- How has cost per signup shifted over time as spend scaled up or down?
 
 ## Joins
 

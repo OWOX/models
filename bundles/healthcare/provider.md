@@ -23,6 +23,6 @@ timestamp: 2026-07-23T17:34:12.000Z
 
 # Example Questions
 
-- How many providers does each `specialty` and department have, and does that staffing match `patient` demand?
-- Which providers or `specialties` carry the highest `appointment` and `encounter` volume?
-- Are certain `specialties` concentrated in a handful of departments, or spread thinly across the system?
+- How many providers does each specialty and `department` have, and does that staffing match `patient` demand?
+- Which providers or specialties carry the highest `appointment` and `encounter` volume?
+- Are certain specialties concentrated in a handful of `departments`, or spread thinly across the system?
