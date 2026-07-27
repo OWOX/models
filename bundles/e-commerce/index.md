@@ -39,4 +39,4 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2622" height="1156" alt="e-commerce" src="https://github.com/user-attachments/assets/70bd1d0d-1199-45a5-82b0-dfea33d31054" />
+<img width="2622" height="1156" alt="e-commerce" src="https://github.com/user-attachments/assets/d6d2b8a0-f5e7-4123-88d0-5c5da61cf748" />
