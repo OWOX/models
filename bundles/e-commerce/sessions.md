@@ -1,26 +1,26 @@
 ---
-title: "🥈 Sessions"
+title: "Sessions"
 description: "This Data Mart provides a detailed log of individual e-commerce browsing sessions, including traffic sources, device types, and conversion outcomes. It is primarily used to analyze user behavior, marketing attribution, and website performance across different geographic regions."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T16:38:24.000Z
+timestamp: 2026-07-27T15:06:22.000Z
 ---
 
 # Schema
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `date` | DATE | The specific date when the browsing session occurred FK to [🥈 Unified Ad Spend](./unified-ad-spend.md) |
-| `session_id` | STRING | PK. Unique identifier for an individual user session FK to [🥈 Orders](./orders.md) |
-| `customer_id` | INTEGER | Unique identifier of the customer associated with the session FK to [🥈 Customers](./customers.md) |
+| `date` | DATE | The specific date when the browsing session occurred FK to [Unified Ad Spend](./unified-ad-spend.md) |
+| `session_id` | STRING | PK. Unique identifier for an individual user session FK to [Orders](./orders.md) |
+| `customer_id` | INTEGER | Unique identifier of the customer associated with the session FK to [Customers](./customers.md) |
 | `device_category` | STRING | The type of hardware device used during the session (e.g., mobile, desktop) |
 | `conversion_seed` | FLOAT | A technical value used to simulate the probability of a transaction. |
-| `visitor_id` | STRING | Unique identifier for the anonymous or recognized visitor. FK to [🥈 Visitors](./visitors.md) |
-| `traffic_source_id` | INTEGER | Internal numeric identifier for the marketing traffic source. FK to [🥈 Traffic Sources](./traffic-sources.md) |
-| `country_id` | INTEGER | Numeric identifier representing the geographic country of the visitor. FK to [🥈 Countries](./countries.md) |
+| `visitor_id` | STRING | Unique identifier for the anonymous or recognized visitor. FK to [Visitors](./visitors.md) |
+| `traffic_source_id` | INTEGER | Internal numeric identifier for the marketing traffic source. FK to [Traffic Sources](./traffic-sources.md) |
+| `country_id` | INTEGER | Numeric identifier representing the geographic country of the visitor. FK to [Countries](./countries.md) |
 | `is_conversion` | BOOLEAN | Indicates whether the session resulted in a successful transaction or goal completion. |
-| `source` | STRING | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [🥈 Unified Ad Spend](./unified-ad-spend.md) |
-| `medium` | STRING | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [🥈 Unified Ad Spend](./unified-ad-spend.md) |
+| `source` | STRING | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [Unified Ad Spend](./unified-ad-spend.md) |
+| `medium` | STRING | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [Unified Ad Spend](./unified-ad-spend.md) |
 | `campaign` | STRING | The name of the specific marketing campaign that drove the session. |
 
 ## Joins

@@ -1,9 +1,9 @@
 ---
-title: "🥈 Pageviews"
-description: "OWOX data mart '🥈 Pageviews'."
+title: "Pageviews"
+description: "OWOX data mart 'Pageviews'."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T16:39:28.000Z
+timestamp: 2026-07-27T15:06:33.000Z
 ---
 
 # Schema
@@ -14,7 +14,7 @@ timestamp: 2026-07-24T16:39:28.000Z
 | `session_id` | STRING | Unique identifier for a specific user browsing session. |
 | `visitor_id` | STRING | Unique identifier for an individual user or browser. |
 | `hit_number` | INTEGER | The sequential order of the pageview within a specific session. |
-| `page_id` | INTEGER | Unique identifier for the specific page viewed by the visitor. FK to [🥈 Pages](./pages.md) |
+| `page_id` | INTEGER | Unique identifier for the specific page viewed by the visitor. FK to [Pages](./pages.md) |
 | `hit_timestamp` | TIMESTAMP | The exact date and time when the pageview was recorded, in UTC. |
 
 ## Joins

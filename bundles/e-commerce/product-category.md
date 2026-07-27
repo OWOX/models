@@ -1,9 +1,9 @@
 ---
-title: "🥈 Product Category"
+title: "Product Category"
 description: "This Data Mart provides a comprehensive list of product categories, their management hierarchy, and financial performance targets. It is used to analyze category-level organizational structure and monitor target profit margins across different business groups."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T16:39:41.000Z
+timestamp: 2026-07-27T15:06:45.000Z
 ---
 
 # Schema
