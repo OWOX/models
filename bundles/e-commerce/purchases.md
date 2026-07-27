@@ -8,7 +8,7 @@ description: |
   The schema is built for flexibility and scalability, supporting multi-currency transactions and varying product quantities per order. It provides a clean, standardized output that allows analysts to quickly generate insights into which products drive growth and how pricing strategies impact customer purchasing habits at the point of sale.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T16:38:02.000Z
+timestamp: 2026-07-27T10:01:33.000Z
 ---
 
 # Schema
