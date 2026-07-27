@@ -3,7 +3,7 @@ title: "🥈 Products"
 description: "This Data Mart provides a comprehensive catalog of e-commerce products, including pricing, cost structures, and website categorization. It is primarily used for analyzing product margins and managing web content mapping."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T16:38:16.000Z
+timestamp: 2026-07-25T07:00:29.000Z
 ---
 
 # Schema
