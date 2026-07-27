@@ -1,9 +1,9 @@
 ---
-title: "🥈 Countries"
-description: "OWOX data mart '🥈 Countries'."
+title: "Countries"
+description: "OWOX data mart 'Countries'."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T02:42:54.000Z
+timestamp: 2026-07-27T15:06:28.000Z
 ---
 
 # Schema

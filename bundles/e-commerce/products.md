@@ -1,9 +1,9 @@
 ---
-title: "🥈 Products"
+title: "Products"
 description: "This Data Mart provides a comprehensive catalog of e-commerce products, including pricing, cost structures, and website categorization. It is primarily used for analyzing product margins and managing web content mapping."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-25T07:00:29.000Z
+timestamp: 2026-07-27T15:06:16.000Z
 ---
 
 # Schema
@@ -15,9 +15,9 @@ timestamp: 2026-07-25T07:00:29.000Z
 | `price` | FLOAT | The current selling price of a single unit of the product |
 | `cost` | FLOAT | The acquisition cost or production expense per unit of the product |
 | `sub_category` | STRING | The specific sub-classification of the product within its broader category. |
-| `category_id` | INTEGER | Unique identifier for the high-level category the product belongs to. FK to [🥈 Product Category](./product-category.md) |
+| `category_id` | INTEGER | Unique identifier for the high-level category the product belongs to. FK to [Product Category](./product-category.md) |
 | `page_path` | STRING | The URL relative path for the product's detail page on the website. |
-| `page_id` | INTEGER | Unique identifier for the specific web page associated with the product. FK to [🥈 Pages](./pages.md) |
+| `page_id` | INTEGER | Unique identifier for the specific web page associated with the product. FK to [Pages](./pages.md) |
 
 ## Joins
 
