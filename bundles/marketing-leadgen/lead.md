@@ -30,9 +30,9 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Example Questions
 
-- What is the lead-to-MQL and MQL-to-SQL conversion rate, and how many days does each stage typically take?
+- What is the lead-to-MQL and MQL-to-SQL conversion rate, and how many days does each `stage` typically take?
 - Which source channels and industries produce the highest-scoring, fastest-qualifying leads?
-- How much of the funnel is unmatched to an account, and does that share differ by source channel?
+- How much of the `funnel` is unmatched to an `account`, and does that share differ by source channel?
 
 ## Joins
 

@@ -24,8 +24,8 @@ timestamp: 2026-07-23T13:16:47.000Z
 # Example Questions
 
 - Which collections actions recover the most money relative to how often they are used?
-- After a loan is written off, how much is typically recovered, and how quickly does recovery taper off?
-- Do earlier interventions (reminders and calls) reduce how many loans end up handed to an agency?
+- After a `loan` is written off, how much is typically recovered, and how quickly does recovery taper off?
+- Do earlier interventions (reminders and calls) reduce how many `loans` end up handed to an agency?
 
 ## Joins
 

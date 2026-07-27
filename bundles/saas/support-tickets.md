@@ -25,9 +25,9 @@ timestamp: 2026-07-23T12:51:28.000Z
 
 # Example Questions
 
-- How do satisfaction scores and response times relate to whether an account later churns?
+- How do satisfaction scores and response times relate to whether an `account` later `churns`?
 - Which ticket categories drive the most dissatisfaction and the heaviest support load?
-- Do accounts that raise many high-priority tickets expand less than smoother ones?
+- Do `accounts` that raise many high-priority tickets expand less than smoother ones?
 
 ## Joins
 

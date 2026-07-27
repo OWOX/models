@@ -22,6 +22,6 @@ timestamp: 2026-07-23T12:02:47.000Z
 
 # Example Questions
 
-- How does the rate charged on lending products compare with the rate paid out on deposits?
+- How does the rate charged on lending products compare with the rate paid out on `deposits`?
 - Which product types carry the longest terms, and how does that shape the revenue they generate?
-- How is the customer base split between savings products and credit products?
+- How is the `customer` base split between savings products and credit products?

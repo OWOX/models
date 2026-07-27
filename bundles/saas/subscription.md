@@ -30,9 +30,9 @@ timestamp: 2026-07-23T12:51:26.000Z
 
 # Example Questions
 
-- What is total recurring revenue, and how is it spread across tiers, billing intervals and seat counts?
+- What is total recurring revenue, and how is it spread across `tiers`, billing intervals and seat counts?
 - How common are negotiated discounts, and how much list price do they give away?
-- Which accounts sit on grandfathered pricing that no longer matches their current tier?
+- Which `accounts` sit on grandfathered pricing that no longer matches their current `tier`?
 
 ## Joins
 

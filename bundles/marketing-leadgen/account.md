@@ -26,5 +26,5 @@ timestamp: 2026-07-23T17:34:31.000Z
 # Example Questions
 
 - How is the account base distributed across industries, company sizes and regions?
-- Do target accounts on the ABM list actually generate more pipeline and win more often than the rest of the book?
+- Do target accounts on the ABM list actually generate more `pipeline` and win more often than the rest of the book?
 - Which industries or employee bands should the target-account list be expanded into?

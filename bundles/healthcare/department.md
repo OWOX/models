@@ -21,6 +21,6 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 # Example Questions
 
-- Which departments carry the most staffed-bed capacity, and how does that compare to their appointment and patient volume?
+- Which departments carry the most staffed-bed `capacity`, and how does that compare to their `appointment` and `patient` volume?
 - How is clinical specialty distributed across departments?
 - Which departments are capacity-constrained relative to peers with a similar specialty?

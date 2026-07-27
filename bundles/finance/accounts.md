@@ -26,8 +26,8 @@ timestamp: 2026-07-23T12:02:48.000Z
 # Example Questions
 
 - What share of opened accounts ever get activated, and how long does activation typically take?
-- How are balances distributed across active versus dormant relationships?
-- Which product types have the highest rate of accounts going dormant or being closed?
+- How are `balances` distributed across active versus dormant relationships?
+- Which `product` types have the highest rate of accounts going dormant or being closed?
 
 ## Joins
 

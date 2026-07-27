@@ -28,9 +28,9 @@ timestamp: 2026-07-23T17:34:33.000Z
 
 # Example Questions
 
-- What is the session-to-lead conversion rate by channel and landing page, and which channels are strongest at the top of the funnel?
-- Which campaigns drive the most traffic volume, and how does that traffic's conversion quality compare across them?
-- How much of paid versus organic/direct traffic actually results in a form submission?
+- What is the session-to-lead conversion rate by channel and landing page, and which channels are strongest at the top of the `funnel`?
+- Which `campaigns` drive the most traffic volume, and how does that traffic's conversion quality compare across them?
+- How much of paid versus organic/direct traffic actually results in a `form submission`?
 
 ## Joins
 

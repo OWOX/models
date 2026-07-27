@@ -24,9 +24,9 @@ timestamp: 2026-07-23T12:51:27.000Z
 
 # Example Questions
 
-- What share of licensed seats is actually active, and how does seat adoption vary by account?
+- What share of licensed seats is actually active, and how does seat adoption vary by `account`?
 - Which roles and seat types are the most engaged?
-- Are accounts with many dormant seats the ones heading toward contraction?
+- Are `accounts` with many dormant seats the ones heading toward `contraction`?
 
 ## Joins
 

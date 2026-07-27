@@ -10,7 +10,7 @@ description: |
   since real B2B deals are won or lost at the account level, not the individual lead level.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-24T16:53:12Z
+timestamp: 2026-07-27T16:07:04Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -30,9 +30,9 @@ timestamp: 2026-07-24T16:53:12Z
 
 # Example Questions
 
-- Which channels and campaigns generate the most pipeline and revenue once ad spend, attribution credit and win rates are accounted for?
-- Where does the funnel leak most — awareness to lead, lead to MQL/SQL, or opportunity to close — and does that differ by channel?
-- Do target (ABM) accounts convert, close and win at a higher rate than the rest of the book?
+- Which channels and `campaigns` generate the most `pipeline` and revenue once `ad spend`, `attribution credit` and win rates are accounted for?
+- Where does the `funnel` leak most — awareness to `lead`, lead to MQL/SQL, or `opportunity` to close — and does that differ by channel?
+- Do target (ABM) `accounts` convert, close and win at a higher rate than the rest of the book?
 
 # Explore this model
 

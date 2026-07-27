@@ -26,8 +26,8 @@ timestamp: 2026-07-23T17:34:31.000Z
 # Example Questions
 
 - What is the blended and per-channel CPC and CTR, and how do they trend week over week?
-- Which campaigns or ad groups are burning budget without matching traffic or click performance?
-- How does cost per lead and cost per opportunity compare across channels once spend is joined to downstream conversions?
+- Which `campaigns` or ad groups are burning budget without matching `traffic` or click performance?
+- How does cost per `lead` and cost per `opportunity` compare across channels once spend is joined to downstream conversions?
 
 ## Joins
 

@@ -1,9 +1,16 @@
 ---
 title: "Marketplace"
-description: "A two-sided online marketplace model: buyers and sellers matched through listings and search, with orders carrying GMV, take rate, platform revenue and seller payout, plus the cancellation, review and liquidity signals that tell you whether supply and demand are actually clearing. Built to answer where liquidity is weak, whether take-rate optimisation is costing seller retention, and where cancellations concentrate."
+description: |
+  A two-sided online marketplace modeled end to end: independent buyers and independent
+  sellers matched through listings and search, with every order carrying the full economics —
+  gross merchandise value, the category take rate, the platform's cut and the seller's
+  payout. Around that match sit the signals that tell you whether the two sides are actually
+  clearing: what buyers searched for and failed to find, which listings never sold, which
+  orders fell through before settling, and what the ratings say afterwards. Together they let
+  you follow both sides of the flywheel — where demand goes unmet, and where supply gives up.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-24T16:53:24Z
+timestamp: 2026-07-27T16:07:09Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -20,6 +27,12 @@ timestamp: 2026-07-24T16:53:24Z
 | [Reviews](./reviews.md) | 6 |
 | [Search Requests](./search-requests.md) | 10 |
 | [Seller](./seller.md) | 10 |
+
+# Example Questions
+
+- Where is liquidity weakest — which `categories` have `buyers` searching but too little live `supply` to fill the `demand`?
+- Is take-rate optimisation costing us `supply`, with `sellers` in our highest-commission `categories` going dormant faster than the rest?
+- How much of our booked `GMV` never settles, and do `cancellations` and complaints concentrate around the same `sellers`?
 
 # Explore this model
 

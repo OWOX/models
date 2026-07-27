@@ -25,8 +25,8 @@ timestamp: 2026-07-23T12:51:27.000Z
 # Example Questions
 
 - What is the trial-to-paid conversion rate, and how does it differ by trial source?
-- How long do trials take to convert, and does evaluating a higher tier change the odds?
-- Which trial sources bring in the accounts that go on to be worth the most?
+- How long do trials take to convert, and does evaluating a higher `tier` change the odds?
+- Which trial sources bring in the `accounts` that go on to be worth the most?
 
 ## Joins
 

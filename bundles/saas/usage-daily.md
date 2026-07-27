@@ -23,8 +23,8 @@ timestamp: 2026-07-23T12:51:28.000Z
 
 # Example Questions
 
-- How does product engagement in the first weeks predict whether an account converts and expands?
-- Which accounts are quietly disengaging — falling active minutes or narrowing feature use — before they churn?
+- How does product engagement in the first weeks predict whether an `account` converts and expands?
+- Which `accounts` are quietly disengaging — falling active minutes or narrowing feature use — before they `churn`?
 - Does broader feature adoption go hand in hand with higher retention and revenue?
 
 ## Joins
