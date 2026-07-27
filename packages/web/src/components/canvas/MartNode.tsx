@@ -3,7 +3,7 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { KeyRound, ChevronDown, ChevronRight } from "lucide-react";
 import type { ModelNode, SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
-import { showInputSource, showFieldCount, type ObjLabelMode } from "../../state/objLabels";
+import { NOTHING_HIDDEN, type ObjHidden } from "../../state/objLabels";
 import { DataMartIcon } from "../../lib/icons";
 import { ERD_COLLAPSED_ROWS } from "./layoutSize";
 
@@ -21,7 +21,7 @@ const STATUS_TIP: Record<string, string> = {
   error: "Error — check details",
 };
 
-export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[]; _objLabelMode?: ObjLabelMode };
+export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[]; _objHidden?: ObjHidden };
 
 function StatusDot({ status }: { status: string }) {
   const base = "absolute top-[10px] right-[10px] w-[9px] h-[9px] rounded-full z-10";
@@ -32,7 +32,11 @@ function StatusDot({ status }: { status: string }) {
     error: "bg-[#ef4444]",
   };
   return (
-    <span className={`${base} ${colors[status] ?? "bg-slate-300"}`} title={STATUS_TIP[status] ?? status} />
+    <span
+      data-testid="status-dot"
+      className={`${base} ${colors[status] ?? "bg-slate-300"}`}
+      title={STATUS_TIP[status] ?? status}
+    />
   );
 }
 
@@ -129,9 +133,12 @@ function MartNodeInner({ data }: NodeProps) {
   const viewMode = node._viewMode ?? "compact";
   const color = SOURCE_COLOR[node.inputSource] ?? "#94a3b8";
   const isErd = viewMode === "erd";
-  const objLabelMode = node._objLabelMode ?? "all";
-  const withSource = showInputSource(objLabelMode);
-  const withFieldCount = !isErd && showFieldCount(objLabelMode);
+  const hidden = node._objHidden ?? NOTHING_HIDDEN;
+  // The source badge and the header accent stripe both encode inputSource
+  // colour, so they show and hide together.
+  const withSource = !hidden.source;
+  const withFieldCount = !isErd && !hidden.fields;
+  const withStatus = !hidden.status;
   const fieldCount = node.schema?.length ?? 0;
   const fieldText = fieldCount > 0 ? `${fieldCount} field${fieldCount > 1 ? "s" : ""}` : "no fields";
 
@@ -140,7 +147,7 @@ function MartNodeInner({ data }: NodeProps) {
       className={`relative bg-white border-[1.5px] border-[#d8dee8] rounded-xl shadow-[0_2px_8px_rgba(15,23,42,0.05)] cursor-grab hover:border-[#c2cad8] select-none ${isErd ? "w-[250px]" : "w-[200px]"}`}
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif" }}
     >
-      <StatusDot status={node.status} />
+      {withStatus && <StatusDot status={node.status} />}
       <MartHeader node={node} color={color} showAccent={withSource} />
 
       {/* Meta row: type chip + (compact) field count. Skipped entirely when both are hidden. */}

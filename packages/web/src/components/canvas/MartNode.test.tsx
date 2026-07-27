@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { MartNode } from "./MartNode";
+import { NOTHING_HIDDEN, ALL_HIDDEN, type ObjHidden } from "../../state/objLabels";
 
 const node = {
   key: "n1", title: "Users", inputSource: "VIEW", status: "created", owoxId: "x",
@@ -12,14 +13,11 @@ const node = {
   ],
 };
 
-function renderNode(
-  viewMode: "compact" | "erd",
-  objLabelMode: "all" | "noSource" | "noFields" | "both" = "all",
-) {
+function renderNode(viewMode: "compact" | "erd", hidden: Partial<ObjHidden> = {}) {
   return render(
     <ReactFlowProvider>
       {/* @ts-expect-error minimal NodeProps for a render-only test */}
-      <MartNode id="n1" data={{ ...node, _viewMode: viewMode, _objLabelMode: objLabelMode }} />
+      <MartNode id="n1" data={{ ...node, _viewMode: viewMode, _objHidden: { ...NOTHING_HIDDEN, ...hidden } }} />
     </ReactFlowProvider>,
   );
 }
@@ -41,31 +39,50 @@ describe("MartNode ERD rendering", () => {
 });
 
 describe("MartNode object-labels", () => {
-  it("all: shows the source chip and field count", () => {
-    renderNode("compact", "all");
+  it("nothing hidden: shows the source chip, field count and status dot", () => {
+    renderNode("compact");
+    expect(screen.getByText("VIEW")).toBeTruthy();
+    expect(screen.getByText("2 fields")).toBeTruthy();
+    expect(screen.getByTestId("status-dot")).toBeTruthy();
+  });
+
+  it("hides the source chip on its own", () => {
+    renderNode("compact", { source: true });
+    expect(screen.queryByText("VIEW")).toBeNull();
+    expect(screen.getByText("2 fields")).toBeTruthy();
+    expect(screen.getByTestId("status-dot")).toBeTruthy();
+  });
+
+  it("hides the field count on its own", () => {
+    renderNode("compact", { fields: true });
+    expect(screen.getByText("VIEW")).toBeTruthy();
+    expect(screen.queryByText("2 fields")).toBeNull();
+    expect(screen.getByTestId("status-dot")).toBeTruthy();
+  });
+
+  it("hides the status dot on its own — the combination the enum couldn't express", () => {
+    renderNode("compact", { status: true });
+    expect(screen.queryByTestId("status-dot")).toBeNull();
     expect(screen.getByText("VIEW")).toBeTruthy();
     expect(screen.getByText("2 fields")).toBeTruthy();
   });
 
-  it("noSource: hides the source chip but keeps the field count", () => {
-    renderNode("compact", "noSource");
+  it("hides the source chip and the status dot while keeping the field count", () => {
+    renderNode("compact", { source: true, status: true });
     expect(screen.queryByText("VIEW")).toBeNull();
+    expect(screen.queryByTestId("status-dot")).toBeNull();
     expect(screen.getByText("2 fields")).toBeTruthy();
   });
 
-  it("noFields: hides the field count but keeps the source chip", () => {
-    renderNode("compact", "noFields");
-    expect(screen.getByText("VIEW")).toBeTruthy();
-    expect(screen.queryByText("2 fields")).toBeNull();
-  });
-
-  it("both: hides the source chip and the field count", () => {
-    renderNode("compact", "both");
+  it("all hidden: leaves just the title", () => {
+    renderNode("compact", ALL_HIDDEN);
     expect(screen.queryByText("VIEW")).toBeNull();
     expect(screen.queryByText("2 fields")).toBeNull();
+    expect(screen.queryByTestId("status-dot")).toBeNull();
+    expect(screen.getByText("Users")).toBeTruthy();
   });
 
-  it("defaults to showing everything when _objLabelMode is absent", () => {
+  it("defaults to showing everything when _objHidden is absent", () => {
     render(
       <ReactFlowProvider>
         {/* @ts-expect-error minimal NodeProps for a render-only test */}
@@ -74,5 +91,6 @@ describe("MartNode object-labels", () => {
     );
     expect(screen.getByText("VIEW")).toBeTruthy();
     expect(screen.getByText("2 fields")).toBeTruthy();
+    expect(screen.getByTestId("status-dot")).toBeTruthy();
   });
 });
