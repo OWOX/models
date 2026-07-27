@@ -28,8 +28,8 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 # Example Questions
 
-- Are sellers in our highest take-rate `categories` churning faster than sellers in low-rate ones — is take-rate optimisation costing us `supply`?
-- What share of `GMV` comes from the top few percent of sellers, and how exposed are we if they go dormant?
+- Are sellers in our highest take-rate `categories` churning faster than sellers in low-rate ones — is take-rate optimisation costing us supply?
+- What share of GMV comes from the top few percent of sellers, and how exposed are we if they go dormant?
 - How many onboarded sellers never reach their first sale, and where does that activation gap concentrate?
 
 ## Joins

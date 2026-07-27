@@ -30,7 +30,7 @@ timestamp: 2026-07-23T17:34:33.000Z
 
 - Which channels and `campaigns` earn the most attributed credit across the full buyer journey, not just first- or last-touch?
 - How many touches, and of what type, does a typical `lead` have before becoming an `opportunity`?
-- How does attributed `pipeline` by `campaign` compare to what a single-touch (first- or last-touch) view would show?
+- How does attributed pipeline by `campaign` compare to what a single-touch (first- or last-touch) view would show?
 
 ## Joins
 

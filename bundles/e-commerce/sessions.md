@@ -1,9 +1,13 @@
 ---
 title: "Sessions"
-description: "This Data Mart provides a detailed log of individual e-commerce browsing sessions, including traffic sources, device types, and conversion outcomes. It is primarily used to analyze user behavior, marketing attribution, and website performance across different geographic regions."
+description: |
+  Every browsing session on the storefront, with the device it happened on, the traffic source
+  and campaign that produced it, the market it came from, and whether it ended in an order.
+  Sessions are the hinge of the model: marketing spend attaches on one side and orders on the
+  other, which is what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:06:22.000Z
+timestamp: 2026-07-27T16:47:26.000Z
 ---
 
 # Schema
@@ -22,6 +26,12 @@ timestamp: 2026-07-27T15:06:22.000Z
 | `source` | STRING | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [Unified Ad Spend](./unified-ad-spend.md) |
 | `medium` | STRING | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [Unified Ad Spend](./unified-ad-spend.md) |
 | `campaign` | STRING | The name of the specific marketing campaign that drove the session. |
+
+# Example Questions
+
+- Which `traffic sources` and campaigns produce sessions that convert, not just sessions that arrive?
+- How does conversion differ across devices and `countries`?
+- How does paid traffic compare with organic and direct on conversion and `order` value?
 
 ## Joins
 

@@ -1,9 +1,14 @@
 ---
 title: "Unified Ad Spend"
-description: "This dataset provides a consolidated view of daily advertising expenditures and performance metrics across multiple marketing platforms. It allows users to analyze spend, clicks, and impressions at the campaign level to evaluate cross-channel marketing efficiency."
+description: |
+  Advertising spend, clicks and impressions from every paid platform the business runs —
+  Google, Facebook, TikTok, LinkedIn, Microsoft, Reddit and X — brought together on one daily
+  grain with a common source, medium and campaign naming. Because it shares that naming with
+  the storefront's traffic sources, spend can be set against the sessions and revenue it
+  produced instead of being read on its own.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:06:12.000Z
+timestamp: 2026-07-27T16:47:26.000Z
 ---
 
 # Schema
@@ -17,6 +22,12 @@ timestamp: 2026-07-27T15:06:12.000Z
 | `spend` | FLOAT | The total cost of advertising incurred during the specified period. |
 | `clicks` | INTEGER | The total number of times users clicked on the advertisements. |
 | `impressions` | INTEGER | The total number of times the advertisements were displayed to users. |
+
+# Example Questions
+
+- What is blended and per-channel acquisition cost, and which channels return the most revenue per unit spent?
+- How do click-through and cost-per-click compare across platforms week over week?
+- Which campaigns are scaling spend without a matching lift in `orders`?
 
 ## Joins
 
