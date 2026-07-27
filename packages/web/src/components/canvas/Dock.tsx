@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
 import type { ViewMode } from "../../state/viewMode";
 import type { RelLabelMode } from "../../state/relLabels";
-import type { ObjLabelMode } from "../../state/objLabels";
+import {
+  OBJ_LABEL_PARTS,
+  NOTHING_HIDDEN,
+  ALL_HIDDEN,
+  hiddenCount,
+  isNothingHidden,
+  isAllHidden,
+  togglePart,
+  type ObjHidden,
+  type ObjLabelPart,
+} from "../../state/objLabels";
 
 export type Tool = "select" | "add" | "connect" | "layout";
 
@@ -19,19 +30,22 @@ const REL_LABEL_OPTIONS: { mode: RelLabelMode; label: string; helper: string }[]
   { mode: "hidden", label: "Hide all labels", helper: "Just the connector lines — no keys, no cardinality" },
 ];
 
-const OBJ_LABEL_GLYPH: Record<ObjLabelMode, string> = {
-  all: "≡",
-  noSource: "⬚",
-  noFields: "#",
-  both: "⊘",
+const OBJ_PART_META: Record<ObjLabelPart, { glyph: string; label: string; helper: string }> = {
+  source: { glyph: "⬚", label: "Input source", helper: "The source badge (VIEW / TABLE / SQL / CONNECTOR) and its accent stripe" },
+  fields: { glyph: "#", label: "Field count", helper: "The field-count line under each object" },
+  status: { glyph: "•", label: "Status dot", helper: "The push-status dot in the object's top-right corner" },
 };
 
-const OBJ_LABEL_OPTIONS: { mode: ObjLabelMode; label: string; helper: string }[] = [
-  { mode: "all", label: "Show everything", helper: "Input source and field count on every object" },
-  { mode: "noSource", label: "Hide input source", helper: "Hide the source badge (VIEW / TABLE / SQL / CONNECTOR) and its accent" },
-  { mode: "noFields", label: "Hide field count", helper: "Hide the field-count line under each object" },
-  { mode: "both", label: "Hide both", helper: "Just the object title — no source badge, no field count" },
-];
+// Corner badge on the Add button: the default glyph when nothing is hidden, the
+// hidden part's own glyph when exactly one is, "⊘" when everything is, and the
+// count in between — so the badge always says how much is suppressed.
+function objBadgeGlyph(hidden: ObjHidden): string {
+  const n = hiddenCount(hidden);
+  if (n === 0) return "≡";
+  if (n === OBJ_LABEL_PARTS.length) return "⊘";
+  if (n === 1) return OBJ_PART_META[OBJ_LABEL_PARTS.find(p => hidden[p])!].glyph;
+  return String(n);
+}
 
 interface DockProps {
   activeTool: Tool;
@@ -42,8 +56,8 @@ interface DockProps {
   clearDisabled?: boolean;
   relLabelMode?: RelLabelMode;
   onRelLabelModeChange?: (mode: RelLabelMode) => void;
-  objLabelMode?: ObjLabelMode;
-  onObjLabelModeChange?: (mode: ObjLabelMode) => void;
+  objHidden?: ObjHidden;
+  onObjHiddenChange?: (hidden: ObjHidden) => void;
 }
 
 const SelectIcon = () => (
@@ -221,22 +235,26 @@ function ConnectToolButton({
 }
 
 // The Add-object dock button, augmented with a hover-delay flyout for the
-// "Object labels" view setting and an always-visible corner badge showing the
-// active mode's glyph. Clicking the button activates the Add tool; the flyout
-// (revealed after ~0.5s hover) is a separate, view-only control.
+// "Object labels" view setting and an always-visible corner badge summarising
+// what's hidden. Clicking the button activates the Add tool; the flyout
+// (revealed after ~0.5s hover) is a separate, view-only control. The flyout is
+// multi-select: each part toggles on its own and the menu stays open, with
+// "Show everything" as the always-visible way back to the default.
 function AddObjectToolButton({
   active,
   onActivate,
-  objLabelMode,
-  onObjLabelModeChange,
+  objHidden,
+  onObjHiddenChange,
 }: {
   active: boolean;
   onActivate: () => void;
-  objLabelMode: ObjLabelMode;
-  onObjLabelModeChange?: (mode: ObjLabelMode) => void;
+  objHidden: ObjHidden;
+  onObjHiddenChange?: (hidden: ObjHidden) => void;
 }) {
   const [open, setOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nothingHidden = isNothingHidden(objHidden);
+  const allHidden = isAllHidden(objHidden);
 
   const clearTimer = () => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null; }
@@ -270,7 +288,7 @@ function AddObjectToolButton({
           aria-hidden
           className="absolute -top-[3px] -right-[3px] min-w-[14px] h-[14px] px-[2px] rounded-full bg-slate-900 text-white text-[9px] leading-[14px] font-semibold text-center shadow-[0_1px_2px_rgba(15,23,42,0.4)]"
         >
-          {OBJ_LABEL_GLYPH[objLabelMode]}
+          {objBadgeGlyph(objHidden)}
         </span>
       </button>
 
@@ -280,28 +298,63 @@ function AddObjectToolButton({
         <div className="absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 z-50">
           {/* invisible bridge so the cursor can travel from button to menu without closing */}
           <span className="absolute right-full top-0 h-full w-[12px]" />
-          <div className="w-[260px] rounded-xl border border-[#d8dee8] bg-white p-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.14)]">
+          <div className="w-[264px] rounded-xl border border-[#d8dee8] bg-white p-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.14)]">
             <div className="px-2 pt-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               Object labels
             </div>
-            {OBJ_LABEL_OPTIONS.map(opt => {
-              const selected = opt.mode === objLabelMode;
+
+            {/* Reset row: shows the current state when nothing is hidden and is
+                the one-click way back to it otherwise. */}
+            <button
+              data-testid="obj-label-reset"
+              aria-pressed={nothingHidden}
+              onClick={() => onObjHiddenChange?.(NOTHING_HIDDEN)}
+              className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${nothingHidden ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+            >
+              <span className={`w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-400"}`}>≡</span>
+              <span className={`text-[13px] font-semibold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Show everything</span>
+            </button>
+
+            <div className="px-2 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">
+              Hide — pick any
+            </div>
+
+            {OBJ_LABEL_PARTS.map(part => {
+              const meta = OBJ_PART_META[part];
+              const checked = objHidden[part];
               return (
                 <button
-                  key={opt.mode}
-                  onClick={() => { onObjLabelModeChange?.(opt.mode); setOpen(false); }}
-                  className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${selected ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+                  key={part}
+                  role="checkbox"
+                  aria-checked={checked}
+                  onClick={() => onObjHiddenChange?.(togglePart(objHidden, part))}
+                  className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${checked ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
                 >
-                  <span className={`mt-[1px] w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${selected ? "text-[#1e88e5]" : "text-slate-400"}`}>
-                    {OBJ_LABEL_GLYPH[opt.mode]}
+                  <span className={`mt-[2px] flex h-[14px] w-[14px] flex-shrink-0 items-center justify-center rounded-[4px] border transition-colors ${checked ? "border-[#1e88e5] bg-[#1e88e5] text-white" : "border-slate-300 bg-white text-transparent"}`}>
+                    <Check size={10} strokeWidth={3.5} />
                   </span>
                   <span className="flex flex-col">
-                    <span className={`text-[13px] font-semibold ${selected ? "text-[#1e88e5]" : "text-slate-800"}`}>{opt.label}</span>
-                    <span className="text-[11px] leading-snug text-slate-500">{opt.helper}</span>
+                    <span className={`text-[13px] font-semibold ${checked ? "text-[#1e88e5]" : "text-slate-800"}`}>
+                      <span className="mr-1 font-bold text-slate-400">{meta.glyph}</span>
+                      {meta.label}
+                    </span>
+                    <span className="text-[11px] leading-snug text-slate-500">{meta.helper}</span>
                   </span>
                 </button>
               );
             })}
+
+            <div className="mt-1 border-t border-[#eef1f5] pt-1">
+              <button
+                data-testid="obj-label-hide-all"
+                aria-pressed={allHidden}
+                onClick={() => onObjHiddenChange?.(ALL_HIDDEN)}
+                className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${allHidden ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+              >
+                <span className={`w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${allHidden ? "text-[#1e88e5]" : "text-slate-400"}`}>⊘</span>
+                <span className={`text-[13px] font-semibold ${allHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Hide all</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -309,7 +362,7 @@ function AddObjectToolButton({
   );
 }
 
-export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear, clearDisabled, relLabelMode = "all", onRelLabelModeChange, objLabelMode = "all", onObjLabelModeChange }: DockProps) {
+export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear, clearDisabled, relLabelMode = "all", onRelLabelModeChange, objHidden = NOTHING_HIDDEN, onObjHiddenChange }: DockProps) {
   // Keyboard shortcuts V/N/C
   useEffect(() => {
     function handler(e: KeyboardEvent) {
@@ -338,8 +391,8 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear
       <AddObjectToolButton
         active={activeTool === "add"}
         onActivate={() => onToolChange("add")}
-        objLabelMode={objLabelMode}
-        onObjLabelModeChange={onObjLabelModeChange}
+        objHidden={objHidden}
+        onObjHiddenChange={onObjHiddenChange}
       />
       <ConnectToolButton
         active={activeTool === "connect"}
