@@ -10,7 +10,7 @@ description: |
   since real B2B deals are won or lost at the account level, not the individual lead level.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T16:53:09Z
+timestamp: 2026-07-27T17:29:22Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

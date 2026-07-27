@@ -6,9 +6,18 @@ description: |
   grain with a common source, medium and campaign naming. Because it shares that naming with
   the storefront's traffic sources, spend can be set against the sessions and revenue it
   produced instead of being read on its own.
+
+  Unlike every other mart in this model, this one is defined by **SQL inside the data mart
+  itself** rather than by a database view — on purpose. Each advertising platform is
+  collected by its own connector-based data mart, each with a different schema and naming,
+  and this query is how those separate marts are unified: seven `SELECT`s over the tables the
+  connectors land in, normalised to one grain and `UNION ALL`ed together. Open Data Setup to
+  read it — every block is commented with the connector data mart it draws from and links
+  straight to it, which is the shortest demonstration of how connector data becomes
+  reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T16:47:26.000Z
+timestamp: 2026-07-27T17:20:48.000Z
 ---
 
 # Schema
