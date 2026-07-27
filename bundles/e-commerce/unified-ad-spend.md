@@ -11,9 +11,13 @@ timestamp: 2026-07-26T07:00:07.000Z
 | Column | Type | Description |
 |--------|------|-------------|
 | `date` | DATE | The calendar date when the advertising activity occurred. |
-| `source` | STRING | The name of the advertising platform or network where the traffic originated. |
+| `source` | STRING | The name of the advertising platform or network where the traffic originated. FK to [🥈 Traffic Sources](./traffic-sources.md) |
 | `medium` | STRING | The marketing channel or payment model used, such as cost-per-click. |
 | `campaign` | STRING | The specific marketing campaign name associated with the ad spend. |
 | `spend` | FLOAT | The total cost of advertising incurred during the specified period. |
 | `clicks` | INTEGER | The total number of times users clicked on the advertisements. |
 | `impressions` | INTEGER | The total number of times the advertisements were displayed to users. |
+
+## Joins
+
+- [🥈 Traffic Sources](./traffic-sources.md) — `source = source`

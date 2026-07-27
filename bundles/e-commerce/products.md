@@ -15,11 +15,11 @@ timestamp: 2026-07-25T07:00:29.000Z
 | `price` | FLOAT | The current selling price of a single unit of the product |
 | `cost` | FLOAT | The acquisition cost or production expense per unit of the product |
 | `sub_category` | STRING | The specific sub-classification of the product within its broader category. |
-| `category_id` | INTEGER | Unique identifier for the high-level category the product belongs to. |
+| `category_id` | INTEGER | Unique identifier for the high-level category the product belongs to. FK to [🥈 Product Category](./product-category.md) |
 | `page_path` | STRING | The URL relative path for the product's detail page on the website. |
-| `page_id` | INTEGER | Unique identifier for the specific web page associated with the product. |
+| `page_id` | INTEGER | Unique identifier for the specific web page associated with the product. FK to [🥈 Pages](./pages.md) |
 
 ## Joins
 
-- Product Category
-- Pages
+- [Product Category](./product-category.md) — `category_id = category_id`
+- [Pages](./pages.md) — `page_id = page_id`
