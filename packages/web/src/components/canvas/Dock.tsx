@@ -238,8 +238,9 @@ function ConnectToolButton({
 // "Object labels" view setting and an always-visible corner badge summarising
 // what's hidden. Clicking the button activates the Add tool; the flyout
 // (revealed after ~0.5s hover) is a separate, view-only control. The flyout is
-// multi-select: each part toggles on its own and the menu stays open, with
-// "Show everything" as the always-visible way back to the default.
+// multi-select and phrased as what's SHOWN: every box starts ticked, unticking
+// one hides that part, and the menu stays open so several can be picked. Two
+// shortcut rows cover the extremes (check all / uncheck all).
 function AddObjectToolButton({
   active,
   onActivate,
@@ -303,38 +304,28 @@ function AddObjectToolButton({
               Object labels
             </div>
 
-            {/* Reset row: shows the current state when nothing is hidden and is
-                the one-click way back to it otherwise. */}
-            <button
-              data-testid="obj-label-reset"
-              aria-pressed={nothingHidden}
-              onClick={() => onObjHiddenChange?.(NOTHING_HIDDEN)}
-              className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${nothingHidden ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
-            >
-              <span className={`w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-400"}`}>≡</span>
-              <span className={`text-[13px] font-semibold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Show everything</span>
-            </button>
-
-            <div className="px-2 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">
-              Hide — pick any
+            <div className="px-2 pb-1.5 text-[11px] leading-snug text-slate-500">
+              Tick what every object shows — untick to hide it.
             </div>
 
+            {/* A checked box means the part is VISIBLE — unchecking hides it.
+                The stored state is the hidden set, hence the inversion here. */}
             {OBJ_LABEL_PARTS.map(part => {
               const meta = OBJ_PART_META[part];
-              const checked = objHidden[part];
+              const shown = !objHidden[part];
               return (
                 <button
                   key={part}
                   role="checkbox"
-                  aria-checked={checked}
+                  aria-checked={shown}
                   onClick={() => onObjHiddenChange?.(togglePart(objHidden, part))}
-                  className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${checked ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+                  className="flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-[#f1f3f7]"
                 >
-                  <span className={`mt-[2px] flex h-[14px] w-[14px] flex-shrink-0 items-center justify-center rounded-[4px] border transition-colors ${checked ? "border-[#1e88e5] bg-[#1e88e5] text-white" : "border-slate-300 bg-white text-transparent"}`}>
+                  <span className={`mt-[2px] flex h-[14px] w-[14px] flex-shrink-0 items-center justify-center rounded-[4px] border transition-colors ${shown ? "border-[#1e88e5] bg-[#1e88e5] text-white" : "border-slate-300 bg-white text-transparent"}`}>
                     <Check size={10} strokeWidth={3.5} />
                   </span>
                   <span className="flex flex-col">
-                    <span className={`text-[13px] font-semibold ${checked ? "text-[#1e88e5]" : "text-slate-800"}`}>
+                    <span className={`text-[13px] font-semibold ${shown ? "text-slate-800" : "text-slate-400"}`}>
                       <span className="mr-1 font-bold text-slate-400">{meta.glyph}</span>
                       {meta.label}
                     </span>
@@ -344,7 +335,18 @@ function AddObjectToolButton({
               );
             })}
 
+            {/* Both-ends shortcuts: tick everything back on, or clear it all. */}
             <div className="mt-1 border-t border-[#eef1f5] pt-1">
+              <button
+                data-testid="obj-label-reset"
+                aria-pressed={nothingHidden}
+                onClick={() => onObjHiddenChange?.(NOTHING_HIDDEN)}
+                className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${nothingHidden ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
+              >
+                <span className={`w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-400"}`}>≡</span>
+                <span className={`text-[13px] font-semibold ${nothingHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Check all — show everything</span>
+              </button>
+
               <button
                 data-testid="obj-label-hide-all"
                 aria-pressed={allHidden}
@@ -352,7 +354,7 @@ function AddObjectToolButton({
                 className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${allHidden ? "bg-[#e6f1fb]" : "hover:bg-[#f1f3f7]"}`}
               >
                 <span className={`w-[16px] flex-shrink-0 text-center text-[12px] font-bold ${allHidden ? "text-[#1e88e5]" : "text-slate-400"}`}>⊘</span>
-                <span className={`text-[13px] font-semibold ${allHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Hide all</span>
+                <span className={`text-[13px] font-semibold ${allHidden ? "text-[#1e88e5]" : "text-slate-800"}`}>Uncheck all — title only</span>
               </button>
             </div>
           </div>
