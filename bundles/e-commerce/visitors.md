@@ -1,9 +1,14 @@
 ---
 title: "Visitors"
-description: "This dataset provides a comprehensive overview of website visitor behavior and acquisition history at the individual visitor level. It tracks engagement metrics like total sessions and visit dates alongside marketing attribution details to help analyze user retention and campaign effectiveness."
+description: |
+  Everyone who has visited the storefront, registered or not: when they first and last
+  appeared, how many sessions they ran, the channel that originally acquired them, the cohort
+  month they belong to, and — where they later signed up — the customer account they became.
+  This is where anonymous traffic and known customers meet, which makes cohort retention
+  answerable.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:06:41.000Z
+timestamp: 2026-07-27T16:47:27.000Z
 ---
 
 # Schema
@@ -21,3 +26,9 @@ timestamp: 2026-07-27T15:06:41.000Z
 | `cohort_month` | DATE | The month and year of the visitor's first visit, used for retention analysis. |
 | `visitor_segment` | STRING | Classification of the visitor based on their engagement behavior or frequency. |
 | `country_id` | INTEGER | Numeric identifier representing the country where the visitor is located. |
+
+# Example Questions
+
+- What share of visitors ever return, and how does that repeat rate differ by acquisition channel?
+- How do monthly cohorts retain over time, and which acquisition source produces the stickiest ones?
+- How many visitors go on to register as `customers`, and how long does that take?

@@ -10,7 +10,7 @@ description: |
   you follow both sides of the flywheel — where demand goes unmet, and where supply gives up.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T16:07:09Z
+timestamp: 2026-07-27T16:50:47Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -30,9 +30,9 @@ timestamp: 2026-07-27T16:07:09Z
 
 # Example Questions
 
-- Where is liquidity weakest — which `categories` have `buyers` searching but too little live `supply` to fill the `demand`?
-- Is take-rate optimisation costing us `supply`, with `sellers` in our highest-commission `categories` going dormant faster than the rest?
-- How much of our booked `GMV` never settles, and do `cancellations` and complaints concentrate around the same `sellers`?
+- Where is liquidity weakest — which `categories` have `buyers` searching but too little live supply to fill the demand?
+- Is take-rate optimisation costing us supply, with `sellers` in our highest-commission `categories` going dormant faster than the rest?
+- How much of our booked GMV never settles, and do `cancellations` and complaints concentrate around the same `sellers`?
 
 # Explore this model
 

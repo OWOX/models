@@ -30,4 +30,4 @@ timestamp: 2026-07-23T17:34:31.000Z
 
 - How many campaigns are running per channel and objective, and how does that mix shift over time?
 - Which campaigns are actively in-flight versus always-on programs like nurture or content syndication?
-- How does spend, `traffic` and `pipeline` performance compare across campaigns that share the same objective (e.g. all lead-generation campaigns)?
+- How does spend, traffic and pipeline performance compare across campaigns that share the same objective (e.g. all lead-generation campaigns)?

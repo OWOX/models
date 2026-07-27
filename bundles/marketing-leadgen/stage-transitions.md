@@ -23,8 +23,8 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Example Questions
 
-- Which `pipeline` stage is the biggest bottleneck, and does that differ for won versus lost deals?
-- How long, on average, does a `deal` spend in proposal or negotiation before closing?
+- Which pipeline stage is the biggest bottleneck, and does that differ for won versus lost deals?
+- How long, on average, does a deal spend in proposal or negotiation before closing?
 - How often do `opportunities` move backward a stage, and does that predict a lower win rate?
 
 ## Joins

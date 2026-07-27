@@ -1,9 +1,13 @@
 ---
 title: "Traffic Sources"
-description: "This Data Mart provides a comprehensive breakdown of website traffic origins, categorizing visitors by source, medium, and specific marketing campaigns. It is used to analyze the effectiveness of different acquisition channels and distinguish between paid and organic traffic performance."
+description: |
+  Every source, medium and campaign combination that sends traffic to the storefront, grouped
+  into the channels the business actually reports on and flagged for whether the traffic was
+  paid. It is the vocabulary that makes marketing comparable: the same channel grouping
+  applies to sessions, to customers and to advertising spend.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:06:49.000Z
+timestamp: 2026-07-27T16:47:26.000Z
 ---
 
 # Schema
@@ -16,3 +20,9 @@ timestamp: 2026-07-27T15:06:49.000Z
 | `campaign` | STRING | The specific marketing campaign name associated with the traffic. |
 | `is_paid` | BOOLEAN | Indicates whether the traffic was generated through a paid marketing channel. |
 | `channel_grouping` | STRING | The classification of traffic into broad categories like Paid Marketing, Direct, or Organic. |
+
+# Example Questions
+
+- Which channels bring in the most `sessions`, and which bring in the most revenue?
+- How does paid traffic compare with organic and referral on the quality of what it delivers?
+- Which campaigns are worth their spend once `orders`, not clicks, are the measure?

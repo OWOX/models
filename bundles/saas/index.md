@@ -8,7 +8,7 @@ description: |
   churn), while engagement, support and payment health all feed the retention story.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T16:07:15Z
+timestamp: 2026-07-27T16:50:53Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -30,9 +30,9 @@ timestamp: 2026-07-27T16:07:15Z
 
 # Example Questions
 
-- What is `net revenue retention`, and how much of it is `expansion` versus what contraction and churn take back?
-- Which `acquisition channels` pay back their cost fastest once you account for the revenue those `accounts` actually retain?
-- Do `accounts` with deeper `product usage` and better `support experiences` expand more and `churn` less?
+- What is net revenue retention, and how much of it is expansion versus what contraction and churn take back?
+- Which acquisition channels pay back their cost fastest once you account for the revenue those `accounts` actually retain?
+- Do `accounts` with deeper `product usage` and better `support experiences` expand more and churn less?
 
 # Explore this model
 

@@ -26,7 +26,7 @@ timestamp: 2026-07-23T17:34:11.000Z
 # Example Questions
 
 - Which `departments` run at the highest occupancy, and how close are they to their staffed-bed capacity?
-- How does daily occupancy trend over time as `admissions` and discharges fluctuate?
+- How does daily occupancy trend over time as admissions and discharges fluctuate?
 - Are there `departments` where staffed beds are consistently underused relative to demand?
 
 ## Joins

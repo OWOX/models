@@ -22,6 +22,6 @@ timestamp: 2026-07-27T15:57:43.000Z
 
 # Example Questions
 
-- Which categories carry the highest `take rate`, and is that where our GMV actually sits?
-- If we lifted the `take rate` two points in a low-rate goods category, how much extra platform revenue would last quarter's orders have produced?
-- How does the blended effective `take rate` across all orders compare with the headline rate of our largest categories?
+- Which categories carry the highest take rate, and is that where our GMV actually sits?
+- If we lifted the take rate two points in a low-rate goods category, how much extra platform revenue would last quarter's `orders` have produced?
+- How does the blended effective take rate across all `orders` compare with the headline rate of our largest categories?

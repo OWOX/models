@@ -30,7 +30,7 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 - Which `categories` and regions show strong demand but weak fill — searches that return few results or rarely convert?
 - What is the search-to-order conversion rate, and where in the funnel (no results, no click, no conversion) does demand leak?
-- For searches that do convert, how long is the time to match and what `GMV` do they drive?
+- For searches that do convert, how long is the time to match and what GMV do they drive?
 
 ## Joins
 

@@ -9,7 +9,7 @@ description: |
   the money and the risk across the entire loan book.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T16:06:55Z
+timestamp: 2026-07-27T16:50:33Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -29,9 +29,9 @@ timestamp: 2026-07-27T16:06:55Z
 
 # Example Questions
 
-- Which acquisition channels bring in the most profitable `borrowers` once `late payments` and `write-offs` are taken into account?
+- Which acquisition channels bring in the most profitable borrowers once `late payments` and write-offs are taken into account?
 - How much of the money lent out is the business likely to lose, and is that improving or worsening for recent `loans`?
-- Do higher-risk `customers` who pay on time make up for the ones who `default` — is the `pricing` worth the risk?
+- Do higher-risk `customers` who pay on time make up for the ones who default — is the pricing worth the risk?
 
 # Explore this model
 
