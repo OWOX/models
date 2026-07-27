@@ -21,5 +21,5 @@ timestamp: 2026-07-23T17:34:12.000Z
 # Example Questions
 
 - What is the split between government and commercial plan types among the payers the system bills?
-- Which payers make up the largest share of billed claim volume?
-- How does reimbursement performance differ between HMO, PPO and EPO plans?
+- Which payers make up the largest share of billed `claim` volume?
+- How does `reimbursement` performance differ between HMO, PPO and EPO plans?

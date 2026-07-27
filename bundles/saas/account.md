@@ -31,5 +31,5 @@ timestamp: 2026-07-23T12:51:25.000Z
 # Example Questions
 
 - Which industries and company sizes carry the healthiest accounts and the highest revenue bands?
-- How does the mix of at-risk versus healthy accounts differ across acquisition channels?
+- How does the mix of at-risk versus healthy accounts differ across `acquisition channels`?
 - Do accounts with a dedicated success manager show better health and lifecycle outcomes?

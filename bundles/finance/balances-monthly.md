@@ -25,8 +25,8 @@ timestamp: 2026-07-23T12:02:48.000Z
 # Example Questions
 
 - What is the net interest margin across the book, and how does it trend month over month?
-- Which products and balance tiers contribute most to interest and fee income?
-- How stable are deposit balances over time, and where is money quietly draining away?
+- Which `products` and balance tiers contribute most to interest and fee income?
+- How stable are `deposit` balances over time, and where is money quietly draining away?
 
 ## Joins
 

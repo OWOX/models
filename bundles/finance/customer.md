@@ -27,5 +27,5 @@ timestamp: 2026-07-23T12:02:47.000Z
 # Example Questions
 
 - Which marketing channels bring in the highest share of low-risk, creditworthy customers?
-- How many people pass the initial checks but never open a funded account — and where are they lost?
+- How many people pass the initial checks but never open a funded `account` — and where are they lost?
 - Does a customer's credit standing at sign-up line up with whether they become an active, funded borrower?

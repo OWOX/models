@@ -1,9 +1,14 @@
 ---
 title: "Search Requests"
-description: "One row per search/browse request — the demand and match-quality signal."
+description: |
+  One row per search a buyer runs — the top of the demand funnel and the cleanest read on
+  marketplace liquidity. Each request records the category searched, how many results came
+  back, whether the buyer clicked, and whether the search converted into an order, along
+  with the time it took to match. Searches that return nothing, or return results but never
+  convert, are the "demand with no fill" signal a liquidity analyst hunts for.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-24T10:45:11.000Z
+timestamp: 2026-07-27T15:57:45.000Z
 ---
 
 # Schema
@@ -20,6 +25,12 @@ timestamp: 2026-07-24T10:45:11.000Z
 | `converted` | BOOLEAN | Whether the search led to an order. |
 | `order_id` | STRING | Order the search converted into, if any. FK to [Orders](./orders.md) |
 | `time_to_match_mins` | FLOAT | Search → transaction latency in minutes (null unless converted). |
+
+# Example Questions
+
+- Which `categories` and regions show strong demand but weak fill — searches that return few results or rarely convert?
+- What is the search-to-order conversion rate, and where in the funnel (no results, no click, no conversion) does demand leak?
+- For searches that do convert, how long is the time to match and what `GMV` do they drive?
 
 ## Joins
 

@@ -28,8 +28,8 @@ timestamp: 2026-07-23T12:51:27.000Z
 # Example Questions
 
 - What does the revenue waterfall look like month to month — how much new, expansion, contraction and churned revenue?
-- What are gross and net revenue retention, and which is trending the wrong way?
-- How much of expansion comes from seat growth versus tier upgrades?
+- What are gross and `net revenue retention`, and which is trending the wrong way?
+- How much of expansion comes from seat growth versus `tier` upgrades?
 
 ## Joins
 

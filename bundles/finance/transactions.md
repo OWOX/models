@@ -29,9 +29,9 @@ timestamp: 2026-07-23T12:02:49.000Z
 
 # Example Questions
 
-- Where does the fraud-detection system catch real fraud versus wrongly declining good customers?
+- Where does the fraud-detection system catch real fraud versus wrongly declining good `customers`?
 - Which spending categories and channels drive the most transaction volume and value?
-- How does everyday account activity differ between engaged customers and those going dormant?
+- How does everyday `account` activity differ between engaged `customers` and those going dormant?
 
 ## Joins
 

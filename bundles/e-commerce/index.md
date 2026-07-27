@@ -3,7 +3,7 @@ title: "E-Commerce"
 description: "An online retail business modeled end to end — from the traffic that arrives on the storefront, through browsing sessions and product discovery, to orders, revenue and repeat purchasing, with paid advertising across every major channel tied back to the sales it drives. Web sessions, pageviews and traffic sources describe how shoppers find and move through the store; the product catalog and its categories describe what they browse; orders, purchases and customers capture what they buy and how often they return; and unified ad spend brings Google, Facebook, TikTok, LinkedIn, Microsoft, Reddit and X advertising together with Shopify sales so acquisition cost can be weighed against the revenue it returns."
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-27T15:15:02Z
+timestamp: 2026-07-27T16:06:50Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -27,9 +27,9 @@ timestamp: 2026-07-27T15:15:02Z
 
 # Example Questions
 
-- Which traffic sources and paid channels bring in the shoppers who actually convert, and what does each acquired customer cost versus the revenue they generate?
-- How does the storefront funnel — sessions to product views to orders — convert, and where are the biggest drop-offs by country, category or landing page?
-- Which products and categories drive the most revenue and repeat purchasing, and how does that shift across countries and over time?
+- Which `traffic sources` and `paid channels` bring in the `shoppers` who actually convert, and what does each acquired `customer` cost versus the revenue they generate?
+- How does the storefront funnel — `sessions` to `product views` to `orders` — convert, and where are the biggest drop-offs by `country`, `category` or landing `page`?
+- Which `products` and `categories` drive the most revenue and `repeat purchasing`, and how does that shift across `countries` and over time?
 
 # Explore this model
 

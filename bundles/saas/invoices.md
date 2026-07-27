@@ -32,7 +32,7 @@ timestamp: 2026-07-23T12:51:26.000Z
 # Example Questions
 
 - How much revenue is lost to failed payments, and how much does dunning recover before write-off?
-- Which accounts are slipping through the collections stages toward involuntary churn?
+- Which `accounts` are slipping through the collections stages toward involuntary `churn`?
 - How much do discounts and applied credits reduce collected revenue versus billed revenue?
 
 ## Joins

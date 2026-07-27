@@ -31,7 +31,7 @@ timestamp: 2026-07-23T17:34:13.000Z
 
 - What is the claim denial rate, and which denial reasons account for the most lost revenue?
 - How much longer do denied claims spend in accounts receivable than clean, paid claims?
-- How does the gap between billed and paid amounts vary by payer?
+- How does the gap between billed and paid amounts vary by `payer`?
 
 ## Joins
 

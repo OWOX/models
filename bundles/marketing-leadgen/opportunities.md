@@ -29,9 +29,9 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Example Questions
 
-- What is the win rate and average sales cycle by deal size, industry or account segment?
-- Which accounts, campaigns or reps are driving the most pipeline and revenue?
-- Do target (ABM) accounts close bigger and faster deals than non-target accounts?
+- What is the win rate and average sales cycle by deal size, industry or `account` segment?
+- Which `accounts`, `campaigns` or reps are driving the most pipeline and revenue?
+- Do target (ABM) `accounts` close bigger and faster deals than non-target accounts?
 
 ## Joins
 

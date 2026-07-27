@@ -26,6 +26,6 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 # Example Questions
 
-- How is the patient population split across insurance types, and how has that mix shifted as new patients register?
+- How is the patient population split across `insurance types`, and how has that mix shifted as new patients register?
 - What share of patients fall into higher-risk tiers, and how does that skew by age band?
 - Which postal codes or regions are driving the most new patient registrations?

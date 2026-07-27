@@ -26,9 +26,9 @@ timestamp: 2026-07-23T12:02:49.000Z
 
 # Example Questions
 
-- How does the rate of loans falling 90+ days behind differ across risk tiers?
-- What share of lent principal ends up written off, and how does that build over the life of a loan?
-- How many delinquent loans recover and return to good standing versus rolling into write-off?
+- How does the rate of `loans` falling 90+ days behind differ across risk tiers?
+- What share of lent principal ends up written off, and how does that build over the life of a `loan`?
+- How many delinquent `loans` recover and return to good standing versus rolling into `write-off`?
 
 ## Joins
 

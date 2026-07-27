@@ -29,8 +29,8 @@ timestamp: 2026-07-23T17:34:12.000Z
 # Example Questions
 
 - How does no-show rate change with booking lead time, and which lead-time windows should scheduling policy target first?
-- Which departments or providers have the longest patient wait times, and is that linked to no-show behavior?
-- What share of scheduled appointments convert to completed visits versus cancellations and no-shows?
+- Which `departments` or `providers` have the longest `patient` wait times, and is that linked to no-show behavior?
+- What share of scheduled appointments convert to completed `visits` versus cancellations and no-shows?
 
 ## Joins
 
