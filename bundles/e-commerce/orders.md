@@ -10,15 +10,15 @@ timestamp: 2026-07-27T07:00:55.000Z
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `session_id` | STRING | Unique identifier of the session where the order was placed |
-| `customer_id` | INTEGER | Unique identifier of the customer who placed the order |
+| `session_id` | STRING | Unique identifier of the session where the order was placed FK to [🥈 Sessions](./sessions.md) |
+| `customer_id` | INTEGER | Unique identifier of the customer who placed the order FK to [🥈 Customers](./customers.md) |
 | `order_date` | DATE | The date when the transaction was completed |
-| `order_id` | STRING | PK. Unique identifier of the purchase transaction |
+| `order_id` | STRING | PK. Unique identifier of the purchase transaction FK to [🥈 Purchases](./purchases.md) |
 | `status` | STRING | Current fulfillment state of the order (e.g., Completed) |
 
 ## Joins
 
-- Products
-- Purchases
-- Customers
-- Sessions
+- [Products](./products.md)
+- [Purchases](./purchases.md) — `order_id = order_id`
+- [Customers](./customers.md) — `customer_id = customer_id`
+- [Sessions](./sessions.md) — `session_id = session_id`

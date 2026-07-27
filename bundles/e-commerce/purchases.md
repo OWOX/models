@@ -8,7 +8,7 @@ description: |
   The schema is built for flexibility and scalability, supporting multi-currency transactions and varying product quantities per order. It provides a clean, standardized output that allows analysts to quickly generate insights into which products drive growth and how pricing strategies impact customer purchasing habits at the point of sale.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T10:01:33.000Z
+timestamp: 2026-07-27T11:01:09.000Z
 ---
 
 # Schema
@@ -16,8 +16,8 @@ timestamp: 2026-07-27T10:01:33.000Z
 | Column | Type | Description |
 |--------|------|-------------|
 | `purchase_id` | STRING | PK. A unique identifier for each individual item row within an order |
-| `order_id` | STRING | The unique identifier of the transaction. Used to join with the Orders Data Mart. |
-| `product_id` | INTEGER | The unique identifier of the purchased product |
+| `order_id` | STRING | The unique identifier of the transaction. Used to join with the Orders Data Mart. FK to [🥈 Orders](./orders.md) |
+| `product_id` | INTEGER | The unique identifier of the purchased product FK to [🥈 Products](./products.md) |
 | `quantity` | INTEGER | The number of units of this specific product included in the purchase line |
 | `sale_price` | FLOAT | The price per unit at the moment of purchase |
 | `currency` | STRING | The currency used for the transaction (e.g., USD) |
@@ -29,5 +29,5 @@ timestamp: 2026-07-27T10:01:33.000Z
 
 ## Joins
 
-- Orders
-- Products
+- [Orders](./orders.md) — `order_id = order_id`
+- [Products](./products.md) — `product_id = product_id`

@@ -14,9 +14,9 @@ timestamp: 2026-07-24T16:39:28.000Z
 | `session_id` | STRING | Unique identifier for a specific user browsing session. |
 | `visitor_id` | STRING | Unique identifier for an individual user or browser. |
 | `hit_number` | INTEGER | The sequential order of the pageview within a specific session. |
-| `page_id` | INTEGER | Unique identifier for the specific page viewed by the visitor. |
+| `page_id` | INTEGER | Unique identifier for the specific page viewed by the visitor. FK to [🥈 Pages](./pages.md) |
 | `hit_timestamp` | TIMESTAMP | The exact date and time when the pageview was recorded, in UTC. |
 
 ## Joins
 
-- Pages
+- [Pages](./pages.md) — `page_id = page_id`
