@@ -13,6 +13,7 @@ describe("OKF v0.2 — frontmatter with sequences", () => {
     expect(titles).toEqual({
       blocks: "Bitcoin Blocks Table",
       inputs: "Bitcoin Transaction Inputs",
+      transactions: "Bitcoin Transactions Table",
     });
   });
 
@@ -43,6 +44,16 @@ describe("OKF v0.2 — schema tables", () => {
       expect(n.schema.every(f => !f.name.includes("*"))).toBe(true);
       expect(n.schema.every(f => !f.name.includes("`"))).toBe(true);
     }
+  });
+
+  it("strips emphasis runs inside a nested RECORD field name", () => {
+    // transactions.md writes its nested rows as `| *inputs.***index** | …`, an
+    // italic parent butted against a bold leaf, leaving a run mid-name.
+    const g = parseBundle(loadBundle("crypto_bitcoin_v02"));
+    const names = g.nodes.find(n => n.key === "transactions")!.schema.map(f => f.name);
+    expect(names).toContain("inputs.index");
+    expect(names).toContain("inputs.spent_transaction_hash");
+    expect(names).toContain("outputs.value");
   });
 
   it("still reads the canonical Column | Type | Description form", () => {
