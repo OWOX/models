@@ -35,7 +35,7 @@ import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl
 import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
 import { readOkfImportUrl, clearOkfFromUrl } from "../../share/okfLink";
 import { exportCanvasSvg } from "../../share/exportImage";
-import { pushModel, pushPreview, type PushResult } from "../../sync/push";
+import { pushModel, pushPreview, type PushResult, type PushOptions } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
 
 import { api } from "../../lib/api";
@@ -739,12 +739,12 @@ function CanvasInner() {
     setShowLibrary(false);
   }, [pendingTemplate, applyTemplate]);
 
-  const runPush = useCallback(async (storagesList: StorageOption[] = storages) => {
+  const runPush = useCallback(async (storagesList: StorageOption[] = storages, opts?: PushOptions) => {
     setPushResult(null);
     setPushing(true);
     try {
       const storageType = storagesList.find(s => s.id === store.get().storageId)?.type;
-      const result = await pushModel(store, undefined, storageType);
+      const result = await pushModel(store, undefined, storageType, opts);
       setPushResult(result);
     } catch (e) {
       setPushResult({ created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [(e as Error).message] });
@@ -855,6 +855,7 @@ function CanvasInner() {
           storage={storages.find(s => s.id === graph.storageId) ?? null}
           counts={pushPreview(graph, graph.storageId)}
           onConfirm={() => { setShowPushConfirm(false); void runPush(); }}
+          onForcePush={() => { setShowPushConfirm(false); void runPush(storages, { force: true }); }}
           onChangeProject={handleChangeProject}
           onClose={() => setShowPushConfirm(false)}
         />
