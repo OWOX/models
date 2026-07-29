@@ -53,6 +53,7 @@ import { TemplateApplyDialog } from "../TemplateApplyDialog";
 import { WelcomeDialog } from "../WelcomeDialog";
 import { SignInModal } from "../SignInModal";
 import { PushConfirmDialog } from "../PushConfirmDialog";
+import { PushToast } from "../PushToast";
 import { ClearCanvasDialog } from "../ClearCanvasDialog";
 import { NewModelDialog } from "../NewModelDialog";
 import { pushIntent } from "../../sync/pushGate";
@@ -747,7 +748,7 @@ function CanvasInner() {
       const result = await pushModel(store, undefined, storageType, opts);
       setPushResult(result);
     } catch (e) {
-      setPushResult({ created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [(e as Error).message] });
+      setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [(e as Error).message] });
     } finally {
       setPushing(false);
     }
@@ -925,7 +926,7 @@ function CanvasInner() {
             const list = await loadStorages();
             if (mode === "push") {
               if (list.length === 0) {
-                setPushResult({ created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: ["Couldn't load your OWOX storages — please try Push again."] });
+                setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: ["Couldn't load your OWOX storages — please try Push again."] });
                 return;
               }
               await runPush(list);
@@ -1082,33 +1083,6 @@ function CanvasInner() {
         </ModelSheet>
         <RightRail active={panel.active} onOpen={handleRailOpen} signedIn={!!account} highlightId={visualRailId} onSave={supabaseEnabled ? handleSave : undefined} saving={saving} saveState={saveState} />
       </div>
-    </div>
-  );
-}
-
-// ── Push result toast (sticky — dismissed by the user, not on a timer) ─────────
-function PushToast({ result, onClose }: { result: PushResult; onClose: () => void }) {
-  const hasFailures = result.failed > 0 || result.relationshipsFailed > 0;
-  const summary = `${result.created} mart${result.created === 1 ? "" : "s"} created`
-    + (result.relationshipsCreated ? `, ${result.relationshipsCreated} link${result.relationshipsCreated === 1 ? "" : "s"} created` : "")
-    + (hasFailures ? `, ${result.failed + result.relationshipsFailed} failed` : "");
-  return (
-    <div className={`fixed bottom-4 right-4 z-50 w-[420px] max-h-[60vh] overflow-y-auto rounded-xl shadow-2xl border text-[13px] ${hasFailures ? "bg-white border-red-300" : "bg-white border-emerald-300"}`}>
-      <div className="flex items-start gap-2 px-4 py-3 border-b border-slate-100">
-        <span className={`mt-[2px] h-2 w-2 rounded-full flex-shrink-0 ${hasFailures ? "bg-red-500" : "bg-emerald-500"}`} />
-        <div className="flex-1 font-semibold text-slate-800">
-          {hasFailures ? "Push completed with errors" : "Push complete"}
-          <div className="font-normal text-slate-500 text-[12px] mt-0.5">{summary}</div>
-        </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-slate-700" title="Dismiss"><X size={16} /></button>
-      </div>
-      {result.errors.length > 0 && (
-        <ul className="px-4 py-2 flex flex-col gap-1.5">
-          {result.errors.map((err, i) => (
-            <li key={i} className="text-[12px] text-red-600 leading-snug break-words font-mono">{err}</li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

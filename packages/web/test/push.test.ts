@@ -218,7 +218,17 @@ describe("pushModel", () => {
     expect(res.relationshipsCreated).toBeGreaterThan(0);
   });
 
-  it("force re-creates a mart already live in the active storage (deleted in OWOX)", async () => {
+  // A forced push checks what is actually in OWOX first (GET /api/data-marts),
+  // so it can refuse to duplicate a mart the user did not in fact delete.
+  const forceApi = (liveMarts: Array<{ id: string; title: string; status?: string }>, calls: string[] = []) =>
+    vi.fn(async (path: string, init?: any) => {
+      const method = init?.method ?? "GET";
+      calls.push(`${method} ${path}`);
+      if (path === "/api/data-marts" && method === "GET") return liveMarts;
+      return { id: "fresh_id" };
+    });
+
+  it("force re-creates a mart that is gone from OWOX", async () => {
     const s = createModelStore({ storageId: "stor_1" });
     s.set({
       storageId: "stor_1",
@@ -228,15 +238,82 @@ describe("pushModel", () => {
       edges: [],
     });
     const calls: string[] = [];
-    const apiMock = vi.fn(async (path: string) => { calls.push(path); return { id: "fresh_id" }; });
-    const res = await pushModel(s, apiMock as any, undefined, { force: true });
-    expect(calls).toContain("/api/data-marts");
+    const res = await pushModel(s, forceApi([{ id: "other_id", title: "Sessions" }], calls) as any, undefined, { force: true });
+    expect(calls).toContain("POST /api/data-marts");
     expect(res.created).toBe(1);
+    expect(res.blocked).toBe(0);
     expect(s.get().nodes[0].owoxId).toBe("fresh_id"); // the old id pointed at a deleted mart
     expect(s.get().nodes[0].status).toBe("created");
   });
 
-  it("force pushes an existing edge whose both endpoints are live here", async () => {
+  it("force refuses to duplicate a mart that still exists in OWOX, naming its status", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "still_there", owoxStorageId: "stor_1" },
+      ],
+      edges: [],
+    });
+    const calls: string[] = [];
+    const res = await pushModel(s, forceApi([{ id: "still_there", title: "Orders", status: "DRAFT" }], calls) as any, undefined, { force: true });
+    expect(calls).not.toContain("POST /api/data-marts"); // no duplicate created
+    expect(res.created).toBe(0);
+    expect(res.blocked).toBe(1);
+    expect(res.failed).toBe(0); // nothing broke — we deliberately held back
+    expect(res.errors[0]).toMatch(/Orders.*still exists in OWOX.*DRAFT/i);
+    expect(s.get().nodes[0].status).toBe("created"); // it IS in OWOX, so the green dot is honest
+    expect(s.get().nodes[0].owoxId).toBe("still_there");
+  });
+
+  it("force holds back the blocked marts but pushes the deleted ones", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "still_there", owoxStorageId: "stor_1" },
+        { key: "n2", title: "Customers", inputSource: "SQL", schema: [], position: { x: 100, y: 0 }, status: "created", owoxId: "gone", owoxStorageId: "stor_1" },
+      ],
+      edges: [],
+    });
+    const bodies: string[] = [];
+    const apiMock = vi.fn(async (path: string, init?: any) => {
+      if (path === "/api/data-marts" && (init?.method ?? "GET") === "GET") return [{ id: "still_there", title: "Orders", status: "PUBLISHED" }];
+      if (path === "/api/data-marts") bodies.push(String(init?.body));
+      return { id: "fresh_id" };
+    });
+    const res = await pushModel(s, apiMock as any, undefined, { force: true });
+    expect(res.created).toBe(1);
+    expect(res.blocked).toBe(1);
+    expect(bodies).toHaveLength(1);
+    expect(bodies[0]).toContain("Customers"); // only the deleted one was recreated
+  });
+
+  it("force does not re-push a relationship between two blocked marts", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [{ name: "customer_id", type: "STRING", pk: false }], position: { x: 0, y: 0 }, status: "created", owoxId: "live_a", owoxStorageId: "stor_1" },
+        { key: "n2", title: "Customers", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 100, y: 0 }, status: "created", owoxId: "live_b", owoxStorageId: "stor_1" },
+      ],
+      edges: [
+        { id: "e1", from: "n1", to: "n2", keys: [{ left: "customer_id", right: "id" }], bidirectional: false, existing: true },
+      ],
+    });
+    const calls: string[] = [];
+    const res = await pushModel(
+      s,
+      forceApi([{ id: "live_a", title: "Orders", status: "DRAFT" }, { id: "live_b", title: "Customers", status: "DRAFT" }], calls) as any,
+      undefined,
+      { force: true },
+    );
+    expect(calls.filter(c => c.includes("/relationships"))).toHaveLength(0);
+    expect(res.blocked).toBe(2);
+    expect(res.relationshipsCreated).toBe(0);
+  });
+
+  it("force pushes an existing edge once both endpoints were re-created", async () => {
     const s = createModelStore({ storageId: "stor_1" });
     s.set({
       storageId: "stor_1",
@@ -248,28 +325,40 @@ describe("pushModel", () => {
         { id: "e1", from: "n1", to: "n2", keys: [{ left: "customer_id", right: "id" }], bidirectional: false, existing: true },
       ],
     });
-    const relationshipCalls: string[] = [];
-    const apiMock = vi.fn(async (path: string) => { if (path.includes("/relationships")) relationshipCalls.push(path); return { id: "x" }; });
-    const res = await pushModel(s, apiMock as any, undefined, { force: true });
-    expect(relationshipCalls).toHaveLength(1);
+    const calls: string[] = [];
+    const res = await pushModel(s, forceApi([], calls) as any, undefined, { force: true }); // OWOX is empty — both were deleted
+    expect(calls.filter(c => c.includes("/relationships"))).toHaveLength(1);
     expect(res.relationshipsCreated).toBe(1);
   });
 
-  it("force surfaces an OWOX error when the mart still exists there", async () => {
+  it("force aborts without pushing anything when it cannot check what is in OWOX", async () => {
     const s = createModelStore({ storageId: "stor_1" });
     s.set({
       storageId: "stor_1",
       nodes: [
-        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "still_there", owoxStorageId: "stor_1" },
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "a", owoxStorageId: "stor_1" },
       ],
       edges: [],
     });
-    const apiMock = vi.fn(async () => { throw new Error("Data mart with this title already exists"); });
+    const calls: string[] = [];
+    const apiMock = vi.fn(async (path: string, init?: any) => {
+      calls.push(`${init?.method ?? "GET"} ${path}`);
+      if (path === "/api/data-marts" && (init?.method ?? "GET") === "GET") throw new Error("HTTP 500");
+      return { id: "fresh_id" };
+    });
     const res = await pushModel(s, apiMock as any, undefined, { force: true });
+    expect(calls).not.toContain("POST /api/data-marts"); // duplicates are unrecoverable, so don't guess
     expect(res.created).toBe(0);
-    expect(res.failed).toBe(1);
-    expect(s.get().nodes[0].status).toBe("error");
-    expect(res.errors[0]).toMatch(/already exists/);
+    expect(res.errors[0]).toMatch(/could not check|HTTP 500/i);
+  });
+
+  it("does not list OWOX marts on a normal push — the skip needs no lookup", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.addNode({ x: 0, y: 0 });
+    const calls: string[] = [];
+    const apiMock = vi.fn(async (path: string, init?: any) => { calls.push(`${init?.method ?? "GET"} ${path}`); return { id: "owox_a" }; });
+    await pushModel(s, apiMock as any);
+    expect(calls).not.toContain("GET /api/data-marts");
   });
 
   it("uses an underscore identifier (not a hyphenated slug) for targetAlias", async () => {

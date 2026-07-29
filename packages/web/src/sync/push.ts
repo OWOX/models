@@ -9,6 +9,9 @@ export interface PushResult {
   created: number;
   updated: number;
   failed: number;
+  /** Marts a forced push held back because they are still in OWOX. Not a failure
+   *  — nothing broke, we refused to create a duplicate. */
+  blocked: number;
   relationshipsCreated: number;
   relationshipsFailed: number;
   errors: string[];
@@ -50,13 +53,30 @@ export interface PushOptions {
   /** Re-create marts that are already live in the active storage. For the case
    *  where the user deleted them inside OWOX and wants the same model back: the
    *  stored owoxId points at a mart that no longer exists, so skipping it would
-   *  silently push nothing. If a mart is in fact still there, OWOX answers with
-   *  an error, which lands on the node like any other push failure. */
+   *  silently push nothing. Marts that are still in OWOX are held back rather
+   *  than duplicated — see findBlockedMarts. */
   force?: boolean;
 }
 
+/** What a forced push must not touch: marts whose stored owoxId is still listed
+ *  in OWOX. Creating those again would leave the project with two copies and no
+ *  way to tell them apart, so we hold them back and say which status they're in.
+ *  Throws if the listing can't be read — guessing would risk the duplicates this
+ *  check exists to prevent. */
+async function findBlockedMarts(store: ModelStore, api: Api, storageId: string): Promise<Map<string, string | undefined>> {
+  const live = await api<Array<{ id: string; title?: string; status?: string }>>("/api/data-marts");
+  if (!Array.isArray(live)) throw new Error("unexpected data mart listing");
+  const statusById = new Map(live.map(m => [m.id, m.status]));
+  const blocked = new Map<string, string | undefined>();
+  for (const n of store.get().nodes) {
+    if (n.status !== "created" || n.owoxStorageId !== storageId || !n.owoxId) continue;
+    if (statusById.has(n.owoxId)) blocked.set(n.key, statusById.get(n.owoxId));
+  }
+  return blocked;
+}
+
 export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
-  const res: PushResult = { created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [] };
+  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [] };
 
   const storageId = store.get().storageId;
   if (!storageId) {
@@ -67,7 +87,31 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     return res;
   }
 
-  // ── 0. Ensure every join-key field exists in its mart's output schema ───────
+  // ── 0. A forced push first asks OWOX what is actually there ─────────────────
+  // The premise of a forced push is "I deleted these in OWOX". Verify it before
+  // creating anything: a mart still listed there would become a duplicate, which
+  // nobody can untangle afterwards. Blocked marts keep their green dot — it is
+  // honest, they really are in OWOX — and are reported instead of pushed.
+  const blockedKeys = new Set<string>();
+  if (opts.force) {
+    let blocked: Map<string, string | undefined>;
+    try {
+      blocked = await findBlockedMarts(store, api, storageId);
+    } catch (e) {
+      res.errors.push(`Could not check which marts still exist in OWOX (${(e as Error).message}) — nothing was pushed.`);
+      return res;
+    }
+    for (const [key, owoxStatus] of blocked) {
+      const title = store.get().nodes.find(n => n.key === key)?.title ?? key;
+      blockedKeys.add(key);
+      res.blocked++;
+      res.errors.push(
+        `"${title}" still exists in OWOX${owoxStatus ? ` (${owoxStatus})` : ""} — delete it there first, otherwise this would create a duplicate.`,
+      );
+    }
+  }
+
+  // ── 1. Ensure every join-key field exists in its mart's output schema ───────
   // Joining on a field that isn't defined is meaningless, so auto-add missing
   // ones before we push schemas. Infer the new field's type from the other side
   // of the join (a key matching an INTEGER PK must not be created as STRING, or
@@ -83,15 +127,16 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     }
   }
 
-  // ── 1. Create pending marts, then push their output schema ──────────────────
+  // ── 2. Create pending marts, then push their output schema ──────────────────
   // Track marts we skip because they already exist IN THIS STORAGE — a "created"
   // mart whose owoxStorageId points at a different storage (e.g. imported from
   // another project, then signed into this one) is NOT in the active storage, so
   // it must be recreated here rather than silently skipped. A forced push skips
-  // nothing: every mart is created again (and so is every relationship, since
-  // the edge skip below keys off this same set).
+  // only what step 0 found still living in OWOX; everything else is created again
+  // (and so are its relationships, since the edge skip below keys off this set).
   const skippedKeys = new Set<string>();
   for (const n of store.get().nodes) {
+    if (blockedKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
     if (!opts.force && n.status === "created" && n.owoxStorageId === storageId) { skippedKeys.add(n.key); continue; }
     store.updateNode(n.key, { status: "creating", error: null });
     try {
@@ -143,7 +188,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     }
   }
 
-  // ── 2. Create joinable relationships (depends on both marts existing) ───────
+  // ── 3. Create joinable relationships (depends on both marts existing) ───────
   const g = store.get();
   const owoxIdByKey = new Map(g.nodes.map(n => [n.key, n.owoxId]));
   const titleByKey = new Map(g.nodes.map(n => [n.key, n.title]));
