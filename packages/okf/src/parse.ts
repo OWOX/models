@@ -151,7 +151,13 @@ function parseOverview(body: string): { id?: string; status?: string; definition
 
 function parseSchema(body: string): import("./types").SchemaField[] {
   const out: import("./types").SchemaField[] = [];
-  const lines = body.split("\n"); let inSchema = false; let legacy = false;
+  const lines = body.split("\n"); let inSchema = false;
+  // Column positions come from the header row, so the canonical
+  // `| Column | Type | Description |` form, the optional-Alias form, and the
+  // legacy `| Column | Type | PK | Alias | Description |` form all parse
+  // without guessing at the arity. Description falls back to index 2 for
+  // tables written without a header.
+  let idxPk = -1, idxAlias = -1, idxDesc = 2;
   for (const ln of lines) {
     if (/^##?\s+Schema/i.test(ln)) { inSchema = true; continue; }
     if (!inSchema) continue;
@@ -160,23 +166,22 @@ function parseSchema(body: string): import("./types").SchemaField[] {
     const cells = ln.split("|").slice(1, -1).map(c => c.trim());
     if (cells.length < 2) continue;
     const name = cells[0].replace(/`/g, "").trim();
-    if (!name || name === "Column") {
-      legacy = cells.some(c => /^pk$/i.test(c) || /^alias$/i.test(c)); // header row
+    if (!name || /^column$/i.test(name)) { // header row
+      idxPk = cells.findIndex(c => /^pk$/i.test(c));
+      idxAlias = cells.findIndex(c => /^alias$/i.test(c));
+      const d = cells.findIndex(c => /^description$/i.test(c));
+      idxDesc = d >= 0 ? d : (idxPk === 2 || idxAlias === 2 ? -1 : 2);
       continue;
     }
     if (/^:?-+:?$/.test(name)) continue; // separator
     const type = (cells[1] || "STRING").replace(/`/g, "").trim() || "STRING";
     const field: import("./types").SchemaField = { name, type, pk: false };
-    if (legacy) {
-      field.pk = /^(✓|x|X)$/.test((cells[2] || "").trim());
-      const alias = (cells[3] || "").trim(); const desc = (cells[4] || "").trim();
-      if (alias) field.alias = alias;
-      if (desc) field.description = desc;
-    } else {
-      let desc = (cells[2] || "").trim();
-      if (/^PK\.\s*/.test(desc)) { field.pk = true; desc = desc.replace(/^PK\.\s*/, "").trim(); }
-      if (desc) field.description = desc;
-    }
+    if (idxPk >= 0) field.pk = /^(✓|x|X)$/.test((cells[idxPk] || "").trim());
+    let desc = (idxDesc >= 0 ? cells[idxDesc] || "" : "").trim();
+    if (/^PK\.\s*/.test(desc)) { field.pk = true; desc = desc.replace(/^PK\.\s*/, "").trim(); }
+    const alias = (idxAlias >= 0 ? cells[idxAlias] || "" : "").replace(/`/g, "").trim();
+    if (alias) field.alias = alias;
+    if (desc) field.description = desc;
     out.push(field);
   }
   if (out.length === 0) return parseSchemaBullets(body);
