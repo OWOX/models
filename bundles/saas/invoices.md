@@ -11,23 +11,23 @@ timestamp: 2026-07-23T12:51:26.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `invoice_id` | STRING | PK. Unique invoice identifier. |
-| `account_id` | STRING | Account billed. FK to [Account](./account.md) |
-| `subscription_id` | STRING | Subscription being billed. FK to [Subscription](./subscription.md) |
-| `issued_at` | DATE | Date the invoice was issued. |
-| `period_start` | DATE | Start of the billing period. |
-| `period_end` | DATE | End of the billing period. |
-| `amount` | NUMERIC | Invoice amount before tax. |
-| `tax` | NUMERIC | Tax charged on the invoice. |
-| `status` | STRING | Payment status of the invoice. |
-| `currency` | STRING | Invoice currency, aligned to the account's region. |
-| `discount_amount` | NUMERIC | Discount applied to the invoice, if any. |
-| `credit_applied` | NUMERIC | Account credit applied to the invoice, if any. |
-| `dunning_stage` | STRING | Collections stage: none / retry_1 / retry_2 / final_notice / write_off. |
-| `paid_at` | DATE | Date the invoice was paid. |
-| `is_failed` | BOOLEAN | Failed payment — involuntary-churn signal. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `invoice_id` | STRING | Invoice ID | PK. Unique invoice identifier. |
+| `account_id` | STRING | Account ID | Account billed. FK to [Account](./account.md) |
+| `subscription_id` | STRING | Subscription ID | Subscription being billed. FK to [Subscription](./subscription.md) |
+| `issued_at` | DATE | Issued At | Date the invoice was issued. |
+| `period_start` | DATE | Period Start | Start of the billing period. |
+| `period_end` | DATE | Period End | End of the billing period. |
+| `amount` | NUMERIC | Amount | Invoice amount before tax. |
+| `tax` | NUMERIC | Tax | Tax charged on the invoice. |
+| `status` | STRING | Status | Payment status of the invoice. |
+| `currency` | STRING | Currency | Invoice currency, aligned to the account's region. |
+| `discount_amount` | NUMERIC | Discount Amount | Discount applied to the invoice, if any. |
+| `credit_applied` | NUMERIC | Credit Applied | Account credit applied to the invoice, if any. |
+| `dunning_stage` | STRING | Dunning Stage | Collections stage: none / retry_1 / retry_2 / final_notice / write_off. |
+| `paid_at` | DATE | Paid At | Date the invoice was paid. |
+| `is_failed` | BOOLEAN | Is Failed | Failed payment — involuntary-churn signal. |
 
 # Example Questions
 

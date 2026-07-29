@@ -17,26 +17,26 @@ timestamp: 2026-07-28T16:51:46.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `snapshot_id` | STRING | PK. Unique identifier of the subscriber-month record. |
-| `month` | DATE | First day of the month the snapshot describes. |
-| `customer_id` | STRING | Subscriber the snapshot describes. FK to [Customers](./customers.md) |
-| `primary_selling_plan_id` | STRING | Offer that carried most of this subscriber's recurring revenue in the month. FK to [Selling Plans](./selling-plans.md) |
-| `cohort_month` | DATE | Month the subscriber first subscribed in, used as the cohort anchor. |
-| `months_since_cohort` | INTEGER | Number of months between the cohort month and this snapshot month. |
-| `status_at_month_end` | STRING | Where the subscriber stood on the last day of the month: Active, Paused or Cancelled. |
-| `active_subscriptions` | INTEGER | Number of subscriptions the customer held in an active state at month end. |
-| `paused_subscriptions` | INTEGER | Number of the customer's subscriptions that were paused at month end. |
-| `recurring_revenue` | FLOAT | Revenue the customer generated from subscription charges during the month. |
-| `one_time_revenue` | FLOAT | Revenue the customer generated from one-time orders during the month. |
-| `total_revenue` | FLOAT | All revenue the customer generated during the month, recurring and one-time together. |
-| `cycles_charged` | INTEGER | Number of subscription cycles successfully charged during the month. |
-| `failed_charges` | INTEGER | Number of charge attempts declined during the month. |
-| `skipped_cycles` | INTEGER | Number of deliveries the subscriber chose to skip during the month. |
-| `is_new_subscriber` | BOOLEAN | Whether the customer's first ever subscription started in this month. |
-| `is_churned` | BOOLEAN | Whether the customer's last active subscription ended in this month. |
-| `is_reactivated` | BOOLEAN | Whether the customer returned to an active subscription this month after a period without one. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `snapshot_id` | STRING | Snapshot ID | PK. Unique identifier of the subscriber-month record. |
+| `month` | DATE | Month | First day of the month the snapshot describes. |
+| `customer_id` | STRING | Customer ID | Subscriber the snapshot describes. FK to [Customers](./customers.md) |
+| `primary_selling_plan_id` | STRING | Primary Selling Plan ID | Offer that carried most of this subscriber's recurring revenue in the month. FK to [Selling Plans](./selling-plans.md) |
+| `cohort_month` | DATE | Cohort Month | Month the subscriber first subscribed in, used as the cohort anchor. |
+| `months_since_cohort` | INTEGER | Months Since Cohort | Number of months between the cohort month and this snapshot month. |
+| `status_at_month_end` | STRING | Status At Month End | Where the subscriber stood on the last day of the month: Active, Paused or Cancelled. |
+| `active_subscriptions` | INTEGER | Active Subscriptions | Number of subscriptions the customer held in an active state at month end. |
+| `paused_subscriptions` | INTEGER | Paused Subscriptions | Number of the customer's subscriptions that were paused at month end. |
+| `recurring_revenue` | FLOAT | Recurring Revenue | Revenue the customer generated from subscription charges during the month. |
+| `one_time_revenue` | FLOAT | One Time Revenue | Revenue the customer generated from one-time orders during the month. |
+| `total_revenue` | FLOAT | Total Revenue | All revenue the customer generated during the month, recurring and one-time together. |
+| `cycles_charged` | INTEGER | Cycles Charged | Number of subscription cycles successfully charged during the month. |
+| `failed_charges` | INTEGER | Failed Charges | Number of charge attempts declined during the month. |
+| `skipped_cycles` | INTEGER | Skipped Cycles | Number of deliveries the subscriber chose to skip during the month. |
+| `is_new_subscriber` | BOOLEAN | Is New Subscriber | Whether the customer's first ever subscription started in this month. |
+| `is_churned` | BOOLEAN | Is Churned | Whether the customer's last active subscription ended in this month. |
+| `is_reactivated` | BOOLEAN | Is Reactivated | Whether the customer returned to an active subscription this month after a period without one. |
 
 # Example Questions
 

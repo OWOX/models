@@ -8,18 +8,18 @@ description: |
   specialty, and out of which department.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:12.000Z
+timestamp: 2026-07-29T14:32:44.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `provider_id` | STRING | PK. Unique provider identifier. |
-| `full_name` | STRING | Provider's full name. |
-| `specialty` | STRING | Clinical specialty of the provider. |
-| `department` | STRING | Department the provider belongs to. |
-| `npi` | STRING | National Provider Identifier. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `provider_id` | STRING | Provider ID | PK. Unique provider identifier. |
+| `full_name` | STRING | Full Name | Provider's full name. |
+| `specialty` | STRING | Specialty | Clinical specialty of the provider. |
+| `department` | STRING | Department | Department the provider belongs to. |
+| `npi` | STRING | NPI | National Provider Identifier. |
 
 # Example Questions
 

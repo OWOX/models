@@ -12,14 +12,14 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `transition_id` | STRING | PK. Unique identifier for the stage change. |
-| `opportunity_id` | STRING | Opportunity that moved stage. FK to [Opportunities](./opportunities.md) |
-| `from_stage` | STRING | Stage the opportunity left. |
-| `to_stage` | STRING | Stage the opportunity entered. Contiguous chain: `to_stage` of row n = `from_stage` of row n+1; the last `to_stage` equals `Opportunities.stage`. |
-| `transitioned_at` | TIMESTAMP | When the stage change happened. Within `[Opportunities.created_at, close_date]`. |
-| `days_in_from_stage` | INTEGER | Days spent in the previous stage — the velocity bottleneck driver. Sums (per opportunity) to the sales cycle for closed deals. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `transition_id` | STRING | Transition ID | PK. Unique identifier for the stage change. |
+| `opportunity_id` | STRING | Opportunity ID | Opportunity that moved stage. FK to [Opportunities](./opportunities.md) |
+| `from_stage` | STRING | From Stage | Stage the opportunity left. |
+| `to_stage` | STRING | To Stage | Stage the opportunity entered. Contiguous chain: `to_stage` of row n = `from_stage` of row n+1; the last `to_stage` equals `Opportunities.stage`. |
+| `transitioned_at` | TIMESTAMP | Transitioned At | When the stage change happened. Within `[Opportunities.created_at, close_date]`. |
+| `days_in_from_stage` | INTEGER | Days In From Stage | Days spent in the previous stage — the velocity bottleneck driver. Sums (per opportunity) to the sales cycle for closed deals. |
 
 # Example Questions
 

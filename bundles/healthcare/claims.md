@@ -13,19 +13,19 @@ timestamp: 2026-07-23T17:34:13.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `claim_id` | STRING | PK. Unique claim identifier. |
-| `encounter_id` | STRING | Encounter the claim is billed for. FK to [Encounters](./encounters.md) |
-| `payer_id` | STRING | Payer responsible for the claim. FK to [Payer](./payer.md) |
-| `submitted_at` | DATE | Date the claim was submitted. |
-| `paid_at` | DATE | Date the claim was paid. |
-| `billed_amount` | NUMERIC | Amount billed to the payer. |
-| `allowed_amount` | NUMERIC | Payer-allowed amount. |
-| `paid_amount` | NUMERIC | Amount actually paid. |
-| `status` | STRING | Claim status (e.g. submitted, paid, denied). |
-| `denial_code` | STRING | CARC/RARC denial reason, when denied. |
-| `ar_days` | INTEGER | Days in accounts receivable — revenue-cycle speed. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `claim_id` | STRING | Claim ID | PK. Unique claim identifier. |
+| `encounter_id` | STRING | Encounter ID | Encounter the claim is billed for. FK to [Encounters](./encounters.md) |
+| `payer_id` | STRING | Payer ID | Payer responsible for the claim. FK to [Payer](./payer.md) |
+| `submitted_at` | DATE | Submitted At | Date the claim was submitted. |
+| `paid_at` | DATE | Paid At | Date the claim was paid. |
+| `billed_amount` | NUMERIC | Billed Amount | Amount billed to the payer. |
+| `allowed_amount` | NUMERIC | Allowed Amount | Payer-allowed amount. |
+| `paid_amount` | NUMERIC | Paid Amount | Amount actually paid. |
+| `status` | STRING | Status | Claim status (e.g. submitted, paid, denied). |
+| `denial_code` | STRING | Denial Code | CARC/RARC denial reason, when denied. |
+| `ar_days` | INTEGER | Ar Days | Days in accounts receivable — revenue-cycle speed. |
 
 # Example Questions
 

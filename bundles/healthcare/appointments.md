@@ -14,17 +14,17 @@ timestamp: 2026-07-23T17:34:12.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `appointment_id` | STRING | PK. Unique appointment identifier. |
-| `patient_id` | STRING | Patient who booked the appointment. FK to [Patient](./patient.md) |
-| `provider_id` | STRING | Provider seeing the patient. FK to [Provider](./provider.md) |
-| `scheduled_at` | TIMESTAMP | Scheduled date and time of the appointment. |
-| `department_id` | STRING | Department where the appointment takes place. FK to [Department](./department.md) |
-| `status` | STRING | Appointment status (e.g. booked, completed, cancelled). |
-| `is_no_show` | BOOLEAN | Whether the patient failed to show up. |
-| `wait_minutes` | INTEGER | Door-to-provider wait. |
-| `lead_time_days` | INTEGER | Booking-to-visit lead time — no-show driver. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `appointment_id` | STRING | Appointment ID | PK. Unique appointment identifier. |
+| `patient_id` | STRING | Patient ID | Patient who booked the appointment. FK to [Patient](./patient.md) |
+| `provider_id` | STRING | Provider ID | Provider seeing the patient. FK to [Provider](./provider.md) |
+| `scheduled_at` | TIMESTAMP | Scheduled At | Scheduled date and time of the appointment. |
+| `department_id` | STRING | Department ID | Department where the appointment takes place. FK to [Department](./department.md) |
+| `status` | STRING | Status | Appointment status (e.g. booked, completed, cancelled). |
+| `is_no_show` | BOOLEAN | Is No Show | Whether the patient failed to show up. |
+| `wait_minutes` | INTEGER | Wait Minutes | Door-to-provider wait. |
+| `lead_time_days` | INTEGER | Lead Time Days | Booking-to-visit lead time — no-show driver. |
 
 # Example Questions
 

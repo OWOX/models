@@ -12,11 +12,11 @@ timestamp: 2026-07-23T17:34:12.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `payer_id` | STRING | PK. Unique payer identifier. |
-| `name` | STRING | Payer / insurance plan name. |
-| `plan_type` | STRING | HMO / PPO / EPO / government. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `payer_id` | STRING | Payer ID | PK. Unique payer identifier. |
+| `name` | STRING | Name | Payer / insurance plan name. |
+| `plan_type` | STRING | Plan Type | HMO / PPO / EPO / government. |
 
 # Example Questions
 

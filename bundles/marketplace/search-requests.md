@@ -13,18 +13,18 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `request_id` | STRING | PK. Unique search request identifier. |
-| `buyer_id` | STRING | Buyer who made the search. FK to [Buyer](./buyer.md) |
-| `category_id` | STRING | Category the search was scoped to. FK to [Category](./category.md) |
-| `requested_at` | TIMESTAMP | When the search was made. |
-| `query` | STRING | Raw search text entered by the buyer. |
-| `results_count` | INTEGER | Number of results returned. |
-| `clicked` | BOOLEAN | Whether the buyer clicked a result. |
-| `converted` | BOOLEAN | Whether the search led to an order. |
-| `order_id` | STRING | Order the search converted into, if any. FK to [Orders](./orders.md) |
-| `time_to_match_mins` | FLOAT | Search → transaction latency in minutes (null unless converted). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `request_id` | STRING | Request ID | PK. Unique search request identifier. |
+| `buyer_id` | STRING | Buyer ID | Buyer who made the search. FK to [Buyer](./buyer.md) |
+| `category_id` | STRING | Category ID | Category the search was scoped to. FK to [Category](./category.md) |
+| `requested_at` | TIMESTAMP | Requested At | When the search was made. |
+| `query` | STRING | Query | Raw search text entered by the buyer. |
+| `results_count` | INTEGER | Results Count | Number of results returned. |
+| `clicked` | BOOLEAN | Clicked | Whether the buyer clicked a result. |
+| `converted` | BOOLEAN | Converted | Whether the search led to an order. |
+| `order_id` | STRING | Order ID | Order the search converted into, if any. FK to [Orders](./orders.md) |
+| `time_to_match_mins` | FLOAT | Time To Match Mins | Search → transaction latency in minutes (null unless converted). |
 
 # Example Questions
 

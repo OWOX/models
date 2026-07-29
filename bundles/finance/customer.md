@@ -8,21 +8,21 @@ description: |
   they come from.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:02:47.000Z
+timestamp: 2026-07-29T14:32:39.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `customer_id` | STRING | PK. Unique customer identifier. |
-| `signup_date` | DATE | Date the customer signed up. |
-| `kyc_status` | STRING | `passed` / `pending` / `rejected`. Gates account opening — only `passed` customers get funded accounts. |
-| `risk_band` | STRING | Internal risk tier — the model's central conditioning variable. One of `prime` / `near_prime` / `subprime` / `deep_subprime`. Drives loan approval odds, APR, delinquency (DPD) and charge-off downstream. |
-| `credit_score` | INTEGER | Credit score at onboarding (~300–850). Consistent with `risk_band` (prime high, deep_subprime low). |
-| `acquisition_channel` | STRING | Channel that brought the customer in (e.g. `organic`, `paid_search`, `paid_social`, `referral`, `partner`). |
-| `region` | STRING | Customer's geographic region. |
-| `is_funded` | BOOLEAN | Activation flag — the source of truth for whether the customer ever funded an account (only KYC-passed customers can be funded). Accounts derives its `activated_at` from this: a customer is funded **iff** they have ≥1 account with a non-null `activated_at` (the two are kept consistent by construction). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `customer_id` | STRING | Customer ID | PK. Unique customer identifier. |
+| `signup_date` | DATE | Signup Date | Date the customer signed up. |
+| `kyc_status` | STRING | KYC Status | `passed` / `pending` / `rejected`. Gates account opening — only `passed` customers get funded accounts. |
+| `risk_band` | STRING | Risk Band | Internal risk tier — the model's central conditioning variable. One of `prime` / `near_prime` / `subprime` / `deep_subprime`. Drives loan approval odds, APR, delinquency (DPD) and charge-off downstream. |
+| `credit_score` | INTEGER | Credit Score | Credit score at onboarding (~300–850). Consistent with `risk_band` (prime high, deep_subprime low). |
+| `acquisition_channel` | STRING | Acquisition Channel | Channel that brought the customer in (e.g. `organic`, `paid_search`, `paid_social`, `referral`, `partner`). |
+| `region` | STRING | Region | Customer's geographic region. |
+| `is_funded` | BOOLEAN | Is Funded | Activation flag — the source of truth for whether the customer ever funded an account (only KYC-passed customers can be funded). Accounts derives its `activated_at` from this: a customer is funded **iff** they have ≥1 account with a non-null `activated_at` (the two are kept consistent by construction). |
 
 # Example Questions
 

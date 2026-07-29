@@ -11,15 +11,15 @@ timestamp: 2026-07-23T12:51:26.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `plan_id` | STRING | PK. Unique plan/price-point identifier. |
-| `plan_name` | STRING | Human-readable plan name (tier + billing interval). |
-| `tier` | STRING | Product tier: Starter / Pro / Business / Enterprise. |
-| `billing_interval` | STRING | Billing cadence: monthly / annual. |
-| `list_price` | NUMERIC | Published list price for this plan at this interval. |
-| `currency` | STRING | Currency of the list price. |
-| `is_active` | BOOLEAN | Whether the plan is currently sellable. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `plan_id` | STRING | Plan ID | PK. Unique plan/price-point identifier. |
+| `plan_name` | STRING | Plan Name | Human-readable plan name (tier + billing interval). |
+| `tier` | STRING | Tier | Product tier: Starter / Pro / Business / Enterprise. |
+| `billing_interval` | STRING | Billing Interval | Billing cadence: monthly / annual. |
+| `list_price` | NUMERIC | List Price | Published list price for this plan at this interval. |
+| `currency` | STRING | Currency | Currency of the list price. |
+| `is_active` | BOOLEAN | Is Active | Whether the plan is currently sellable. |
 
 # Example Questions
 

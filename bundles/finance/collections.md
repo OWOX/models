@@ -7,19 +7,19 @@ description: |
   off. This is the last line of defense on losses.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T13:16:47.000Z
+timestamp: 2026-07-29T14:32:40.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `action_id` | STRING | PK. Unique identifier for the collections action. |
-| `loan_id` | STRING | Delinquent loan being worked; rows exist only for loans that reached ≥30 DPD or `is_charged_off`. FK to [Loans](./loans.md) |
-| `action_ts` | TIMESTAMP | When the action was taken. |
-| `action_type` | STRING | One of `reminder` / `call` / `restructure` / `agency_handoff`. Early-stage (reminder/call) at low DPD; late-stage (restructure/agency_handoff) once charged off. |
-| `outcome` | STRING | One of `promise_to_pay` / `paid` / `no_contact` / `dispute`. |
-| `amount_recovered` | NUMERIC | Money recovered by this action; bounded by remaining balance. Cumulative recovery per charged-off loan stays well under 100% and decays with time since charge-off. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `action_id` | STRING | Action ID | PK. Unique identifier for the collections action. |
+| `loan_id` | STRING | Loan ID | Delinquent loan being worked; rows exist only for loans that reached ≥30 DPD or `is_charged_off`. FK to [Loans](./loans.md) |
+| `action_ts` | TIMESTAMP | Action Time | When the action was taken. |
+| `action_type` | STRING | Action Type | One of `reminder` / `call` / `restructure` / `agency_handoff`. Early-stage (reminder/call) at low DPD; late-stage (restructure/agency_handoff) once charged off. |
+| `outcome` | STRING | Outcome | One of `promise_to_pay` / `paid` / `no_contact` / `dispute`. |
+| `amount_recovered` | NUMERIC | Amount Recovered | Money recovered by this action; bounded by remaining balance. Cumulative recovery per charged-off loan stays well under 100% and decays with time since charge-off. |
 
 # Example Questions
 

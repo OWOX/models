@@ -15,16 +15,16 @@ timestamp: 2026-07-28T16:51:50.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `traffic_source_id` | STRING | PK. Unique identifier of the source, medium and campaign combination. |
-| `source` | STRING | Platform or site the traffic originated from. |
-| `medium` | STRING | Channel type of the traffic, such as cost-per-click, organic or referral. |
-| `campaign` | STRING | Marketing campaign the traffic belongs to. |
-| `keyword` | STRING | Search term or targeting keyword that triggered the visit. |
-| `ad_content` | STRING | Creative or ad variant the visit came from. |
-| `channel_grouping` | STRING | Reporting channel the combination rolls up to, such as Paid Search, Paid Social, Organic, Email or Direct. |
-| `is_paid` | BOOLEAN | Whether the traffic was acquired through a paid channel. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `traffic_source_id` | STRING | Traffic Source ID | PK. Unique identifier of the source, medium and campaign combination. |
+| `source` | STRING | Source | Platform or site the traffic originated from. |
+| `medium` | STRING | Medium | Channel type of the traffic, such as cost-per-click, organic or referral. |
+| `campaign` | STRING | Campaign | Marketing campaign the traffic belongs to. |
+| `keyword` | STRING | Keyword | Search term or targeting keyword that triggered the visit. |
+| `ad_content` | STRING | Ad Content | Creative or ad variant the visit came from. |
+| `channel_grouping` | STRING | Channel Grouping | Reporting channel the combination rolls up to, such as Paid Search, Paid Social, Organic, Email or Direct. |
+| `is_paid` | BOOLEAN | Is Paid | Whether the traffic was acquired through a paid channel. |
 
 # Example Questions
 

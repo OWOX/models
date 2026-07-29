@@ -14,23 +14,23 @@ description: |
   explicit rather than inferred.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:50.000Z
+timestamp: 2026-07-29T14:33:10.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `selling_plan_id` | STRING | PK. Unique identifier of the subscription offer a customer can subscribe to. |
-| `plan_name` | STRING | Customer-facing name of the offer, such as Monthly Subscribe & Save or Prepaid 3-Month. |
-| `plan_type` | STRING | Whether the customer pays on every delivery (Pay-as-you-go) or upfront for several deliveries (Prepaid). |
-| `delivery_interval_unit` | STRING | Unit the delivery rhythm is expressed in, such as week or month. |
-| `delivery_interval_count` | INTEGER | Number of interval units between two deliveries, for example 2 with a unit of week means every two weeks. |
-| `delivery_interval_days` | INTEGER | Delivery rhythm normalised to days, so cadences expressed in weeks and months can be compared directly. |
-| `prepaid_cycles` | INTEGER | Number of deliveries covered by a single upfront payment; zero for pay-as-you-go offers. |
-| `discount_pct` | FLOAT | Discount off the one-time price granted for subscribing on this plan, in percent. |
-| `is_skippable` | BOOLEAN | Whether the subscriber is allowed to skip an upcoming delivery instead of cancelling. |
-| `is_active` | BOOLEAN | Whether the offer is currently available to new subscribers. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `selling_plan_id` | STRING | Selling Plan ID | PK. Unique identifier of the subscription offer a customer can subscribe to. |
+| `plan_name` | STRING | Plan Name | Customer-facing name of the offer, such as Monthly Subscribe & Save or Prepaid 3-Month. |
+| `plan_type` | STRING | Plan Type | Whether the customer pays on every delivery (Pay-as-you-go) or upfront for several deliveries (Prepaid). |
+| `delivery_interval_unit` | STRING | Delivery Interval Unit | Unit the delivery rhythm is expressed in, such as week or month. |
+| `delivery_interval_count` | INTEGER | Delivery Interval Count | Number of interval units between two deliveries, for example 2 with a unit of week means every two weeks. |
+| `delivery_interval_days` | INTEGER | Delivery Interval Days | Delivery rhythm normalised to days, so cadences expressed in weeks and months can be compared directly. |
+| `prepaid_cycles` | INTEGER | Prepaid Cycles | Number of deliveries covered by a single upfront payment; zero for pay-as-you-go offers. |
+| `discount_pct` | FLOAT | Discount % | Discount off the one-time price granted for subscribing on this plan, in percent. |
+| `is_skippable` | BOOLEAN | Is Skippable | Whether the subscriber is allowed to skip an upcoming delivery instead of cancelling. |
+| `is_active` | BOOLEAN | Is Active | Whether the offer is currently available to new subscribers. |
 
 # Example Questions
 

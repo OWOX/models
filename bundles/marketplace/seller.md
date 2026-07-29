@@ -13,18 +13,18 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `seller_id` | STRING | PK. Unique seller identifier. |
-| `onboarded_at` | DATE | When the seller joined the platform. |
-| `category_id` | STRING | Primary category the seller sells in. FK to [Category](./category.md) |
-| `region` | STRING | Seller's geographic region. |
-| `rating` | FLOAT | Average buyer rating of the seller (null until first review). |
-| `active_listings` | INTEGER | Number of currently live listings. |
-| `is_activated` | BOOLEAN | Whether the seller has reached its first sale — supply activation. |
-| `fulfillment_type` | STRING | How the seller fulfils orders. |
-| `last_sale_at` | DATE | Date of the seller's most recent sale (null if never sold). |
-| `status` | STRING | Lifecycle state from sale recency: active, dormant or churned. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `seller_id` | STRING | Seller ID | PK. Unique seller identifier. |
+| `onboarded_at` | DATE | Onboarded At | When the seller joined the platform. |
+| `category_id` | STRING | Category ID | Primary category the seller sells in. FK to [Category](./category.md) |
+| `region` | STRING | Region | Seller's geographic region. |
+| `rating` | FLOAT | Rating | Average buyer rating of the seller (null until first review). |
+| `active_listings` | INTEGER | Active Listings | Number of currently live listings. |
+| `is_activated` | BOOLEAN | Is Activated | Whether the seller has reached its first sale — supply activation. |
+| `fulfillment_type` | STRING | Fulfillment Type | How the seller fulfils orders. |
+| `last_sale_at` | DATE | Last Sale At | Date of the seller's most recent sale (null if never sold). |
+| `status` | STRING | Status | Lifecycle state from sale recency: active, dormant or churned. |
 
 # Example Questions
 

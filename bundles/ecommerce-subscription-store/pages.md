@@ -15,13 +15,13 @@ timestamp: 2026-07-28T16:51:52.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `page_id` | STRING | PK. Unique identifier of the page. |
-| `page_path` | STRING | URL path of the page relative to the domain root. |
-| `page_title` | STRING | Human-readable title of the page. |
-| `page_type` | STRING | Function the page serves, such as Home, Category, Product, Cart, Checkout, Subscription Portal, Blog or Account. |
-| `host_name` | STRING | Domain the page is served from. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `page_id` | STRING | Page ID | PK. Unique identifier of the page. |
+| `page_path` | STRING | Page Path | URL path of the page relative to the domain root. |
+| `page_title` | STRING | Page Title | Human-readable title of the page. |
+| `page_type` | STRING | Page Type | Function the page serves, such as Home, Category, Product, Cart, Checkout, Subscription Portal, Blog or Account. |
+| `host_name` | STRING | Host Name | Domain the page is served from. |
 
 # Example Questions
 

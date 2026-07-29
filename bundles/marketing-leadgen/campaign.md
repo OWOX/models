@@ -14,17 +14,17 @@ timestamp: 2026-07-23T17:34:31.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `campaign_id` | STRING | PK. Unique identifier for each campaign. |
-| `campaign_name` | STRING | Human-readable name of the campaign. |
-| `channel` | STRING | Marketing channel. Controlled vocabulary: `paid_search`, `paid_social`, `display`, `organic_search`, `email`, `webinar`, `content_syndication`, `direct`, `referral`. |
-| `objective` | STRING | Primary goal. One of: `awareness`, `lead_generation`, `conversion`, `retargeting`. |
-| `utm_source` | STRING | UTM source tag identifying where the traffic originates. |
-| `utm_medium` | STRING | UTM medium tag describing the type of traffic (e.g. cpc, email). |
-| `utm_campaign` | STRING | UTM campaign tag — the key ad-platform ↔ web-analytics join key. |
-| `start_date` | DATE | Date the campaign went live. |
-| `end_date` | DATE | Date the campaign flight ended (nullable for always-on). Spend/touches fall within `[start_date, end_date]`. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `campaign_id` | STRING | Campaign ID | PK. Unique identifier for each campaign. |
+| `campaign_name` | STRING | Campaign Name | Human-readable name of the campaign. |
+| `channel` | STRING | Channel | Marketing channel. Controlled vocabulary: `paid_search`, `paid_social`, `display`, `organic_search`, `email`, `webinar`, `content_syndication`, `direct`, `referral`. |
+| `objective` | STRING | Objective | Primary goal. One of: `awareness`, `lead_generation`, `conversion`, `retargeting`. |
+| `utm_source` | STRING | UTM Source | UTM source tag identifying where the traffic originates. |
+| `utm_medium` | STRING | UTM Medium | UTM medium tag describing the type of traffic (e.g. cpc, email). |
+| `utm_campaign` | STRING | UTM Campaign | UTM campaign tag — the key ad-platform ↔ web-analytics join key. |
+| `start_date` | DATE | Start Date | Date the campaign went live. |
+| `end_date` | DATE | End Date | Date the campaign flight ended (nullable for always-on). Spend/touches fall within `[start_date, end_date]`. |
 
 # Example Questions
 

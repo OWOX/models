@@ -9,23 +9,23 @@ description: |
   unexpectedly.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:13.000Z
+timestamp: 2026-07-29T14:32:44.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `encounter_id` | STRING | PK. Unique clinical encounter identifier. |
-| `appointment_id` | STRING | Appointment that led to this encounter. FK to [Appointments](./appointments.md) |
-| `patient_id` | STRING | Patient seen in the encounter. FK to [Patient](./patient.md) |
-| `provider_id` | STRING | Provider who delivered care. |
-| `admit_ts` | TIMESTAMP | Admission date and time. |
-| `discharge_ts` | TIMESTAMP | Discharge date and time. |
-| `encounter_type` | STRING | outpatient / inpatient / ED. |
-| `primary_diagnosis` | STRING | Primary ICD-10 code. |
-| `length_of_stay_days` | FLOAT | Length of stay in days. |
-| `is_readmission_30d` | BOOLEAN | Unplanned readmission within 30 days. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `encounter_id` | STRING | Encounter ID | PK. Unique clinical encounter identifier. |
+| `appointment_id` | STRING | Appointment ID | Appointment that led to this encounter. FK to [Appointments](./appointments.md) |
+| `patient_id` | STRING | Patient ID | Patient seen in the encounter. FK to [Patient](./patient.md) |
+| `provider_id` | STRING | Provider ID | Provider who delivered care. |
+| `admit_ts` | TIMESTAMP | Admit Time | Admission date and time. |
+| `discharge_ts` | TIMESTAMP | Discharge Time | Discharge date and time. |
+| `encounter_type` | STRING | Encounter Type | outpatient / inpatient / ED. |
+| `primary_diagnosis` | STRING | Primary Diagnosis | Primary ICD-10 code. |
+| `length_of_stay_days` | FLOAT | Length Of Stay Days | Length of stay in days. |
+| `is_readmission_30d` | BOOLEAN | Is Readmission 30d | Unplanned readmission within 30 days. |
 
 # Example Questions
 

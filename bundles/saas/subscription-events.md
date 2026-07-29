@@ -7,23 +7,23 @@ description: |
   and the retention rates the business lives or dies by.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:51:27.000Z
+timestamp: 2026-07-29T14:32:53.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `event_id` | STRING | PK. Unique subscription-event identifier. |
-| `account_id` | STRING | Account the event belongs to. FK to [Account](./account.md) |
-| `subscription_id` | STRING | Subscription the event belongs to. FK to [Subscription](./subscription.md) |
-| `event_ts` | TIMESTAMP | When the subscription change occurred. |
-| `event_type` | STRING | MRR-movement type: new / expansion / contraction / reactivation / churn. |
-| `plan_from` | STRING | Plan before the change. |
-| `plan_to` | STRING | Plan after the change. |
-| `mrr_delta` | NUMERIC | Signed MRR change — the MRR-movement waterfall. |
-| `seats_delta` | INTEGER | Signed change in seat count. |
-| `mrr_after` | NUMERIC | Total MRR after the change. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `event_id` | STRING | Event ID | PK. Unique subscription-event identifier. |
+| `account_id` | STRING | Account ID | Account the event belongs to. FK to [Account](./account.md) |
+| `subscription_id` | STRING | Subscription ID | Subscription the event belongs to. FK to [Subscription](./subscription.md) |
+| `event_ts` | TIMESTAMP | Event Time | When the subscription change occurred. |
+| `event_type` | STRING | Event Type | MRR-movement type: new / expansion / contraction / reactivation / churn. |
+| `plan_from` | STRING | Plan From | Plan before the change. |
+| `plan_to` | STRING | Plan To | Plan after the change. |
+| `mrr_delta` | NUMERIC | MRR Delta | Signed MRR change — the MRR-movement waterfall. |
+| `seats_delta` | INTEGER | Seats Delta | Signed change in seat count. |
+| `mrr_after` | NUMERIC | MRR After | Total MRR after the change. |
 
 # Example Questions
 

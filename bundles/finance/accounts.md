@@ -12,16 +12,16 @@ timestamp: 2026-07-23T12:02:48.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `account_id` | STRING | PK. Unique account identifier. |
-| `customer_id` | STRING | Owning customer. FK to [Customer](./customer.md) |
-| `product_id` | STRING | Product held in this account. FK to [Product](./product.md) |
-| `opened_at` | DATE | Date the account was opened. Only customers with `kyc_status = passed` open accounts. |
-| `status` | STRING | Current account status. One of `active` / `dormant` / `frozen` / `closed` / `charged_off`. |
-| `current_balance` | NUMERIC | Current account balance. |
-| `activated_at` | DATE | First funding / first card use; `≥ opened_at`; null if never activated. |
-| `is_active` | BOOLEAN | Pure derivation: `is_active = (status = 'active')`. Not drawn independently. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `account_id` | STRING | Account ID | PK. Unique account identifier. |
+| `customer_id` | STRING | Customer ID | Owning customer. FK to [Customer](./customer.md) |
+| `product_id` | STRING | Product ID | Product held in this account. FK to [Product](./product.md) |
+| `opened_at` | DATE | Opened At | Date the account was opened. Only customers with `kyc_status = passed` open accounts. |
+| `status` | STRING | Status | Current account status. One of `active` / `dormant` / `frozen` / `closed` / `charged_off`. |
+| `current_balance` | NUMERIC | Current Balance | Current account balance. |
+| `activated_at` | DATE | Activated At | First funding / first card use; `≥ opened_at`; null if never activated. |
+| `is_active` | BOOLEAN | Is Active | Pure derivation: `is_active = (status = 'active')`. Not drawn independently. |
 
 # Example Questions
 

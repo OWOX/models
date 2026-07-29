@@ -8,17 +8,17 @@ description: |
   (8–15%), while services and premium or handmade categories carry a higher cut (15–22%).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:57:43.000Z
+timestamp: 2026-07-29T14:32:48.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `category_id` | STRING | PK. Unique category identifier. |
-| `name` | STRING | Display name of the category. |
-| `parent_category` | STRING | Parent grouping in the category tree (Goods, Media, Services). |
-| `take_rate_pct` | FLOAT | Platform's standard commission for the category, as a percent (e.g. 12.0 = 12%) — the take-rate optimisation lever. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `category_id` | STRING | Category ID | PK. Unique category identifier. |
+| `name` | STRING | Name | Display name of the category. |
+| `parent_category` | STRING | Parent Category | Parent grouping in the category tree (Goods, Media, Services). |
+| `take_rate_pct` | FLOAT | Take Rate % | Platform's standard commission for the category, as a percent (e.g. 12.0 = 12%) — the take-rate optimisation lever. |
 
 # Example Questions
 

@@ -13,15 +13,15 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `census_id` | STRING | PK. Unique identifier for the daily census record. |
-| `department_id` | STRING | Department the census covers. FK to [Department](./department.md) |
-| `census_date` | DATE | Calendar day of the census. |
-| `staffed_beds` | INTEGER | Beds staffed and available that day. |
-| `occupied_beds` | INTEGER | Beds occupied at census time — utilization numerator. |
-| `admissions` | INTEGER | Admissions during the day. |
-| `discharges` | INTEGER | Discharges during the day. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `census_id` | STRING | Census ID | PK. Unique identifier for the daily census record. |
+| `department_id` | STRING | Department ID | Department the census covers. FK to [Department](./department.md) |
+| `census_date` | DATE | Census Date | Calendar day of the census. |
+| `staffed_beds` | INTEGER | Staffed Beds | Beds staffed and available that day. |
+| `occupied_beds` | INTEGER | Occupied Beds | Beds occupied at census time — utilization numerator. |
+| `admissions` | INTEGER | Admissions | Admissions during the day. |
+| `discharges` | INTEGER | Discharges | Discharges during the day. |
 
 # Example Questions
 

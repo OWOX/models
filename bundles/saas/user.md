@@ -11,16 +11,16 @@ timestamp: 2026-07-23T12:51:27.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `user_id` | STRING | PK. Unique user identifier. |
-| `account_id` | STRING | Owning account. FK to [Account](./account.md) |
-| `email` | STRING | User's email address. |
-| `role` | STRING | User's role within the account. |
-| `seat_type` | STRING | Type of seat assigned (e.g. full / viewer). |
-| `invited_at` | TIMESTAMP | When the user was invited. |
-| `last_active_at` | TIMESTAMP | Most recent activity timestamp. |
-| `is_active` | BOOLEAN | Whether the seat is currently active. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `user_id` | STRING | User ID | PK. Unique user identifier. |
+| `account_id` | STRING | Account ID | Owning account. FK to [Account](./account.md) |
+| `email` | STRING | Email | User's email address. |
+| `role` | STRING | Role | User's role within the account. |
+| `seat_type` | STRING | Seat Type | Type of seat assigned (e.g. full / viewer). |
+| `invited_at` | TIMESTAMP | Invited At | When the user was invited. |
+| `last_active_at` | TIMESTAMP | Last Active At | Most recent activity timestamp. |
+| `is_active` | BOOLEAN | Is Active | Whether the seat is currently active. |
 
 # Example Questions
 

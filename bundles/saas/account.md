@@ -13,20 +13,20 @@ timestamp: 2026-07-23T12:51:25.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `account_id` | STRING | PK. Unique account identifier. |
-| `name` | STRING | Company/account name. |
-| `industry` | STRING | Industry vertical of the account. |
-| `employee_band` | STRING | Company-size bucket by headcount. |
-| `plan_tier` | STRING | Subscription plan tier. |
-| `mrr_band` | STRING | Monthly-recurring-revenue size bucket. |
-| `region` | STRING | Sales/geographic region. |
-| `acquisition_channel` | STRING | Marketing channel that sourced the account — blended-CAC join key. |
-| `signup_date` | DATE | Date the account first signed up. |
-| `csm_owner` | STRING | Customer success manager who owns the account. |
-| `health_score` | INTEGER | 0–100 product-health composite. |
-| `lifecycle_stage` | STRING | trial / active / at-risk / churned. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `account_id` | STRING | Account ID | PK. Unique account identifier. |
+| `name` | STRING | Name | Company/account name. |
+| `industry` | STRING | Industry | Industry vertical of the account. |
+| `employee_band` | STRING | Employee Band | Company-size bucket by headcount. |
+| `plan_tier` | STRING | Plan Tier | Subscription plan tier. |
+| `mrr_band` | STRING | MRR Band | Monthly-recurring-revenue size bucket. |
+| `region` | STRING | Region | Sales/geographic region. |
+| `acquisition_channel` | STRING | Acquisition Channel | Marketing channel that sourced the account — blended-CAC join key. |
+| `signup_date` | DATE | Signup Date | Date the account first signed up. |
+| `csm_owner` | STRING | CSM Owner | Customer success manager who owns the account. |
+| `health_score` | INTEGER | Health Score | 0–100 product-health composite. |
+| `lifecycle_stage` | STRING | Lifecycle Stage | trial / active / at-risk / churned. |
 
 # Example Questions
 
