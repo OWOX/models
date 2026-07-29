@@ -159,11 +159,19 @@ const H_DESC = /^(description|desc|notes?|comment|comments)$/i;
 const H_PK = /^(pk|primary key)$/i;
 const H_ALIAS = /^alias$/i;
 
-// Cell text without the code ticks or bold/italic markers a generator may wrap
-// it in (`**gross_amount**`, `*event_params.key*`). Underscores are left alone —
-// they are legitimate in field names (`events_`, `_partitiontime`).
+// Cell text without the code ticks or the bold/italic markers a generator may
+// wrap it in (`**gross_amount**`, `*event_params.key*`).
 function cellText(s: string): string {
   return s.replace(/`/g, "").trim().replace(/^\*{1,3}/, "").replace(/\*{1,3}$/, "").trim();
+}
+
+// A field name carries no prose, so every emphasis marker in it is markup —
+// including runs in the middle, which Google's nested-RECORD rows produce by
+// butting an italic parent against a bold leaf (`*inputs.***index**`). Stripped
+// only from the name cell: a description may legitimately contain an asterisk.
+// Underscores are always left alone, being valid in names (`events_`).
+function fieldName(s: string): string {
+  return s.replace(/\*/g, "").trim();
 }
 
 function parseSchema(body: string): SchemaField[] {
@@ -198,7 +206,7 @@ function parseSchema(body: string): SchemaField[] {
       continue;
     }
     const at = (i: number) => (i >= 0 ? cells[i] ?? "" : "");
-    const name = at(idxName);
+    const name = fieldName(at(idxName));
     if (!name) continue;
     const field: SchemaField = { name, type: at(idxType) || "STRING", pk: false };
     if (idxPk >= 0) field.pk = /^(✓|x|X)$/.test(at(idxPk));
