@@ -110,9 +110,16 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
 - Leave `**ID:**` and `**Storage:**` as `—` — the canvas fills them.
 
 ### `# Schema` (the mart's output fields)
-A 3-column table: **Column** (name in backticks), **Type**, **Description**.
+A 3-column table: **Column** (name in backticks), **Type**, **Description** — plus an optional **Alias** column (see below).
 - **Primary key:** start the Description with `PK.` — e.g. `PK. Unique id`. Mark exactly one PK per mart.
 - **Foreign key:** write `FK to [Target Title](./target-slug.md)` in the Description. (Helps relationships and documentation.)
+- **Alias (optional):** add a 4th **Alias** column for a business-friendly field label — `| Column | Type | Alias | Description |`. Leave the cell empty for fields that don't need one. The canvas shows the alias instead of the raw column name on the node, and pushes it to OWOX. Export OKF only emits this column when at least one field has an alias.
+  ```
+  | Column | Type | Alias | Description |
+  |--------|------|-------|-------------|
+  | `id` | STRING | | PK. Unique order identifier |
+  | `total` | FLOAT | Order Total | Order total, gross |
+  ```
 - **Allowed types only** (cross-storage set — do NOT use others like DATETIME):
   `STRING` `INTEGER` `FLOAT` `NUMERIC` `BOOLEAN` `DATE` `TIME` `TIMESTAMP` `BYTES` `GEOGRAPHY` `VARIANT`
 

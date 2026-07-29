@@ -182,6 +182,13 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
       </ul>
     </li>
   </ul>
+  <p>Optionally add a 4th <code>Alias</code> column — a business-friendly label for the field. Put it between <code>Type</code> and <code>Description</code> and leave the cell empty for fields that don't need one. The canvas shows the alias instead of the raw column name on the node and pushes it to OWOX; <b>Export OKF</b> emits this column only when at least one field has an alias.</p>
+<pre><code># Schema
+
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | | PK. Unique order identifier |
+| `total` | FLOAT | Order Total | Order total, gross |</code></pre>
   <p><b>Allowed types</b> (cross-storage canonical set — do not use others like <code>DATETIME</code>):</p>
   <p><span class="chip">STRING</span><span class="chip">INTEGER</span><span class="chip">FLOAT</span><span class="chip">NUMERIC</span><span class="chip">BOOLEAN</span><span class="chip">DATE</span><span class="chip">TIME</span><span class="chip">TIMESTAMP</span><span class="chip">BYTES</span><span class="chip">GEOGRAPHY</span><span class="chip">VARIANT</span></p>
 

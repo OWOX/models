@@ -56,15 +56,24 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
   ].join("\n");
 
   const fk = fkColumns(n, g, slugByKey);
+  // The Alias column is emitted only when some field has one, so marts without
+  // aliases keep the leaner 3-column table.
+  const withAlias = n.schema.some(f => f.alias);
+  const header = withAlias
+    ? "| Column | Type | Alias | Description |\n|--------|------|-------|-------------|\n"
+    : "| Column | Type | Description |\n|--------|------|-------------|\n";
   const schema = n.schema.length
-    ? "# Schema\n\n| Column | Type | Description |\n|--------|------|-------------|\n" +
+    ? "# Schema\n\n" + header +
       n.schema.map(f => {
         const parts: string[] = [];
         if (f.pk) parts.push("PK.");
         if (f.description) parts.push(f.description);
         const ref = fk.get(f.name);
         if (ref) parts.push(`FK to [${ref.title}](./${ref.slug}.md)`);
-        return `| \`${f.name}\` | ${f.type} | ${parts.join(" ").trim()} |`;
+        const cells = withAlias
+          ? [`\`${f.name}\``, f.type, f.alias ?? "", parts.join(" ").trim()]
+          : [`\`${f.name}\``, f.type, parts.join(" ").trim()];
+        return `| ${cells.join(" | ")} |`;
       }).join("\n") + "\n\n"
     : "";
 
