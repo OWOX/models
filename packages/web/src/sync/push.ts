@@ -18,7 +18,9 @@ export interface PushResult {
 // logic so the confirmation dialog's counts match reality. A mart is "already
 // live here" when it's created AND tagged to the active storage; such marts are
 // skipped. An imported (existing) edge is skipped only when both endpoints stay.
-export function pushPreview(graph: ModelGraph, storageId: string | null): { marts: number; relationships: number } {
+// alreadyPushed reports how many marts the skip swallows, so the dialog can say
+// why a push would send nothing and offer a force push instead.
+export function pushPreview(graph: ModelGraph, storageId: string | null): { marts: number; relationships: number; alreadyPushed: number } {
   const liveHere = (n: ModelNode) => n.status === "created" && n.owoxStorageId === storageId;
   const skipped = new Set(graph.nodes.filter(liveHere).map(n => n.key));
   const marts = graph.nodes.filter(n => !skipped.has(n.key)).length;
@@ -27,7 +29,7 @@ export function pushPreview(graph: ModelGraph, storageId: string | null): { mart
     if (e.existing && skipped.has(e.from) && skipped.has(e.to)) continue;
     relationships++;
   }
-  return { marts, relationships };
+  return { marts, relationships, alreadyPushed: skipped.size };
 }
 
 // OWOX validates the output schema with a discriminator keyed on the storage
@@ -44,7 +46,16 @@ function schemaDiscriminator(storageType: string): string {
   return `${base}-data-mart-schema`;
 }
 
-export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string): Promise<PushResult> {
+export interface PushOptions {
+  /** Re-create marts that are already live in the active storage. For the case
+   *  where the user deleted them inside OWOX and wants the same model back: the
+   *  stored owoxId points at a mart that no longer exists, so skipping it would
+   *  silently push nothing. If a mart is in fact still there, OWOX answers with
+   *  an error, which lands on the node like any other push failure. */
+  force?: boolean;
+}
+
+export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
   const res: PushResult = { created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [] };
 
   const storageId = store.get().storageId;
@@ -76,10 +87,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   // Track marts we skip because they already exist IN THIS STORAGE — a "created"
   // mart whose owoxStorageId points at a different storage (e.g. imported from
   // another project, then signed into this one) is NOT in the active storage, so
-  // it must be recreated here rather than silently skipped.
+  // it must be recreated here rather than silently skipped. A forced push skips
+  // nothing: every mart is created again (and so is every relationship, since
+  // the edge skip below keys off this same set).
   const skippedKeys = new Set<string>();
   for (const n of store.get().nodes) {
-    if (n.status === "created" && n.owoxStorageId === storageId) { skippedKeys.add(n.key); continue; }
+    if (!opts.force && n.status === "created" && n.owoxStorageId === storageId) { skippedKeys.add(n.key); continue; }
     store.updateNode(n.key, { status: "creating", error: null });
     try {
       // Create a draft with just { title, storageId } — confirmed to always 201.

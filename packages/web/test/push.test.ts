@@ -37,6 +37,17 @@ describe("pushPreview", () => {
     });
     expect(pushPreview(staleEnd, "st_1").relationships).toBe(1);
   });
+  it("reports how many marts are already live here, so the dialog can explain the skip", () => {
+    const live = { inputSource: "SQL" as const, schema: [], position: { x: 0, y: 0 }, status: "created" as const };
+    const g = mk({ nodes: [
+      { key: "n1", title: "A", ...live, owoxId: "a", owoxStorageId: "st_1" },
+      { key: "n2", title: "B", ...live, owoxId: "b", owoxStorageId: "st_1" },
+      { key: "n3", title: "C", ...live, owoxId: "c", owoxStorageId: "OLD" }, // other storage → not "already pushed here"
+      { key: "n4", title: "D", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "pending" },
+    ] });
+    expect(pushPreview(g, "st_1").alreadyPushed).toBe(2);
+    expect(pushPreview(g, "st_1").marts).toBe(2); // n3 + n4
+  });
 });
 
 describe("pushModel", () => {
@@ -205,6 +216,60 @@ describe("pushModel", () => {
     // Marts were recreated in stor_NEW, so the join doesn't exist there yet → must be pushed.
     expect(relationshipCalls.length).toBeGreaterThan(0);
     expect(res.relationshipsCreated).toBeGreaterThan(0);
+  });
+
+  it("force re-creates a mart already live in the active storage (deleted in OWOX)", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "gone_id", owoxStorageId: "stor_1" },
+      ],
+      edges: [],
+    });
+    const calls: string[] = [];
+    const apiMock = vi.fn(async (path: string) => { calls.push(path); return { id: "fresh_id" }; });
+    const res = await pushModel(s, apiMock as any, undefined, { force: true });
+    expect(calls).toContain("/api/data-marts");
+    expect(res.created).toBe(1);
+    expect(s.get().nodes[0].owoxId).toBe("fresh_id"); // the old id pointed at a deleted mart
+    expect(s.get().nodes[0].status).toBe("created");
+  });
+
+  it("force pushes an existing edge whose both endpoints are live here", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [{ name: "customer_id", type: "STRING", pk: false }], position: { x: 0, y: 0 }, status: "created", owoxId: "old_a", owoxStorageId: "stor_1" },
+        { key: "n2", title: "Customers", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 100, y: 0 }, status: "created", owoxId: "old_b", owoxStorageId: "stor_1" },
+      ],
+      edges: [
+        { id: "e1", from: "n1", to: "n2", keys: [{ left: "customer_id", right: "id" }], bidirectional: false, existing: true },
+      ],
+    });
+    const relationshipCalls: string[] = [];
+    const apiMock = vi.fn(async (path: string) => { if (path.includes("/relationships")) relationshipCalls.push(path); return { id: "x" }; });
+    const res = await pushModel(s, apiMock as any, undefined, { force: true });
+    expect(relationshipCalls).toHaveLength(1);
+    expect(res.relationshipsCreated).toBe(1);
+  });
+
+  it("force surfaces an OWOX error when the mart still exists there", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Orders", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "still_there", owoxStorageId: "stor_1" },
+      ],
+      edges: [],
+    });
+    const apiMock = vi.fn(async () => { throw new Error("Data mart with this title already exists"); });
+    const res = await pushModel(s, apiMock as any, undefined, { force: true });
+    expect(res.created).toBe(0);
+    expect(res.failed).toBe(1);
+    expect(s.get().nodes[0].status).toBe("error");
+    expect(res.errors[0]).toMatch(/already exists/);
   });
 
   it("uses an underscore identifier (not a hyphenated slug) for targetAlias", async () => {
