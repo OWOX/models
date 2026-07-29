@@ -13,15 +13,15 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `listing_id` | STRING | PK. Unique listing identifier. |
-| `seller_id` | STRING | Seller that owns the listing. FK to [Seller](./seller.md) |
-| `created_at` | TIMESTAMP | When the listing was created. |
-| `category_id` | STRING | Category the listing belongs to. FK to [Category](./category.md) |
-| `price` | NUMERIC | Listed price of the offer. |
-| `status` | STRING | Current listing status: active, paused, sold_out or removed. |
-| `is_available` | BOOLEAN | Whether the listing is live inventory — supply availability. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `listing_id` | STRING | Listing ID | PK. Unique listing identifier. |
+| `seller_id` | STRING | Seller ID | Seller that owns the listing. FK to [Seller](./seller.md) |
+| `created_at` | TIMESTAMP | Created At | When the listing was created. |
+| `category_id` | STRING | Category ID | Category the listing belongs to. FK to [Category](./category.md) |
+| `price` | NUMERIC | Price | Listed price of the offer. |
+| `status` | STRING | Status | Current listing status: active, paused, sold_out or removed. |
+| `is_available` | BOOLEAN | Is Available | Whether the listing is live inventory — supply availability. |
 
 # Example Questions
 

@@ -18,23 +18,23 @@ timestamp: 2026-07-28T16:51:42.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `session_id` | STRING | PK. Unique identifier of the browsing session. |
-| `date` | DATE | Date the session took place. FK to [Ad Spend](./ad-spend.md) |
-| `visitor_id` | STRING | Visitor who ran the session. FK to [Visitors](./visitors.md) |
-| `customer_id` | STRING | Customer the session belongs to, when the visitor was recognised. |
-| `traffic_source_id` | STRING | Traffic source that produced the session. FK to [Traffic Sources](./traffic-sources.md) |
-| `landing_page_id` | STRING | First page of the session. FK to [Pages](./pages.md) |
-| `device_category` | STRING | Type of device used during the session, such as mobile, desktop or tablet. |
-| `country` | STRING | Country the session came from. |
-| `session_count` | INTEGER | Always one, so sessions can be summed without counting distinct identifiers. |
-| `pageview_count` | INTEGER | Number of pages viewed during the session. |
-| `is_conversion` | BOOLEAN | Whether the session ended in an order of any kind. |
-| `is_subscription_conversion` | BOOLEAN | Whether a subscription was started during the session. |
-| `source` | STRING | Platform or site the traffic came from, used to align sessions with advertising spend. FK to [Ad Spend](./ad-spend.md) |
-| `medium` | STRING | Channel type of the traffic, such as cost-per-click or organic. FK to [Ad Spend](./ad-spend.md) |
-| `campaign` | STRING | Marketing campaign that produced the session. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `session_id` | STRING | Session ID | PK. Unique identifier of the browsing session. |
+| `date` | DATE | Date | Date the session took place. FK to [Ad Spend](./ad-spend.md) |
+| `visitor_id` | STRING | Visitor ID | Visitor who ran the session. FK to [Visitors](./visitors.md) |
+| `customer_id` | STRING | Customer ID | Customer the session belongs to, when the visitor was recognised. |
+| `traffic_source_id` | STRING | Traffic Source ID | Traffic source that produced the session. FK to [Traffic Sources](./traffic-sources.md) |
+| `landing_page_id` | STRING | Landing Page ID | First page of the session. FK to [Pages](./pages.md) |
+| `device_category` | STRING | Device Category | Type of device used during the session, such as mobile, desktop or tablet. |
+| `country` | STRING | Country | Country the session came from. |
+| `session_count` | INTEGER | Session Count | Always one, so sessions can be summed without counting distinct identifiers. |
+| `pageview_count` | INTEGER | Pageview Count | Number of pages viewed during the session. |
+| `is_conversion` | BOOLEAN | Is Conversion | Whether the session ended in an order of any kind. |
+| `is_subscription_conversion` | BOOLEAN | Is Subscription Conversion | Whether a subscription was started during the session. |
+| `source` | STRING | Source | Platform or site the traffic came from, used to align sessions with advertising spend. FK to [Ad Spend](./ad-spend.md) |
+| `medium` | STRING | Medium | Channel type of the traffic, such as cost-per-click or organic. FK to [Ad Spend](./ad-spend.md) |
+| `campaign` | STRING | Campaign | Marketing campaign that produced the session. |
 
 # Example Questions
 

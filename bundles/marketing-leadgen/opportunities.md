@@ -13,19 +13,19 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `opportunity_id` | STRING | PK. Unique identifier for each sales opportunity. |
-| `account_id` | STRING | Account the deal belongs to — the primary spine. FK to [Account](./account.md) |
-| `lead_id` | STRING | Sourcing/converting lead the opportunity originated from; nullable. FK to [Lead](./lead.md) |
-| `primary_campaign_id` | STRING | Primary Campaign Source (single-touch sourcing); nullable. Equals the campaign of the sourcing lead's `is_lead_create` touchpoint. FK to [Campaign](./campaign.md) |
-| `created_at` | TIMESTAMP | When the opportunity was created. |
-| `stage` | STRING | Current pipeline stage. One of: `discovery`, `demo`, `proposal`, `negotiation`, `closed_won`, `closed_lost`. |
-| `amount` | NUMERIC | ACV / deal size (USD). Correlates with the account's `employee_band`. |
-| `close_date` | DATE | Date the opportunity was won or lost; null while open. |
-| `is_won` | BOOLEAN | True iff `stage = closed_won` (then `close_date` is set); false with a `close_date` means `closed_lost`. |
-| `sales_cycle_days` | INTEGER | `DATE_DIFF(close_date, created_at, DAY)` for closed deals; null while open. |
-| `owner` | STRING | Sales rep who owns the opportunity (drawn from a small stable roster). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `opportunity_id` | STRING | Opportunity ID | PK. Unique identifier for each sales opportunity. |
+| `account_id` | STRING | Account ID | Account the deal belongs to — the primary spine. FK to [Account](./account.md) |
+| `lead_id` | STRING | Lead ID | Sourcing/converting lead the opportunity originated from; nullable. FK to [Lead](./lead.md) |
+| `primary_campaign_id` | STRING | Primary Campaign ID | Primary Campaign Source (single-touch sourcing); nullable. Equals the campaign of the sourcing lead's `is_lead_create` touchpoint. FK to [Campaign](./campaign.md) |
+| `created_at` | TIMESTAMP | Created At | When the opportunity was created. |
+| `stage` | STRING | Stage | Current pipeline stage. One of: `discovery`, `demo`, `proposal`, `negotiation`, `closed_won`, `closed_lost`. |
+| `amount` | NUMERIC | Amount | ACV / deal size (USD). Correlates with the account's `employee_band`. |
+| `close_date` | DATE | Close Date | Date the opportunity was won or lost; null while open. |
+| `is_won` | BOOLEAN | Is Won | True iff `stage = closed_won` (then `close_date` is set); false with a `close_date` means `closed_lost`. |
+| `sales_cycle_days` | INTEGER | Sales Cycle Days | `DATE_DIFF(close_date, created_at, DAY)` for closed deals; null while open. |
+| `owner` | STRING | Owner | Sales rep who owns the opportunity (drawn from a small stable roster). |
 
 # Example Questions
 

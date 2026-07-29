@@ -7,18 +7,18 @@ description: |
   and how valuable they turned out to be.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T16:47:23.000Z
+timestamp: 2026-07-29T00:40:03.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `customer_id` | INTEGER | PK. Unique identifier for an individual registered customer |
-| `customer_segment` | STRING | The classification of the customer based on their purchase history or value |
-| `registration_date` | DATE | The specific date when the customer account was created in the system |
-| `acquisition_traffic_source_id` | INTEGER | FK to [Traffic Sources](./traffic-sources.md) |
-| `country_id` | INTEGER | The primary geographical location assigned to the customer FK to [Countries](./countries.md) |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `customer_id` | INTEGER | Customer ID | PK. Unique identifier for an individual registered customer |
+| `customer_segment` | STRING | Customer Segment | The classification of the customer based on their purchase history or value |
+| `registration_date` | DATE | Registration Date | The specific date when the customer account was created in the system |
+| `acquisition_traffic_source_id` | INTEGER |  | FK to [Traffic Sources](./traffic-sources.md) |
+| `country_id` | INTEGER | Country ID | The primary geographical location assigned to the customer FK to [Countries](./countries.md) |
 
 # Example Questions
 

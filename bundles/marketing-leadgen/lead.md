@@ -14,19 +14,19 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `lead_id` | STRING | PK. Unique identifier for each lead or contact. |
-| `account_id` | STRING | Company the lead belongs to; null for a lead not yet matched to an account. FK to [Account](./account.md) |
-| `created_at` | TIMESTAMP | When the lead first entered the system (coincides with the `is_lead_create` touchpoint). |
-| `source_channel` | STRING | Channel that first brought in the lead. Equals the channel of the lead's `is_lead_create` touchpoint. Same controlled vocabulary as [Campaign](./campaign.md)`.channel`. |
-| `lead_score` | INTEGER | Fit + engagement score for MQL gating. |
-| `became_mql_at` | TIMESTAMP | When the lead reached marketing-qualified status; null if never MQL. `created_at ≤ became_mql_at`. |
-| `became_sql_at` | TIMESTAMP | When the lead reached sales-qualified status; null if never SQL. `became_mql_at ≤ became_sql_at`. |
-| `employee_band` | STRING | Company-size bucket. Same vocabulary as [Account](./account.md)`.employee_band`: `1-50` / `51-200` / `201-1000` / `1000+`. For matched leads, agrees with the account. |
-| `industry` | STRING | Industry the lead's company operates in. For matched leads, agrees with the account. |
-| `country` | STRING | Country where the lead is located; consistent with the account's `region`. |
-| `lifecycle_stage` | STRING | `subscriber` / `lead` / `MQL` / `SQL` / `opportunity` / `customer`. Consistent with the `became_*_at` timestamps and with the existence of an [Opportunities](./opportunities.md) row. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `lead_id` | STRING | Lead ID | PK. Unique identifier for each lead or contact. |
+| `account_id` | STRING | Account ID | Company the lead belongs to; null for a lead not yet matched to an account. FK to [Account](./account.md) |
+| `created_at` | TIMESTAMP | Created At | When the lead first entered the system (coincides with the `is_lead_create` touchpoint). |
+| `source_channel` | STRING | Source Channel | Channel that first brought in the lead. Equals the channel of the lead's `is_lead_create` touchpoint. Same controlled vocabulary as [Campaign](./campaign.md)`.channel`. |
+| `lead_score` | INTEGER | Lead Score | Fit + engagement score for MQL gating. |
+| `became_mql_at` | TIMESTAMP | Became Mql At | When the lead reached marketing-qualified status; null if never MQL. `created_at ≤ became_mql_at`. |
+| `became_sql_at` | TIMESTAMP | Became Sql At | When the lead reached sales-qualified status; null if never SQL. `became_mql_at ≤ became_sql_at`. |
+| `employee_band` | STRING | Employee Band | Company-size bucket. Same vocabulary as [Account](./account.md)`.employee_band`: `1-50` / `51-200` / `201-1000` / `1000+`. For matched leads, agrees with the account. |
+| `industry` | STRING | Industry | Industry the lead's company operates in. For matched leads, agrees with the account. |
+| `country` | STRING | Country | Country where the lead is located; consistent with the account's `region`. |
+| `lifecycle_stage` | STRING | Lifecycle Stage | `subscriber` / `lead` / `MQL` / `SQL` / `opportunity` / `customer`. Consistent with the `became_*_at` timestamps and with the existence of an [Opportunities](./opportunities.md) row. |
 
 # Example Questions
 

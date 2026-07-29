@@ -16,19 +16,19 @@ timestamp: 2026-07-28T16:51:42.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `visitor_id` | STRING | PK. Unique identifier of the website visitor. |
-| `linked_customer_id` | STRING | Customer account this visitor was later recognised as, when they bought. |
-| `first_seen_date` | DATE | Date the visitor first interacted with the site. |
-| `last_seen_date` | DATE | Date of the visitor's most recent interaction. |
-| `total_sessions` | INTEGER | Number of sessions the visitor has run in total. |
-| `acquisition_source` | STRING | Platform or site that originally referred the visitor. |
-| `acquisition_medium` | STRING | Channel type the visitor was originally acquired through. |
-| `acquisition_campaign` | STRING | Marketing campaign that originally brought the visitor to the site. |
-| `cohort_month` | DATE | First day of the month of the visitor's first visit, used for retention analysis. |
-| `visitor_segment` | STRING | Engagement band the visitor falls into, such as One-off, Occasional or Frequent. |
-| `country` | STRING | Country the visitor browses from. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `visitor_id` | STRING | Visitor ID | PK. Unique identifier of the website visitor. |
+| `linked_customer_id` | STRING | Linked Customer ID | Customer account this visitor was later recognised as, when they bought. |
+| `first_seen_date` | DATE | First Seen Date | Date the visitor first interacted with the site. |
+| `last_seen_date` | DATE | Last Seen Date | Date of the visitor's most recent interaction. |
+| `total_sessions` | INTEGER | Total Sessions | Number of sessions the visitor has run in total. |
+| `acquisition_source` | STRING | Acquisition Source | Platform or site that originally referred the visitor. |
+| `acquisition_medium` | STRING | Acquisition Medium | Channel type the visitor was originally acquired through. |
+| `acquisition_campaign` | STRING | Acquisition Campaign | Marketing campaign that originally brought the visitor to the site. |
+| `cohort_month` | DATE | Cohort Month | First day of the month of the visitor's first visit, used for retention analysis. |
+| `visitor_segment` | STRING | Visitor Segment | Engagement band the visitor falls into, such as One-off, Occasional or Frequent. |
+| `country` | STRING | Country | Country the visitor browses from. |
 
 # Example Questions
 

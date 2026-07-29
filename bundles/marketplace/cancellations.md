@@ -13,15 +13,15 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `cancellation_id` | STRING | PK. Unique cancellation identifier. |
-| `order_id` | STRING | Order that was cancelled. FK to [Orders](./orders.md) |
-| `cancelled_at` | TIMESTAMP | When the cancellation happened. |
-| `cancelled_by` | STRING | Who cancelled: buyer, seller or platform. |
-| `stage` | STRING | Order stage at cancellation: pre-payment, pre-fulfilment or in-transit. |
-| `reason` | STRING | Stated cancellation reason. |
-| `refund_amount` | NUMERIC | Amount refunded to the buyer (never more than the order's gmv). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `cancellation_id` | STRING | Cancellation ID | PK. Unique cancellation identifier. |
+| `order_id` | STRING | Order ID | Order that was cancelled. FK to [Orders](./orders.md) |
+| `cancelled_at` | TIMESTAMP | Cancelled At | When the cancellation happened. |
+| `cancelled_by` | STRING | Cancelled By | Who cancelled: buyer, seller or platform. |
+| `stage` | STRING | Stage | Order stage at cancellation: pre-payment, pre-fulfilment or in-transit. |
+| `reason` | STRING | Reason | Stated cancellation reason. |
+| `refund_amount` | NUMERIC | Refund Amount | Amount refunded to the buyer (never more than the order's gmv). |
 
 # Example Questions
 

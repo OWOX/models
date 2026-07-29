@@ -17,32 +17,32 @@ timestamp: 2026-07-28T16:51:45.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `subscription_id` | STRING | PK. Unique identifier of the subscription contract. |
-| `customer_id` | STRING | Customer who owns this subscription. FK to [Customers](./customers.md) |
-| `selling_plan_id` | STRING | Subscription offer the contract was created on. FK to [Selling Plans](./selling-plans.md) |
-| `product_id` | STRING | Product being delivered on this subscription. FK to [Products](./products.md) |
-| `status` | STRING | Current state of the contract: Active, Paused or Cancelled. |
-| `started_at` | DATE | Date the subscription was created. |
-| `cohort_month` | DATE | First day of the month the subscription started in, used for retention cohorts. |
-| `quantity` | INTEGER | Number of units delivered on each cycle. |
-| `unit_price` | FLOAT | Price charged per unit on this contract, after the plan discount. |
-| `recurring_value` | FLOAT | Amount billed on each cycle, being quantity multiplied by the unit price. |
-| `monthly_recurring_value` | FLOAT | Recurring value normalised to a 30-day month, so cadences of different lengths can be summed into one recurring revenue figure. |
-| `billing_interval_days` | INTEGER | Number of days between two charges on this contract. |
-| `cycles_completed` | INTEGER | Number of cycles successfully charged and delivered so far. |
-| `cycles_remaining` | INTEGER | Deliveries still owed on a prepaid contract; zero for pay-as-you-go. |
-| `next_charge_date` | DATE | Date the next charge is scheduled for, on active contracts. |
-| `last_charge_date` | DATE | Date of the most recent successful charge. |
-| `paused_at` | DATE | Date the subscriber paused the contract, when it is currently paused. |
-| `cancelled_at` | DATE | Date the contract ended, when it is no longer active. |
-| `cancel_reason` | STRING | Why the contract ended, such as Too much product, Too expensive, Product quality, Found alternative, No longer needed or Payment failure. |
-| `cancel_type` | STRING | Whether the ending was Voluntary, meaning the subscriber chose it, or Involuntary, meaning payment retries were exhausted. |
-| `failed_payment_count` | INTEGER | Number of charge attempts on this contract that were declined. |
-| `max_retries_reached` | BOOLEAN | Whether the dunning process ran out of retries on this contract. |
-| `is_prepaid` | BOOLEAN | Whether the contract was paid upfront for several deliveries. |
-| `tenure_days` | INTEGER | Number of days the contract has been alive, counted to its end date or to today. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `subscription_id` | STRING | Subscription ID | PK. Unique identifier of the subscription contract. |
+| `customer_id` | STRING | Customer ID | Customer who owns this subscription. FK to [Customers](./customers.md) |
+| `selling_plan_id` | STRING | Selling Plan ID | Subscription offer the contract was created on. FK to [Selling Plans](./selling-plans.md) |
+| `product_id` | STRING | Product ID | Product being delivered on this subscription. FK to [Products](./products.md) |
+| `status` | STRING | Status | Current state of the contract: Active, Paused or Cancelled. |
+| `started_at` | DATE | Started At | Date the subscription was created. |
+| `cohort_month` | DATE | Cohort Month | First day of the month the subscription started in, used for retention cohorts. |
+| `quantity` | INTEGER | Quantity | Number of units delivered on each cycle. |
+| `unit_price` | FLOAT | Unit Price | Price charged per unit on this contract, after the plan discount. |
+| `recurring_value` | FLOAT | Recurring Value | Amount billed on each cycle, being quantity multiplied by the unit price. |
+| `monthly_recurring_value` | FLOAT | Monthly Recurring Value | Recurring value normalised to a 30-day month, so cadences of different lengths can be summed into one recurring revenue figure. |
+| `billing_interval_days` | INTEGER | Billing Interval Days | Number of days between two charges on this contract. |
+| `cycles_completed` | INTEGER | Cycles Completed | Number of cycles successfully charged and delivered so far. |
+| `cycles_remaining` | INTEGER | Cycles Remaining | Deliveries still owed on a prepaid contract; zero for pay-as-you-go. |
+| `next_charge_date` | DATE | Next Charge Date | Date the next charge is scheduled for, on active contracts. |
+| `last_charge_date` | DATE | Last Charge Date | Date of the most recent successful charge. |
+| `paused_at` | DATE | Paused At | Date the subscriber paused the contract, when it is currently paused. |
+| `cancelled_at` | DATE | Cancelled At | Date the contract ended, when it is no longer active. |
+| `cancel_reason` | STRING | Cancel Reason | Why the contract ended, such as Too much product, Too expensive, Product quality, Found alternative, No longer needed or Payment failure. |
+| `cancel_type` | STRING | Cancel Type | Whether the ending was Voluntary, meaning the subscriber chose it, or Involuntary, meaning payment retries were exhausted. |
+| `failed_payment_count` | INTEGER | Failed Payment Count | Number of charge attempts on this contract that were declined. |
+| `max_retries_reached` | BOOLEAN | Max Retries Reached | Whether the dunning process ran out of retries on this contract. |
+| `is_prepaid` | BOOLEAN | Is Prepaid | Whether the contract was paid upfront for several deliveries. |
+| `tenure_days` | INTEGER | Tenure Days | Number of days the contract has been alive, counted to its end date or to today. |
 
 # Example Questions
 

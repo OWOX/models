@@ -11,17 +11,17 @@ timestamp: 2026-07-23T12:51:28.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ticket_id` | STRING | PK. Unique support-ticket identifier. |
-| `account_id` | STRING | Account that opened the ticket. FK to [Account](./account.md) |
-| `user_id` | STRING | User who opened the ticket, if attributable. FK to [User](./user.md) |
-| `opened_at` | TIMESTAMP | When the ticket was opened. |
-| `closed_at` | TIMESTAMP | When the ticket was closed. |
-| `priority` | STRING | Ticket priority level. |
-| `category` | STRING | Ticket topic/category. |
-| `csat_score` | INTEGER | Customer satisfaction rating for the ticket. |
-| `first_response_mins` | INTEGER | Minutes to first agent response. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ticket_id` | STRING | Ticket ID | PK. Unique support-ticket identifier. |
+| `account_id` | STRING | Account ID | Account that opened the ticket. FK to [Account](./account.md) |
+| `user_id` | STRING | User ID | User who opened the ticket, if attributable. FK to [User](./user.md) |
+| `opened_at` | TIMESTAMP | Opened At | When the ticket was opened. |
+| `closed_at` | TIMESTAMP | Closed At | When the ticket was closed. |
+| `priority` | STRING | Priority | Ticket priority level. |
+| `category` | STRING | Category | Ticket topic/category. |
+| `csat_score` | INTEGER | Csat Score | Customer satisfaction rating for the ticket. |
+| `first_response_mins` | INTEGER | First Response Mins | Minutes to first agent response. |
 
 # Example Questions
 

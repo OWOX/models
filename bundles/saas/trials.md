@@ -11,16 +11,16 @@ timestamp: 2026-07-23T12:51:27.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `trial_id` | STRING | PK. Unique trial identifier. |
-| `account_id` | STRING | Account running the trial. FK to [Account](./account.md) |
-| `started_at` | TIMESTAMP | When the trial began. |
-| `ends_at` | TIMESTAMP | Scheduled trial expiry. |
-| `converted_at` | TIMESTAMP | When the trial converted to a paid plan, if it did. |
-| `is_converted` | BOOLEAN | Trial-to-paid outcome flag. |
-| `trial_source` | STRING | Where the trial came from (self-serve, sales-assisted, PLG upsell). |
-| `requested_plan` | STRING | Plan tier the trial is evaluating. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `trial_id` | STRING | Trial ID | PK. Unique trial identifier. |
+| `account_id` | STRING | Account ID | Account running the trial. FK to [Account](./account.md) |
+| `started_at` | TIMESTAMP | Started At | When the trial began. |
+| `ends_at` | TIMESTAMP | Ends At | Scheduled trial expiry. |
+| `converted_at` | TIMESTAMP | Converted At | When the trial converted to a paid plan, if it did. |
+| `is_converted` | BOOLEAN | Is Converted | Trial-to-paid outcome flag. |
+| `trial_source` | STRING | Trial Source | Where the trial came from (self-serve, sales-assisted, PLG upsell). |
+| `requested_plan` | STRING | Requested Plan | Plan tier the trial is evaluating. |
 
 # Example Questions
 

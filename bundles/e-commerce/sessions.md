@@ -7,25 +7,25 @@ description: |
   other, which is what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T16:47:26.000Z
+timestamp: 2026-07-29T00:38:33.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `date` | DATE | The specific date when the browsing session occurred FK to [Unified Ad Spend](./unified-ad-spend.md) |
-| `session_id` | STRING | PK. Unique identifier for an individual user session FK to [Orders](./orders.md) |
-| `customer_id` | INTEGER | Unique identifier of the customer associated with the session FK to [Customers](./customers.md) |
-| `device_category` | STRING | The type of hardware device used during the session (e.g., mobile, desktop) |
-| `conversion_seed` | FLOAT | A technical value used to simulate the probability of a transaction. |
-| `visitor_id` | STRING | Unique identifier for the anonymous or recognized visitor. FK to [Visitors](./visitors.md) |
-| `traffic_source_id` | INTEGER | Internal numeric identifier for the marketing traffic source. FK to [Traffic Sources](./traffic-sources.md) |
-| `country_id` | INTEGER | Numeric identifier representing the geographic country of the visitor. FK to [Countries](./countries.md) |
-| `is_conversion` | BOOLEAN | Indicates whether the session resulted in a successful transaction or goal completion. |
-| `source` | STRING | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [Unified Ad Spend](./unified-ad-spend.md) |
-| `medium` | STRING | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [Unified Ad Spend](./unified-ad-spend.md) |
-| `campaign` | STRING | The name of the specific marketing campaign that drove the session. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `date` | DATE | Date | The specific date when the browsing session occurred FK to [Unified Ad Spend](./unified-ad-spend.md) |
+| `session_id` | STRING | Session ID | PK. Unique identifier for an individual user session FK to [Orders](./orders.md) |
+| `customer_id` | INTEGER | Customer ID | Unique identifier of the customer associated with the session FK to [Customers](./customers.md) |
+| `device_category` | STRING | Device Category | The type of hardware device used during the session (e.g., mobile, desktop) |
+| `conversion_seed` | FLOAT | Conversion Seed | A technical value used to simulate the probability of a transaction. |
+| `visitor_id` | STRING | Visitor ID | Unique identifier for the anonymous or recognized visitor. FK to [Visitors](./visitors.md) |
+| `traffic_source_id` | INTEGER | Traffic Source ID | Internal numeric identifier for the marketing traffic source. FK to [Traffic Sources](./traffic-sources.md) |
+| `country_id` | INTEGER | Country ID | Numeric identifier representing the geographic country of the visitor. FK to [Countries](./countries.md) |
+| `is_conversion` | BOOLEAN | Is Conversion | Indicates whether the session resulted in a successful transaction or goal completion. |
+| `source` | STRING | Source | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [Unified Ad Spend](./unified-ad-spend.md) |
+| `medium` | STRING | Medium | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [Unified Ad Spend](./unified-ad-spend.md) |
+| `campaign` | STRING | Campaign | The name of the specific marketing campaign that drove the session. |
 
 # Example Questions
 

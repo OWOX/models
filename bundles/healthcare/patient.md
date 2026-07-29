@@ -14,15 +14,15 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `patient_id` | STRING | PK. Unique de-identified patient identifier. |
-| `birth_year` | INTEGER | Year of birth, used for age banding. |
-| `gender` | STRING | Patient gender. |
-| `postal_code` | STRING | Patient postal/ZIP code for geographic analysis. |
-| `insurance_type` | STRING | commercial / Medicare / Medicaid / self-pay. |
-| `risk_tier` | STRING | Risk-stratification band for care management. |
-| `registered_at` | DATE | Date the patient was first registered. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `patient_id` | STRING | Patient ID | PK. Unique de-identified patient identifier. |
+| `birth_year` | INTEGER | Birth Year | Year of birth, used for age banding. |
+| `gender` | STRING | Gender | Patient gender. |
+| `postal_code` | STRING | Postal Code | Patient postal/ZIP code for geographic analysis. |
+| `insurance_type` | STRING | Insurance Type | commercial / Medicare / Medicaid / self-pay. |
+| `risk_tier` | STRING | Risk Tier | Risk-stratification band for care management. |
+| `registered_at` | DATE | Registered At | Date the patient was first registered. |
 
 # Example Questions
 

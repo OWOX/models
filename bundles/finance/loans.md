@@ -12,20 +12,20 @@ timestamp: 2026-07-23T12:02:48.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `loan_id` | STRING | PK. Unique loan identifier. |
-| `customer_id` | STRING | Borrowing customer. FK to [Customer](./customer.md) |
-| `product_id` | STRING | Loan product applied for. FK to [Product](./product.md) |
-| `applied_at` | DATE | Date the loan was applied for. |
-| `decision` | STRING | `approved` / `declined` / `withdrawn`. Approval odds conditioned on the customer's `risk_band`. |
-| `approved_amount` | NUMERIC | Amount approved at underwriting; null unless `decision = approved`. |
-| `funded_amount` | NUMERIC | Amount actually funded; `≤ approved_amount`; null unless funded. Approved → funded is the pull-through rate. |
-| `apr` | FLOAT | APR on the loan. Seeded from the product's rate-card `apr` and adjusted by a risk-based spread (higher for riskier bands). |
-| `term_months` | INTEGER | Loan term; selected from the product's stated term, not drawn independently. |
-| `funded_at` | DATE | Date funded; `≥ applied_at`; null unless funded. |
-| `status` | STRING | Current loan status. One of `current` / `delinquent` / `charged_off` / `paid_off`. |
-| `decline_reason` | STRING | Adverse-action reason (ECOA/Reg B); populated only when `decision = declined`. One of `insufficient_credit_history` / `debt_to_income_too_high` / `delinquent_credit_obligations` / `income_verification_failed` / `fraud_flag`. Weighted by `risk_band`. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `loan_id` | STRING | Loan ID | PK. Unique loan identifier. |
+| `customer_id` | STRING | Customer ID | Borrowing customer. FK to [Customer](./customer.md) |
+| `product_id` | STRING | Product ID | Loan product applied for. FK to [Product](./product.md) |
+| `applied_at` | DATE | Applied At | Date the loan was applied for. |
+| `decision` | STRING | Decision | `approved` / `declined` / `withdrawn`. Approval odds conditioned on the customer's `risk_band`. |
+| `approved_amount` | NUMERIC | Approved Amount | Amount approved at underwriting; null unless `decision = approved`. |
+| `funded_amount` | NUMERIC | Funded Amount | Amount actually funded; `≤ approved_amount`; null unless funded. Approved → funded is the pull-through rate. |
+| `apr` | FLOAT | Apr | APR on the loan. Seeded from the product's rate-card `apr` and adjusted by a risk-based spread (higher for riskier bands). |
+| `term_months` | INTEGER | Term Months | Loan term; selected from the product's stated term, not drawn independently. |
+| `funded_at` | DATE | Funded At | Date funded; `≥ applied_at`; null unless funded. |
+| `status` | STRING | Status | Current loan status. One of `current` / `delinquent` / `charged_off` / `paid_off`. |
+| `decline_reason` | STRING | Decline Reason | Adverse-action reason (ECOA/Reg B); populated only when `decision = declined`. One of `insufficient_credit_history` / `debt_to_income_too_high` / `delinquent_credit_obligations` / `income_verification_failed` / `fraud_flag`. Weighted by `risk_band`. |
 
 # Example Questions
 

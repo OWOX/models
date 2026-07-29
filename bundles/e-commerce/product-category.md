@@ -7,18 +7,18 @@ description: |
   supposed to deliver, not just reported in isolation.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T16:47:25.000Z
+timestamp: 2026-07-29T00:40:26.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `category_id` | INTEGER | Unique numerical identifier for each product category. |
-| `category_name` | STRING | The descriptive name of the product category used for reporting and classification. |
-| `category_manager` | STRING | Full name of the individual responsible for managing the specific product category. |
-| `target_margin` | FLOAT | The desired profit margin percentage set for the category. |
-| `category_group` | STRING | High-level classification used to group related categories together, such as hard or soft goods. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `category_id` | INTEGER | Category ID | Unique numerical identifier for each product category. |
+| `category_name` | STRING | Category Name | The descriptive name of the product category used for reporting and classification. |
+| `category_manager` | STRING | Category Manager | Full name of the individual responsible for managing the specific product category. |
+| `target_margin` | FLOAT | Target Margin | The desired profit margin percentage set for the category. |
+| `category_group` | STRING | Category Group | High-level classification used to group related categories together, such as hard or soft goods. |
 
 # Example Questions
 

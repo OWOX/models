@@ -17,20 +17,20 @@ timestamp: 2026-07-28T16:51:39.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `order_item_id` | STRING | PK. Unique identifier of the order line. |
-| `order_id` | STRING | Order this line belongs to. FK to [Orders](./orders.md) |
-| `product_id` | STRING | Product bought on this line. FK to [Products](./products.md) |
-| `quantity` | INTEGER | Number of units of the product on this line. |
-| `unit_price` | FLOAT | Price paid per unit at the moment of purchase. |
-| `unit_cost` | FLOAT | Cost to the business of one unit of the product. |
-| `line_discount` | FLOAT | Discount applied to this line, including the subscription discount. |
-| `line_revenue` | FLOAT | Gross revenue for the line, being quantity multiplied by the price paid. |
-| `line_net_revenue` | FLOAT | Revenue recognised for the line, counted only for completed orders. |
-| `line_cost` | FLOAT | Cost of goods sold for the line, being quantity multiplied by the unit cost. |
-| `line_net_profit` | FLOAT | Profit for the line on completed orders, being net revenue less cost of goods. |
-| `is_subscription_item` | BOOLEAN | Whether the line was delivered on a subscription rather than bought one-time. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `order_item_id` | STRING | Order Item ID | PK. Unique identifier of the order line. |
+| `order_id` | STRING | Order ID | Order this line belongs to. FK to [Orders](./orders.md) |
+| `product_id` | STRING | Product ID | Product bought on this line. FK to [Products](./products.md) |
+| `quantity` | INTEGER | Quantity | Number of units of the product on this line. |
+| `unit_price` | FLOAT | Unit Price | Price paid per unit at the moment of purchase. |
+| `unit_cost` | FLOAT | Unit Cost | Cost to the business of one unit of the product. |
+| `line_discount` | FLOAT | Line Discount | Discount applied to this line, including the subscription discount. |
+| `line_revenue` | FLOAT | Line Revenue | Gross revenue for the line, being quantity multiplied by the price paid. |
+| `line_net_revenue` | FLOAT | Line Net Revenue | Revenue recognised for the line, counted only for completed orders. |
+| `line_cost` | FLOAT | Line Cost | Cost of goods sold for the line, being quantity multiplied by the unit cost. |
+| `line_net_profit` | FLOAT | Line Net Profit | Profit for the line on completed orders, being net revenue less cost of goods. |
+| `is_subscription_item` | BOOLEAN | Is Subscription Item | Whether the line was delivered on a subscription rather than bought one-time. |
 
 # Example Questions
 

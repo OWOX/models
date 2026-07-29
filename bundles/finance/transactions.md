@@ -8,24 +8,24 @@ description: |
   everyday customer behavior.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:02:49.000Z
+timestamp: 2026-07-29T14:32:40.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `txn_id` | STRING | PK. Unique transaction identifier. |
-| `account_id` | STRING | Account the transaction belongs to. FK to [Accounts](./accounts.md) |
-| `txn_ts` | TIMESTAMP | When the transaction occurred. |
-| `txn_type` | STRING | One of `purchase` / `atm_withdrawal` / `transfer` / `direct_debit` / `refund` / `fee`. |
-| `mcc` | STRING | Merchant category code. Typical `amount` and implied interchange vary by MCC. |
-| `amount` | NUMERIC | Transaction amount. |
-| `currency` | STRING | Currency; consistent with the customer's `region`. |
-| `is_declined` | BOOLEAN | Whether declined. Overall approval ~85–95%; declines skew to low/mid `fraud_score` (false positives) plus high-score fraud blocks. |
-| `fraud_score` | FLOAT | Model score at authorization (0–1). |
-| `is_confirmed_fraud` | BOOLEAN | Post-investigation label. Steeply correlated with high `fraud_score`; overall a low-basis-points share of volume. Together with `fraud_score` gives capture rate vs false-positive declines. |
-| `channel` | STRING | One of `card_present` / `ecommerce` / `atm` / `online_banking` / `mobile`. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `txn_id` | STRING | Transaction ID | PK. Unique transaction identifier. |
+| `account_id` | STRING | Account ID | Account the transaction belongs to. FK to [Accounts](./accounts.md) |
+| `txn_ts` | TIMESTAMP | Transaction Time | When the transaction occurred. |
+| `txn_type` | STRING | Transaction Type | One of `purchase` / `atm_withdrawal` / `transfer` / `direct_debit` / `refund` / `fee`. |
+| `mcc` | STRING | MCC | Merchant category code. Typical `amount` and implied interchange vary by MCC. |
+| `amount` | NUMERIC | Amount | Transaction amount. |
+| `currency` | STRING | Currency | Currency; consistent with the customer's `region`. |
+| `is_declined` | BOOLEAN | Is Declined | Whether declined. Overall approval ~85–95%; declines skew to low/mid `fraud_score` (false positives) plus high-score fraud blocks. |
+| `fraud_score` | FLOAT | Fraud Score | Model score at authorization (0–1). |
+| `is_confirmed_fraud` | BOOLEAN | Is Confirmed Fraud | Post-investigation label. Steeply correlated with high `fraud_score`; overall a low-basis-points share of volume. Together with `fraud_score` gives capture rate vs false-positive declines. |
+| `channel` | STRING | Channel | One of `card_present` / `ecommerce` / `atm` / `online_banking` / `mobile`. |
 
 # Example Questions
 

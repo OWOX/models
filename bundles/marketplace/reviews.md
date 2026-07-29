@@ -14,14 +14,14 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `review_id` | STRING | PK. Unique review identifier. |
-| `order_id` | STRING | Order the review relates to (always a fulfilled order). FK to [Orders](./orders.md) |
-| `reviewer_role` | STRING | Side that left the review: buyer or seller. |
-| `rating` | INTEGER | Star rating 1–5 for the order. |
-| `created_at` | TIMESTAMP | When the review was submitted. |
-| `has_complaint` | BOOLEAN | Whether the review flags a complaint (concentrated in 1–2 star ratings). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `review_id` | STRING | Review ID | PK. Unique review identifier. |
+| `order_id` | STRING | Order ID | Order the review relates to (always a fulfilled order). FK to [Orders](./orders.md) |
+| `reviewer_role` | STRING | Reviewer Role | Side that left the review: buyer or seller. |
+| `rating` | INTEGER | Rating | Star rating 1–5 for the order. |
+| `created_at` | TIMESTAMP | Created At | When the review was submitted. |
+| `has_complaint` | BOOLEAN | Has Complaint | Whether the review flags a complaint (concentrated in 1–2 star ratings). |
 
 # Example Questions
 

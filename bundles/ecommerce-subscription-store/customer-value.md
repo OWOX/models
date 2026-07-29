@@ -17,23 +17,23 @@ timestamp: 2026-07-28T16:51:41.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `customer_id` | STRING | PK. Customer this value profile describes. FK to [Customers](./customers.md) |
-| `acquisition_session_id` | STRING | Browsing session during which the customer was first acquired. FK to [Sessions](./sessions.md) |
-| `net_revenue_last_12m` | FLOAT | Revenue the customer generated over the last twelve months, after discounts and returns. |
-| `units_sold_last_12m` | INTEGER | Number of individual units the customer bought over the last twelve months. |
-| `orders_last_12m` | INTEGER | Number of orders the customer placed over the last twelve months. |
-| `lifetime_net_revenue` | FLOAT | Total revenue the customer has generated since their first order. |
-| `loyalty_segment` | STRING | Behavioural band the customer falls into, such as New, Returning, Loyal, At risk or Lapsed. |
-| `subscriber_status` | STRING | Where the customer stands with the subscription programme: Never subscribed, Active, Paused, Churned or Reactivated. |
-| `active_subscriptions` | INTEGER | Number of subscriptions the customer currently holds in an active state. |
-| `months_subscribed` | INTEGER | Number of months the customer has held at least one active subscription. |
-| `subscription_revenue_share` | FLOAT | Share of the customer's lifetime revenue that came from subscription orders, between zero and one. |
-| `first_order_at` | DATE | Date the customer placed their first order. |
-| `last_order_at` | DATE | Date the customer placed their most recent order. |
-| `recency_days` | INTEGER | Number of days since the customer's most recent order. |
-| `acquisition_channel_grouping` | STRING | Channel the customer was originally acquired through, such as Paid Search, Paid Social, Organic or Direct. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `customer_id` | STRING | Customer ID | PK. Customer this value profile describes. FK to [Customers](./customers.md) |
+| `acquisition_session_id` | STRING | Acquisition Session ID | Browsing session during which the customer was first acquired. FK to [Sessions](./sessions.md) |
+| `net_revenue_last_12m` | FLOAT | Net Revenue Last 12m | Revenue the customer generated over the last twelve months, after discounts and returns. |
+| `units_sold_last_12m` | INTEGER | Units Sold Last 12m | Number of individual units the customer bought over the last twelve months. |
+| `orders_last_12m` | INTEGER | Orders Last 12m | Number of orders the customer placed over the last twelve months. |
+| `lifetime_net_revenue` | FLOAT | Lifetime Net Revenue | Total revenue the customer has generated since their first order. |
+| `loyalty_segment` | STRING | Loyalty Segment | Behavioural band the customer falls into, such as New, Returning, Loyal, At risk or Lapsed. |
+| `subscriber_status` | STRING | Subscriber Status | Where the customer stands with the subscription programme: Never subscribed, Active, Paused, Churned or Reactivated. |
+| `active_subscriptions` | INTEGER | Active Subscriptions | Number of subscriptions the customer currently holds in an active state. |
+| `months_subscribed` | INTEGER | Months Subscribed | Number of months the customer has held at least one active subscription. |
+| `subscription_revenue_share` | FLOAT | Subscription Revenue Share | Share of the customer's lifetime revenue that came from subscription orders, between zero and one. |
+| `first_order_at` | DATE | First Order At | Date the customer placed their first order. |
+| `last_order_at` | DATE | Last Order At | Date the customer placed their most recent order. |
+| `recency_days` | INTEGER | Recency Days | Number of days since the customer's most recent order. |
+| `acquisition_channel_grouping` | STRING | Acquisition Channel Grouping | Channel the customer was originally acquired through, such as Paid Search, Paid Social, Organic or Direct. |
 
 # Example Questions
 

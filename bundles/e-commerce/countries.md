@@ -7,17 +7,17 @@ description: |
   acquisition cost can all be cut the same way across markets.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T16:47:23.000Z
+timestamp: 2026-07-29T00:39:29.000Z
 ---
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `country_id` | INTEGER | PK. Unique internal identifier for each country record. |
-| `country` | STRING | Full name of the country. |
-| `country_code` | STRING | Two-letter ISO country code representing the nation. |
-| `weight` | INTEGER | Numerical value used to prioritize or rank countries in the e-commerce system. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `country_id` | INTEGER | Country ID | PK. Unique internal identifier for each country record. |
+| `country` | STRING | Country Name | Full name of the country. |
+| `country_code` | STRING | Country Code | Two-letter ISO country code representing the nation. |
+| `weight` | INTEGER | Priority Weight | Numerical value used to prioritize or rank countries in the e-commerce system. |
 
 # Example Questions
 

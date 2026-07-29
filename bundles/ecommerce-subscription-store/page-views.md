@@ -16,15 +16,15 @@ timestamp: 2026-07-28T16:51:39.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `pageview_id` | STRING | PK. Unique identifier of the page view. |
-| `session_id` | STRING | Session the page view belongs to. FK to [Sessions](./sessions.md) |
-| `page_id` | STRING | Page that was viewed. FK to [Pages](./pages.md) |
-| `date` | DATE | Date the page view occurred. |
-| `hit_number` | INTEGER | Position of the page view within its session, starting at one. |
-| `hit_timestamp` | TIMESTAMP | Exact moment the page view was recorded, in UTC. |
-| `pageview_count` | INTEGER | Always one, so page views can be summed without counting distinct identifiers. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `pageview_id` | STRING | Pageview ID | PK. Unique identifier of the page view. |
+| `session_id` | STRING | Session ID | Session the page view belongs to. FK to [Sessions](./sessions.md) |
+| `page_id` | STRING | Page ID | Page that was viewed. FK to [Pages](./pages.md) |
+| `date` | DATE | Date | Date the page view occurred. |
+| `hit_number` | INTEGER | Hit Number | Position of the page view within its session, starting at one. |
+| `hit_timestamp` | TIMESTAMP | Hit Timestamp | Exact moment the page view was recorded, in UTC. |
+| `pageview_count` | INTEGER | Pageview Count | Always one, so page views can be summed without counting distinct identifiers. |
 
 # Example Questions
 

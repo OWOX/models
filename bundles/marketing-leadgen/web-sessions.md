@@ -14,17 +14,17 @@ timestamp: 2026-07-23T17:34:33.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `session_id` | STRING | PK. Unique identifier for the web session. |
-| `lead_id` | STRING | Known lead after identity stitching; null for never-identified visitors (the overwhelming majority). FK to [Lead](./lead.md) |
-| `started_at` | TIMESTAMP | When the session began. |
-| `campaign_id` | STRING | Campaign that drove the session; null for organic/direct. FK to [Campaign](./campaign.md) |
-| `source` | STRING | Traffic source that referred the session; consistent with the driving campaign's `utm_source`. |
-| `medium` | STRING | Marketing medium (e.g. organic, cpc, email); consistent with the driving campaign's `utm_medium`. |
-| `landing_page` | STRING | First page viewed in the session. |
-| `form_submits` | INTEGER | Number of forms submitted during the session. `≥ 1` when `is_conversion` is true. |
-| `is_conversion` | BOOLEAN | Whether the session produced a lead or demo request. Session→lead conversion ~1–3% overall, lowest on paid social. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `session_id` | STRING | Session ID | PK. Unique identifier for the web session. |
+| `lead_id` | STRING | Lead ID | Known lead after identity stitching; null for never-identified visitors (the overwhelming majority). FK to [Lead](./lead.md) |
+| `started_at` | TIMESTAMP | Started At | When the session began. |
+| `campaign_id` | STRING | Campaign ID | Campaign that drove the session; null for organic/direct. FK to [Campaign](./campaign.md) |
+| `source` | STRING | Source | Traffic source that referred the session; consistent with the driving campaign's `utm_source`. |
+| `medium` | STRING | Medium | Marketing medium (e.g. organic, cpc, email); consistent with the driving campaign's `utm_medium`. |
+| `landing_page` | STRING | Landing Page | First page viewed in the session. |
+| `form_submits` | INTEGER | Form Submits | Number of forms submitted during the session. `≥ 1` when `is_conversion` is true. |
+| `is_conversion` | BOOLEAN | Is Conversion | Whether the session produced a lead or demo request. Session→lead conversion ~1–3% overall, lowest on paid social. |
 
 # Example Questions
 

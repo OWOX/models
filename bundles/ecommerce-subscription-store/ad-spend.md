@@ -16,19 +16,19 @@ timestamp: 2026-07-28T16:51:49.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_spend_id` | STRING | PK. Unique identifier of the daily spend record. |
-| `date` | DATE | Date the advertising activity occurred on. |
-| `source` | STRING | Advertising platform the spend occurred on. FK to [Traffic Sources](./traffic-sources.md) |
-| `medium` | STRING | Channel type the spend belongs to, such as cost-per-click. FK to [Traffic Sources](./traffic-sources.md) |
-| `campaign` | STRING | Campaign the spend belongs to. FK to [Traffic Sources](./traffic-sources.md) |
-| `ad_group` | STRING | Ad group within the campaign that the spend belongs to. |
-| `ad_account` | STRING | Advertising account the money was spent from. |
-| `spend` | FLOAT | Amount spent on advertising on this date. |
-| `clicks` | INTEGER | Number of clicks the advertising received. |
-| `impressions` | INTEGER | Number of times the advertising was displayed. |
-| `currency` | STRING | Three-letter code of the currency the spend is reported in. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_spend_id` | STRING | Ad Spend ID | PK. Unique identifier of the daily spend record. |
+| `date` | DATE | Date | Date the advertising activity occurred on. |
+| `source` | STRING | Source | Advertising platform the spend occurred on. FK to [Traffic Sources](./traffic-sources.md) |
+| `medium` | STRING | Medium | Channel type the spend belongs to, such as cost-per-click. FK to [Traffic Sources](./traffic-sources.md) |
+| `campaign` | STRING | Campaign | Campaign the spend belongs to. FK to [Traffic Sources](./traffic-sources.md) |
+| `ad_group` | STRING | Ad Group | Ad group within the campaign that the spend belongs to. |
+| `ad_account` | STRING | Ad Account | Advertising account the money was spent from. |
+| `spend` | FLOAT | Spend | Amount spent on advertising on this date. |
+| `clicks` | INTEGER | Clicks | Number of clicks the advertising received. |
+| `impressions` | INTEGER | Impressions | Number of times the advertising was displayed. |
+| `currency` | STRING | Currency | Three-letter code of the currency the spend is reported in. |
 
 # Example Questions
 

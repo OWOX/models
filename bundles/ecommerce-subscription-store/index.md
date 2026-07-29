@@ -18,7 +18,7 @@ description: |
   traffic sources, which makes cost per subscriber answerable next to cost per order.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-28T16:59:17Z
+timestamp: 2026-07-29T14:35:44Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -58,4 +58,3 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 <!-- OWOX:GENERATED:END -->
 
 <img width="2610" height="1414" alt="ecommerce-subscription-store" src="https://github.com/user-attachments/assets/33161fc0-37f1-4f26-b695-b8e7ef8d8817" />
-

@@ -12,17 +12,17 @@ timestamp: 2026-07-23T12:02:49.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `repayment_id` | STRING | PK. Unique repayment identifier. |
-| `loan_id` | STRING | Loan this repayment belongs to. FK to [Loans](./loans.md) |
-| `due_date` | DATE | Date the payment is due. The full set of rows amortizes the loan's `funded_amount` at its `apr` over `term_months`. |
-| `paid_date` | DATE | Date the payment was made; null if unpaid. |
-| `due_amount` | NUMERIC | Scheduled principal + interest for the installment (from the amortization schedule). |
-| `paid_amount` | NUMERIC | Amount actually paid (0 / partial / full). |
-| `days_past_due` | INTEGER | DPD; progresses through the 0 / 30 / 60 / 90 / 120+ ladder per loan (roll-rate mechanics), not an independent draw. Conditioned on `risk_band`. |
-| `outstanding_principal` | NUMERIC | Remaining principal after this installment — enables dollar-weighted roll-rate and vintage analysis. |
-| `is_charged_off` | BOOLEAN | True only once cumulative DPD crosses the charge-off threshold (FFIEC: 120 days installment / 180 days revolving). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `repayment_id` | STRING | Repayment ID | PK. Unique repayment identifier. |
+| `loan_id` | STRING | Loan ID | Loan this repayment belongs to. FK to [Loans](./loans.md) |
+| `due_date` | DATE | Due Date | Date the payment is due. The full set of rows amortizes the loan's `funded_amount` at its `apr` over `term_months`. |
+| `paid_date` | DATE | Paid Date | Date the payment was made; null if unpaid. |
+| `due_amount` | NUMERIC | Due Amount | Scheduled principal + interest for the installment (from the amortization schedule). |
+| `paid_amount` | NUMERIC | Paid Amount | Amount actually paid (0 / partial / full). |
+| `days_past_due` | INTEGER | Days Past Due | DPD; progresses through the 0 / 30 / 60 / 90 / 120+ ladder per loan (roll-rate mechanics), not an independent draw. Conditioned on `risk_band`. |
+| `outstanding_principal` | NUMERIC | Outstanding Principal | Remaining principal after this installment — enables dollar-weighted roll-rate and vintage analysis. |
+| `is_charged_off` | BOOLEAN | Is Charged Off | True only once cumulative DPD crosses the charge-off threshold (FFIEC: 120 days installment / 180 days revolving). |
 
 # Example Questions
 

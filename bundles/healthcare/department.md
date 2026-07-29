@@ -12,12 +12,12 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `department_id` | STRING | PK. Unique department identifier. |
-| `name` | STRING | Department name. |
-| `specialty` | STRING | Clinical specialty the department serves. |
-| `staffed_beds` | INTEGER | Number of staffed beds — the utilization denominator. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `department_id` | STRING | Department ID | PK. Unique department identifier. |
+| `name` | STRING | Name | Department name. |
+| `specialty` | STRING | Specialty | Clinical specialty the department serves. |
+| `staffed_beds` | INTEGER | Staffed Beds | Number of staffed beds — the utilization denominator. |
 
 # Example Questions
 

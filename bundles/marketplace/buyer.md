@@ -13,15 +13,15 @@ timestamp: 2026-07-27T15:57:43.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `buyer_id` | STRING | PK. Unique buyer identifier. |
-| `signup_date` | DATE | When the buyer first registered. |
-| `acquisition_channel` | STRING | Marketing source that brought the buyer in. |
-| `region` | STRING | Buyer's geographic region. |
-| `segment` | STRING | Buyer segment (one-time, occasional, regular, power). |
-| `lifetime_orders` | INTEGER | Total orders the buyer has placed to date. |
-| `is_repeat` | BOOLEAN | Whether the buyer has placed 2+ orders — demand-side retention. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `buyer_id` | STRING | Buyer ID | PK. Unique buyer identifier. |
+| `signup_date` | DATE | Signup Date | When the buyer first registered. |
+| `acquisition_channel` | STRING | Acquisition Channel | Marketing source that brought the buyer in. |
+| `region` | STRING | Region | Buyer's geographic region. |
+| `segment` | STRING | Segment | Buyer segment (one-time, occasional, regular, power). |
+| `lifetime_orders` | INTEGER | Lifetime Orders | Total orders the buyer has placed to date. |
+| `is_repeat` | BOOLEAN | Is Repeat | Whether the buyer has placed 2+ orders — demand-side retention. |
 
 # Example Questions
 

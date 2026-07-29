@@ -16,20 +16,20 @@ timestamp: 2026-07-28T16:51:49.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `customer_id` | STRING | PK. Unique identifier of the customer. |
-| `registered_at` | DATE | Date the customer account was created. |
-| `first_order_date` | DATE | Date the customer placed their first order. |
-| `last_order_date` | DATE | Date the customer placed their most recent order. |
-| `customer_type` | STRING | Behavioural type based on buying history: New, Returning or Churned. |
-| `email` | STRING | Most recent known email address of the customer. |
-| `phone` | STRING | Most recent known phone number of the customer. |
-| `city` | STRING | City the customer's latest order was shipped to. |
-| `country` | STRING | Country the customer's latest order was shipped to. |
-| `country_code` | STRING | Two-letter code of the country the customer buys from. |
-| `acquisition_traffic_source_id` | STRING | Traffic source that first brought the customer to the store. FK to [Traffic Sources](./traffic-sources.md) |
-| `marketing_opt_in` | BOOLEAN | Whether the customer consented to receive marketing communication. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `customer_id` | STRING | Customer ID | PK. Unique identifier of the customer. |
+| `registered_at` | DATE | Registered At | Date the customer account was created. |
+| `first_order_date` | DATE | First Order Date | Date the customer placed their first order. |
+| `last_order_date` | DATE | Last Order Date | Date the customer placed their most recent order. |
+| `customer_type` | STRING | Customer Type | Behavioural type based on buying history: New, Returning or Churned. |
+| `email` | STRING | Email | Most recent known email address of the customer. |
+| `phone` | STRING | Phone | Most recent known phone number of the customer. |
+| `city` | STRING | City | City the customer's latest order was shipped to. |
+| `country` | STRING | Country | Country the customer's latest order was shipped to. |
+| `country_code` | STRING | Country Code | Two-letter code of the country the customer buys from. |
+| `acquisition_traffic_source_id` | STRING | Acquisition Traffic Source ID | Traffic source that first brought the customer to the store. FK to [Traffic Sources](./traffic-sources.md) |
+| `marketing_opt_in` | BOOLEAN | Marketing Opt In | Whether the customer consented to receive marketing communication. |
 
 # Example Questions
 

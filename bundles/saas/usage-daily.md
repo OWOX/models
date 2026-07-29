@@ -11,15 +11,15 @@ timestamp: 2026-07-23T12:51:28.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `usage_id` | STRING | PK. Unique daily-usage record identifier. |
-| `account_id` | STRING | Account that generated the usage. FK to [Account](./account.md) |
-| `user_id` | STRING | User that generated the usage. FK to [User](./user.md) |
-| `usage_date` | DATE | Calendar day of the usage. |
-| `active_minutes` | INTEGER | Minutes the user was active in-product. |
-| `key_actions` | INTEGER | Count of high-value actions taken. |
-| `distinct_features_used` | INTEGER | Count of distinct product features touched that day — activation breadth. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `usage_id` | STRING | Usage ID | PK. Unique daily-usage record identifier. |
+| `account_id` | STRING | Account ID | Account that generated the usage. FK to [Account](./account.md) |
+| `user_id` | STRING | User ID | User that generated the usage. FK to [User](./user.md) |
+| `usage_date` | DATE | Usage Date | Calendar day of the usage. |
+| `active_minutes` | INTEGER | Active Minutes | Minutes the user was active in-product. |
+| `key_actions` | INTEGER | Key Actions | Count of high-value actions taken. |
+| `distinct_features_used` | INTEGER | Distinct Features Used | Count of distinct product features touched that day — activation breadth. |
 
 # Example Questions
 

@@ -14,14 +14,14 @@ timestamp: 2026-07-23T17:34:31.000Z
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `account_id` | STRING | PK. Unique identifier for the target company. |
-| `name` | STRING | Company name. |
-| `industry` | STRING | Industry the company operates in. |
-| `employee_band` | STRING | Company-size bucket — the mid-market segmentation axis. Vocabulary: `1-50` / `51-200` / `201-1000` / `1000+`. |
-| `region` | STRING | Geographic region of the company. |
-| `is_target_account` | BOOLEAN | Whether the company is on the ABM target list. ~10–20% of accounts, skewed toward larger `employee_band`; target accounts show higher engagement, pipeline and win rate. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `account_id` | STRING | Account ID | PK. Unique identifier for the target company. |
+| `name` | STRING | Name | Company name. |
+| `industry` | STRING | Industry | Industry the company operates in. |
+| `employee_band` | STRING | Employee Band | Company-size bucket — the mid-market segmentation axis. Vocabulary: `1-50` / `51-200` / `201-1000` / `1000+`. |
+| `region` | STRING | Region | Geographic region of the company. |
+| `is_target_account` | BOOLEAN | Is Target Account | Whether the company is on the ABM target list. ~10–20% of accounts, skewed toward larger `employee_band`; target accounts show higher engagement, pipeline and win rate. |
 
 # Example Questions
 
