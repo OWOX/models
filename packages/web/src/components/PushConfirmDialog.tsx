@@ -53,8 +53,8 @@ export function PushConfirmDialog({ projectTitle, storage, counts, onConfirm, on
                 {counts.alreadyPushed} {counts.alreadyPushed === 1 ? "mart is" : "marts are"} already created in this project
               </span>
               , so {counts.alreadyPushed === 1 ? "it is" : "they are"} skipped. Deleted {counts.alreadyPushed === 1 ? "it" : "them"} in OWOX?
-              Force-push to create {counts.alreadyPushed === 1 ? "it" : "them"} again — if {counts.alreadyPushed === 1 ? "it is" : "they are"} still
-              there, OWOX will report a duplicate.
+              Force-push to create {counts.alreadyPushed === 1 ? "it" : "them"} again. Anything still present in OWOX is checked first and left
+              alone, so this can't produce duplicates.
             </p>
             <button
               onClick={onForcePush}
