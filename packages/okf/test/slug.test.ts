@@ -112,3 +112,72 @@ describe("block scalar serialization", () => {
     expect(text).toBe('description: "single line"');
   });
 });
+
+// OKF v0.2 puts sequences of mappings in the frontmatter (`sources`, `verified`,
+// `parameters`). Their nested keys must stay inside the sequence — before this
+// they leaked onto the root and clobbered same-named top-level keys.
+describe("sequences", () => {
+  const parse = (src: string) => parseFrontmatter("---\n" + src + "\n---\nbody").data;
+
+  it("keeps a sequence of mappings out of the root, dashes at the key's column", () => {
+    const data = parse([
+      "title: Bitcoin Blocks Table",
+      "sources:",
+      "- resource: https://github.com/blockchain-etl/bitcoin-etl",
+      "  title: Bitcoin ETL Export Tool",
+      "  id: bitcoin-etl",
+      "- resource: https://github.com/bitcoin/bips",
+      "  title: BIP-141 Segregated Witness",
+      "  id: bip-141",
+      "type: BigQuery Table",
+    ].join("\n"));
+    expect(data.title).toBe("Bitcoin Blocks Table");
+    expect(data.type).toBe("BigQuery Table");
+    expect(data.sources).toHaveLength(2);
+    expect(data.sources[1]).toEqual({
+      resource: "https://github.com/bitcoin/bips",
+      title: "BIP-141 Segregated Witness",
+      id: "bip-141",
+    });
+  });
+
+  it("handles indented dashes and inline flow mappings", () => {
+    const data = parse([
+      "title: Revenue",
+      "verified:",
+      "  - { by: human:jsmith@acme, at: 2026-07-01T09:00:00Z }",
+      "parameters:",
+      "  - { name: year, type: integer, required: true }",
+      "status: stable",
+    ].join("\n"));
+    expect(data.title).toBe("Revenue");
+    expect(data.status).toBe("stable");
+    expect(data.verified).toEqual([{ by: "human:jsmith@acme", at: "2026-07-01T09:00:00Z" }]);
+    expect(data.parameters).toEqual([{ name: "year", type: "integer", required: true }]);
+  });
+
+  it("reads a block-style scalar list", () => {
+    const data = parse(["tags:", "- bitcoin", "- blockchain", "type: BigQuery Table"].join("\n"));
+    expect(data.tags).toEqual(["bitcoin", "blockchain"]);
+    expect(data.type).toBe("BigQuery Table");
+  });
+
+  it("keeps a mapping nested inside a sequence entry", () => {
+    const data = parse([
+      "runtime: bigquery",
+      "steps:",
+      "- executor:",
+      "    resource: skills/run-on-bq.md",
+      "  label: run",
+      "attester:",
+      "  resource: attesters/sql_equality.py",
+    ].join("\n"));
+    expect(data.runtime).toBe("bigquery");
+    expect(data.steps).toEqual([{ executor: { resource: "skills/run-on-bq.md" }, label: "run" }]);
+    expect(data.attester).toEqual({ resource: "attesters/sql_equality.py" });
+  });
+
+  it("leaves a key with no children as an empty mapping (unchanged regression)", () => {
+    expect(parse(["description:", "type: X"].join("\n"))).toEqual({ description: {}, type: "X" });
+  });
+});

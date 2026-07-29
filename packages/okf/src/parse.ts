@@ -149,37 +149,62 @@ function parseOverview(body: string): { id?: string; status?: string; definition
   return out;
 }
 
-function parseSchema(body: string): import("./types").SchemaField[] {
-  const out: import("./types").SchemaField[] = [];
-  const lines = body.split("\n"); let inSchema = false;
+// Schema-table header labels. Producers pick their own wording and column count
+// — our own export writes `Column | Type | Description`, Google's regenerated
+// v0.2 bundles write `Field Name | Type | Mode | Description` — so every column
+// is located by label instead of assuming a fixed arity.
+const H_NAME = /^(column|column name|field|field name|name)$/i;
+const H_TYPE = /^(type|data type)$/i;
+const H_DESC = /^(description|desc|notes?|comment|comments)$/i;
+const H_PK = /^(pk|primary key)$/i;
+const H_ALIAS = /^alias$/i;
+
+// Cell text without the code ticks or bold/italic markers a generator may wrap
+// it in (`**gross_amount**`, `*event_params.key*`). Underscores are left alone —
+// they are legitimate in field names (`events_`, `_partitiontime`).
+function cellText(s: string): string {
+  return s.replace(/`/g, "").trim().replace(/^\*{1,3}/, "").replace(/\*{1,3}$/, "").trim();
+}
+
+function parseSchema(body: string): SchemaField[] {
+  const out: SchemaField[] = [];
+  const lines = body.split("\n"); let inSchema = false; let headerSeen = false;
   // Column positions come from the header row, so the canonical
-  // `| Column | Type | Description |` form, the optional-Alias form, and the
-  // legacy `| Column | Type | PK | Alias | Description |` form all parse
-  // without guessing at the arity. Description falls back to index 2 for
+  // `| Column | Type | Description |` form, the optional-Alias form, the legacy
+  // `| Column | Type | PK | Alias | Description |` form and Google's
+  // `| Field Name | Type | Mode | Description |` all parse without guessing at
+  // the arity. Name/type/description fall back to the first three columns for
   // tables written without a header.
-  let idxPk = -1, idxAlias = -1, idxDesc = 2;
+  let idxName = 0, idxType = 1, idxDesc = 2, idxPk = -1, idxAlias = -1;
   for (const ln of lines) {
     if (/^##?\s+Schema/i.test(ln)) { inSchema = true; continue; }
     if (!inSchema) continue;
     if (/^##?\s+/.test(ln)) break;
     if (!/^\s*\|/.test(ln)) continue;
-    const cells = ln.split("|").slice(1, -1).map(c => c.trim());
+    const cells = ln.split("|").slice(1, -1).map(cellText);
     if (cells.length < 2) continue;
-    const name = cells[0].replace(/`/g, "").trim();
-    if (!name || /^column$/i.test(name)) { // header row
-      idxPk = cells.findIndex(c => /^pk$/i.test(c));
-      idxAlias = cells.findIndex(c => /^alias$/i.test(c));
-      const d = cells.findIndex(c => /^description$/i.test(c));
-      idxDesc = d >= 0 ? d : (idxPk === 2 || idxAlias === 2 ? -1 : 2);
+    if (/^:?-+:?$/.test(cells[0])) continue; // separator
+    const labels = [H_NAME, H_TYPE, H_DESC, H_PK, H_ALIAS].map(re => cells.findIndex(c => re.test(c)));
+    const [hName, hType, hDesc, hPk, hAlias] = labels;
+    // Two recognized labels mark a header row. One is not enough — a real field
+    // can be called `name` or `type`, and by the time such a row is reached the
+    // table's own header has already been consumed.
+    if (!headerSeen && (!cells[0] || labels.filter(i => i >= 0).length >= 2)) {
+      headerSeen = true;
+      if (hName >= 0) idxName = hName;
+      if (hType >= 0) idxType = hType;
+      idxPk = hPk; idxAlias = hAlias;
+      idxDesc = hDesc >= 0 ? hDesc : (hPk === 2 || hAlias === 2 ? -1 : 2);
       continue;
     }
-    if (/^:?-+:?$/.test(name)) continue; // separator
-    const type = (cells[1] || "STRING").replace(/`/g, "").trim() || "STRING";
-    const field: import("./types").SchemaField = { name, type, pk: false };
-    if (idxPk >= 0) field.pk = /^(✓|x|X)$/.test((cells[idxPk] || "").trim());
-    let desc = (idxDesc >= 0 ? cells[idxDesc] || "" : "").trim();
+    const at = (i: number) => (i >= 0 ? cells[i] ?? "" : "");
+    const name = at(idxName);
+    if (!name) continue;
+    const field: SchemaField = { name, type: at(idxType) || "STRING", pk: false };
+    if (idxPk >= 0) field.pk = /^(✓|x|X)$/.test(at(idxPk));
+    let desc = at(idxDesc);
     if (/^PK\.\s*/.test(desc)) { field.pk = true; desc = desc.replace(/^PK\.\s*/, "").trim(); }
-    const alias = (idxAlias >= 0 ? cells[idxAlias] || "" : "").replace(/`/g, "").trim();
+    const alias = at(idxAlias);
     if (alias) field.alias = alias;
     if (desc) field.description = desc;
     out.push(field);
