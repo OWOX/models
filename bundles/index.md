@@ -3,12 +3,12 @@ title: "OKF Bundles"
 description: "OKF bundles generated from OWOX Data Marts."
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-29T14:36:08Z
+timestamp: 2026-07-31T07:45:40Z
 ---
 
 # OKF Bundles
 
-Generated 2026-07-29T14:36:08Z.
+Generated 2026-07-31T07:45:40Z.
 
 - [E-Commerce](./e-commerce/index.md) — 12 concept(s)
 - [E-commerce Subscription Store](./ecommerce-subscription-store/index.md) — 15 concept(s)
@@ -17,4 +17,5 @@ Generated 2026-07-29T14:36:08Z.
 - [Marketing Leadgen](./marketing-leadgen/index.md) — 8 concept(s)
 - [Marketplace](./marketplace/index.md) — 8 concept(s)
 - [SaaS](./saas/index.md) — 10 concept(s)
+- [Trading](./trading/index.md) — 8 concept(s)
 
