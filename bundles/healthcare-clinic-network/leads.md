@@ -11,7 +11,7 @@ description: |
   visible rather than assumed.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:02:22.000Z
+timestamp: 2026-07-31T11:25:47.000Z
 ---
 
 # Schema
