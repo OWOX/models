@@ -12,7 +12,7 @@ description: |
   meaningful change in how someone is trading.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:25:21.000Z
+timestamp: 2026-07-31T07:55:26.000Z
 ---
 
 # Schema
