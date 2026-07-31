@@ -53,3 +53,5 @@ timestamp: 2026-07-31T11:28:37Z
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+<img width="2576" height="1278" alt="CleanShot 2026-07-31 at 14 39 45@2x" src="https://github.com/user-attachments/assets/3c46a320-a3f9-432c-be09-d5fd67f3b242" />
