@@ -1,17 +1,24 @@
 ---
 title: "Trading"
 description: |
-  A retail forex and CFD brokerage modelled from the first ad impression to the first funded
-  trade: budget bought across platforms and targeting countries, the visits it produces, the
-  short lead-capture forms those visits leave behind, the sales desk that calls them, the
-  identity checks that decide who is allowed in at all, and the deposits that determine
-  whether any of it paid for itself. The funnel is deliberately long — a click becomes a lead,
-  a lead becomes a registration, a registration becomes a verified client, and only then a
-  first deposit and a first real trade — and every step of it is measurable here, alongside
-  the lifetime value, the withdrawals and the lifecycle segments that say what happened after.
+  The client acquisition and funding side of a retail forex and CFD brokerage: budget bought
+  across platforms and targeting countries, the visits it produces, the short lead-capture
+  forms those visits leave behind, the sales desk that calls them, the identity checks that
+  decide who is allowed in at all, and the deposits that determine whether any of it paid for
+  itself. The funnel is deliberately long — a click becomes a lead, a lead becomes a
+  registration, a registration becomes a verified client, and only then a first deposit and a
+  first real trade — and every step of it is measurable here, alongside the lifetime value,
+  the withdrawals and the lifecycle segments that say what happened after.
+
+  **Scope:** this model ends where trading begins. It covers acquisition, verification,
+  funding and client lifecycle up to the first trade. Trading activity itself — executed
+  trades, instruments, volumes, and the spread and commission a broker earns on them — is
+  not part of it, so questions about trading revenue or volume by symbol have no answer
+  here. What it does answer is what a funded client costs, where they come from, and what
+  they are worth once they arrive.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-31T07:58:44Z
+timestamp: 2026-07-31T08:18:19Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -44,5 +51,3 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 <!-- OWOX:GENERATED:END -->
 
 <img width="2610" height="1188" alt="CleanShot 2026-07-31 at 11 07 08@2x" src="https://github.com/user-attachments/assets/26713d92-e0e6-4a6f-ae6c-f45285551a51" />
-
-
