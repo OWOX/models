@@ -11,7 +11,7 @@ description: |
   acquisition funnel finally turns into cash.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:25:16.000Z
+timestamp: 2026-07-31T07:56:57.000Z
 ---
 
 # Schema

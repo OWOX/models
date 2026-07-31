@@ -10,18 +10,18 @@ description: |
   traffic into something you can follow all the way to a deposit.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:25:21.000Z
+timestamp: 2026-07-31T07:56:55.000Z
 ---
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `date` | DATE | Date | Calendar date of the session. |
+| `date` | DATE | Date | Calendar date of the session. FK to [Attribution](./attribution.md) |
 | `session_id` | STRING | Session ID | PK. Unique identifier for a single session. Don't COUNT this to get session totals — SUM the `count_sessions` field below instead, it is purpose-built for that. |
-| `source` | STRING | Source | This session's own (last-touch) traffic source. If you need the channel that FIRST acquired the visitor (not just this visit), use `user_source` instead. |
-| `medium` | STRING | Medium | This session's own (last-touch) traffic medium. See `user_medium` for the first-touch equivalent. |
-| `campaign` | STRING | Campaign | This session's own (last-touch) UTM campaign. See `user_campaign` for the first-touch equivalent. |
+| `source` | STRING | Source | This session's own (last-touch) traffic source. If you need the channel that FIRST acquired the visitor (not just this visit), use `user_source` instead. FK to [Attribution](./attribution.md) |
+| `medium` | STRING | Medium | This session's own (last-touch) traffic medium. See `user_medium` for the first-touch equivalent. FK to [Attribution](./attribution.md) |
+| `campaign` | STRING | Campaign | This session's own (last-touch) UTM campaign. See `user_campaign` for the first-touch equivalent. FK to [Attribution](./attribution.md) |
 | `ad_content` | STRING | Ad Content | UTM ad content — identifies the specific ad creative shown. Only populated for paid sessions. |
 | `ad_group` | STRING | Ad Group | Ad group within the campaign. Only populated for paid sessions. |
 | `channel_grouping` | STRING | Channel Grouping | Simplified channel bucket: `Paid Search`, `Paid Social`, `Organic`, `Direct`, `Referral`, `Affiliate`, `Video`, `Display`. Use this for a high-level channel-mix chart instead of raw source/medium. |
@@ -55,4 +55,5 @@ timestamp: 2026-07-31T07:25:21.000Z
 
 ## Joins
 
+- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`
 - [Clients](./clients.md) — `client_id = client_id`
