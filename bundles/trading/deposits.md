@@ -11,7 +11,7 @@ description: |
   acquisition funnel finally turns into cash.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:56:57.000Z
+timestamp: 2026-07-31T11:05:13.000Z
 ---
 
 # Schema
@@ -19,9 +19,9 @@ timestamp: 2026-07-31T07:56:57.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `deposit_id` | STRING | Deposit ID | PK. Unique transaction identifier. |
-| `client_id` | STRING | Client ID | . FK to [Clients](./clients.md) |
-| `account_id` | STRING | Account ID | . The specific trading account the money moved into/out of. FK to [Trading Accounts](./trading-accounts.md) |
-| `lead_id` | STRING | Lead ID | . This client's originating lead. NULL if not traceable. FK to [Leads](./leads.md) |
+| `client_id` | STRING | Client ID | FK to [Clients](./clients.md) |
+| `account_id` | STRING | Account ID | The specific trading account the money moved into/out of. FK to [Trading Accounts](./trading-accounts.md) |
+| `lead_id` | STRING | Lead ID | This client's originating lead. NULL if not traceable. FK to [Leads](./leads.md) |
 | `deposit_datetime` | TIMESTAMP | Deposit Datetime | Timestamp the transaction was initiated. |
 | `transaction_type` | STRING | Transaction Type | `deposit` (money in) or `withdrawal` (money out). Filter on this before summing amounts — don't sum deposits and withdrawals together. |
 | `is_ftd` | BOOLEAN | Is Ftd | True only for the single row that is this client's very first-ever deposit. Row-level equivalent of Clients.is_ftd (which is a per-client flag, not per-transaction). |

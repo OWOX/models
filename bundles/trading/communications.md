@@ -12,7 +12,7 @@ description: |
   forms and the deposits.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:56:56.000Z
+timestamp: 2026-07-31T11:05:12.000Z
 ---
 
 # Schema
@@ -22,7 +22,7 @@ timestamp: 2026-07-31T07:56:56.000Z
 | `communication_id` | STRING | Communication ID | PK. Unique communication-event identifier. |
 | `client_id` | STRING | Client ID | — despite the name, this is the client the communication was with (legacy CRM field name, equivalent to `client_id` elsewhere). FK to [Clients](./clients.md) |
 | `agent_id` | STRING | Agent ID | Internal identifier of the agent who handled this communication. Not a foreign key to another mart in this model. |
-| `lead_id` | STRING | Lead ID | . The lead this communication relates to, if any. NULL for post-registration servicing contacts. FK to [Leads](./leads.md) |
+| `lead_id` | STRING | Lead ID | The lead this communication relates to, if any. NULL for post-registration servicing contacts. FK to [Leads](./leads.md) |
 | `channel` | STRING | Channel | Channel used: `call`, `email`, `sms`, `live_chat`, `whatsapp`, `telegram`. |
 | `direction` | STRING | Direction | `inbound` (client-initiated) or `outbound` (agent-initiated). |
 | `status` | STRING | Status | Outcome: `successful` or `unsuccessful` (no answer / bounced / failed). This field, combined with `is_last`, is what drives Clients.rfm_label = `lost`. |
