@@ -12,7 +12,7 @@ description: |
   meaningful change in how someone is trading.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:55:26.000Z
+timestamp: 2026-07-31T11:05:12.000Z
 ---
 
 # Schema
@@ -20,7 +20,7 @@ timestamp: 2026-07-31T07:55:26.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `account_id` | STRING | Account ID | PK. Unique trading account identifier. |
-| `client_id` | STRING | Client ID | . Owner of this account — a client may have more than one account, so COUNT(account_id) can exceed COUNT(DISTINCT client_id). FK to [Clients](./clients.md) |
+| `client_id` | STRING | Client ID | Owner of this account — a client may have more than one account, so COUNT(account_id) can exceed COUNT(DISTINCT client_id). FK to [Clients](./clients.md) |
 | `trading_platform` | STRING | Trading Platform | Trading platform: `MT4` or `MT5`. |
 | `account_type` | STRING | Account Type | `retail`, `professional`, `demo` (no real money), `islamic` (swap-free). |
 | `currency` | STRING | Currency | Account's base currency: `USD`, `EUR`, `GBP`, `AUD`. `balance`/`equity` are denominated in this currency, not USD. |

@@ -51,5 +51,5 @@ timestamp: 2026-07-31T07:25:28.000Z
 # Example Questions
 
 - What does a funded trader really cost by channel, and how much does that cost rise once we require them to actually trade rather than just `deposit`?
-- Where does the funnel leak — which campaigns turn `sessions` into `leads` well but then lose people between the long form and KYC verification?
+- Where does the funnel leak — which campaigns turn `sessions into leads` well but then lose people between the long form and KYC verification?
 - Which regions return more `deposit volume` than they consume in budget, and where do the countries we target differ from the countries our `converting clients` live in?

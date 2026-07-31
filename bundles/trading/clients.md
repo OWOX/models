@@ -12,7 +12,7 @@ description: |
   customers are, what they are worth and which of them are slipping away.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:25:23.000Z
+timestamp: 2026-07-31T11:05:11.000Z
 ---
 
 # Schema
@@ -20,8 +20,8 @@ timestamp: 2026-07-31T07:25:23.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `client_id` | STRING | Client ID | PK. Unique client identifier. |
-| `lead_id` | STRING | Lead ID | . The first short-form submission that started this client's journey. |
-| `session_id` | STRING | Session ID | . The first-touch session that originally brought this client in. NULL if none could be matched. |
+| `lead_id` | STRING | Lead ID | The first short-form submission that started this client's journey. |
+| `session_id` | STRING | Session ID | The first-touch session that originally brought this client in. NULL if none could be matched. |
 | `email` | STRING | Email | Client email — identity bridge key, matches Leads.email. |
 | `phone` | STRING | Phone | Client phone — identity bridge key. |
 | `first_name` | STRING | First Name | Client first name. |

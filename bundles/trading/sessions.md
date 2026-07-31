@@ -10,7 +10,7 @@ description: |
   traffic into something you can follow all the way to a deposit.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:56:55.000Z
+timestamp: 2026-07-31T11:05:11.000Z
 ---
 
 # Schema
@@ -41,7 +41,7 @@ timestamp: 2026-07-31T07:56:55.000Z
 | `unique_users` | INTEGER | Unique Users | Always `1` on every row; SUM to count unique users in a report, do not AVG or use as a real per-row metric. |
 | `pages_per_session` | FLOAT | Pages Per Session | Number of pages viewed in this specific session. Engagement/quality-of-traffic signal. |
 | `avg_session_duration` | FLOAT | Average Session Duration | Duration of this specific session, in seconds. Engagement signal. |
-| `client_id` | STRING | Client ID | . Set only once the visitor is an identified, registered client — NULL for anonymous, not-yet-registered visitors. Use to join session behaviour to CRM/deposit data. FK to [Clients](./clients.md) |
+| `client_id` | STRING | Client ID | Set only once the visitor is an identified, registered client — NULL for anonymous, not-yet-registered visitors. Use to join session behaviour to CRM/deposit data. FK to [Clients](./clients.md) |
 | `count_sessions` | INTEGER | Count Sessions | Always `1` on every row; SUM this field to answer "how many sessions" — this is the standard sessions-count metric. |
 | `user_source` | STRING | User Source | First-touch acquisition source for this visitor — the channel that originally brought them in, which may differ from this particular session's own `source`. Use when the question is about acquisition/attribution rather than this specific visit. |
 | `user_medium` | STRING | User Medium | First-touch acquisition medium. See `user_source`. |

@@ -11,7 +11,7 @@ description: |
   are visible next to the ones that converted.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:56:56.000Z
+timestamp: 2026-07-31T11:05:12.000Z
 ---
 
 # Schema
@@ -19,8 +19,8 @@ timestamp: 2026-07-31T07:56:56.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `lead_id` | STRING | Lead ID | PK. Unique identifier for this short-form submission. |
-| `session_id` | STRING | Session ID | . The session during which this form was submitted. NULL if no session could be matched (e.g. affiliate-referred leads entered outside the web funnel). FK to [Sessions](./sessions.md) |
-| `client_id` | STRING | Client ID | . Set only once this lead converts into a registered client. NULL until then — use `IS NOT NULL` to filter "converted leads". FK to [Clients](./clients.md) |
+| `session_id` | STRING | Session ID | The session during which this form was submitted. NULL if no session could be matched (e.g. affiliate-referred leads entered outside the web funnel). FK to [Sessions](./sessions.md) |
+| `client_id` | STRING | Client ID | Set only once this lead converts into a registered client. NULL until then — use `IS NOT NULL` to filter "converted leads". FK to [Clients](./clients.md) |
 | `short_form_submitted_at` | TIMESTAMP | Short Form Submitted At | Timestamp the form was submitted. Use for lead-volume trends over time. |
 | `landing_page` | STRING | Landing Page | Landing page path where the form was filled. Matches Sessions.landing_page for the same session. |
 | `country` | STRING | Country | Country of the lead, from IP geolocation or form input. |
