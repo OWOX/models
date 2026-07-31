@@ -10,7 +10,7 @@ description: |
   without stitching marts together first.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:02:28.000Z
+timestamp: 2026-07-31T13:47:15.000Z
 ---
 
 # Schema
@@ -31,8 +31,8 @@ timestamp: 2026-07-31T11:02:28.000Z
 | `leads` | INTEGER | Leads | Enquiries attributed to this row. |
 | `new_patients` | INTEGER | New Patients | First-time patients attributed to this row. The usual denominator for acquisition cost. |
 | `completed_visits` | INTEGER | Completed Visits | Visits that were actually attended. The stricter acquisition denominator, since a booking lost to a no-show acquires nobody. |
-| `revenue_normalized` | FLOAT | Normalized Revenue | Revenue from the attributed visits, converted to USD. |
-| `ltv` | FLOAT | Lifetime Value | Lifetime value now attached to the patients this row produced. |
+| `revenue_normalized` | FLOAT | Early Revenue (USD) | Revenue the attributed patients billed within 90 days of their first attended visit, in USD — how fast the acquisition cost on this row started coming back. Deliberately narrower than `ltv`: measured over the full relationship the two would be the same number. |
+| `ltv` | FLOAT | Lifetime Value | Total revenue the patients on this row have billed to date, in USD. Read against `revenue_normalized` to see how far eventual value runs ahead of the first 90 days. |
 
 # Example Questions
 

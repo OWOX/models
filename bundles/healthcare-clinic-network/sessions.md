@@ -11,7 +11,7 @@ description: |
   back to a known patient.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:25:47.000Z
+timestamp: 2026-07-31T13:47:16.000Z
 ---
 
 # Schema
@@ -39,7 +39,7 @@ timestamp: 2026-07-31T11:25:47.000Z
 | `city` | STRING | City | City the visitor was in. |
 | `device_category` | STRING | Device Category | Hardware used: `Mobile`, `Desktop` or `Tablet`. |
 | `is_first_visitor_session` | BOOLEAN | Is First Visitor Session | True when this is the first session recorded for that visitor. |
-| `patient_id` | STRING | Patient ID | Identifier of the known patient this session belongs to, where one could be matched. NULL for the large majority of sessions, which stay anonymous. Not a declared relationship — read patient-level questions from Patients and Visits. |
+| `patient_id` | STRING | Patient ID | Always NULL. Sessions stay anonymous here by design — resolving one to a patient would need this mart to read Patients, closing a cycle back through Visits and Leads. The linkage lives on `Patients.session_id` and `Leads.session_id` instead, so join from those. |
 | `count_sessions` | INTEGER | Session Count | Always `1` on every row; SUM to count sessions. |
 
 # Example Questions

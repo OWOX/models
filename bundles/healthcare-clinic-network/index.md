@@ -7,9 +7,9 @@ description: |
   appointment, most of them by picking up the phone; a small contact-centre team works those
   enquiries until they are booked or given up on; and the appointments that follow are either
   attended, cancelled in advance or simply not turned up to. Patients accumulate a visit history,
-  a lifetime value and a recency segment on top of that, along with the planned treatment they have
-  paid attention to but never received. Locations bill in their own currency and every revenue
-  figure is also carried converted, so a network spanning two countries reads as one business.
+  a lifetime value and a recency segment on top of that, along with the treatment that was planned
+  for them and never delivered. Locations bill in their own currency and every revenue figure is
+  also carried converted, so a network spanning two countries reads as one business.
 
   **Scope:** this model covers demand generation, intake and delivered care — what it costs to
   acquire a patient, whether the contact centre reaches them, whether they attend, and what the
@@ -20,7 +20,7 @@ description: |
   catalogue. What it answers well is the whole path from spend to attended, billed care.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-31T11:28:37Z
+timestamp: 2026-07-31T15:58:37Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
