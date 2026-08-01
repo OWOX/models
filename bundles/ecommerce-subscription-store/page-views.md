@@ -28,7 +28,7 @@ timestamp: 2026-07-28T16:51:39.000Z
 
 # Example Questions
 
-- How deep does a `session` go before a `subscription` sign-up, and where does the path break down?
+- How deep does a `session` go before a `subscription sign-up`, and where does the path break down?
 - Which `pages` appear most often as the last view of a `session` that never converts?
 - Do subscribers who visit the `subscription` management `pages` churn more often in the following weeks?
 

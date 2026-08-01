@@ -12,7 +12,7 @@ description: |
   schedule at a standing discount.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:39.000Z
+timestamp: 2026-08-01T08:55:50.000Z
 ---
 
 # Schema
@@ -35,7 +35,7 @@ timestamp: 2026-07-28T16:51:39.000Z
 # Example Questions
 
 - Which `products` are profitable on `subscription` once the standing discount and cost of goods are counted, and which only look profitable at full price?
-- How does basket composition differ between `subscription` deliveries and one-time `orders`?
+- How does basket composition differ between `subscription` deliveries and `one-time orders`?
 - What is gross versus net revenue after cancellations and returns, and how wide is the gap by `product` category?
 
 ## Joins

@@ -18,7 +18,7 @@ description: |
   traffic sources, which makes cost per subscriber answerable next to cost per order.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-29T14:35:44Z
+timestamp: 2026-08-01T09:18:20Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -29,7 +29,7 @@ timestamp: 2026-07-29T14:35:44Z
 |-----------|--------|
 | [Ad Spend](./ad-spend.md) | 11 |
 | [Customer Value](./customer-value.md) | 15 |
-| [Customers](./customers.md) | 12 |
+| [Customers](./customers.md) | 9 |
 | [Order Items](./order-items.md) | 12 |
 | [Orders](./orders.md) | 19 |
 | [Page Views](./page-views.md) | 7 |
@@ -45,9 +45,9 @@ timestamp: 2026-07-29T14:35:44Z
 
 # Example Questions
 
-- What share of revenue is recurring, how is it moving month over month, and which of new `subscriptions`, plan changes and cancellations is driving the change?
+- What share of revenue is recurring, how is it moving month over month, and which of new `subscriptions`, `plan changes` and cancellations is driving the change?
 - How do subscriber cohorts retain over three, six and twelve months, and which delivery cadence and acquisition channel produce the stickiest subscribers?
-- What does a new subscriber cost by channel, and how does that compare with the lifetime revenue they return — including the discount the `subscription` programme gives away?
+- What does a new subscriber cost by channel, and how does that compare with the lifetime revenue they return — including the discount the `subscription programme` gives away?
 
 # Explore this model
 

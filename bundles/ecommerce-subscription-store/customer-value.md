@@ -12,7 +12,7 @@ description: |
   one-time buyers, and by how much.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:41.000Z
+timestamp: 2026-08-01T08:55:49.000Z
 ---
 
 # Schema

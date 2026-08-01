@@ -13,7 +13,7 @@ description: |
   who never intended to leave.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:45.000Z
+timestamp: 2026-08-01T08:55:48.000Z
 ---
 
 # Schema
@@ -37,7 +37,7 @@ timestamp: 2026-07-28T16:51:45.000Z
 
 - How many charges fail each month, and what share of them is recovered by a later retry?
 - Are skips protecting retention — do subscribers who skip a cycle stay longer than those who never do?
-- What drives recurring revenue movement month over month: new `subscriptions`, quantity and plan changes, or cancellations?
+- What drives recurring revenue movement month over month: new `subscriptions`, quantity and `plan changes`, or cancellations?
 
 ## Joins
 
