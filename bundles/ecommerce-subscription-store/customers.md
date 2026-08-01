@@ -6,12 +6,13 @@ description: |
   their buying history puts them in. This is the join point between acquisition and everything
   that follows: the same row explains how a customer was won and where they are today.
 
-  First and last order dates sit here, so the base can be split into who is currently buying and
-  who has drifted away, before any subscription logic is applied. Marketing consent is explicit,
-  which matters because win-back and dunning campaigns can only address customers who allow it.
+  This mart stays a register of who the customer is, not of what they have bought: order history,
+  value and loyalty band live in Customer Value, which joins one-to-one and is computed over the
+  orders themselves. Marketing consent is explicit, because win-back and dunning campaigns can
+  only address customers who allow it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:49.000Z
+timestamp: 2026-08-01T08:55:43.000Z
 ---
 
 # Schema
@@ -20,9 +21,6 @@ timestamp: 2026-07-28T16:51:49.000Z
 |--------|------|-------|-------------|
 | `customer_id` | STRING | Customer ID | PK. Unique identifier of the customer. |
 | `registered_at` | DATE | Registered At | Date the customer account was created. |
-| `first_order_date` | DATE | First Order Date | Date the customer placed their first order. |
-| `last_order_date` | DATE | Last Order Date | Date the customer placed their most recent order. |
-| `customer_type` | STRING | Customer Type | Behavioural type based on buying history: New, Returning or Churned. |
 | `email` | STRING | Email | Most recent known email address of the customer. |
 | `phone` | STRING | Phone | Most recent known phone number of the customer. |
 | `city` | STRING | City | City the customer's latest order was shipped to. |
@@ -34,8 +32,8 @@ timestamp: 2026-07-28T16:51:49.000Z
 # Example Questions
 
 - Which acquisition channels bring in customers who go on to buy repeatedly, rather than once?
-- How is the customer base split across markets, and where is the `subscription` programme under-represented?
-- How many customers have gone quiet, and how many of them are still reachable by email or phone?
+- How is the customer base split across markets, and where is the `subscription programme` under-represented?
+- How many customers are reachable by email or phone, and how does consent differ by channel and market?
 
 ## Joins
 

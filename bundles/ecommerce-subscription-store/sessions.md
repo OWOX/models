@@ -13,7 +13,7 @@ description: |
   the distinction is there to expose.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:42.000Z
+timestamp: 2026-08-01T08:55:44.000Z
 ---
 
 # Schema
@@ -34,17 +34,17 @@ timestamp: 2026-07-28T16:51:42.000Z
 | `is_subscription_conversion` | BOOLEAN | Is Subscription Conversion | Whether a subscription was started during the session. |
 | `source` | STRING | Source | Platform or site the traffic came from, used to align sessions with advertising spend. FK to [Ad Spend](./ad-spend.md) |
 | `medium` | STRING | Medium | Channel type of the traffic, such as cost-per-click or organic. FK to [Ad Spend](./ad-spend.md) |
-| `campaign` | STRING | Campaign | Marketing campaign that produced the session. |
+| `campaign` | STRING | Campaign | Marketing campaign that produced the session; empty for traffic that runs no campaign, such as organic, direct and referral. FK to [Ad Spend](./ad-spend.md) |
 
 # Example Questions
 
 - Which channels and campaigns produce sessions that start `subscriptions`, not just sessions that convert once?
-- How does conversion differ across devices, markets and landing `pages`?
-- What does a `subscription` sign-up cost by channel, compared with a one-time `order`?
+- How does conversion differ across devices, markets and `landing pages`?
+- What does a `subscription sign-up` cost by channel, compared with a `one-time order`?
 
 ## Joins
 
-- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`
+- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`
 - [Pages](./pages.md) — `landing_page_id = page_id`
 - [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id`
 - [Visitors](./visitors.md) — `visitor_id = visitor_id`

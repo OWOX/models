@@ -36,4 +36,4 @@ timestamp: 2026-07-29T14:33:10.000Z
 
 - Which delivery cadence retains subscribers longest, and does the answer change once the discount given away is taken into account?
 - How does prepaid compare with pay-as-you-go on revenue per subscriber and on how long subscribers stay?
-- Are the deepest discounts going to the plans that actually produce the most lifetime value, or just the most sign-ups?
+- Are the deepest discounts going to the plans that actually produce the most `lifetime value`, or just the most sign-ups?

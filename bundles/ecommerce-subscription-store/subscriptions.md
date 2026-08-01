@@ -12,7 +12,7 @@ description: |
   subscriber taking a break is never counted as lost.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:45.000Z
+timestamp: 2026-08-01T08:55:48.000Z
 ---
 
 # Schema

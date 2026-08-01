@@ -13,7 +13,7 @@ description: |
   settled revenue never quietly merge.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:41.000Z
+timestamp: 2026-08-01T08:55:49.000Z
 ---
 
 # Schema
@@ -42,9 +42,9 @@ timestamp: 2026-07-28T16:51:41.000Z
 
 # Example Questions
 
-- What share of revenue is recurring, and how has the mix of one-time, first and recurring `subscription` orders shifted?
-- How does average order value compare between one-time buyers and subscribers once `subscription` discounts are counted?
-- How much is the `subscription` programme giving away in discounts, and how does that compare with the revenue it secures?
+- What share of revenue is recurring, and how has the mix of one-time, first and recurring `subscription orders` shifted?
+- How does average order value compare between one-time buyers and subscribers once `subscription discounts` are counted?
+- How much is the `subscription programme` giving away in discounts, and how does that compare with the revenue it secures?
 
 ## Joins
 
