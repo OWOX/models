@@ -7,7 +7,7 @@ description: |
   takes between arriving and buying.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:25.000Z
+timestamp: 2026-08-05T19:03:12.000Z
 ---
 
 # Schema
@@ -15,9 +15,9 @@ timestamp: 2026-07-29T00:40:25.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `date` | DATE | Date | The calendar date when the pageview occurred. |
-| `session_id` | STRING | Session ID | Unique identifier for a specific user browsing session. |
+| `session_id` | STRING | Session ID | PK. Unique identifier for a specific user browsing session. |
 | `visitor_id` | STRING | Visitor ID | Unique identifier for an individual user or browser. |
-| `hit_number` | INTEGER | Hit Number | The sequential order of the pageview within a specific session. |
+| `hit_number` | INTEGER | Hit Number | PK. The sequential order of the pageview within a specific session. |
 | `page_id` | INTEGER | Page ID | Unique identifier for the specific page viewed by the visitor. FK to [Pages](./pages.md) |
 | `hit_timestamp` | TIMESTAMP | Hit Timestamp | The exact date and time when the pageview was recorded, in UTC. |
 

@@ -7,14 +7,14 @@ description: |
   possible at all.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:16.000Z
+timestamp: 2026-08-05T19:03:12.000Z
 ---
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `page_id` | INTEGER | Page ID | Unique numerical identifier for each specific page on the website. FK to [Pageviews](./pageviews.md) |
+| `page_id` | INTEGER | Page ID | PK. Unique numerical identifier for each specific page on the website. FK to [Pageviews](./pageviews.md) |
 | `page_path` | STRING | Page Path | The URL path of the page relative to the domain root. |
 | `page_title` | STRING | Page Title | The human-readable name or display title of the web page. |
 | `page_type` | STRING | Page Type | Functional category of the page, such as Product, Category, or Checkout. |

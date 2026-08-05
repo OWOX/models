@@ -7,14 +7,14 @@ description: |
   supposed to deliver, not just reported in isolation.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:26.000Z
+timestamp: 2026-08-05T19:03:08.000Z
 ---
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `category_id` | INTEGER | Category ID | Unique numerical identifier for each product category. |
+| `category_id` | INTEGER | Category ID | PK. Unique numerical identifier for each product category. |
 | `category_name` | STRING | Category Name | The descriptive name of the product category used for reporting and classification. |
 | `category_manager` | STRING | Category Manager | Full name of the individual responsible for managing the specific product category. |
 | `target_margin` | FLOAT | Target Margin | The desired profit margin percentage set for the category. |

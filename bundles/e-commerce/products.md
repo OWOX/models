@@ -7,7 +7,7 @@ description: |
   downstream.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T07:00:40.000Z
+timestamp: 2026-08-05T19:03:13.000Z
 ---
 
 # Schema
@@ -31,5 +31,5 @@ timestamp: 2026-07-29T07:00:40.000Z
 
 ## Joins
 
-- [Product Category](./product-category.md) — `category_id = category_id`
 - [Pages](./pages.md) — `page_id = page_id`
+- [Product Category](./product-category.md) — `category_id = category_id`

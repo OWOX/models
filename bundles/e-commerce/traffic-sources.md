@@ -7,14 +7,14 @@ description: |
   applies to sessions, to customers and to advertising spend.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:31.000Z
+timestamp: 2026-08-05T19:03:08.000Z
 ---
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `traffic_source_id` | INTEGER | Traffic Source ID | Unique internal identifier for a specific combination of traffic source, medium, and campaign. |
+| `traffic_source_id` | INTEGER | Traffic Source ID | PK. Unique internal identifier for a specific combination of traffic source, medium, and campaign. |
 | `source` | STRING | Source | The origin of the website traffic, such as a search engine, social network, or domain. |
 | `medium` | STRING | Medium | The high-level category of the traffic source, such as organic, cost-per-click, or referral. |
 | `campaign` | STRING | Campaign Name | The specific marketing campaign name associated with the traffic. |
