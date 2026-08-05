@@ -7,7 +7,7 @@ description: |
   other, which is what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:38:33.000Z
+timestamp: 2026-08-05T19:05:54.000Z
 ---
 
 # Schema
@@ -15,8 +15,8 @@ timestamp: 2026-07-29T00:38:33.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `date` | DATE | Date | The specific date when the browsing session occurred FK to [Unified Ad Spend](./unified-ad-spend.md) |
-| `session_id` | STRING | Session ID | PK. Unique identifier for an individual user session FK to [Orders](./orders.md) |
-| `customer_id` | INTEGER | Customer ID | Unique identifier of the customer associated with the session FK to [Customers](./customers.md) |
+| `session_id` | STRING | Session ID | PK. Unique identifier for an individual user session FK to [Pageviews](./pageviews.md) |
+| `customer_id` | INTEGER | Customer ID | Unique identifier of the customer associated with the session |
 | `device_category` | STRING | Device Category | The type of hardware device used during the session (e.g., mobile, desktop) |
 | `conversion_seed` | FLOAT | Conversion Seed | A technical value used to simulate the probability of a transaction. |
 | `visitor_id` | STRING | Visitor ID | Unique identifier for the anonymous or recognized visitor. FK to [Visitors](./visitors.md) |
@@ -35,10 +35,9 @@ timestamp: 2026-07-29T00:38:33.000Z
 
 ## Joins
 
-- [Visitors](./visitors.md) — `visitor_id = visitor_id`
-- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id`
 - [Countries](./countries.md) — `country_id = country_id`
-- [Pageviews](./pageviews.md) — `session_id = session_id`
-- [Customers](./customers.md) — `customer_id = customer_id`
 - [Orders](./orders.md) — `session_id = session_id`
+- [Pageviews](./pageviews.md) — `session_id = session_id`
+- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id`
 - [Unified Ad Spend](./unified-ad-spend.md) — `date = date`, `source = source`, `medium = medium`
+- [Visitors](./visitors.md) — `visitor_id = visitor_id`

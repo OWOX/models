@@ -7,7 +7,7 @@ description: |
   settled revenue can be told apart instead of quietly merged.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T07:01:34.000Z
+timestamp: 2026-08-05T19:04:40.000Z
 ---
 
 # Schema
@@ -28,7 +28,6 @@ timestamp: 2026-07-29T07:01:34.000Z
 
 ## Joins
 
-- [Products](./products.md)
-- [Purchases](./purchases.md) — `order_id = order_id`
 - [Customers](./customers.md) — `customer_id = customer_id`
+- [Purchases](./purchases.md) — `order_id = order_id`
 - [Sessions](./sessions.md) — `session_id = session_id`

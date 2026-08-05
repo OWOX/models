@@ -7,7 +7,7 @@ description: |
   and how valuable they turned out to be.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:03.000Z
+timestamp: 2026-08-05T19:19:19.000Z
 ---
 
 # Schema
@@ -28,5 +28,5 @@ timestamp: 2026-07-29T00:40:03.000Z
 
 ## Joins
 
-- [Acquisition Traffic Source](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id`
 - [Countries](./countries.md) — `country_id = country_id`
+- [Acquisition Traffic Source](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id`
