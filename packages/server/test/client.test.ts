@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { parseApiKey, exchangeToken, OwoxClient } from "../src/owox/client";
+import { parseApiKey, exchangeToken, OwoxClient, owoxErrorDetail } from "../src/owox/client";
 import list from "./fixtures/owox-list.json";
 import detail from "./fixtures/owox-detail.json";
 import graph from "./fixtures/owox-relationships-graph.json";
@@ -54,6 +54,53 @@ describe("OwoxClient.listDataMarts", () => {
     const headers = (fetchMock.mock.calls[0][1] as any).headers;
     expect(headers["x-owox-authorization"]).toBe("Bearer tok_1");
     expect(headers["X-OWOX-Api-Key-Id"]).toBe("kid_1");
+  });
+});
+
+// Verbatim 400 body from the live API (PUT /schema with an invalid field type).
+// The part that tells the user what to fix — "received 'VARIANT'" — is at the very
+// end, which is why the error must never be shortened from the front.
+const SCHEMA_400 = JSON.stringify({
+  statusCode: 400,
+  timestamp: "2026-08-06T17:53:04.453Z",
+  path: "/api/data-marts/6236005d-79bd-4615-8d57-ed42dbeb71e0/schema",
+  message:
+    "Failed to validate BigQuery schema:\nInvalid enum value. Expected 'INTEGER' | 'FLOAT' | 'NUMERIC' | " +
+    "'BIGNUMERIC' | 'STRING' | 'BYTES' | 'BOOLEAN' | 'DATE' | 'TIME' | 'DATETIME' | 'TIMESTAMP' | " +
+    "'GEOGRAPHY' | 'JSON' | 'RECORD' | 'STRUCT' | 'RANGE' | 'INTERVAL', received 'VARIANT'",
+  errorDetails: { zodErrors: [{ received: "VARIANT", code: "invalid_enum_value", path: ["fields", 0, "type"] }] },
+});
+
+describe("owoxErrorDetail", () => {
+  it("keeps the received value — the only actionable part of a schema 400", () => {
+    const detail = owoxErrorDetail(SCHEMA_400);
+    expect(detail).toContain("received 'VARIANT'");
+    expect(detail).toContain("Failed to validate BigQuery schema");
+    expect(detail).not.toContain("timestamp"); // envelope noise is dropped
+  });
+
+  it("joins Nest's array-shaped message", () => {
+    expect(owoxErrorDetail(JSON.stringify({ message: ["a must be an array", "b is required"] })))
+      .toBe("a must be an array; b is required");
+  });
+
+  it("falls back to `error`, then to the raw body", () => {
+    expect(owoxErrorDetail(JSON.stringify({ error: "Bad Request" }))).toBe("Bad Request");
+    expect(owoxErrorDetail("<html>502 Bad Gateway</html>")).toBe("<html>502 Bad Gateway</html>");
+  });
+
+  it("keeps both ends when it has to shorten", () => {
+    const long = `START${"x".repeat(2000)}received 'DATETIME'`;
+    const out = owoxErrorDetail(JSON.stringify({ message: long }));
+    expect(out.length).toBeLessThanOrEqual(600);
+    expect(out.startsWith("START")).toBe(true);
+    expect(out.endsWith("received 'DATETIME'")).toBe(true);
+  });
+
+  it("surfaces the full detail through a failed request", async () => {
+    const fetchMock = vi.fn(async () => new Response(SCHEMA_400, { status: 400 }));
+    const c = new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock as any);
+    await expect(c.updateSchema("id_1", {})).rejects.toThrow(/received 'VARIANT'/);
   });
 });
 

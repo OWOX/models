@@ -15,7 +15,7 @@ vi.mock("../../lib/api", () => ({ api: (path: string, opts?: RequestInit) => api
 // ── Mock the push entrypoint so we can assert it was (not) called without
 // doing any real push work.
 const pushModel = vi.fn(async () => ({
-  created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [],
+  created: 0, updated: 0, failed: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [],
 }));
 vi.mock("../../sync/push", () => ({ pushModel: (...args: Parameters<typeof pushModel>) => pushModel(...args) }));
 

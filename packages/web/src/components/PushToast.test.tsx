@@ -5,7 +5,7 @@ import type { PushResult } from "../sync/push";
 
 const result = (over: Partial<PushResult> = {}): PushResult => ({
   created: 0, updated: 0, failed: 0, blocked: 0,
-  relationshipsCreated: 0, relationshipsFailed: 0, errors: [], ...over,
+  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [], ...over,
 });
 
 describe("PushToast", () => {
@@ -37,6 +37,18 @@ describe("PushToast", () => {
   it("still flags real failures", () => {
     render(<PushToast result={result({ created: 1, failed: 2, errors: ["boom"] })} onClose={() => {}} />);
     expect(screen.getByText(/push completed with errors/i)).toBeTruthy();
-    expect(screen.getByText(/2 failed/)).toBeTruthy();
+    expect(screen.getByText(/2 marts failed/)).toBeTruthy();
+  });
+
+  it("counts failed marts and failed links apart", () => {
+    render(<PushToast result={result({ created: 10, failed: 1, relationshipsFailed: 14, errors: ["boom"] })} onClose={() => {}} />);
+    expect(screen.getByText(/1 mart failed, 14 links failed/)).toBeTruthy();
+  });
+
+  it("notes links pushed without join keys", () => {
+    render(<PushToast result={result({ created: 2, relationshipsCreated: 3, relationshipsWithoutKeys: 3 })} onClose={() => {}} />);
+    expect(screen.getByText("Push complete")).toBeTruthy();
+    expect(screen.getByText(/3 links have no join keys yet/i)).toBeTruthy();
+    expect(screen.getByText(/Join not configured/i)).toBeTruthy();
   });
 });

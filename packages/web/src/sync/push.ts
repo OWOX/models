@@ -1,6 +1,6 @@
 import type { ModelStore } from "../state/model";
 import { api as defaultApi } from "../lib/api";
-import { type ModelNode, type ModelGraph } from "@mc/okf";
+import { type ModelNode, type ModelGraph, normalizeFieldType } from "@mc/okf";
 import { joinFieldType, alignedJoinTypes } from "./joinFieldType";
 
 type Api = typeof defaultApi;
@@ -14,6 +14,9 @@ export interface PushResult {
   blocked: number;
   relationshipsCreated: number;
   relationshipsFailed: number;
+  /** Links created as "Join not configured" in OWOX because the canvas edge has no
+   *  join keys yet. Counted separately: they were created, but need finishing. */
+  relationshipsWithoutKeys: number;
   errors: string[];
 }
 
@@ -76,7 +79,7 @@ async function findBlockedMarts(store: ModelStore, api: Api, storageId: string):
 }
 
 export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
-  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, errors: [] };
+  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [] };
 
   const storageId = store.get().storageId;
   if (!storageId) {
@@ -166,8 +169,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
             body: JSON.stringify({
               schema: {
                 type: schemaDiscriminator(storageType),
+                // Normalise the type here too, not only on import: models saved
+                // before normalisation existed (or hand-edited) can still carry a
+                // spelling OWOX's case-sensitive enum rejects, and one bad field
+                // costs the mart its whole schema.
                 fields: fields.map(f => ({
-                  name: f.name, type: f.type, mode: "NULLABLE",
+                  name: f.name, type: normalizeFieldType(f.type), mode: "NULLABLE",
                   status: "CONNECTED", description: f.description ?? "", isPrimaryKey: f.pk,
                   ...(f.alias ? { alias: f.alias } : {}),
                 })),
@@ -207,10 +214,9 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     for (const [fromKey, toKey, ks] of directions) {
       const fromId = owoxIdByKey.get(fromKey);
       const toId = owoxIdByKey.get(toKey);
-      if (!fromId || !toId || ks.length === 0) {
+      if (!fromId || !toId) {
         res.relationshipsFailed++;
-        const why = ks.length === 0 ? "join keys are empty" : "both marts must be created first";
-        res.errors.push(`Link ${titleByKey.get(fromKey)} → ${titleByKey.get(toKey)}: ${why}`);
+        res.errors.push(`Link ${titleByKey.get(fromKey)} → ${titleByKey.get(toKey)}: both marts must be created first`);
         continue;
       }
       try {
@@ -218,6 +224,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           method: "POST",
           // NOTE: cardinality (e.cardinality) is intentionally NOT sent — it is a
           // view-only modeling annotation; OWOX's generated SQL aggregates joins.
+          //
+          // An edge with no join keys is still pushed, with joinConditions: [] —
+          // OWOX accepts that (confirmed live: 201) and shows the link as "Join not
+          // configured", so the modelled relationship survives the round trip and
+          // the keys can be picked in either tool. The field must be present: OWOX
+          // 400s on a missing joinConditions ("must be an array").
           body: JSON.stringify({
             targetDataMartId: toId,
             targetAlias: aliasify(titleByKey.get(toKey) || toKey, toKey),
@@ -225,6 +237,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           }),
         });
         res.relationshipsCreated++;
+        if (ks.length === 0) res.relationshipsWithoutKeys++;
       } catch (e) {
         res.relationshipsFailed++;
         res.errors.push(`Link ${titleByKey.get(fromKey)} → ${titleByKey.get(toKey)}: ${(e as Error).message}`);

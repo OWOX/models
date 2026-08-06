@@ -413,4 +413,75 @@ describe("pushModel", () => {
     await pushModel(s, apiMock as any);
     expect(s.get().nodes.find(n => n.key === "newobj")!.schema.find(f => f.name === "id")!.type).toBe("INTEGER");
   });
+
+  // A link drawn on the canvas starts with no join keys. OWOX accepts a
+  // relationship with joinConditions: [] (confirmed live: 201) and shows it as
+  // "Join not configured", so the link is pushed instead of reported as an error.
+  it("pushes a keyless edge as an unconfigured join instead of failing it", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Session", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 0, y: 0 }, status: "created", owoxId: "owox_a", owoxStorageId: "stor_1" },
+        { key: "n2", title: "Room", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 100, y: 0 }, status: "created", owoxId: "owox_b", owoxStorageId: "stor_1" },
+      ],
+      edges: [{ id: "e1", from: "n1", to: "n2", keys: [{ left: "", right: "" }], bidirectional: false }],
+    });
+    const bodies: any[] = [];
+    const apiMock = vi.fn(async (path: string, init?: any) => {
+      if (path.includes("/relationships") && init?.body) bodies.push(JSON.parse(init.body));
+      return { id: "owox_rel" };
+    });
+    const res = await pushModel(s, apiMock as any);
+    expect(bodies).toHaveLength(1);
+    // The field must be present and an array — OWOX 400s when it is omitted.
+    expect(bodies[0].joinConditions).toEqual([]);
+    expect(bodies[0].targetAlias).toBe("room");
+    expect(res.relationshipsCreated).toBe(1);
+    expect(res.relationshipsWithoutKeys).toBe(1);
+    expect(res.relationshipsFailed).toBe(0);
+    expect(res.errors).toEqual([]);
+  });
+
+  it("still fails a link whose mart was never created", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.set({
+      storageId: "stor_1",
+      nodes: [
+        { key: "n1", title: "Session", inputSource: "SQL", schema: [], position: { x: 0, y: 0 }, status: "created", owoxId: "owox_a", owoxStorageId: "stor_1" },
+        { key: "n2", title: "Room", inputSource: "SQL", schema: [], position: { x: 100, y: 0 }, status: "pending", owoxId: null },
+      ],
+      edges: [{ id: "e1", from: "n1", to: "n2", keys: [], bidirectional: false }],
+    });
+    const apiMock = vi.fn(async (path: string) => {
+      if (path === "/api/data-marts") throw new Error("boom"); // n2 never gets an id
+      return { id: "owox_rel" };
+    });
+    const res = await pushModel(s, apiMock as any);
+    expect(res.relationshipsCreated).toBe(0);
+    expect(res.relationshipsFailed).toBe(1);
+    expect(res.errors.some(e => /both marts must be created first/.test(e))).toBe(true);
+  });
+
+  // Defence in depth for models saved before types were normalised on import:
+  // OWOX's schema enum is case-sensitive and rejects the whole mart schema over
+  // one bad field.
+  it("normalises field types in the schema body", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    const n = s.addNode({ x: 0, y: 0 });
+    s.updateNode(n.key, { schema: [
+      { name: "id", type: "int64", pk: true },
+      { name: "starts_at", type: "Datetime", pk: false },
+      { name: "price", type: "DECIMAL(10,2)", pk: false },
+      { name: "is_paid", type: "bool", pk: false },
+    ] });
+    const bodies: Record<string, any> = {};
+    const apiMock = vi.fn(async (path: string, init?: any) => {
+      if (init?.body) bodies[path] = JSON.parse(init.body);
+      return { id: "owox_a" };
+    });
+    await pushModel(s, apiMock as any, "GOOGLE_BIGQUERY");
+    expect(bodies["/api/data-marts/owox_a/schema"].schema.fields.map((f: any) => f.type))
+      .toEqual(["INTEGER", "DATETIME", "NUMERIC", "BOOLEAN"]);
+  });
 });

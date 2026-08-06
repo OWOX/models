@@ -8,6 +8,7 @@ import type { PushResult } from "../sync/push";
 // so it gets its own headline instead of the success one.
 export function PushToast({ result, onClose }: { result: PushResult; onClose: () => void }) {
   const blocked = result.blocked ?? 0;
+  const keyless = result.relationshipsWithoutKeys ?? 0;
   const failed = result.failed + result.relationshipsFailed;
   const pushedNothing = result.created === 0 && result.relationshipsCreated === 0;
 
@@ -20,7 +21,10 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   const parts: string[] = [];
   if (result.created > 0 || blocked === 0) parts.push(`${result.created} mart${result.created === 1 ? "" : "s"} created`);
   if (result.relationshipsCreated) parts.push(`${result.relationshipsCreated} link${result.relationshipsCreated === 1 ? "" : "s"} created`);
-  if (failed) parts.push(`${failed} failed`);
+  // Marts and links are counted apart: a bare "14 failed" next to "10 marts
+  // created" reads as if marts had failed, when it was only the links.
+  if (result.failed) parts.push(`${result.failed} mart${result.failed === 1 ? "" : "s"} failed`);
+  if (result.relationshipsFailed) parts.push(`${result.relationshipsFailed} link${result.relationshipsFailed === 1 ? "" : "s"} failed`);
 
   const dot = tone === "error" ? "bg-red-500" : tone === "warn" ? "bg-amber-500" : "bg-emerald-500";
   const border = tone === "error" ? "border-red-300" : tone === "warn" ? "border-amber-300" : "border-emerald-300";
@@ -33,6 +37,12 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
           {title}
           {parts.length > 0 && (
             <div className="font-normal text-slate-500 text-[12px] mt-0.5">{parts.join(", ")}</div>
+          )}
+          {keyless > 0 && (
+            <div className="font-normal text-[12px] mt-1 text-slate-500 leading-snug">
+              {keyless} {keyless === 1 ? "link has" : "links have"} no join keys yet — {keyless === 1 ? "it was" : "they were"} created
+              in OWOX as “Join not configured”. Pick the join fields here or in OWOX to make {keyless === 1 ? "it" : "them"} usable in reports.
+            </div>
           )}
           {blocked > 0 && (
             <div className="font-normal text-[12px] mt-1 text-[#8a5a00] leading-snug">

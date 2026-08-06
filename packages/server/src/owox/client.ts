@@ -48,6 +48,28 @@ export function decodeProjectFromToken(token: string): { projectTitle?: string; 
   } catch { return {}; }
 }
 
+// OWOX puts the actionable part of a validation error at the END of its message
+// ("Invalid enum value. Expected 'INTEGER' | … , received 'VARIANT'"), so slicing
+// the head off a raw error body hides exactly the bit the user needs — the enum
+// list alone eats ~300 chars. Prefer the JSON `message` over the whole envelope
+// (which repeats the path and timestamp) and, when it still must be shortened,
+// keep both ends.
+const MAX_ERROR_DETAIL = 600;
+
+export function owoxErrorDetail(body: string): string {
+  let detail = body;
+  try {
+    const j = JSON.parse(body) as { message?: unknown; error?: unknown };
+    const msg = Array.isArray(j.message) ? j.message.join("; ") : j.message;
+    if (typeof msg === "string" && msg) detail = msg;
+    else if (typeof j.error === "string" && j.error) detail = j.error;
+  } catch { /* not JSON — keep the raw body */ }
+  detail = detail.replace(/\s+/g, " ").trim();
+  if (detail.length <= MAX_ERROR_DETAIL) return detail;
+  const head = Math.ceil((MAX_ERROR_DETAIL - 1) / 2);
+  return `${detail.slice(0, head)}…${detail.slice(head - (MAX_ERROR_DETAIL - 1))}`;
+}
+
 export class OwoxClient {
   constructor(private origin: string, private token: string, private keyId: string, private f: FetchFn = fetch) {}
   // Every /api/* call needs BOTH x-owox-authorization AND X-OWOX-Api-Key-Id;
@@ -55,7 +77,10 @@ export class OwoxClient {
   private h() { return { "x-owox-authorization": `Bearer ${this.token}`, "X-OWOX-Api-Key-Id": this.keyId, "Content-Type": "application/json" }; }
   private async json<T>(method: string, path: string, body?: unknown): Promise<T> {
     const res = await this.f(`${this.origin}${path}`, { method, headers: this.h(), body: body ? JSON.stringify(body) : undefined });
-    if (!res.ok) throw new Error(`OWOX ${method} ${path} -> ${res.status} ${await res.text().catch(() => "")}`.slice(0, 300));
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new Error(`OWOX ${method} ${path} -> ${res.status} ${owoxErrorDetail(body)}`);
+    }
     return (res.status === 204 ? undefined : await res.json()) as T;
   }
   async listDataMarts(): Promise<DataMartListItem[]> {
