@@ -58,3 +58,7 @@ timestamp: 2026-08-06T05:42:17Z
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![Retail Chain model diagram](../res/screens/retail-chain.svg)
