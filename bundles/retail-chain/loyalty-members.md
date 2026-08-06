@@ -13,7 +13,7 @@ description: |
   before its sales line shows it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:45.000Z
+timestamp: 2026-08-06T04:38:08.000Z
 ---
 
 # Schema

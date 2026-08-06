@@ -14,7 +14,7 @@ description: |
   because those two numbers answer different questions.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:45.000Z
+timestamp: 2026-08-06T04:43:02.000Z
 ---
 
 # Schema
@@ -35,7 +35,7 @@ timestamp: 2026-08-06T00:46:45.000Z
 # Example Questions
 
 - How much of our shrink is unknown rather than documented, and which `stores` carry a share of it far above their trade?
-- Do the `stores` leaning hardest on self-checkout lose more, once store size and assortment mix are held constant?
+- Which `stores` and categories carry a share of shrink far above their share of trade, and how much of that loss surfaces only at a cycle count rather than being caught with its cause attached?
 - Which categories lose most to expiry rather than theft, and does that point at ordering, rotation or shelf life?
 
 ## Joins
