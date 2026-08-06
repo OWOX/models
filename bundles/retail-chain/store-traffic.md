@@ -12,7 +12,7 @@ description: |
   instead of collapsing into one revenue number.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:42.000Z
+timestamp: 2026-08-06T04:43:44.000Z
 ---
 
 # Schema
@@ -26,7 +26,7 @@ timestamp: 2026-08-06T00:46:42.000Z
 | `is_holiday` | BOOLEAN | Is Holiday | True on a public holiday. Holidays shift both footfall and basket size and should be isolated, not averaged in. |
 | `footfall` | INTEGER | Footfall | People who entered the store that day, counted at the door. The denominator behind conversion and sales per visitor. |
 | `transactions` | INTEGER | Transactions | Baskets paid for that day. Reconciles with the receipt lines recorded for the same store and day. |
-| `conversion_pct` | FLOAT | Conversion % | Transactions divided by footfall. In food and general-merchandise retail this runs high — most people who walk in buy something — so read it against a grocery benchmark rather than a fashion one. |
+| `conversion_pct` | FLOAT | Conversion % | Transactions divided by footfall, as a **percentage on a 0–100 scale** — `87.4` means 87.4%, not 8740%. In food and general-merchandise retail this runs high — most people who walk in buy something — so read it against a grocery benchmark rather than a fashion one. |
 | `avg_basket_value` | NUMERIC | Average Basket Value | Average spend per basket that day, in USD. The third lever on a store day, alongside footfall and conversion. |
 
 # Example Questions

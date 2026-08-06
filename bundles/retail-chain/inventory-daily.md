@@ -13,7 +13,7 @@ description: |
   thrown away.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:46.000Z
+timestamp: 2026-08-06T04:37:30.000Z
 ---
 
 # Schema
@@ -27,7 +27,7 @@ timestamp: 2026-08-06T00:46:46.000Z
 | `on_hand_units` | INTEGER | On-Hand Units | Selling units left on this line at the close of the day. |
 | `on_hand_value` | NUMERIC | On-Hand Value | Value of the units on hand at unit cost, in USD. The working capital standing on the shelf. |
 | `on_order_units` | INTEGER | On-Order Units | Units already ordered and not yet received. A line can be empty and still covered if a delivery is inbound. |
-| `reorder_point` | INTEGER | Reorder Point | Stock level at which the line should be reordered. On-hand persistently below it means the point is mis-set or the line is under-ordered. |
+| `reorder_point` | INTEGER | Reorder Point | Demand the line must serve before its next delivery lands. On-hand below it means the line is depending on that delivery arriving on time — normal and frequent on lines held to a few days of cover, near-absent on lines held to weeks of it, so compare the share of days below it across lines stocked the same way rather than reading any single figure as a fault. |
 | `is_stockout` | BOOLEAN | Is Stockout | True when the line had no stock left at the close of the day. A line can still have sold during a day that ends in stockout — the snapshot is taken at day end, not across it. |
 | `weeks_of_supply` | FLOAT | Weeks of Supply | How many weeks the stock on hand would last at current demand. Low means lost sales are close; high means cash tied up, and on perishables, write-offs ahead. |
 

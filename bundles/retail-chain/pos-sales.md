@@ -14,7 +14,7 @@ description: |
   nothing left on it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:43.000Z
+timestamp: 2026-08-06T04:39:43.000Z
 ---
 
 # Schema
@@ -31,11 +31,11 @@ timestamp: 2026-08-06T00:46:43.000Z
 | `sale_date` | DATE | Sale Date | Calendar date of the sale. Carried alongside `sold_at` because day-grained marts — store traffic and the daily stock position — join on a date, not a timestamp. FK to [Store Traffic](./store-traffic.md) |
 | `quantity` | INTEGER | Quantity | Selling units sold on this line. |
 | `unit_price` | NUMERIC | Unit Price | Shelf price per unit before any discount, in USD. |
-| `discount` | NUMERIC | Discount | Value taken off the line by promotion or markdown, in USD. Zero on a line sold at regular price. |
+| `discount` | NUMERIC | Discount | Value taken off the line by the promotion it was on, in USD. Zero on a line sold at regular price — there is no markdown history in this model, so `promotion_id IS NULL` and a zero discount mean the same thing. |
 | `net_sales` | NUMERIC | Net Sales | What the line actually took after discount, in USD. The revenue figure to sum. |
 | `line_cost` | NUMERIC | Line Cost | What the units on this line cost the chain, in USD. |
 | `gross_margin` | NUMERIC | Gross Margin | `net_sales` less `line_cost`, in USD. The only one of the money columns that says whether the line was worth selling — read promotions and categories on this, with revenue beside it. |
-| `checkout_type` | STRING | Checkout Type | Where the line was scanned: `staffed` or `self_checkout`. Read against shrink, since the two differ in how much loss they carry. |
+| `checkout_type` | STRING | Checkout Type | Where the line was scanned: `staffed` or `self_checkout`. Summed by store it gives each site's self-checkout share of trade, which is the figure to set beside that store's `Shrinkage` events with `detected_by = 'self_checkout_audit'` — the two marts are read side by side at store level rather than joined. |
 | `payment_method` | STRING | Payment Method | How the basket was settled: `card`, `cash`, `mobile_wallet`, `ebt` or `gift_card`. `ebt` marks a benefits-funded basket, which shops a distinctly different assortment. |
 | `count_sale_lines` | INTEGER | Sale Line Count | Always `1` on every row; SUM to count receipt lines. |
 

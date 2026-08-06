@@ -13,7 +13,7 @@ description: |
   should not need.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:44.000Z
+timestamp: 2026-08-06T04:40:19.000Z
 ---
 
 # Schema
@@ -27,13 +27,14 @@ timestamp: 2026-08-06T00:46:44.000Z
 | `ordered_at` | DATE | Ordered Date | Date the order was raised with the supplier. |
 | `expected_at` | DATE | Expected Date | Date the supplier promised delivery. The bar `is_on_time` is measured against. |
 | `received_at` | DATE | Received Date | Date the goods actually arrived. NULL while the order is still open, so exclude open orders from lead-time and service-level calculations rather than treating them as received today. |
-| `status` | STRING | Order Status | Where the order stands: `open` (outstanding), `partial` (short-shipped), `received` (complete) or `cancelled`. |
+| `status` | STRING | Order Status | Where the order stands: `open` (raised, goods not yet received — including orders already overdue, whose `expected_at` has passed with nothing delivered), `partial` (short-shipped), `received` (complete) or `cancelled` (it will never arrive). |
 | `quantity_ordered` | INTEGER | Quantity Ordered | Selling units requested from the supplier. |
 | `quantity_received` | INTEGER | Quantity Received | Selling units actually delivered. Below `quantity_ordered` on a short shipment. |
 | `order_cost` | NUMERIC | Order Cost | Value of the order at unit cost, in USD. |
 | `lead_time_days` | INTEGER | Lead Time (Days) | Whole days from order to receipt. Its variance matters as much as its level — unpredictable lead time has to be covered with stock. |
-| `fill_rate_pct` | FLOAT | Fill Rate % | Quantity received divided by quantity ordered. The "in full" half of on-time-in-full, and the standard measure of how completely a supplier serves an order. |
+| `fill_rate_pct` | FLOAT | Fill Rate % | Quantity received divided by quantity ordered, as a **percentage on a 0–100 scale** — `96.5` means 96.5% of the order arrived, not 9650%. The "in full" half of on-time-in-full, and the standard measure of how completely a supplier serves an order. |
 | `is_on_time` | BOOLEAN | Is On Time | True when the goods arrived by `expected_at`. The "on time" half of on-time-in-full; read it alongside `fill_rate_pct`, since a punctual short shipment is still a failure. |
+| `count_orders` | INTEGER | Order Count | Always `1` on every row; SUM to count replenishment orders. |
 
 # Example Questions
 

@@ -25,7 +25,7 @@ description: |
   walking through a door, not sessions on a site.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-08-06T00:48:57Z
+timestamp: 2026-08-06T05:42:17Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -39,7 +39,7 @@ timestamp: 2026-08-06T00:48:57Z
 | [POS Sales](./pos-sales.md) | 17 |
 | [Product](./product.md) | 14 |
 | [Promotion](./promotion.md) | 9 |
-| [Replenishment](./replenishment.md) | 14 |
+| [Replenishment](./replenishment.md) | 15 |
 | [Returns](./returns.md) | 14 |
 | [Shrinkage](./shrinkage.md) | 10 |
 | [Store](./store.md) | 9 |
@@ -49,7 +49,7 @@ timestamp: 2026-08-06T00:48:57Z
 
 - When a `store`'s sales fall, which lever moved — did fewer people come in, did fewer of them buy, did they spend less per basket, or did the lines they came for finish the day out of stock?
 - Which `promotions` earned their discount and which merely bought volume we already had, judged on line-level margin rather than revenue, and does the answer change by funding source?
-- What does the reverse flow really cost — refunds plus the value destroyed by disposition, plus the shrink that never reaches a till at all — and where do the two concentrate by `store`, category and checkout type?
+- What does the reverse flow really cost — refunds plus the value destroyed by disposition, plus the shrink that never reaches a till at all — and where do the two concentrate by `store`, by category and by the way each loss was detected?
 
 # Explore this model
 
