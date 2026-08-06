@@ -189,8 +189,9 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
 |--------|------|-------|-------------|
 | `id` | STRING | | PK. Unique order identifier |
 | `total` | FLOAT | Order Total | Order total, gross |</code></pre>
-  <p><b>Allowed types</b> (cross-storage canonical set — do not use others like <code>DATETIME</code>):</p>
-  <p><span class="chip">STRING</span><span class="chip">INTEGER</span><span class="chip">FLOAT</span><span class="chip">NUMERIC</span><span class="chip">BOOLEAN</span><span class="chip">DATE</span><span class="chip">TIME</span><span class="chip">TIMESTAMP</span><span class="chip">BYTES</span><span class="chip">GEOGRAPHY</span><span class="chip">VARIANT</span></p>
+  <p><b>Preferred types</b> (the set OWOX accepts, verified against its schema validation):</p>
+  <p><span class="chip">STRING</span><span class="chip">INTEGER</span><span class="chip">FLOAT</span><span class="chip">NUMERIC</span><span class="chip">BOOLEAN</span><span class="chip">DATE</span><span class="chip">TIME</span><span class="chip">DATETIME</span><span class="chip">TIMESTAMP</span><span class="chip">BYTES</span><span class="chip">GEOGRAPHY</span><span class="chip">JSON</span></p>
+  <p>Other spellings are normalised on import — <code>int64</code>, <code>bool</code>, <code>text</code>, <code>decimal(10,2)</code>, <code>timestamptz</code>, <code>ARRAY&lt;STRING&gt;</code> and Snowflake's <code>VARIANT</code> all land on the right type, and anything unrecognised becomes <code>STRING</code>. So an odd cell costs you one field, never the whole schema.</p>
 
   <h2>5. Definition (optional)</h2>
   <p>Optionally include a <code>## Definition</code> fenced code block. Its meaning depends on the <b>Definition type</b> in Overview:</p>

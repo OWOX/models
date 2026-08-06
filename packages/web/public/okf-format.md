@@ -120,8 +120,11 @@ A 3-column table: **Column** (name in backticks), **Type**, **Description** — 
   | `id` | STRING | | PK. Unique order identifier |
   | `total` | FLOAT | Order Total | Order total, gross |
   ```
-- **Allowed types only** (cross-storage set — do NOT use others like DATETIME):
-  `STRING` `INTEGER` `FLOAT` `NUMERIC` `BOOLEAN` `DATE` `TIME` `TIMESTAMP` `BYTES` `GEOGRAPHY` `VARIANT`
+- **Preferred types** (the set OWOX accepts, verified against its schema validation):
+  `STRING` `INTEGER` `FLOAT` `NUMERIC` `BOOLEAN` `DATE` `TIME` `DATETIME` `TIMESTAMP` `BYTES` `GEOGRAPHY` `JSON`
+  Other spellings are normalised on import — `int64`, `bool`, `text`, `decimal(10,2)`,
+  `timestamptz`, `ARRAY<STRING>` and Snowflake's `VARIANT` all land on the right type
+  (anything unrecognised becomes `STRING`), so a bundle never loses its schema to one odd cell.
 
 ### `## Definition` (optional)
 A fenced code block; its meaning follows the Definition type:

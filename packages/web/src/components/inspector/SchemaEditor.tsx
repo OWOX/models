@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { GripVertical } from "lucide-react";
-import type { SchemaField } from "@mc/okf";
+import { type SchemaField, EDITOR_FIELD_TYPES } from "@mc/okf";
 import { InfoTip } from "./InfoTip";
 
-// Canonical OWOX schema types — the set accepted across storages (BigQuery,
-// Snowflake, …). Note: no DATETIME (not in the cross-storage enum).
-const FIELD_TYPES = ["STRING", "INTEGER", "FLOAT", "NUMERIC", "BOOLEAN", "DATE", "TIME", "TIMESTAMP", "BYTES", "GEOGRAPHY", "VARIANT"];
+// One source of truth for types — see @mc/okf/fieldType. Every entry is a member of
+// OWOX's BigQuery enum (confirmed live), so a pick here can never fail the schema
+// push: DATETIME is offered, Snowflake's VARIANT is gone (it normalises to JSON).
+const FIELD_TYPES: string[] = [...EDITOR_FIELD_TYPES];
 
 interface SchemaEditorProps {
   schema: SchemaField[];
@@ -91,7 +92,10 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
                 onChange={e => updateField(i, { type: e.target.value })}
                 className="w-full text-[11.5px] px-[6px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
               >
-                {FIELD_TYPES.map(t => (
+                {/* An imported field can carry a type the picker hides (e.g. RECORD);
+                    keep it as an option so opening the inspector can't silently
+                    rewrite it to the first entry in the list. */}
+                {(FIELD_TYPES.includes(field.type) ? FIELD_TYPES : [field.type, ...FIELD_TYPES]).map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>

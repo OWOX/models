@@ -1,5 +1,6 @@
 import type { ModelGraph, ModelNode, ModelEdge, InputSource, Cardinality, SchemaField } from "./types";
 import { parseFrontmatter } from "./slug";
+import { normalizeFieldType } from "./fieldType";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
@@ -208,7 +209,10 @@ function parseSchema(body: string): SchemaField[] {
     const at = (i: number) => (i >= 0 ? cells[i] ?? "" : "");
     const name = fieldName(at(idxName));
     if (!name) continue;
-    const field: SchemaField = { name, type: at(idxType) || "STRING", pk: false };
+    // The type cell is free text in hand-written / LLM-generated bundles, so it
+    // is normalised rather than trusted: OWOX's schema enum is case-sensitive and
+    // rejects the whole mart schema over one `bool` or `decimal(10,2)`.
+    const field: SchemaField = { name, type: normalizeFieldType(at(idxType)), pk: false };
     if (idxPk >= 0) field.pk = /^(✓|x|X)$/.test(at(idxPk));
     let desc = at(idxDesc);
     if (/^PK\.\s*/.test(desc)) { field.pk = true; desc = desc.replace(/^PK\.\s*/, "").trim(); }
@@ -264,7 +268,9 @@ function parseFieldRest(name: string, rest: string): SchemaField {
     const colon = tail.indexOf(":");
     description = colon >= 0 ? tail.slice(colon + 1).trim() : "";
   }
-  const field: SchemaField = { name, type, pk: false };
+  // TYPE_WORDS deliberately accepts dialect spellings (INT64, BOOL, STRUCT …);
+  // normalisation maps them onto the canonical names OWOX actually accepts.
+  const field: SchemaField = { name, type: normalizeFieldType(type), pk: false };
   if (description) field.description = description;
   return field;
 }
