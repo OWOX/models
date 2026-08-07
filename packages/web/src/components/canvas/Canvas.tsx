@@ -761,7 +761,7 @@ function CanvasInner() {
       const result = await pushModel(store, undefined, storageType, opts);
       setPushResult(result);
     } catch (e) {
-      setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [(e as Error).message] });
+      setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [(e as Error).message] });
     } finally {
       setPushing(false);
     }
@@ -940,7 +940,7 @@ function CanvasInner() {
             const list = await loadStorages();
             if (mode === "push") {
               if (list.length === 0) {
-                setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: ["Couldn't load your OWOX storages — please try Push again."] });
+                setPushResult({ created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: ["Couldn't load your OWOX storages — please try Push again."] });
                 return;
               }
               await runPush(list);

@@ -9,6 +9,7 @@ import type { PushResult } from "../sync/push";
 export function PushToast({ result, onClose }: { result: PushResult; onClose: () => void }) {
   const blocked = result.blocked ?? 0;
   const keyless = result.relationshipsWithoutKeys ?? 0;
+  const recreated = result.recreated ?? 0;
   const failed = result.failed + result.relationshipsFailed;
   const pushedNothing = result.created === 0 && result.relationshipsCreated === 0;
 
@@ -37,6 +38,12 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
           {title}
           {parts.length > 0 && (
             <div className="font-normal text-slate-500 text-[12px] mt-0.5">{parts.join(", ")}</div>
+          )}
+          {recreated > 0 && (
+            <div className="font-normal text-[12px] mt-1 text-slate-500 leading-snug">
+              {recreated} {recreated === 1 ? "mart was" : "marts were"} marked as created here but no longer existed in OWOX
+              (deleted there), so {recreated === 1 ? "it was" : "they were"} created again with a new OWOX id.
+            </div>
           )}
           {keyless > 0 && (
             <div className="font-normal text-[12px] mt-1 text-slate-500 leading-snug">
