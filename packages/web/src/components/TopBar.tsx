@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Upload, ChevronDown, Target, FileText, Image as ImageIcon } from "lucide-react";
+import { Download, Upload, ChevronDown, Target, FileText, Image as ImageIcon, RefreshCw, Check } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
 import { EnableControl } from "./EnableControl";
 
@@ -14,6 +14,10 @@ export interface TopBarProps {
   storages?: StorageOption[];
   storageId?: string | null;
   onStorageChange?: (id: string) => void;
+  /** Re-reads the project's storages from OWOX. Resolves with the fresh list;
+   *  rejects if the call failed, so the picker can tell "couldn't refresh" from
+   *  "this project genuinely has no storages". */
+  onRefreshStorages?: () => Promise<StorageOption[]>;
   onImport?: () => void;
   onImportFromOwox?: () => void;
   onExport?: () => void;
@@ -65,7 +69,7 @@ const LOGO = (
 );
 
 export function TopBar({
-  pendingCount = 0, storages = [], storageId, onStorageChange,
+  pendingCount = 0, storages = [], storageId, onStorageChange, onRefreshStorages,
   onImport, onImportFromOwox, onExport, onExportSvg, exportDisabled = false,
   onPush, onLibrary,
   signedIn, projectTitle,
@@ -76,6 +80,15 @@ export function TopBar({
 }: TopBarProps) {
   // Push split-button menu (holds the signed-in "Import from OWOX project" action).
   const [menuOpen, setMenuOpen] = useState(false);
+  // Storage picker: a custom listbox rather than a <select>, so the list can carry
+  // a Refresh action — storages created in OWOX after the API key was added would
+  // otherwise never appear without a page reload.
+  const [storageMenuOpen, setStorageMenuOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  // Outcome of the last refresh, shown inside the open list. Needed because a
+  // successful refresh that changes nothing is otherwise indistinguishable from
+  // a broken one.
+  const [refreshNote, setRefreshNote] = useState<{ ok: boolean; text: string } | null>(null);
   // Export dropdown (OKF markdown / PNG / SVG).
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   // Show the Library hint on first ever visit; stays lit until hovered.
@@ -87,6 +100,28 @@ export function TopBar({
     setShowLibraryHint(false);
     try { localStorage.setItem(LIBRARY_HINT_KEY, "seen"); } catch { /* private mode */ }
   };
+
+  const closeStorageMenu = () => { setStorageMenuOpen(false); setRefreshNote(null); };
+
+  // The list stays open after a refresh — the whole point is to see what arrived.
+  const refreshStorages = async () => {
+    if (refreshing || !onRefreshStorages) return;
+    setRefreshing(true);
+    setRefreshNote(null);
+    try {
+      const list = await onRefreshStorages();
+      setRefreshNote({
+        ok: true,
+        text: list.length ? `Up to date — ${list.length} storage${list.length === 1 ? "" : "s"}` : "This project has no storages yet",
+      });
+    } catch {
+      setRefreshNote({ ok: false, text: "Couldn't reach OWOX — try again" });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const currentStorage = storages.find(s => s.id === storageId);
 
   return (
     <div className="flex items-center gap-3 px-4 py-[9px] bg-white border-b border-[#d8dee8] flex-shrink-0 z-30">
@@ -127,19 +162,67 @@ export function TopBar({
         </button>
       )}
 
-      {/* Storage picker — one storage per model (joinable requires same storage) */}
+      {/* Storage picker — one storage per model (joinable requires same storage).
+          Custom listbox instead of a <select> so the list can end with a Refresh
+          action: the storage list is fetched once at sign-in, so a storage created
+          in OWOX afterwards was previously unreachable without reloading the page. */}
       {signedIn && (
-        <label className="flex items-center gap-[7px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white" title="One storage per model — joinable relationships require all marts on the same storage">
-          <StorageIcon size={14} /> Storage:
-          <select
-            value={storageId ?? ""}
-            onChange={e => onStorageChange?.(e.target.value)}
-            className="text-slate-900 font-semibold bg-white outline-none cursor-pointer"
+        <div className="relative" onKeyDown={e => { if (e.key === "Escape") closeStorageMenu(); }}>
+          <button
+            onClick={() => (storageMenuOpen ? closeStorageMenu() : setStorageMenuOpen(true))}
+            aria-haspopup="listbox"
+            aria-expanded={storageMenuOpen}
+            aria-label="Storage"
+            title="One storage per model — joinable relationships require all marts on the same storage"
+            className="flex items-center gap-[7px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white cursor-pointer hover:bg-[#f1f3f7]"
           >
-            {storages.length === 0 && <option value="">—</option>}
-            {storages.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-          </select>
-        </label>
+            <StorageIcon size={14} /> Storage:
+            <span className="text-slate-900 font-semibold">{currentStorage?.title ?? "—"}</span>
+            <ChevronDown size={14} className="text-slate-400" />
+          </button>
+          {storageMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={closeStorageMenu} />
+              <div role="listbox" aria-label="Storage" className="absolute top-[calc(100%+6px)] left-0 z-50 w-[268px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
+                {storages.length === 0 && (
+                  <div className="px-3 py-2 text-[12.5px] text-slate-500 leading-snug">
+                    No storages found in this project. Create one in OWOX, then refresh below.
+                  </div>
+                )}
+                {storages.map(s => (
+                  <button
+                    key={s.id}
+                    role="option"
+                    aria-selected={s.id === storageId}
+                    onClick={() => { onStorageChange?.(s.id); closeStorageMenu(); }}
+                    className={`w-full text-left text-[13px] px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7] ${s.id === storageId ? "text-slate-900 font-semibold" : "text-slate-900"}`}
+                  >
+                    <Check size={14} className={s.id === storageId ? "text-[#1e88e5]" : "text-transparent"} />
+                    <span className="flex-1 truncate">{s.title}</span>
+                  </button>
+                ))}
+                {onRefreshStorages && (
+                  <>
+                    <div className="border-t border-[#eef1f5] my-1" />
+                    <button
+                      onClick={refreshStorages}
+                      disabled={refreshing}
+                      className="w-full text-left text-[13px] text-slate-600 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7] disabled:cursor-default"
+                    >
+                      <RefreshCw size={14} className={`text-slate-500 ${refreshing ? "animate-spin" : ""}`} />
+                      {refreshing ? "Refreshing…" : "Refresh the list of storages"}
+                    </button>
+                    {refreshNote && (
+                      <div className={`px-3 pb-2 pt-0.5 text-[12px] leading-snug ${refreshNote.ok ? "text-slate-500" : "text-red-600"}`}>
+                        {refreshNote.text}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       <div className="flex-1" />
