@@ -20,15 +20,15 @@ describe("TopBar", () => {
 
   it("shows no storage picker when anonymous", () => {
     render(<TopBar signedIn={false} storages={storages} />);
-    expect(screen.queryByRole("combobox")).toBeNull(); // storage <select> hidden
+    expect(screen.queryByRole("button", { name: /^storage$/i })).toBeNull();
     expect(screen.queryByText("Sign in")).toBeNull();
     expect(screen.queryByText("Sign out")).toBeNull();
   });
 
-  it("shows the storage picker when signed in", () => {
+  it("shows the storage picker with the selected storage when signed in", () => {
     render(<TopBar signedIn projectTitle="Demo" storages={storages} storageId="s1" />);
     expect(screen.queryByText("Sign out")).toBeNull();
-    expect(screen.getByRole("combobox")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^storage$/i }).textContent).toMatch(/BigQuery/);
   });
 
   it("hides the Push caret menu (and its Import option) when anonymous", () => {
@@ -63,5 +63,61 @@ describe("TopBar", () => {
   it("hides the Business Goal button when the AI key is not configured", () => {
     render(<TopBar signedIn={false} onOpenGoal={() => {}} questionsEnabled={false} />);
     expect(screen.queryByRole("button", { name: /business goal/i })).toBeNull();
+  });
+});
+
+// A storage created in OWOX after the API key was added never appeared, because the
+// list is fetched once at sign-in. The picker now carries a Refresh action.
+describe("TopBar storage picker", () => {
+  const openPicker = () => fireEvent.click(screen.getByRole("button", { name: /^storage$/i }));
+
+  it("lists the storages and selects one", () => {
+    const onStorageChange = vi.fn();
+    render(<TopBar signedIn storages={[...storages, { id: "s2", title: "Snowflake", type: "SNOWFLAKE" }]} storageId="s1" onStorageChange={onStorageChange} />);
+    expect(screen.queryByRole("listbox")).toBeNull(); // closed until clicked
+    openPicker();
+    const options = screen.getAllByRole("option");
+    expect(options.map(o => o.textContent)).toEqual(["BigQuery", "Snowflake"]);
+    expect(options[0].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(options[1]);
+    expect(onStorageChange).toHaveBeenCalledWith("s2");
+    expect(screen.queryByRole("listbox")).toBeNull(); // closes after picking
+  });
+
+  it("refreshes the list and keeps it open so the new storage is visible", async () => {
+    const fresh = [...storages, { id: "s2", title: "BigQuery [new]", type: "GOOGLE_BIGQUERY" }];
+    const onRefreshStorages = vi.fn(async () => fresh);
+    const { rerender } = render(<TopBar signedIn storages={storages} storageId="s1" onRefreshStorages={onRefreshStorages} />);
+    openPicker();
+    fireEvent.click(screen.getByText(/refresh the list of storages/i));
+    expect(onRefreshStorages).toHaveBeenCalledTimes(1);
+    // Canvas owns the list; mimic the re-render its setState causes.
+    rerender(<TopBar signedIn storages={fresh} storageId="s1" onRefreshStorages={onRefreshStorages} />);
+    expect(await screen.findByText(/up to date — 2 storages/i)).toBeTruthy();
+    expect(screen.getAllByRole("option").map(o => o.textContent)).toEqual(["BigQuery", "BigQuery [new]"]);
+  });
+
+  it("says the project has no storages rather than showing an empty list", async () => {
+    const onRefreshStorages = vi.fn(async () => []);
+    render(<TopBar signedIn storages={[]} onRefreshStorages={onRefreshStorages} />);
+    openPicker();
+    expect(screen.getByText(/no storages found in this project/i)).toBeTruthy();
+    fireEvent.click(screen.getByText(/refresh the list of storages/i));
+    expect(await screen.findByText(/this project has no storages yet/i)).toBeTruthy();
+  });
+
+  it("reports a failed refresh instead of leaving the list looking empty", async () => {
+    const onRefreshStorages = vi.fn(async () => { throw new Error("HTTP 500"); });
+    render(<TopBar signedIn storages={storages} storageId="s1" onRefreshStorages={onRefreshStorages} />);
+    openPicker();
+    fireEvent.click(screen.getByText(/refresh the list of storages/i));
+    expect(await screen.findByText(/couldn't reach owox/i)).toBeTruthy();
+    expect(screen.getAllByRole("option")).toHaveLength(1); // the known list is kept
+  });
+
+  it("hides the Refresh action when no handler is wired", () => {
+    render(<TopBar signedIn storages={storages} storageId="s1" />);
+    openPicker();
+    expect(screen.queryByText(/refresh the list of storages/i)).toBeNull();
   });
 });

@@ -308,23 +308,36 @@ function CanvasInner() {
   // Load the project's storages once signed in; retry through OWOX's transient
   // 500s. Anonymous users have no session, so we skip the call entirely and
   // clear any stale list.
+  // Keep the current storage only if it's still in this project; otherwise fall
+  // back to the first available so we never push to a stale storage (e.g. after
+  // signing into a different project, or after the storage was deleted in OWOX).
+  const applyStorages = useCallback((list: StorageOption[]) => {
+    setStorages(list);
+    const reconciled = reconcileStorageId(store.get().storageId, list);
+    if (reconciled !== store.get().storageId) store.set({ ...store.get(), storageId: reconciled });
+  }, []);
+
   const loadStorages = useCallback(async (): Promise<StorageOption[]> => {
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
         const list = await api<StorageOption[]>("/api/storages");
-        setStorages(list);
-        // Keep the current storage only if it's still in this project; otherwise
-        // fall back to the first available so we never push to a stale storage
-        // (e.g. after signing into a different project).
-        const reconciled = reconcileStorageId(store.get().storageId, list);
-        if (reconciled !== store.get().storageId) store.set({ ...store.get(), storageId: reconciled });
+        applyStorages(list);
         return list;
       } catch {
         await new Promise(r => setTimeout(r, 1200));
       }
     }
     return [];
-  }, []);
+  }, [applyStorages]);
+
+  // User-initiated refresh from the Storage picker. One attempt and the error is
+  // propagated: waiting out four silent retries feels broken, and an empty list
+  // must not be mistaken for "this project has no storages".
+  const refreshStorages = useCallback(async (): Promise<StorageOption[]> => {
+    const list = await api<StorageOption[]>("/api/storages");
+    applyStorages(list);
+    return list;
+  }, [applyStorages]);
 
   useEffect(() => {
     if (!me) { setStorages([]); return; }
@@ -807,6 +820,7 @@ function CanvasInner() {
         storages={storages}
         storageId={graph.storageId}
         onStorageChange={handleStorageChange}
+        onRefreshStorages={refreshStorages}
         onImport={() => setShowImport(true)}
         onImportFromOwox={() => setShowOwoxImport(true)}
         onExport={handleExport}
