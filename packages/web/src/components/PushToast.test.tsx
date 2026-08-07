@@ -4,7 +4,7 @@ import { PushToast } from "./PushToast";
 import type { PushResult } from "../sync/push";
 
 const result = (over: Partial<PushResult> = {}): PushResult => ({
-  created: 0, updated: 0, failed: 0, blocked: 0,
+  created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0,
   relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [], ...over,
 });
 
@@ -43,6 +43,12 @@ describe("PushToast", () => {
   it("counts failed marts and failed links apart", () => {
     render(<PushToast result={result({ created: 10, failed: 1, relationshipsFailed: 14, errors: ["boom"] })} onClose={() => {}} />);
     expect(screen.getByText(/1 mart failed, 14 links failed/)).toBeTruthy();
+  });
+
+  it("explains why a mart got a new OWOX id", () => {
+    render(<PushToast result={result({ created: 2, recreated: 2, relationshipsCreated: 1 })} onClose={() => {}} />);
+    expect(screen.getByText("Push complete")).toBeTruthy();
+    expect(screen.getByText(/2 marts were marked as created here but no longer existed in OWOX/i)).toBeTruthy();
   });
 
   it("notes links pushed without join keys", () => {

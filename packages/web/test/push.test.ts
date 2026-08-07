@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { pushModel, pushPreview } from "../src/sync/push";
 import { createModelStore } from "../src/state/model";
-import type { ModelGraph } from "@mc/okf";
+import type { ModelGraph, ModelEdge } from "@mc/okf";
 
 describe("pushPreview", () => {
   const mk = (over: Partial<ModelGraph>): ModelGraph => ({ storageId: "st_1", nodes: [], edges: [], ...over });
@@ -352,13 +352,19 @@ describe("pushModel", () => {
     expect(res.errors[0]).toMatch(/could not check|HTTP 500/i);
   });
 
-  it("does not list OWOX marts on a normal push — the skip needs no lookup", async () => {
+  // A normal push now lists the project's marts too: the local "already created"
+  // flag is not evidence that the mart still exists (it can be deleted in OWOX).
+  it("lists OWOX marts on a normal push to verify the ids it holds", async () => {
     const s = createModelStore({ storageId: "stor_1" });
     s.addNode({ x: 0, y: 0 });
     const calls: string[] = [];
-    const apiMock = vi.fn(async (path: string, init?: any) => { calls.push(`${init?.method ?? "GET"} ${path}`); return { id: "owox_a" }; });
+    const apiMock = vi.fn(async (path: string, init?: any) => {
+      calls.push(`${init?.method ?? "GET"} ${path}`);
+      if (path === "/api/data-marts" && (init?.method ?? "GET") === "GET") return [];
+      return { id: "owox_a" };
+    });
     await pushModel(s, apiMock as any);
-    expect(calls).not.toContain("GET /api/data-marts");
+    expect(calls).toContain("GET /api/data-marts");
   });
 
   it("uses an underscore identifier (not a hyphenated slug) for targetAlias", async () => {
@@ -461,6 +467,89 @@ describe("pushModel", () => {
     expect(res.relationshipsCreated).toBe(0);
     expect(res.relationshipsFailed).toBe(1);
     expect(res.errors.some(e => /both marts must be created first/.test(e))).toBe(true);
+  });
+
+  // ── ghosts: marts we think we created, but OWOX no longer has ────────────────
+  // Reported case: a model imported from OWOX (or pushed earlier), then deleted in
+  // OWOX. The canvas kept the stale owoxId, the skip fired on local state alone,
+  // and the relationship POST 404'd against a mart that no longer existed.
+  describe("a mart deleted in OWOX", () => {
+    // live: what GET /api/data-marts returns; every other call returns a fresh id.
+    const apiWith = (live: Array<{ id: string; title?: string; status?: string }>, calls: string[] = [], bodies: any[] = []) =>
+      vi.fn(async (path: string, init?: any) => {
+        const method = init?.method ?? "GET";
+        calls.push(`${method} ${path}`);
+        if (path === "/api/data-marts" && method === "GET") return live;
+        if (init?.body) bodies.push({ path, body: JSON.parse(init.body) });
+        return { id: "fresh_id" };
+      });
+
+    const twoMarts = (edge: Partial<ModelEdge> = {}) => {
+      const s = createModelStore({ storageId: "stor_1" });
+      s.set({
+        storageId: "stor_1",
+        nodes: [
+          { key: "n1", title: "A", inputSource: "SQL", schema: [{ name: "b_id", type: "STRING", pk: false }], position: { x: 0, y: 0 }, status: "created", owoxId: "ghost_a", owoxStorageId: "stor_1" },
+          { key: "n2", title: "B", inputSource: "SQL", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 100, y: 0 }, status: "created", owoxId: "ghost_b", owoxStorageId: "stor_1" },
+        ],
+        edges: [{ id: "e1", from: "n1", to: "n2", keys: [{ left: "b_id", right: "id" }], bidirectional: false, ...edge }],
+      });
+      return s;
+    };
+
+    it("re-creates it instead of skipping, and reports the repair", async () => {
+      const s = twoMarts();
+      const res = await pushModel(s, apiWith([]) as any); // OWOX has neither mart
+      expect(res.created).toBe(2);
+      expect(res.recreated).toBe(2);
+      expect(res.failed).toBe(0);
+      expect(s.get().nodes.map(n => n.owoxId)).toEqual(["fresh_id", "fresh_id"]);
+    });
+
+    it("points the relationship at the NEW id — the reported 404", async () => {
+      const s = twoMarts();
+      const calls: string[] = [];
+      const res = await pushModel(s, apiWith([], calls) as any);
+      expect(calls).toContain("POST /api/data-marts/fresh_id/relationships");
+      expect(calls).not.toContain("POST /api/data-marts/ghost_a/relationships");
+      expect(res.relationshipsCreated).toBe(1);
+      expect(res.errors).toEqual([]);
+    });
+
+    it("pushes an imported edge too, instead of reporting a silent success", async () => {
+      // Both endpoints gone: the old skip made this push a no-op that still said
+      // "Push complete" — nothing in OWOX, no error, nothing to act on.
+      const s = twoMarts({ existing: true });
+      const res = await pushModel(s, apiWith([]) as any);
+      expect(res.created).toBe(2);
+      expect(res.relationshipsCreated).toBe(1);
+    });
+
+    it("leaves a mart that is still there alone", async () => {
+      const s = twoMarts();
+      const calls: string[] = [];
+      const bodies: any[] = [];
+      const res = await pushModel(s, apiWith([{ id: "ghost_a", title: "A" }], calls, bodies) as any);
+      expect(res.created).toBe(1);          // only B was missing
+      expect(res.recreated).toBe(1);
+      expect(bodies.filter(b => b.path === "/api/data-marts").map(b => b.body.title)).toEqual(["B"]);
+      expect(s.get().nodes[0].owoxId).toBe("ghost_a"); // A keeps its id
+    });
+
+    it("keeps skipping when the listing can't be read — a guess would duplicate", async () => {
+      const s = twoMarts();
+      const calls: string[] = [];
+      const apiMock = vi.fn(async (path: string, init?: any) => {
+        const method = init?.method ?? "GET";
+        calls.push(`${method} ${path}`);
+        if (path === "/api/data-marts" && method === "GET") throw new Error("HTTP 500");
+        return { id: "fresh_id" };
+      });
+      const res = await pushModel(s, apiMock as any);
+      expect(calls).not.toContain("POST /api/data-marts");
+      expect(res.created).toBe(0);
+      expect(res.recreated).toBe(0);
+    });
   });
 
   // Defence in depth for models saved before types were normalised on import:

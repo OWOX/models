@@ -12,6 +12,9 @@ export interface PushResult {
   /** Marts a forced push held back because they are still in OWOX. Not a failure
    *  — nothing broke, we refused to create a duplicate. */
   blocked: number;
+  /** Subset of `created`: marts that looked created here but had been deleted in
+   *  OWOX, so this push re-created them (and gave them a new OWOX id). */
+  recreated: number;
   relationshipsCreated: number;
   relationshipsFailed: number;
   /** Links created as "Join not configured" in OWOX because the canvas edge has no
@@ -26,6 +29,10 @@ export interface PushResult {
 // skipped. An imported (existing) edge is skipped only when both endpoints stay.
 // alreadyPushed reports how many marts the skip swallows, so the dialog can say
 // why a push would send nothing and offer a force push instead.
+//
+// Deliberately local and synchronous: it cannot know that a mart was deleted in
+// OWOX (pushModel finds that out with a listing and re-creates it), so its counts
+// are a floor, not a promise. The dialog's wording accounts for that.
 export function pushPreview(graph: ModelGraph, storageId: string | null): { marts: number; relationships: number; alreadyPushed: number } {
   const liveHere = (n: ModelNode) => n.status === "created" && n.owoxStorageId === storageId;
   const skipped = new Set(graph.nodes.filter(liveHere).map(n => n.key));
@@ -53,33 +60,45 @@ function schemaDiscriminator(storageType: string): string {
 }
 
 export interface PushOptions {
-  /** Re-create marts that are already live in the active storage. For the case
-   *  where the user deleted them inside OWOX and wants the same model back: the
-   *  stored owoxId points at a mart that no longer exists, so skipping it would
-   *  silently push nothing. Marts that are still in OWOX are held back rather
-   *  than duplicated — see findBlockedMarts. */
+  /** Re-create marts that are already live in the active storage — the "I want this
+   *  model in OWOX again" hammer. A normal push already repairs marts that were
+   *  deleted in OWOX (see the ghosts half of reconcileWithOwox), so force is for
+   *  the rest: re-creating marts that ARE still there. Anything still present is
+   *  held back rather than duplicated. */
   force?: boolean;
 }
 
-/** What a forced push must not touch: marts whose stored owoxId is still listed
- *  in OWOX. Creating those again would leave the project with two copies and no
- *  way to tell them apart, so we hold them back and say which status they're in.
- *  Throws if the listing can't be read — guessing would risk the duplicates this
- *  check exists to prevent. */
-async function findBlockedMarts(store: ModelStore, api: Api, storageId: string): Promise<Map<string, string | undefined>> {
+/** Reconciles what the canvas believes about OWOX against what OWOX actually has.
+ *  Two mirror-image answers come out of the same listing:
+ *
+ *  - `blocked` — the mart's stored owoxId IS still there. A forced push must not
+ *    re-create those: the project would end up with two copies and no way to tell
+ *    them apart. Carries each one's OWOX status so we can name it.
+ *  - `ghosts` — the mart is marked created here but its owoxId is GONE (deleted in
+ *    OWOX, or the model was imported and then cleaned up there). A normal push used
+ *    to skip these on local state alone and then fail the relationship POST with a
+ *    404 about a mart that no longer exists — or, for a fully imported model, do
+ *    nothing at all and report success. They are re-created instead.
+ *
+ *  Throws if the listing can't be read; each caller decides what that means. */
+async function reconcileWithOwox(
+  store: ModelStore, api: Api, storageId: string,
+): Promise<{ blocked: Map<string, string | undefined>; ghosts: Set<string> }> {
   const live = await api<Array<{ id: string; title?: string; status?: string }>>("/api/data-marts");
   if (!Array.isArray(live)) throw new Error("unexpected data mart listing");
   const statusById = new Map(live.map(m => [m.id, m.status]));
   const blocked = new Map<string, string | undefined>();
+  const ghosts = new Set<string>();
   for (const n of store.get().nodes) {
     if (n.status !== "created" || n.owoxStorageId !== storageId || !n.owoxId) continue;
     if (statusById.has(n.owoxId)) blocked.set(n.key, statusById.get(n.owoxId));
+    else ghosts.add(n.key);
   }
-  return blocked;
+  return { blocked, ghosts };
 }
 
 export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
-  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [] };
+  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [] };
 
   const storageId = store.get().storageId;
   if (!storageId) {
@@ -90,27 +109,37 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     return res;
   }
 
-  // ── 0. A forced push first asks OWOX what is actually there ─────────────────
-  // The premise of a forced push is "I deleted these in OWOX". Verify it before
-  // creating anything: a mart still listed there would become a duplicate, which
-  // nobody can untangle afterwards. Blocked marts keep their green dot — it is
-  // honest, they really are in OWOX — and are reported instead of pushed.
+  // ── 0. Ask OWOX what is actually there before trusting our own bookkeeping ──
+  // A forced push says "I deleted these in OWOX" — verify it, because a mart still
+  // listed there would become a duplicate nobody can untangle afterwards. A normal
+  // push needs the mirror answer: a mart we think we created but which is gone must
+  // be re-created, or its relationships fail against a dead id.
   const blockedKeys = new Set<string>();
-  if (opts.force) {
-    let blocked: Map<string, string | undefined>;
+  const ghostKeys = new Set<string>();
+  {
+    let recon: { blocked: Map<string, string | undefined>; ghosts: Set<string> } | null = null;
     try {
-      blocked = await findBlockedMarts(store, api, storageId);
+      recon = await reconcileWithOwox(store, api, storageId);
     } catch (e) {
-      res.errors.push(`Could not check which marts still exist in OWOX (${(e as Error).message}) — nothing was pushed.`);
-      return res;
+      // A forced push cannot continue on a guess — duplicates are unrecoverable.
+      if (opts.force) {
+        res.errors.push(`Could not check which marts still exist in OWOX (${(e as Error).message}) — nothing was pushed.`);
+        return res;
+      }
+      // A normal push falls back to the old local-state-only skip: without the
+      // listing, re-creating would risk exactly the duplicates we guard against.
     }
-    for (const [key, owoxStatus] of blocked) {
-      const title = store.get().nodes.find(n => n.key === key)?.title ?? key;
-      blockedKeys.add(key);
-      res.blocked++;
-      res.errors.push(
-        `"${title}" still exists in OWOX${owoxStatus ? ` (${owoxStatus})` : ""} — delete it there first, otherwise this would create a duplicate.`,
-      );
+    if (opts.force) {
+      for (const [key, owoxStatus] of recon?.blocked ?? []) {
+        const title = store.get().nodes.find(n => n.key === key)?.title ?? key;
+        blockedKeys.add(key);
+        res.blocked++;
+        res.errors.push(
+          `"${title}" still exists in OWOX${owoxStatus ? ` (${owoxStatus})` : ""} — delete it there first, otherwise this would create a duplicate.`,
+        );
+      }
+    } else {
+      for (const key of recon?.ghosts ?? []) ghostKeys.add(key);
     }
   }
 
@@ -137,10 +166,11 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   // it must be recreated here rather than silently skipped. A forced push skips
   // only what step 0 found still living in OWOX; everything else is created again
   // (and so are its relationships, since the edge skip below keys off this set).
+  // Ghosts — created here, but no longer in OWOX — are likewise NOT skipped.
   const skippedKeys = new Set<string>();
   for (const n of store.get().nodes) {
     if (blockedKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
-    if (!opts.force && n.status === "created" && n.owoxStorageId === storageId) { skippedKeys.add(n.key); continue; }
+    if (!opts.force && n.status === "created" && n.owoxStorageId === storageId && !ghostKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
     store.updateNode(n.key, { status: "creating", error: null });
     try {
       // Create a draft with just { title, storageId } — confirmed to always 201.
@@ -187,6 +217,9 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       }
       store.updateNode(n.key, { status: "created", owoxId: out.id, owoxStorageId: storageId, createdAt: new Date().toISOString() });
       res.created++;
+      // Counted only once it actually landed, so a failed re-create isn't reported
+      // as a repair. Surfaced in the toast: the mart quietly changed its OWOX id.
+      if (ghostKeys.has(n.key)) res.recreated++;
     } catch (e) {
       const msg = (e as Error).message;
       store.updateNode(n.key, { status: "error", error: msg });

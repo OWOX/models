@@ -52,9 +52,10 @@ export function PushConfirmDialog({ projectTitle, storage, counts, onConfirm, on
               <span className="font-semibold">
                 {counts.alreadyPushed} {counts.alreadyPushed === 1 ? "mart is" : "marts are"} already created in this project
               </span>
-              , so {counts.alreadyPushed === 1 ? "it is" : "they are"} skipped. Deleted {counts.alreadyPushed === 1 ? "it" : "them"} in OWOX?
-              Force-push to create {counts.alreadyPushed === 1 ? "it" : "them"} again. Anything still present in OWOX is checked first and left
-              alone, so this can't produce duplicates.
+              , so {counts.alreadyPushed === 1 ? "it is" : "they are"} skipped — unless {counts.alreadyPushed === 1 ? "it was" : "they were"} deleted
+              in OWOX, which Push checks for and repairs by {counts.alreadyPushed === 1 ? "re-creating it" : "re-creating them"}. Want{" "}
+              {counts.alreadyPushed === 1 ? "a mart that is still there" : "marts that are still there"} created again anyway? Force-push — anything
+              still present in OWOX is named and left alone, so this can't produce duplicates.
             </p>
             <button
               onClick={onForcePush}
