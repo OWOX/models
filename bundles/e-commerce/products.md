@@ -7,7 +7,7 @@ description: |
   downstream.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:03:13.000Z
+timestamp: 2026-08-08T07:00:20.000Z
 ---
 
 # Schema

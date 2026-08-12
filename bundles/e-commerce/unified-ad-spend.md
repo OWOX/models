@@ -1,7 +1,8 @@
 ---
 title: "Unified Ad Spend"
 description: |
-  Advertising spend, clicks and impressions from every paid platform the business runs —
+  Advertising spend, clicks, impressions and each platform's own conversion claim, from every
+  paid platform the business runs —
   Google, Facebook, TikTok, LinkedIn, Microsoft, Reddit and X — brought together on one daily
   grain with a common source, medium and campaign naming. Because it shares that naming with
   the storefront's traffic sources, spend can be set against the sessions and revenue it
@@ -17,7 +18,7 @@ description: |
   reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:04:29.000Z
+timestamp: 2026-08-12T09:07:07.000Z
 ---
 
 # Schema
@@ -31,9 +32,12 @@ timestamp: 2026-08-05T19:04:29.000Z
 | `spend` | FLOAT | Spend | The total cost of advertising incurred during the specified period. |
 | `clicks` | INTEGER | Clicks | The total number of times users clicked on the advertisements. |
 | `impressions` | INTEGER | Impressions | The total number of times the advertisements were displayed to users. |
+| `platform_conversions` | FLOAT | Platform Conversions | The number of conversion actions claimed by the advertising platform. |
+| `platform_conversion_value` | FLOAT | Platform Conversion Value | The total monetary value of conversions as reported by the advertising platform. |
 
 # Example Questions
 
+- How many sales does each ad platform claim, and how many did the store actually record?
 - What is blended and per-channel acquisition cost, and which channels return the most revenue per unit spent?
 - How do click-through and cost-per-click compare across platforms week over week?
 - Which campaigns are scaling spend without a matching lift in `orders`?
