@@ -7,7 +7,7 @@ description: |
   other, which is what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:05:54.000Z
+timestamp: 2026-08-12T08:41:51.000Z
 ---
 
 # Schema

@@ -7,7 +7,7 @@ description: |
   confused. This is the mart that answers what the business actually earned.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:04:42.000Z
+timestamp: 2026-08-12T08:41:50.000Z
 ---
 
 # Schema

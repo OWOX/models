@@ -7,7 +7,7 @@ description: |
   and how valuable they turned out to be.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:19:19.000Z
+timestamp: 2026-08-11T13:25:25.000Z
 ---
 
 # Schema
