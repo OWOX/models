@@ -7,7 +7,7 @@ description: |
   applies to sessions, to customers and to advertising spend.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:03:08.000Z
+timestamp: 2026-08-13T09:04:24.000Z
 ---
 
 # Schema

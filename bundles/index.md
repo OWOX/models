@@ -3,12 +3,12 @@ title: "OKF Bundles"
 description: "OKF bundles generated from OWOX Data Marts."
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-08-12T11:30:57Z
+timestamp: 2026-08-13T12:56:52Z
 ---
 
 # OKF Bundles
 
-Generated 2026-08-12T11:30:57Z.
+Generated 2026-08-13T12:56:52Z.
 
 - [E-Commerce](./e-commerce/index.md) — 12 concept(s)
 - [E-commerce Subscription Store](./ecommerce-subscription-store/index.md) — 15 concept(s)
