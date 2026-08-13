@@ -7,7 +7,7 @@ description: |
   confused. This is the mart that answers what the business actually earned.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-12T08:41:50.000Z
+timestamp: 2026-08-13T12:56:16.000Z
 ---
 
 # Schema
@@ -25,6 +25,7 @@ timestamp: 2026-08-12T08:41:50.000Z
 | `line_cost` | FLOAT | Item COGS | Cost of goods sold for this order line = Unit Cost × Quantity. Sum for total COGS. |
 | `line_net_revenue` | FLOAT | Item Net Revenue | Revenue recognised only for Completed orders (Cancelled / Returned = 0). Sum for net  revenue. |
 | `line_net_profit` | FLOAT | Item Net Profit | Profit for Completed orders = (Item Sale Price − Unit Cost) × Quantity, else 0. Sum for  total net profit. |
+| `line_net_cost` | FLOAT | Item Net COGS | Cost of goods sold recognised only for Completed orders (Cancelled / Returned = 0). This is the cost figure that pairs with Line Net Revenue: net revenue − net cost = net profit. |
 
 # Example Questions
 

@@ -7,7 +7,7 @@ description: |
   settled revenue can be told apart instead of quietly merged.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-12T08:41:49.000Z
+timestamp: 2026-08-13T10:37:22.000Z
 ---
 
 # Schema

@@ -18,7 +18,7 @@ description: |
   reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-12T09:07:07.000Z
+timestamp: 2026-08-13T12:51:31.000Z
 ---
 
 # Schema

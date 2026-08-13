@@ -7,7 +7,7 @@ description: |
   takes between arriving and buying.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:03:12.000Z
+timestamp: 2026-08-13T09:04:52.000Z
 ---
 
 # Schema
