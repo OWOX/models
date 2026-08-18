@@ -5,9 +5,14 @@ description: |
   expansion, contraction, reactivation, or churn — with the signed revenue and seat deltas
   and the running revenue after each change. This is what reconstructs the revenue waterfall
   and the retention rates the business lives or dies by.
+
+  Running revenue reconciles with each subscription's own contracted rate. A subscription still
+  on the books finishes the series on that rate; a subscription that churned was carrying it in
+  the period immediately before the churn and the series steps away from it — so a churn reads as
+  revenue lost from a customer's full rate, not as a downgrade on the way up to it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:53.000Z
+timestamp: 2026-08-18T14:00:27.000Z
 ---
 
 # Schema
@@ -21,9 +26,9 @@ timestamp: 2026-07-29T14:32:53.000Z
 | `event_type` | STRING | Event Type | MRR-movement type: new / expansion / contraction / reactivation / churn. |
 | `plan_from` | STRING | Plan From | Plan before the change. |
 | `plan_to` | STRING | Plan To | Plan after the change. |
-| `mrr_delta` | NUMERIC | MRR Delta | Signed MRR change — the MRR-movement waterfall. |
+| `mrr_delta` | NUMERIC | MRR Delta | Signed MRR change — the MRR-movement waterfall. Always the step between two consecutive levels, so the deltas of a subscription add up to the movement in its recurring revenue over the period. |
 | `seats_delta` | INTEGER | Seats Delta | Signed change in seat count. |
-| `mrr_after` | NUMERIC | MRR After | Total MRR after the change. |
+| `mrr_after` | NUMERIC | MRR After | Total MRR after the change, reconciled with the subscription's contracted rate: a subscription with no churn in the period ends on that rate, and one that churned was carrying it immediately before the churn. |
 
 # Example Questions
 

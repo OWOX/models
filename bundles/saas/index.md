@@ -8,7 +8,7 @@ description: |
   churn), while engagement, support and payment health all feed the retention story.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-07-29T14:36:08Z
+timestamp: 2026-08-18T17:43:59Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -18,10 +18,10 @@ timestamp: 2026-07-29T14:36:08Z
 | Data Mart | Fields |
 |-----------|--------|
 | [Account](./account.md) | 12 |
-| [Invoices](./invoices.md) | 15 |
+| [Invoices](./invoices.md) | 17 |
 | [Marketing Spend](./marketing-spend.md) | 7 |
 | [Plan](./plan.md) | 7 |
-| [Subscription](./subscription.md) | 13 |
+| [Subscription](./subscription.md) | 14 |
 | [Subscription Events](./subscription-events.md) | 10 |
 | [Support Tickets](./support-tickets.md) | 9 |
 | [Trials](./trials.md) | 8 |

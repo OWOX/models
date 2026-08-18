@@ -6,7 +6,7 @@ description: |
   behavioral pulse that explains why accounts expand, stall, or churn.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:51:28.000Z
+timestamp: 2026-08-11T09:03:53.000Z
 ---
 
 # Schema
