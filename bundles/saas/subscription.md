@@ -7,7 +7,7 @@ description: |
   grandfathered or discounted pricing. The source of truth for what each customer pays today.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:52.000Z
+timestamp: 2026-08-18T14:00:22.000Z
 ---
 
 # Schema
@@ -17,9 +17,10 @@ timestamp: 2026-07-29T14:32:52.000Z
 | `subscription_id` | STRING | Subscription ID | PK. Unique subscription identifier. |
 | `account_id` | STRING | Account ID | Account that owns the subscription. FK to [Account](./account.md) |
 | `plan_id` | STRING | Plan ID | Plan the subscription is billed on. May differ from the account's current tier under grandfathered pricing or a negotiated discount. FK to [Plan](./plan.md) |
-| `status` | STRING | Status | Subscription status: trialing / active / past_due / canceled. |
+| `status` | STRING | Status | Subscription status: active / past_due / canceled. |
 | `seats_licensed` | INTEGER | Seats Licensed | Number of seats licensed on the subscription. |
-| `mrr` | NUMERIC | MRR | Monthly recurring revenue for the subscription. |
+| `mrr` | NUMERIC | MRR | Contracted monthly recurring revenue — the rate on the agreement, unchanged by cancellation. |
+| `active_mrr` | NUMERIC | Active MRR | Live monthly recurring revenue: still contracted unless canceled, when it drops to 0. Equal to `mrr` for `active` and `past_due` subscriptions alike — a failed payment does not by itself stop the contract. |
 | `currency` | STRING | Currency | Billing currency, aligned to the account's region. |
 | `billing_interval` | STRING | Billing Interval | Billing cadence: monthly / annual. |
 | `started_at` | DATE | Started At | Date the subscription started. |

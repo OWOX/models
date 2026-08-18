@@ -6,7 +6,7 @@ description: |
   and denominator of customer acquisition cost, and the starting point for payback analysis.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:51:25.000Z
+timestamp: 2026-08-11T08:37:27.000Z
 ---
 
 # Schema

@@ -6,7 +6,7 @@ description: |
   account into an adopted one — and idle seats are early signs of shrinking value.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:51:27.000Z
+timestamp: 2026-08-11T08:35:01.000Z
 ---
 
 # Schema
