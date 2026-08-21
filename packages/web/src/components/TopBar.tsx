@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Upload, ChevronDown, Target, FileText, Image as ImageIcon, RefreshCw, Check } from "lucide-react";
+import { Download, Upload, ChevronDown, Target, FileText, Image as ImageIcon, RefreshCw, Check, LogOut } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
 import { EnableControl } from "./EnableControl";
 
@@ -26,6 +26,9 @@ export interface TopBarProps {
   onShare?: () => void;
   shareDisabled?: boolean;
   onPush?: () => void;
+  /** Clears the OWOX API key (and detaches the model from OWOX). The canvas
+   *  itself is kept — only the connection to the project goes away. */
+  onSignOut?: () => void;
   onLibrary?: () => void;
   signedIn: boolean;
   projectTitle?: string;
@@ -68,10 +71,21 @@ const LOGO = (
   </svg>
 );
 
+// Styled hover tooltip shown under a top-bar button. Mirrors the dock's DockTip:
+// once the labels collapse to icons (see `compact` below), the name has to come
+// back on hover, and the native title tooltip is both slow and unstyled.
+function BarTip({ label }: { label: string }) {
+  return (
+    <span className="pointer-events-none absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 text-white text-[12px] font-medium px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+      {label}
+    </span>
+  );
+}
+
 export function TopBar({
   pendingCount = 0, storages = [], storageId, onStorageChange, onRefreshStorages,
   onImport, onImportFromOwox, onExport, onExportSvg, exportDisabled = false,
-  onPush, onLibrary,
+  onPush, onSignOut, onLibrary,
   signedIn, projectTitle,
   onOpenGoal, goalSet = false, questionsEnabled = false,
   modelName,
@@ -123,6 +137,11 @@ export function TopBar({
 
   const currentStorage = storages.find(s => s.id === storageId);
 
+  // Signed in, the Project + Storage pickers claim a big slice of the bar and the
+  // action buttons used to grow/wrap. In that state every action collapses to its
+  // icon and the label returns as a hover tip.
+  const compact = signedIn;
+
   return (
     <div className="flex items-center gap-3 px-4 py-[9px] bg-white border-b border-[#d8dee8] flex-shrink-0 z-30">
       {/* Brand — logo links to owox.com */}
@@ -145,21 +164,32 @@ export function TopBar({
           env switch: drop the key and the whole AI feature disappears, no
           redeploy of code needed. */}
       {questionsEnabled && (
-        <button
-          onClick={onOpenGoal}
-          aria-label="Business goal — see the questions your model unlocks"
-          title="Set a business goal to see the questions your model unlocks"
-          className={`flex items-center gap-[6px] rounded-lg px-[10px] py-[6px] text-[13px] font-[550] cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"}`}
-        >
-          <Target size={16} /> {goalSet ? "Business goal" : "Set business goal"}
-        </button>
+        <div className="relative group flex items-center">
+          <button
+            onClick={onOpenGoal}
+            aria-label="Business goal — see the questions your model unlocks"
+            title={compact ? undefined : "Set a business goal to see the questions your model unlocks"}
+            className={`flex items-center gap-[6px] rounded-lg px-[10px] py-[6px] text-[13px] font-[550] cursor-pointer transition-colors ${goalSet ? "text-[#1e88e5] bg-[#e6f1fb]" : "text-slate-500 hover:bg-[#f1f3f7] hover:text-slate-900"}`}
+          >
+            <Target size={16} /> {!compact && (goalSet ? "Business goal" : "Set business goal")}
+          </button>
+          {compact && <BarTip label={goalSet ? "Business goal" : "Set business goal"} />}
+        </div>
       )}
 
-      {/* Project picker chip */}
+      {/* Project chip — icon + project name only; the word "Project" is a hover tip
+          so a long project title can't push the bar's buttons around. */}
       {signedIn && (
-        <button className="flex items-center gap-[7px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white cursor-pointer hover:bg-[#f1f3f7]">
-          <ProjectIcon size={14} /> Project: <span className="text-slate-900 font-semibold">{projectTitle ?? "—"}</span> ▾
-        </button>
+        <div className="relative group flex items-center">
+          <button
+            aria-label="Project"
+            className="flex items-center gap-[7px] max-w-[210px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white cursor-pointer hover:bg-[#f1f3f7]"
+          >
+            <ProjectIcon size={14} className="flex-shrink-0" />
+            <span className="text-slate-900 font-semibold truncate">{projectTitle ?? "—"}</span>
+          </button>
+          <BarTip label={`Project: ${projectTitle ?? "—"}`} />
+        </div>
       )}
 
       {/* Storage picker — one storage per model (joinable requires same storage).
@@ -167,19 +197,20 @@ export function TopBar({
           action: the storage list is fetched once at sign-in, so a storage created
           in OWOX afterwards was previously unreachable without reloading the page. */}
       {signedIn && (
-        <div className="relative" onKeyDown={e => { if (e.key === "Escape") closeStorageMenu(); }}>
+        <div className="relative group" onKeyDown={e => { if (e.key === "Escape") closeStorageMenu(); }}>
           <button
             onClick={() => (storageMenuOpen ? closeStorageMenu() : setStorageMenuOpen(true))}
             aria-haspopup="listbox"
             aria-expanded={storageMenuOpen}
             aria-label="Storage"
-            title="One storage per model — joinable relationships require all marts on the same storage"
-            className="flex items-center gap-[7px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white cursor-pointer hover:bg-[#f1f3f7]"
+            className="flex items-center gap-[7px] max-w-[210px] text-[13px] text-slate-500 border border-[#d8dee8] rounded-lg px-[10px] py-[5px] bg-white cursor-pointer hover:bg-[#f1f3f7]"
           >
-            <StorageIcon size={14} /> Storage:
-            <span className="text-slate-900 font-semibold">{currentStorage?.title ?? "—"}</span>
-            <ChevronDown size={14} className="text-slate-400" />
+            <StorageIcon size={14} className="flex-shrink-0" />
+            <span className="text-slate-900 font-semibold truncate">{currentStorage?.title ?? "—"}</span>
+            <ChevronDown size={14} className="text-slate-400 flex-shrink-0" />
           </button>
+          {/* Hidden while the list is open — the tip would sit on top of it. */}
+          {!storageMenuOpen && <BarTip label={`Storage: ${currentStorage?.title ?? "—"} — one storage per model`} />}
           {storageMenuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={closeStorageMenu} />
@@ -228,18 +259,21 @@ export function TopBar({
       <div className="flex-1" />
 
       {/* Templates */}
-      <div className="relative">
+      <div className="relative group">
         {/* Pulsing ring highlights the Templates control on first visit */}
         {showLibraryHint && (
           <span className="absolute -inset-[3px] rounded-[10px] ring-2 ring-[#1e88e5]/60 animate-pulse pointer-events-none" />
         )}
         <button
           onClick={() => { dismissLibraryHint(); onLibrary?.(); }}
-          title="Browse model templates"
+          aria-label="Templates"
+          title={compact ? undefined : "Browse model templates"}
           className="text-[13px] font-[550] text-slate-900 border border-[#d8dee8] bg-white rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
         >
-          <LibraryIcon size={15} /> Templates
+          <LibraryIcon size={15} /> {!compact && "Templates"}
         </button>
+        {/* The first-visit hint owns the hover space while it's up. */}
+        {compact && !showLibraryHint && <BarTip label="Templates" />}
         {showLibraryHint && (
           <div
             role="tooltip"
@@ -253,25 +287,31 @@ export function TopBar({
       </div>
 
       {/* Import OKF */}
-      <button
-        onClick={onImport}
-        className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
-      >
-        <Download size={15} /> Import
-      </button>
+      <div className="relative group flex items-center">
+        <button
+          onClick={onImport}
+          aria-label="Import"
+          className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
+        >
+          <Download size={15} /> {!compact && "Import"}
+        </button>
+        {compact && <BarTip label="Import" />}
+      </div>
 
       {/* Export — dropdown: OKF markdown, PNG image, SVG image */}
-      <div className="relative">
+      <div className="relative group">
         <button
           onClick={() => setExportMenuOpen(o => !o)}
           disabled={exportDisabled}
           aria-haspopup="menu"
           aria-expanded={exportMenuOpen}
-          title={exportDisabled ? "Add a mart first, then export" : "Export this model"}
+          aria-label="Export"
+          title={exportDisabled ? "Add a mart first, then export" : compact ? undefined : "Export this model"}
           className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Upload size={15} /> Export <ChevronDown size={14} className="text-slate-400" />
+          <Upload size={15} /> {!compact && "Export"} <ChevronDown size={14} className="text-slate-400" />
         </button>
+        {compact && !exportMenuOpen && <BarTip label="Export" />}
         {exportMenuOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
@@ -296,10 +336,8 @@ export function TopBar({
           onClick={onPush}
           className={`text-[13px] font-[550] bg-[#1e88e5] text-white border border-[#1e88e5] px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#1976d2] ${signedIn ? "rounded-l-lg border-r-0" : "rounded-lg"}`}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} width={15} height={15}>
-            <path d="M5 12h14M13 6l6 6-6 6"/>
-          </svg>
-          Push to OWOX{pendingCount > 0 && <span className="opacity-80">({pendingCount})</span>}
+          <span className="whitespace-nowrap">Push to OWOX</span>
+          {pendingCount > 0 && <span className="opacity-80">({pendingCount})</span>}
         </button>
         {signedIn && (
           <>
@@ -315,7 +353,7 @@ export function TopBar({
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[230px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
+                <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[248px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
                   <button
                     role="menuitem"
                     onClick={() => { setMenuOpen(false); onImportFromOwox?.(); }}
@@ -323,6 +361,25 @@ export function TopBar({
                   >
                     <Download size={15} /> Import from OWOX project
                   </button>
+                  {/* The only way out of the connected state — without it the API key
+                      was stuck until localStorage was cleared by hand. The canvas is
+                      kept; the marts just become unpushed drafts again. */}
+                  {onSignOut && (
+                    <>
+                      <div className="border-t border-[#eef1f5] my-1" />
+                      <button
+                        role="menuitem"
+                        onClick={() => { setMenuOpen(false); onSignOut(); }}
+                        className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-start gap-[8px] hover:bg-[#f1f3f7]"
+                      >
+                        <LogOut size={15} className="mt-[2px] flex-shrink-0 text-slate-500" />
+                        <span>
+                          Sign out (clear token)
+                          <span className="block text-[11.5px] text-slate-500 leading-snug">Keeps this canvas — disconnects the project</span>
+                        </span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </>
             )}
