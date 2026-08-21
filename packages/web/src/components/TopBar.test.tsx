@@ -121,3 +121,45 @@ describe("TopBar storage picker", () => {
     expect(screen.queryByText(/refresh the list of storages/i)).toBeNull();
   });
 });
+
+// Entering the OWOX token was a one-way door: nothing in the UI cleared it, so the
+// Project/Storage chips were stuck until localStorage was wiped by hand.
+describe("TopBar sign out", () => {
+  it("offers 'Sign out (clear token)' in the Push caret menu when signed in", () => {
+    const onSignOut = vi.fn();
+    render(<TopBar signedIn onSignOut={onSignOut} />);
+    expect(screen.queryByText(/sign out \(clear token\)/i)).toBeNull(); // menu closed
+    fireEvent.click(screen.getByLabelText(/More OWOX actions/i));
+    fireEvent.click(screen.getByText(/sign out \(clear token\)/i));
+    expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides the sign-out item when anonymous (no caret menu at all)", () => {
+    render(<TopBar signedIn={false} onSignOut={() => {}} />);
+    expect(screen.queryByLabelText(/More OWOX actions/i)).toBeNull();
+  });
+});
+
+// Signed in, Project + Storage eat the bar, so every action collapses to its icon
+// and the label comes back as a hover tip.
+describe("TopBar compact actions", () => {
+  const labels = [/^templates$/i, /^import$/i, /^export$/i];
+
+  it("keeps the action labels visible when anonymous", () => {
+    render(<TopBar signedIn={false} questionsEnabled onOpenGoal={() => {}} />);
+    for (const l of labels) expect(screen.getByRole("button", { name: l }).textContent?.trim()).toMatch(l);
+    expect(screen.getByRole("button", { name: /business goal/i }).textContent).toMatch(/business goal/i);
+  });
+
+  it("drops the label text (but keeps the accessible name) when signed in", () => {
+    render(<TopBar signedIn questionsEnabled onOpenGoal={() => {}} />);
+    for (const l of labels) expect(screen.getByRole("button", { name: l }).textContent?.trim()).toBe("");
+    expect(screen.getByRole("button", { name: /business goal/i }).textContent?.trim()).toBe("");
+  });
+
+  it("shows the project name without the 'Project:' prefix", () => {
+    render(<TopBar signedIn projectTitle="Previous subscription canceled" />);
+    const chip = screen.getByRole("button", { name: /^project$/i });
+    expect(chip.textContent).toBe("Previous subscription canceled");
+  });
+});

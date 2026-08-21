@@ -829,6 +829,7 @@ function CanvasInner() {
         onShare={handleShare}
         shareDisabled={graph.nodes.length === 0}
         onPush={handlePush}
+        onSignOut={handleSignOut}
         onLibrary={() => setShowLibrary(true)}
         onOpenGoal={() => setShowGoal(true)}
         goalSet={!!goal}
