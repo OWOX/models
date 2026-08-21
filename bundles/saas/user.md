@@ -30,4 +30,4 @@ timestamp: 2026-08-11T08:35:01.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
+- [Account](./account.md) — `account_id = account_id` — Every seat belongs to one paying account, so roles, activity and seat counts roll up to the company.

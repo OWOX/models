@@ -38,5 +38,5 @@ timestamp: 2026-08-18T14:00:27.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
-- [Subscription](./subscription.md) — `subscription_id = subscription_id`
+- [Account](./account.md) — `account_id = account_id` — Every plan change lands on an account, so the MRR waterfall can be split by segment, channel or success owner.
+- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The change history behind a subscription's current MRR and seat count; one subscription has many events.

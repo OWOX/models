@@ -37,5 +37,5 @@ timestamp: 2026-08-18T14:00:22.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
-- [Plan](./plan.md) — `plan_id = plan_id`
+- [Account](./account.md) — `account_id = account_id` — The paid contract behind an account, which is how recurring revenue is read by industry, size, region or health.
+- [Plan](./plan.md) — `plan_id = plan_id` — The price point a subscription is billed on — comparing the two exposes grandfathered pricing and negotiated discounts.

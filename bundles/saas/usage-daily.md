@@ -29,5 +29,5 @@ timestamp: 2026-08-11T09:03:53.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
-- [User](./user.md) — `user_id = user_id`
+- [Account](./account.md) — `account_id = account_id` — How deeply the whole account uses the product — the engagement signal that precedes expansion and churn.
+- [User](./user.md) — `user_id = user_id` — Which seat generated the usage, separating real adoption from licensed headcount.
