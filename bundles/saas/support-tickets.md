@@ -31,5 +31,5 @@ timestamp: 2026-07-23T12:51:28.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
-- [User](./user.md) — `user_id = user_id`
+- [Account](./account.md) — `account_id = account_id` — The support experience of a paying customer, read next to usage as the second churn signal.
+- [User](./user.md) — `user_id = user_id` — The seat that raised the ticket, where it is attributable — unattributed tickets have no user.
