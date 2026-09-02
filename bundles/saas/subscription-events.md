@@ -12,7 +12,7 @@ description: |
   revenue lost from a customer's full rate, not as a downgrade on the way up to it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-18T14:00:27.000Z
+timestamp: 2026-09-02T16:01:58.000Z
 ---
 
 # Schema
@@ -38,5 +38,5 @@ timestamp: 2026-08-18T14:00:27.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — Every plan change lands on an account, so the MRR waterfall can be split by segment, channel or success owner.
-- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The change history behind a subscription's current MRR and seat count; one subscription has many events.
+- [Account](./account.md) — `account_id = account_id` — The account whose recurring revenue moved.
+- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The subscription this change was made to.

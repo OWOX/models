@@ -30,4 +30,4 @@ timestamp: 2026-08-11T08:35:35.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The evaluation an account ran before paying, which is how trial-to-paid conversion is read by industry, size and channel.
+- [Account](./account.md) — `account_id = account_id` — The account that ran the trial.
