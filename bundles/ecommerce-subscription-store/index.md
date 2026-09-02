@@ -18,7 +18,7 @@ description: |
   traffic sources, which makes cost per subscriber answerable next to cost per order.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-08-01T09:18:20Z
+timestamp: 2026-09-02T16:29:31Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
@@ -27,10 +27,10 @@ timestamp: 2026-08-01T09:18:20Z
 
 | Data Mart | Fields |
 |-----------|--------|
-| [Ad Spend](./ad-spend.md) | 11 |
+| [Ad Spend](./ad-spend.md) | 13 |
 | [Customer Value](./customer-value.md) | 15 |
 | [Customers](./customers.md) | 9 |
-| [Order Items](./order-items.md) | 12 |
+| [Order Items](./order-items.md) | 13 |
 | [Orders](./orders.md) | 19 |
 | [Page Views](./page-views.md) | 7 |
 | [Pages](./pages.md) | 5 |

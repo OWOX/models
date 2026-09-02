@@ -27,4 +27,4 @@ timestamp: 2026-08-05T19:03:12.000Z
 
 ## Joins
 
-- [Pageviews](./pageviews.md) — `page_id = page_id`
+- [Pageviews](./pageviews.md) — `page_id = page_id` — Every view of this page.

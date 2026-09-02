@@ -36,4 +36,4 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
+- [Account](./account.md) — `account_id = account_id` — The company the lead works for.

@@ -34,4 +34,4 @@ timestamp: 2026-07-31T11:02:24.000Z
 
 ## Joins
 
-- [Clinic](./clinic.md) — `clinic_id = clinic_id`
+- [Clinic](./clinic.md) — `clinic_id = clinic_id` — The clinic the clinician works out of.

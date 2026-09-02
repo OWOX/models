@@ -40,5 +40,5 @@ timestamp: 2026-08-06T04:43:02.000Z
 
 ## Joins
 
-- [Product](./product.md) — `product_id = product_id`
-- [Store](./store.md) — `store_id = store_id`
+- [Product](./product.md) — `product_id = product_id` — The SKU written off.
+- [Store](./store.md) — `store_id = store_id` — The store that wrote the stock off.

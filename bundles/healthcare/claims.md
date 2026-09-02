@@ -8,7 +8,7 @@ description: |
   answers how well the health system gets paid for the care it delivers, and how quickly.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:13.000Z
+timestamp: 2026-09-02T16:19:47.000Z
 ---
 
 # Schema
@@ -35,5 +35,5 @@ timestamp: 2026-07-23T17:34:13.000Z
 
 ## Joins
 
-- [Encounters](./encounters.md) — `encounter_id = encounter_id`
-- [Payer](./payer.md) — `payer_id = payer_id`
+- [Encounters](./encounters.md) — `encounter_id = encounter_id` — The encounter being billed.
+- [Payer](./payer.md) — `payer_id = payer_id` — The insurer billed for this claim.

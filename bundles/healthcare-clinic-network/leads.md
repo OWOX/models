@@ -11,7 +11,7 @@ description: |
   visible rather than assumed.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T13:42:44.000Z
+timestamp: 2026-09-02T16:20:35.000Z
 ---
 
 # Schema
@@ -40,6 +40,6 @@ timestamp: 2026-07-31T13:42:44.000Z
 
 ## Joins
 
-- [Clinic](./clinic.md) — `clinic_id = clinic_id`
-- [Patients](./patients.md) — `patient_id = patient_id`
-- [Sessions](./sessions.md) — `session_id = session_id`
+- [Clinic](./clinic.md) — `clinic_id = clinic_id` — The clinic the enquiry asked about.
+- [Patients](./patients.md) — `patient_id = patient_id` — The patient this enquiry was matched to.
+- [Sessions](./sessions.md) — `session_id = session_id` — The website visit the enquiry came from.

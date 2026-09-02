@@ -7,7 +7,7 @@ description: |
   other, which is what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-13T10:37:23.000Z
+timestamp: 2026-09-02T16:26:29.000Z
 ---
 
 # Schema
@@ -35,9 +35,9 @@ timestamp: 2026-08-13T10:37:23.000Z
 
 ## Joins
 
-- [Countries](./countries.md) — `country_id = country_id`
-- [Orders](./orders.md) — `session_id = session_id`
-- [Pageviews](./pageviews.md) — `session_id = session_id`
-- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id`
-- [Unified Ad Spend](./unified-ad-spend.md) — `date = date`, `source = source`, `medium = medium`
-- [Visitors](./visitors.md) — `visitor_id = visitor_id`
+- [Countries](./countries.md) — `country_id = country_id` — The market the session came from.
+- [Orders](./orders.md) — `session_id = session_id` — The order this session produced, where it converted.
+- [Pageviews](./pageviews.md) — `session_id = session_id` — The clickstream of this session.
+- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id` — The channel that drove this session.
+- [Unified Ad Spend](./unified-ad-spend.md) — `date = date`, `source = source`, `medium = medium` — Spend on the same day and channel — a cohort match, not this session's cost.
+- [Visitors](./visitors.md) — `visitor_id = visitor_id` — The visitor who browsed.

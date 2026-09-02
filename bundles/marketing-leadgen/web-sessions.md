@@ -9,7 +9,7 @@ description: |
   ones that do show exactly where anonymous traffic turns into a known contact.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:33.000Z
+timestamp: 2026-09-02T16:20:00.000Z
 ---
 
 # Schema
@@ -34,5 +34,5 @@ timestamp: 2026-07-23T17:34:33.000Z
 
 ## Joins
 
-- [Campaign](./campaign.md) — `campaign_id = campaign_id`
-- [Lead](./lead.md) — `lead_id = lead_id`
+- [Campaign](./campaign.md) — `campaign_id = campaign_id` — The campaign that drove the visit.
+- [Lead](./lead.md) — `lead_id = lead_id` — The lead this visit was later tied to.

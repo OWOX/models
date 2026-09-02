@@ -7,7 +7,7 @@ description: |
   confused. This is the mart that answers what the business actually earned.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-13T12:56:16.000Z
+timestamp: 2026-09-02T16:26:28.000Z
 ---
 
 # Schema
@@ -35,5 +35,5 @@ timestamp: 2026-08-13T12:56:16.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id`
-- [Products](./products.md) — `product_id = product_id`
+- [Orders](./orders.md) — `order_id = order_id` — The order this line belongs to.
+- [Products](./products.md) — `product_id = product_id` — The product sold on this line.

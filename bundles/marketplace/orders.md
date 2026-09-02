@@ -9,7 +9,7 @@ description: |
   and net are never confused.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:48.000Z
+timestamp: 2026-09-02T16:20:49.000Z
 ---
 
 # Schema
@@ -40,7 +40,7 @@ timestamp: 2026-07-29T14:32:48.000Z
 
 ## Joins
 
-- [Buyer](./buyer.md) — `buyer_id = buyer_id`
-- [Category](./category.md) — `category_id = category_id`
-- [Listings](./listings.md) — `listing_id = listing_id`
-- [Seller](./seller.md) — `seller_id = seller_id`
+- [Buyer](./buyer.md) — `buyer_id = buyer_id` — The buyer who placed this order.
+- [Category](./category.md) — `category_id = category_id` — The category this order is filed under.
+- [Listings](./listings.md) — `listing_id = listing_id` — The listing that was ordered.
+- [Seller](./seller.md) — `seller_id = seller_id` — The seller who fulfilled this order.

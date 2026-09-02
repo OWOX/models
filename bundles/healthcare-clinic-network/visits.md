@@ -11,7 +11,7 @@ description: |
   here.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T13:43:27.000Z
+timestamp: 2026-09-02T16:20:36.000Z
 ---
 
 # Schema
@@ -46,7 +46,7 @@ timestamp: 2026-07-31T13:43:27.000Z
 
 ## Joins
 
-- [Clinic](./clinic.md) — `clinic_id = clinic_id`
-- [Leads](./leads.md) — `lead_id = lead_id`
-- [Patients](./patients.md) — `patient_id = patient_id`
-- [Provider](./provider.md) — `provider_id = provider_id`
+- [Clinic](./clinic.md) — `clinic_id = clinic_id` — The clinic where the visit happened.
+- [Leads](./leads.md) — `lead_id = lead_id` — The enquiry this appointment came from.
+- [Patients](./patients.md) — `patient_id = patient_id` — The patient who attended.
+- [Provider](./provider.md) — `provider_id = provider_id` — The clinician who saw the patient.

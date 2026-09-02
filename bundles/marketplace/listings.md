@@ -8,7 +8,7 @@ description: |
   arrives and finds nothing to buy.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:57:44.000Z
+timestamp: 2026-09-02T16:20:49.000Z
 ---
 
 # Schema
@@ -31,5 +31,5 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 ## Joins
 
-- [Category](./category.md) — `category_id = category_id`
-- [Seller](./seller.md) — `seller_id = seller_id`
+- [Category](./category.md) — `category_id = category_id` — The category this listing is filed under.
+- [Seller](./seller.md) — `seller_id = seller_id` — The seller who owns this listing.

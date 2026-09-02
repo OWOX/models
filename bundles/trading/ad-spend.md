@@ -38,4 +38,4 @@ timestamp: 2026-07-31T07:25:24.000Z
 
 ## Joins
 
-- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`, `targeting_country = targeting_country`
+- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`, `targeting_country = targeting_country` — The acquisition funnel this day of spend paid for.

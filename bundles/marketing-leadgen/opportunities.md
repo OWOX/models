@@ -8,7 +8,7 @@ description: |
   fails to turn into — closed revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:32.000Z
+timestamp: 2026-09-02T16:19:58.000Z
 ---
 
 # Schema
@@ -35,6 +35,6 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id`
-- [Campaign](./campaign.md) — `primary_campaign_id = campaign_id`
-- [Lead](./lead.md) — `lead_id = lead_id`
+- [Account](./account.md) — `account_id = account_id` — The company the deal is with.
+- [Campaign](./campaign.md) — `primary_campaign_id = campaign_id` — The campaign credited with sourcing the deal.
+- [Lead](./lead.md) — `lead_id = lead_id` — The lead the deal grew out of.

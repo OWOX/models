@@ -13,7 +13,7 @@ description: |
   settled revenue never quietly merge.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:49.000Z
+timestamp: 2026-09-02T16:21:31.000Z
 ---
 
 # Schema
@@ -34,8 +34,8 @@ timestamp: 2026-08-01T08:55:49.000Z
 | `discounts` | FLOAT | Discounts | Total discount applied to the order, including the subscription discount. |
 | `tax` | FLOAT | Tax | Total tax charged on the order. |
 | `shipping` | FLOAT | Shipping | Total shipping charged on the order. |
-| `net_revenue` | FLOAT | Net Revenue | Revenue recognised for the order after discounts and returns. |
-| `applied_discount_codes` | STRING | Applied Discount Codes | Promotional codes the customer used at checkout. |
+| `net_revenue` | FLOAT | Net Revenue | Settled revenue for the order — zero on a cancelled or returned order, so it never has to be filtered by status to be trusted. Booked revenue is not lost, it is simply a different number: `gross_sales - discounts`, carried on every row regardless of status. |
+| `applied_discount_codes` | STRING | Discount Codes | Promotional codes the customer used at checkout. |
 | `loyalty_segment` | STRING | Loyalty Segment | Loyalty band the customer was in when the order was placed. |
 | `currency` | STRING | Currency | Three-letter code of the currency the order was placed in. |
 | `items_count` | INTEGER | Items Count | Number of order lines on the order. |
@@ -48,6 +48,6 @@ timestamp: 2026-08-01T08:55:49.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id`
-- [Sessions](./sessions.md) — `session_id = session_id`
-- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id`
+- [Customers](./customers.md) — `customer_id = customer_id` — The customer who placed this order.
+- [Sessions](./sessions.md) — `session_id = session_id` — The visit this order was placed in — absent on a recurring charge.
+- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` — The contract this order was billed under, where it is recurring.

@@ -11,7 +11,7 @@ description: |
   behaviour that precedes churn is visible before the churn itself.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:39.000Z
+timestamp: 2026-09-02T16:21:32.000Z
 ---
 
 # Schema
@@ -34,5 +34,5 @@ timestamp: 2026-07-28T16:51:39.000Z
 
 ## Joins
 
-- [Pages](./pages.md) — `page_id = page_id`
-- [Sessions](./sessions.md) — `session_id = session_id`
+- [Pages](./pages.md) — `page_id = page_id` — The page that was viewed.
+- [Sessions](./sessions.md) — `session_id = session_id` — The visit this page view belongs to.

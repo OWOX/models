@@ -7,7 +7,7 @@ description: |
   off. This is the last line of defense on losses.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:40.000Z
+timestamp: 2026-09-02T16:19:35.000Z
 ---
 
 # Schema
@@ -29,4 +29,4 @@ timestamp: 2026-07-29T14:32:40.000Z
 
 ## Joins
 
-- [Loans](./loans.md) — `loan_id = loan_id`
+- [Loans](./loans.md) — `loan_id = loan_id` — The delinquent loan being collected on.

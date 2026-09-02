@@ -12,7 +12,7 @@ description: |
   one-time buyers, and by how much.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:49.000Z
+timestamp: 2026-09-02T16:21:31.000Z
 ---
 
 # Schema
@@ -43,5 +43,5 @@ timestamp: 2026-08-01T08:55:49.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id`
-- [Sessions](./sessions.md) — `acquisition_session_id = session_id`
+- [Customers](./customers.md) — `customer_id = customer_id` — The customer this value profile is for.
+- [Sessions](./sessions.md) — `acquisition_session_id = session_id` — The visit that first acquired the customer.

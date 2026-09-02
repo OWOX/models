@@ -12,7 +12,7 @@ description: |
   ways cannot judge the health of its subscription programme from a blended total.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:47.000Z
+timestamp: 2026-09-02T16:21:29.000Z
 ---
 
 # Schema
@@ -46,5 +46,5 @@ timestamp: 2026-08-01T08:55:47.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id`
-- [Selling Plans](./selling-plans.md) — `primary_selling_plan_id = selling_plan_id`
+- [Customers](./customers.md) — `customer_id = customer_id` — The subscriber this month belongs to.
+- [Selling Plans](./selling-plans.md) — `primary_selling_plan_id = selling_plan_id` — The offer the subscriber was mainly on that month.

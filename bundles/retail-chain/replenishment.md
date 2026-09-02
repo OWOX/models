@@ -44,5 +44,5 @@ timestamp: 2026-08-06T04:40:19.000Z
 
 ## Joins
 
-- [Product](./product.md) — `product_id = product_id`
-- [Store](./store.md) — `store_id = store_id`
+- [Product](./product.md) — `product_id = product_id` — The SKU being replenished.
+- [Store](./store.md) — `store_id = store_id` — The store the order was raised for.
