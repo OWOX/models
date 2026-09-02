@@ -29,4 +29,4 @@ timestamp: 2026-08-11T08:37:27.000Z
 
 ## Joins
 
-- [Account](./account.md) — `channel = acquisition_channel` — Spend meets accounts at the acquisition-channel cohort level, never per account: many-to-many, so cost cannot be attributed to a single customer.
+- [Account](./account.md) — `channel = acquisition_channel` — Accounts acquired through this channel — a cohort, not one account per row.

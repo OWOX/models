@@ -6,7 +6,7 @@ description: |
   behavioral pulse that explains why accounts expand, stall, or churn.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-11T09:03:53.000Z
+timestamp: 2026-09-02T16:01:59.000Z
 ---
 
 # Schema
@@ -29,5 +29,5 @@ timestamp: 2026-08-11T09:03:53.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — How deeply the whole account uses the product — the engagement signal that precedes expansion and churn.
-- [User](./user.md) — `user_id = user_id` — Which seat generated the usage, separating real adoption from licensed headcount.
+- [Account](./account.md) — `account_id = account_id` — The account that generated the usage.
+- [User](./user.md) — `user_id = user_id` — The seat that generated the usage.

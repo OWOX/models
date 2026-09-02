@@ -14,7 +14,7 @@ description: |
   `dunning_stage = 'write_off'`.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-18T14:00:27.000Z
+timestamp: 2026-09-02T16:01:57.000Z
 ---
 
 # Schema
@@ -48,5 +48,5 @@ timestamp: 2026-08-18T14:00:27.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — What an account was billed and whether it paid — how failed payments and write-offs trace back to the customer at risk.
-- [Subscription](./subscription.md) — `subscription_id = subscription_id` — Each invoice bills one subscription for one period, so the join fans out; sum recognised revenue rather than counting rows.
+- [Account](./account.md) — `account_id = account_id` — The account billed on this invoice.
+- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The subscription this invoice bills.
