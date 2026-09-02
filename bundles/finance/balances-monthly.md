@@ -7,7 +7,7 @@ description: |
   up or run down.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:39.000Z
+timestamp: 2026-09-02T16:19:34.000Z
 ---
 
 # Schema
@@ -30,4 +30,4 @@ timestamp: 2026-07-29T14:32:39.000Z
 
 ## Joins
 
-- [Accounts](./accounts.md) — `account_id = account_id`
+- [Accounts](./accounts.md) — `account_id = account_id` — The account this month of balances belongs to.

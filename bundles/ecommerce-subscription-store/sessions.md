@@ -13,7 +13,7 @@ description: |
   the distinction is there to expose.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:44.000Z
+timestamp: 2026-09-02T16:21:30.000Z
 ---
 
 # Schema
@@ -44,7 +44,7 @@ timestamp: 2026-08-01T08:55:44.000Z
 
 ## Joins
 
-- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`
-- [Pages](./pages.md) — `landing_page_id = page_id`
-- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id`
-- [Visitors](./visitors.md) — `visitor_id = visitor_id`
+- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` — Spend on the same day and channel — a cohort match, not this visit's cost.
+- [Pages](./pages.md) — `landing_page_id = page_id` — The page the visit landed on.
+- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id` — The channel that drove this visit.
+- [Visitors](./visitors.md) — `visitor_id = visitor_id` — The visitor who browsed.

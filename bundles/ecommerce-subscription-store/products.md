@@ -37,4 +37,4 @@ timestamp: 2026-07-28T16:51:51.000Z
 
 ## Joins
 
-- [Pages](./pages.md) — `page_id = page_id`
+- [Pages](./pages.md) — `page_id = page_id` — This product's page on the storefront.

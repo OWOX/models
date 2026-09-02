@@ -7,7 +7,7 @@ description: |
   the health of the loan book, and the losses building in it, become visible.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:02:49.000Z
+timestamp: 2026-09-02T16:19:35.000Z
 ---
 
 # Schema
@@ -32,4 +32,4 @@ timestamp: 2026-07-23T12:02:49.000Z
 
 ## Joins
 
-- [Loans](./loans.md) — `loan_id = loan_id`
+- [Loans](./loans.md) — `loan_id = loan_id` — The loan this instalment is scheduled against.

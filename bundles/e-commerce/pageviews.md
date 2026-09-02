@@ -29,4 +29,4 @@ timestamp: 2026-08-13T09:04:52.000Z
 
 ## Joins
 
-- [Pages](./pages.md) — `page_id = page_id`
+- [Pages](./pages.md) — `page_id = page_id` — The page that was viewed.

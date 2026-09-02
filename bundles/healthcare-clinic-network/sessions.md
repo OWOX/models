@@ -50,4 +50,4 @@ timestamp: 2026-07-31T13:47:16.000Z
 
 ## Joins
 
-- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`, `country = country`
+- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`, `country = country` — The acquisition funnel this visit rolls into.

@@ -11,7 +11,7 @@ description: |
   acquisition funnel finally turns into cash.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:05:13.000Z
+timestamp: 2026-09-02T16:20:15.000Z
 ---
 
 # Schema
@@ -43,6 +43,6 @@ timestamp: 2026-07-31T11:05:13.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id`
-- [Leads](./leads.md) — `lead_id = lead_id`
-- [Trading Accounts](./trading-accounts.md) — `account_id = account_id`
+- [Clients](./clients.md) — `client_id = client_id` — The client who funded.
+- [Leads](./leads.md) — `lead_id = lead_id` — The lead this funded client came from.
+- [Trading Accounts](./trading-accounts.md) — `account_id = account_id` — The account the money was deposited into.

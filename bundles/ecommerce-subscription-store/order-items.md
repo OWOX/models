@@ -12,7 +12,7 @@ description: |
   schedule at a standing discount.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:50.000Z
+timestamp: 2026-09-02T16:21:32.000Z
 ---
 
 # Schema
@@ -28,7 +28,8 @@ timestamp: 2026-08-01T08:55:50.000Z
 | `line_discount` | FLOAT | Line Discount | Discount applied to this line, including the subscription discount. |
 | `line_revenue` | FLOAT | Line Revenue | Gross revenue for the line, being quantity multiplied by the price paid. |
 | `line_net_revenue` | FLOAT | Line Net Revenue | Revenue recognised for the line, counted only for completed orders. |
-| `line_cost` | FLOAT | Line Cost | Cost of goods sold for the line, being quantity multiplied by the unit cost. |
+| `line_cost` | FLOAT | Line Cost | Cost of goods on this line whatever became of the order — a cancelled or returned line still carries a cost here — so pairing it with `line_net_revenue` instead of `line_net_cost` mixes a booked population with a settled one and lands margin about 0.8 percentage points low. |
+| `line_net_cost` | FLOAT | Line Net Cost | Cost of goods for lines that actually sold — zero on a cancelled or returned order — so it is the column that pairs correctly with `line_net_revenue` and `line_net_profit` over that same settled population. |
 | `line_net_profit` | FLOAT | Line Net Profit | Profit for the line on completed orders, being net revenue less cost of goods. |
 | `is_subscription_item` | BOOLEAN | Is Subscription Item | Whether the line was delivered on a subscription rather than bought one-time. |
 
@@ -40,5 +41,5 @@ timestamp: 2026-08-01T08:55:50.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id`
-- [Products](./products.md) — `product_id = product_id`
+- [Orders](./orders.md) — `order_id = order_id` — The order this line belongs to.
+- [Products](./products.md) — `product_id = product_id` — The product sold on this line.

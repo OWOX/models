@@ -8,7 +8,7 @@ description: |
   where an ops or trust-and-safety lead finds the fixable concentration of fill-rate failures.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:57:45.000Z
+timestamp: 2026-09-02T16:20:50.000Z
 ---
 
 # Schema
@@ -31,4 +31,4 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id`
+- [Orders](./orders.md) — `order_id = order_id` — The order that was cancelled.

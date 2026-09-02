@@ -7,7 +7,7 @@ description: |
   acquisition cost can all be cut the same way across markets.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-13T09:02:56.000Z
+timestamp: 2026-08-20T12:57:39.000Z
 ---
 
 # Schema

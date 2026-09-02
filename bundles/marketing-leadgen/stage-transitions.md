@@ -7,7 +7,7 @@ description: |
   get stuck, and for how long.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:32.000Z
+timestamp: 2026-09-02T16:19:59.000Z
 ---
 
 # Schema
@@ -29,4 +29,4 @@ timestamp: 2026-07-23T17:34:32.000Z
 
 ## Joins
 
-- [Opportunities](./opportunities.md) — `opportunity_id = opportunity_id`
+- [Opportunities](./opportunities.md) — `opportunity_id = opportunity_id` — The deal that moved stage.

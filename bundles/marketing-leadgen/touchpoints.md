@@ -8,7 +8,7 @@ description: |
   only the first click or the last one.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:33.000Z
+timestamp: 2026-09-02T16:19:59.000Z
 ---
 
 # Schema
@@ -34,5 +34,5 @@ timestamp: 2026-07-23T17:34:33.000Z
 
 ## Joins
 
-- [Campaign](./campaign.md) — `campaign_id = campaign_id`
-- [Lead](./lead.md) — `lead_id = lead_id`
+- [Campaign](./campaign.md) — `campaign_id = campaign_id` — The campaign that produced this touch.
+- [Lead](./lead.md) — `lead_id = lead_id` — The lead who was touched.

@@ -40,4 +40,4 @@ timestamp: 2026-07-31T11:05:12.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id`
+- [Clients](./clients.md) — `client_id = client_id` — The client who trades on this account.

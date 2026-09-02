@@ -31,4 +31,4 @@ timestamp: 2026-07-23T17:34:11.000Z
 
 ## Joins
 
-- [Department](./department.md) — `department_id = department_id`
+- [Department](./department.md) — `department_id = department_id` — The department these staffed beds belong to.

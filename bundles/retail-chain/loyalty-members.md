@@ -50,4 +50,4 @@ timestamp: 2026-08-06T04:38:08.000Z
 
 ## Joins
 
-- [Store](./store.md) — `home_store_id = store_id`
+- [Store](./store.md) — `home_store_id = store_id` — The member's home store.

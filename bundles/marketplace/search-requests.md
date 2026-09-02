@@ -8,7 +8,7 @@ description: |
   convert, are the "demand with no fill" signal a liquidity analyst hunts for.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:57:45.000Z
+timestamp: 2026-09-02T16:20:51.000Z
 ---
 
 # Schema
@@ -34,6 +34,6 @@ timestamp: 2026-07-27T15:57:45.000Z
 
 ## Joins
 
-- [Buyer](./buyer.md) — `buyer_id = buyer_id`
-- [Category](./category.md) — `category_id = category_id`
-- [Orders](./orders.md) — `order_id = order_id`
+- [Buyer](./buyer.md) — `buyer_id = buyer_id` — The buyer who ran this search.
+- [Category](./category.md) — `category_id = category_id` — The category searched in.
+- [Orders](./orders.md) — `order_id = order_id` — The order this search led to, where it converted.

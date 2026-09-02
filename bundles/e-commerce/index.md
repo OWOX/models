@@ -11,7 +11,7 @@ description: |
   acquisition cost can be weighed against the revenue it returns.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-08-13T12:56:52Z
+timestamp: 2026-09-02T16:29:21Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

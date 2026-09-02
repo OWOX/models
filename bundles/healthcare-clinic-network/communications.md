@@ -11,7 +11,7 @@ description: |
   automated replies.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T13:42:09.000Z
+timestamp: 2026-09-02T16:20:36.000Z
 ---
 
 # Schema
@@ -43,6 +43,6 @@ timestamp: 2026-07-31T13:42:09.000Z
 
 ## Joins
 
-- [Leads](./leads.md) — `lead_id = lead_id`
-- [Patient Access Agent](./patient-access-agent.md) — `agent_id = agent_id`
-- [Patients](./patients.md) — `patient_id = patient_id`
+- [Leads](./leads.md) — `lead_id = lead_id` — The enquiry this interaction is about.
+- [Patient Access Agent](./patient-access-agent.md) — `agent_id = agent_id` — The agent who handled the interaction.
+- [Patients](./patients.md) — `patient_id = patient_id` — The patient this interaction was with.

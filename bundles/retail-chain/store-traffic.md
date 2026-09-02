@@ -37,4 +37,4 @@ timestamp: 2026-08-06T04:43:44.000Z
 
 ## Joins
 
-- [Store](./store.md) — `store_id = store_id`
+- [Store](./store.md) — `store_id = store_id` — The store this day of footfall belongs to.

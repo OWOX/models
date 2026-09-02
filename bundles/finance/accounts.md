@@ -31,5 +31,5 @@ timestamp: 2026-07-23T12:02:48.000Z
 
 ## Joins
 
-- [Customer](./customer.md) — `customer_id = customer_id`
-- [Product](./product.md) — `product_id = product_id`
+- [Customer](./customer.md) — `customer_id = customer_id` — The customer who holds this account.
+- [Product](./product.md) — `product_id = product_id` — The product this account was opened on.

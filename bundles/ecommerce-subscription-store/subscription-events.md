@@ -13,7 +13,7 @@ description: |
   who never intended to leave.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:48.000Z
+timestamp: 2026-09-02T16:21:30.000Z
 ---
 
 # Schema
@@ -41,4 +41,4 @@ timestamp: 2026-08-01T08:55:48.000Z
 
 ## Joins
 
-- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id`
+- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` — The contract this event happened to.

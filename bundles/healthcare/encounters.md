@@ -9,7 +9,7 @@ description: |
   unexpectedly.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:44.000Z
+timestamp: 2026-09-02T16:19:47.000Z
 ---
 
 # Schema
@@ -35,5 +35,5 @@ timestamp: 2026-07-29T14:32:44.000Z
 
 ## Joins
 
-- [Appointments](./appointments.md) — `appointment_id = appointment_id`
-- [Patient](./patient.md) — `patient_id = patient_id`
+- [Appointments](./appointments.md) — `appointment_id = appointment_id` — The booking that brought the patient in.
+- [Patient](./patient.md) — `patient_id = patient_id` — The patient treated in this encounter.

@@ -14,7 +14,7 @@ description: |
   returns that arrive late and unreceipted behave differently from the rest in both cost and risk.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T04:41:39.000Z
+timestamp: 2026-09-02T16:21:07.000Z
 ---
 
 # Schema
@@ -44,7 +44,7 @@ timestamp: 2026-08-06T04:41:39.000Z
 
 ## Joins
 
-- [Loyalty Members](./loyalty-members.md) — `member_id = member_id`
-- [POS Sales](./pos-sales.md) — `sale_id = sale_id`
-- [Product](./product.md) — `product_id = product_id`
-- [Store](./store.md) — `store_id = store_id`
+- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` — The member who returned it.
+- [POS Sales](./pos-sales.md) — `sale_id = sale_id` — The receipt line being returned.
+- [Product](./product.md) — `product_id = product_id` — The SKU returned.
+- [Store](./store.md) — `store_id = store_id` — The store that took the return.

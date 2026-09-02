@@ -13,7 +13,7 @@ description: |
   thrown away.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T04:37:30.000Z
+timestamp: 2026-08-07T18:20:47.000Z
 ---
 
 # Schema
@@ -39,5 +39,5 @@ timestamp: 2026-08-06T04:37:30.000Z
 
 ## Joins
 
-- [Product](./product.md) — `product_id = product_id`
-- [Store](./store.md) — `store_id = store_id`
+- [Product](./product.md) — `product_id = product_id` — The SKU counted in this snapshot.
+- [Store](./store.md) — `store_id = store_id` — The store this stock snapshot is for.

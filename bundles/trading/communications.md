@@ -12,7 +12,7 @@ description: |
   forms and the deposits.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:05:12.000Z
+timestamp: 2026-09-02T16:20:14.000Z
 ---
 
 # Schema
@@ -44,5 +44,5 @@ timestamp: 2026-07-31T11:05:12.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id`
-- [Leads](./leads.md) — `lead_id = lead_id`
+- [Clients](./clients.md) — `client_id = client_id` — The client the desk spoke to.
+- [Leads](./leads.md) — `lead_id = lead_id` — The lead the desk was trying to convert.

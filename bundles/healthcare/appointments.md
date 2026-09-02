@@ -34,6 +34,6 @@ timestamp: 2026-07-23T17:34:12.000Z
 
 ## Joins
 
-- [Department](./department.md) — `department_id = department_id`
-- [Patient](./patient.md) — `patient_id = patient_id`
-- [Provider](./provider.md) — `provider_id = provider_id`
+- [Department](./department.md) — `department_id = department_id` — The department the appointment was booked into.
+- [Patient](./patient.md) — `patient_id = patient_id` — The patient the appointment was booked for.
+- [Provider](./provider.md) — `provider_id = provider_id` — The clinician the appointment was booked with.

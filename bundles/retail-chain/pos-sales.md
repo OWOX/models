@@ -14,7 +14,7 @@ description: |
   nothing left on it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T04:39:43.000Z
+timestamp: 2026-09-02T16:21:06.000Z
 ---
 
 # Schema
@@ -47,9 +47,9 @@ timestamp: 2026-08-06T04:39:43.000Z
 
 ## Joins
 
-- [Inventory (daily)](./inventory-daily.md) — `store_id = store_id`, `product_id = product_id`, `sale_date = snapshot_date`
-- [Loyalty Members](./loyalty-members.md) — `member_id = member_id`
-- [Product](./product.md) — `product_id = product_id`
-- [Promotion](./promotion.md) — `promotion_id = promotion_id`
-- [Store](./store.md) — `store_id = store_id`
-- [Store Traffic](./store-traffic.md) — `store_id = store_id`, `sale_date = traffic_date`
+- [Inventory (daily)](./inventory-daily.md) — `store_id = store_id`, `product_id = product_id`, `sale_date = snapshot_date` — Stock of this SKU at this store on the day of sale.
+- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` — The member who bought, where a card was scanned.
+- [Product](./product.md) — `product_id = product_id` — The SKU sold on this line.
+- [Promotion](./promotion.md) — `promotion_id = promotion_id` — The promotion applied to this line.
+- [Store](./store.md) — `store_id = store_id` — The store that rang up this line.
+- [Store Traffic](./store-traffic.md) — `store_id = store_id`, `sale_date = traffic_date` — Footfall at this store on the day of sale.

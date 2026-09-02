@@ -11,7 +11,7 @@ description: |
   are visible next to the ones that converted.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:05:12.000Z
+timestamp: 2026-09-02T16:20:13.000Z
 ---
 
 # Schema
@@ -43,5 +43,5 @@ timestamp: 2026-07-31T11:05:12.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id`
-- [Sessions](./sessions.md) — `session_id = session_id`
+- [Clients](./clients.md) — `client_id = client_id` — The client this lead became, where it converted.
+- [Sessions](./sessions.md) — `session_id = session_id` — The visit the form was submitted in.

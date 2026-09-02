@@ -8,7 +8,7 @@ description: |
   everyday customer behavior.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:40.000Z
+timestamp: 2026-09-02T16:19:36.000Z
 ---
 
 # Schema
@@ -35,4 +35,4 @@ timestamp: 2026-07-29T14:32:40.000Z
 
 ## Joins
 
-- [Accounts](./accounts.md) — `account_id = account_id`
+- [Accounts](./accounts.md) — `account_id = account_id` — The account the money moved through.

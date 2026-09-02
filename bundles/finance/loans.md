@@ -35,5 +35,5 @@ timestamp: 2026-07-23T12:02:48.000Z
 
 ## Joins
 
-- [Customer](./customer.md) — `customer_id = customer_id`
-- [Product](./product.md) — `product_id = product_id`
+- [Customer](./customer.md) — `customer_id = customer_id` — The customer who applied for this loan.
+- [Product](./product.md) — `product_id = product_id` — The lending product applied for.
