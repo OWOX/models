@@ -7,6 +7,9 @@ description: |
 tags: ["owox"]
 type: "OWOX Data Mart"
 timestamp: 2026-09-02T16:01:59.000Z
+owox:
+  joins:
+    user.account: "The account of the seat that opened the ticket."
 ---
 
 # Schema

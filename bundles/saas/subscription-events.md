@@ -13,6 +13,10 @@ description: |
 tags: ["owox"]
 type: "OWOX Data Mart"
 timestamp: 2026-09-02T16:01:58.000Z
+owox:
+  joins:
+    subscription.account: "The account behind the changed subscription."
+    subscription.plan: "The plan the changed subscription is on."
 ---
 
 # Schema
