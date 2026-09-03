@@ -33,4 +33,4 @@ timestamp: 2026-09-02T16:01:59.000Z
 
 - [Account](./account.md) — `account_id = account_id` — The account that opened the ticket.
 - [User](./user.md) — `user_id = user_id` — The seat that opened the ticket, when known.
-  - [Account](./account.md) — The account of the seat that opened the ticket.
+  - [User Account](./account.md) — The account of the seat that opened the ticket.
