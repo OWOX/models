@@ -31,4 +31,4 @@ timestamp: 2026-09-02T16:01:59.000Z
 
 - [Account](./account.md) — `account_id = account_id` — The account that generated the usage.
 - [User](./user.md) — `user_id = user_id` — The seat that generated the usage.
-  - [Account](./account.md) — The account of the seat that generated the usage.
+  - [User Account](./account.md) — The account of the seat that generated the usage.
