@@ -15,10 +15,6 @@ description: |
 tags: ["owox"]
 type: "OWOX Data Mart"
 timestamp: 2026-09-02T16:01:57.000Z
-owox:
-  joins:
-    subscription.account: "The account behind the billed subscription."
-    subscription.plan: "The plan the billed subscription is on."
 ---
 
 # Schema
@@ -54,3 +50,5 @@ owox:
 
 - [Account](./account.md) — `account_id = account_id` — The account billed on this invoice.
 - [Subscription](./subscription.md) — `subscription_id = subscription_id` — The subscription this invoice bills.
+  - [Account](./account.md) — The account behind the billed subscription.
+  - [Plan](./plan.md) — The plan the billed subscription is on.
