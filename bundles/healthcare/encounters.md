@@ -35,5 +35,8 @@ timestamp: 2026-09-02T16:19:47.000Z
 
 ## Joins
 
-- [Appointments](./appointments.md) — `appointment_id = appointment_id` — The booking that brought the patient in.
-- [Patient](./patient.md) — `patient_id = patient_id` — The patient treated in this encounter.
+- [Appointments](./appointments.md) — `appointment_id = appointment_id` [N:1] — The booking that brought the patient in.
+  - [Appointments Department](./department.md) — The department the visit was booked into.
+  - [Appointments Patient](./patient.md) — The patient as recorded on the booking.
+  - [Appointments Provider](./provider.md) — The clinician the visit was booked with.
+- [Patient](./patient.md) — `patient_id = patient_id` [N:1] — The patient treated in this encounter.

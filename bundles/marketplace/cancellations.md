@@ -31,4 +31,12 @@ timestamp: 2026-09-02T16:20:50.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id` — The order that was cancelled.
+- [Orders](./orders.md) — `order_id = order_id` [N:1] — The order that was cancelled.
+  - [Orders Buyer](./buyer.md) — The buyer whose order was cancelled.
+  - [Orders Category](./category.md) — The category of the cancelled order.
+  - [Orders Listings](./listings.md) — The listing that was cancelled.
+    - [Listing Category](./category.md) — The category the cancelled listing is filed under.
+    - [Listing Seller](./seller.md) — The seller who owns the cancelled listing.
+      - [Listing Seller Category](./category.md) — The primary category of that listing's seller.
+  - [Orders Seller](./seller.md) — The seller whose sale was cancelled.
+    - [Seller Category](./category.md) — The primary category of the seller who lost the sale.

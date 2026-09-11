@@ -29,4 +29,8 @@ timestamp: 2026-09-02T16:19:59.000Z
 
 ## Joins
 
-- [Opportunities](./opportunities.md) — `opportunity_id = opportunity_id` — The deal that moved stage.
+- [Opportunities](./opportunities.md) — `opportunity_id = opportunity_id` [N:1] — The deal that moved stage.
+  - [Opportunities Account](./account.md) — The company whose deal moved stage.
+  - [Opportunities Campaign](./campaign.md) — The campaign credited with the moving deal.
+  - [Opportunities Lead](./lead.md) — The lead behind the moving deal.
+    - [Opportunities Lead Account](./account.md) — The company of the lead behind the moving deal.

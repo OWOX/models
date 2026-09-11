@@ -39,5 +39,5 @@ timestamp: 2026-08-07T18:20:47.000Z
 
 ## Joins
 
-- [Product](./product.md) — `product_id = product_id` — The SKU counted in this snapshot.
-- [Store](./store.md) — `store_id = store_id` — The store this stock snapshot is for.
+- [Product](./product.md) — `product_id = product_id` [N:1] — The SKU counted in this snapshot.
+- [Store](./store.md) — `store_id = store_id` [N:1] — The store this stock snapshot is for.

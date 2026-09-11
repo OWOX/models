@@ -40,4 +40,4 @@ timestamp: 2026-08-12T20:01:43.000Z
 
 ## Joins
 
-- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium`, `campaign = campaign` — The channel this spend was bought on.
+- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium`, `campaign = campaign` [N:N] — The channel this spend was bought on.

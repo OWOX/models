@@ -40,7 +40,11 @@ timestamp: 2026-09-02T16:20:49.000Z
 
 ## Joins
 
-- [Buyer](./buyer.md) — `buyer_id = buyer_id` — The buyer who placed this order.
-- [Category](./category.md) — `category_id = category_id` — The category this order is filed under.
-- [Listings](./listings.md) — `listing_id = listing_id` — The listing that was ordered.
-- [Seller](./seller.md) — `seller_id = seller_id` — The seller who fulfilled this order.
+- [Buyer](./buyer.md) — `buyer_id = buyer_id` [N:1] — The buyer who placed this order.
+- [Category](./category.md) — `category_id = category_id` [N:1] — The category this order is filed under.
+- [Listings](./listings.md) — `listing_id = listing_id` [N:1] — The listing that was ordered.
+  - [Listing Category](./category.md) — The category the listing is filed under, which can differ from the order's.
+  - [Listing Seller](./seller.md) — The seller who owns the ordered listing.
+    - [Listing Seller Category](./category.md) — The primary category of that listing's seller.
+- [Seller](./seller.md) — `seller_id = seller_id` [N:1] — The seller who fulfilled this order.
+  - [Seller Category](./category.md) — The primary category of the fulfilling seller.

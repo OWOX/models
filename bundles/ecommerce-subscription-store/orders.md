@@ -48,6 +48,17 @@ timestamp: 2026-09-02T16:21:31.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id` — The customer who placed this order.
-- [Sessions](./sessions.md) — `session_id = session_id` — The visit this order was placed in — absent on a recurring charge.
-- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` — The contract this order was billed under, where it is recurring.
+- [Customers](./customers.md) — `customer_id = customer_id` [N:1] — The customer who placed this order.
+  - [Customer Acquisition Source](./traffic-sources.md) — The channel that acquired the customer.
+- [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The visit this order was placed in — absent on a recurring charge.
+  - [Session Ad Spend](./ad-spend.md) — Spend on that day and channel — a cohort match, not this order's cost.
+    - [Ad Spend Channel](./traffic-sources.md) — The channel behind that spend.
+  - [Landing Page](./pages.md) — The page the ordering visit landed on.
+  - [Session Channel](./traffic-sources.md) — The channel that drove the ordering visit.
+  - [Session Visitor](./visitors.md) — The visitor behind the ordering visit.
+- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` [N:1] — The contract this order was billed under, where it is recurring.
+  - [Subscriber](./customers.md) — The subscriber on the billed contract.
+    - [Subscriber Acquisition Source](./traffic-sources.md) — The channel that acquired the subscriber.
+  - [Subscribed Product](./products.md) — The product the billed contract ships.
+    - [Subscribed Product Page](./pages.md) — The storefront page of that product.
+  - [Subscription Plan](./selling-plans.md) — The offer the billed contract was signed on.

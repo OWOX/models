@@ -44,5 +44,9 @@ timestamp: 2026-09-02T16:20:14.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id` — The client the desk spoke to.
-- [Leads](./leads.md) — `lead_id = lead_id` — The lead the desk was trying to convert.
+- [Clients](./clients.md) — `client_id = client_id` [N:1] — The client the desk spoke to.
+- [Leads](./leads.md) — `lead_id = lead_id` [N:1] — The lead the desk was trying to convert.
+  - [Leads Clients](./clients.md) — The client the contacted lead became.
+  - [Leads Sessions](./sessions.md) — The visit the contacted lead came from.
+    - [Leads Sessions Attribution](./attribution.md) — The acquisition funnel behind the contacted lead.
+    - [Leads Sessions Clients](./clients.md) — The client recognised on that visit.

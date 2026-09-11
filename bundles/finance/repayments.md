@@ -32,4 +32,6 @@ timestamp: 2026-09-02T16:19:35.000Z
 
 ## Joins
 
-- [Loans](./loans.md) — `loan_id = loan_id` — The loan this instalment is scheduled against.
+- [Loans](./loans.md) — `loan_id = loan_id` [N:1] — The loan this instalment is scheduled against.
+  - [Loans Customer](./customer.md) — The borrower who owes this instalment.
+  - [Loans Product](./product.md) — The lending product being repaid.

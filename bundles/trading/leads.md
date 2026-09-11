@@ -43,5 +43,7 @@ timestamp: 2026-09-02T16:20:13.000Z
 
 ## Joins
 
-- [Clients](./clients.md) — `client_id = client_id` — The client this lead became, where it converted.
-- [Sessions](./sessions.md) — `session_id = session_id` — The visit the form was submitted in.
+- [Clients](./clients.md) — `client_id = client_id` [N:1] — The client this lead became, where it converted.
+- [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The visit the form was submitted in.
+  - [Sessions Attribution](./attribution.md) — The acquisition funnel behind this lead's visit.
+  - [Sessions Clients](./clients.md) — The client recognised on the visit.

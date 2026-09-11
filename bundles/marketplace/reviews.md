@@ -31,4 +31,12 @@ timestamp: 2026-09-02T16:20:50.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id` — The fulfilled order being reviewed.
+- [Orders](./orders.md) — `order_id = order_id` [N:1] — The fulfilled order being reviewed.
+  - [Orders Buyer](./buyer.md) — The buyer who left the review.
+  - [Orders Category](./category.md) — The category of the reviewed order.
+  - [Orders Listings](./listings.md) — The listing that was reviewed.
+    - [Listing Category](./category.md) — The category the reviewed listing is filed under.
+    - [Listing Seller](./seller.md) — The seller who owns the reviewed listing.
+      - [Listing Seller Category](./category.md) — The primary category of that listing's seller.
+  - [Orders Seller](./seller.md) — The seller being reviewed.
+    - [Seller Category](./category.md) — The primary category of the reviewed seller.

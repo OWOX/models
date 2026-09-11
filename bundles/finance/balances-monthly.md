@@ -30,4 +30,6 @@ timestamp: 2026-09-02T16:19:34.000Z
 
 ## Joins
 
-- [Accounts](./accounts.md) — `account_id = account_id` — The account this month of balances belongs to.
+- [Accounts](./accounts.md) — `account_id = account_id` [N:1] — The account this month of balances belongs to.
+  - [Accounts Customer](./customer.md) — The customer holding the account.
+  - [Accounts Product](./product.md) — The product the account was opened on.

@@ -46,7 +46,12 @@ timestamp: 2026-09-02T16:20:36.000Z
 
 ## Joins
 
-- [Clinic](./clinic.md) — `clinic_id = clinic_id` — The clinic where the visit happened.
-- [Leads](./leads.md) — `lead_id = lead_id` — The enquiry this appointment came from.
-- [Patients](./patients.md) — `patient_id = patient_id` — The patient who attended.
-- [Provider](./provider.md) — `provider_id = provider_id` — The clinician who saw the patient.
+- [Clinic](./clinic.md) — `clinic_id = clinic_id` [N:1] — The clinic where the visit happened.
+- [Leads](./leads.md) — `lead_id = lead_id` [N:1] — The enquiry this appointment came from.
+  - [Leads Clinic](./clinic.md) — The clinic the enquiry asked about, which can differ from where the visit happened.
+  - [Leads Patients](./patients.md) — The patient as the enquiry recorded them.
+  - [Leads Sessions](./sessions.md) — The website visit the enquiry came from.
+    - [Lead Attribution](./attribution.md) — The acquisition funnel behind the booked enquiry.
+- [Patients](./patients.md) — `patient_id = patient_id` [N:1] — The patient who attended.
+- [Provider](./provider.md) — `provider_id = provider_id` [N:1] — The clinician who saw the patient.
+  - [Provider Clinic](./clinic.md) — The clinician's home clinic, which can differ from where the visit happened.

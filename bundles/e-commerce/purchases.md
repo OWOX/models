@@ -7,7 +7,7 @@ description: |
   confused. This is the mart that answers what the business actually earned.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:26:28.000Z
+timestamp: 2026-09-04T13:36:50.000Z
 ---
 
 # Schema
@@ -26,6 +26,8 @@ timestamp: 2026-09-02T16:26:28.000Z
 | `line_net_revenue` | FLOAT | Item Net Revenue | Revenue recognised only for Completed orders (Cancelled / Returned = 0). Sum for net  revenue. |
 | `line_net_profit` | FLOAT | Item Net Profit | Profit for Completed orders = (Item Sale Price − Unit Cost) × Quantity, else 0. Sum for  total net profit. |
 | `line_net_cost` | FLOAT | Item Net COGS | Cost of goods sold recognised only for Completed orders (Cancelled / Returned = 0). This is the cost figure that pairs with Line Net Revenue: net revenue − net cost = net profit. |
+| `net_margin_pct` | FLOAT | Net Margin % | Settled profit over settled revenue, from summed components. |
+| `margin_bucket` | STRING | Margin Bucket | Each line's gross margin band — Thin, Standard, Healthy or Premium — from its sale price and unit cost, banded to how this store's margins actually spread (mid-40s to high-60s percent, not the wide range a generic Loss/Thin/Healthy/Premium split assumes). Row-level; group and filter by it. |
 
 # Example Questions
 
@@ -35,5 +37,19 @@ timestamp: 2026-09-02T16:26:28.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id` — The order this line belongs to.
-- [Products](./products.md) — `product_id = product_id` — The product sold on this line.
+- [Orders](./orders.md) — `order_id = order_id` [N:1] — The order this line belongs to.
+  - [Order Customer](./customers.md) — The customer who placed the order this line belongs to.
+    - [Customer Country](./countries.md) — The customer's home market.
+    - [Customer Acquisition Source](./traffic-sources.md) — The channel that originally acquired the customer.
+  - [Order Session](./sessions.md) — The session the order was placed in.
+    - [Session Country](./countries.md) — The market the order was placed from.
+    - [Session Pageviews](./pageviews.md) — The clickstream of the ordering session.
+      - [Viewed Pages](./pages.md) — The pages seen in the ordering session.
+    - [Session Traffic Source](./traffic-sources.md) — The channel that drove the ordering session.
+    - [Session Ad Spend](./unified-ad-spend.md) — Spend on that day and channel — a cohort match, not this line's cost.
+      - [Ad Spend Traffic Source](./traffic-sources.md) — The channel behind that spend.
+    - [Session Visitor](./visitors.md) — The visitor behind the ordering session.
+- [Products](./products.md) — `product_id = product_id` [N:1] — The product sold on this line.
+  - [Product Page](./pages.md) — The storefront page of the product on this line.
+    - [Product Pageviews](./pageviews.md) — Views of that product page.
+  - [Product Category](./product-category.md) — The category of the product on this line.

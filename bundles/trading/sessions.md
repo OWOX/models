@@ -55,5 +55,5 @@ timestamp: 2026-07-31T11:05:11.000Z
 
 ## Joins
 
-- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` — The acquisition funnel this visit rolls into.
-- [Clients](./clients.md) — `client_id = client_id` — The client this visit is recognised as.
+- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` [N:1] — The acquisition funnel this visit rolls into.
+- [Clients](./clients.md) — `client_id = client_id` [N:1] — The client this visit is recognised as.
