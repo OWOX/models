@@ -34,5 +34,6 @@ timestamp: 2026-09-02T16:19:59.000Z
 
 ## Joins
 
-- [Campaign](./campaign.md) — `campaign_id = campaign_id` — The campaign that produced this touch.
-- [Lead](./lead.md) — `lead_id = lead_id` — The lead who was touched.
+- [Campaign](./campaign.md) — `campaign_id = campaign_id` [N:1] — The campaign that produced this touch.
+- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The lead who was touched.
+  - [Lead Account](./account.md) — The company of the touched lead.

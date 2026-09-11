@@ -44,7 +44,8 @@ timestamp: 2026-09-02T16:21:30.000Z
 
 ## Joins
 
-- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` — Spend on the same day and channel — a cohort match, not this visit's cost.
-- [Pages](./pages.md) — `landing_page_id = page_id` — The page the visit landed on.
-- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id` — The channel that drove this visit.
-- [Visitors](./visitors.md) — `visitor_id = visitor_id` — The visitor who browsed.
+- [Ad Spend](./ad-spend.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` [N:N] — Spend on the same day and channel — a cohort match, not this visit's cost.
+  - [Ad Spend Channel](./traffic-sources.md) — The channel behind the matched spend.
+- [Pages](./pages.md) — `landing_page_id = page_id` [N:1] — The page the visit landed on.
+- [Traffic Sources](./traffic-sources.md) — `traffic_source_id = traffic_source_id` [N:1] — The channel that drove this visit.
+- [Visitors](./visitors.md) — `visitor_id = visitor_id` [N:1] — The visitor who browsed.

@@ -35,6 +35,7 @@ timestamp: 2026-09-02T16:19:58.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The company the deal is with.
-- [Campaign](./campaign.md) — `primary_campaign_id = campaign_id` — The campaign credited with sourcing the deal.
-- [Lead](./lead.md) — `lead_id = lead_id` — The lead the deal grew out of.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The company the deal is with.
+- [Campaign](./campaign.md) — `primary_campaign_id = campaign_id` [N:1] — The campaign credited with sourcing the deal.
+- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The lead the deal grew out of.
+  - [Lead Account](./account.md) — The lead's own company, which can differ from the account the deal is booked to.

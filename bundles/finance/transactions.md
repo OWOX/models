@@ -35,4 +35,6 @@ timestamp: 2026-09-02T16:19:36.000Z
 
 ## Joins
 
-- [Accounts](./accounts.md) — `account_id = account_id` — The account the money moved through.
+- [Accounts](./accounts.md) — `account_id = account_id` [N:1] — The account the money moved through.
+  - [Accounts Customer](./customer.md) — The customer whose account the money moved through.
+  - [Accounts Product](./product.md) — The product the transacting account sits on.

@@ -31,5 +31,6 @@ timestamp: 2026-09-02T16:20:49.000Z
 
 ## Joins
 
-- [Category](./category.md) — `category_id = category_id` — The category this listing is filed under.
-- [Seller](./seller.md) — `seller_id = seller_id` — The seller who owns this listing.
+- [Category](./category.md) — `category_id = category_id` [N:1] — The category this listing is filed under.
+- [Seller](./seller.md) — `seller_id = seller_id` [N:1] — The seller who owns this listing.
+  - [Seller Category](./category.md) — The seller's primary category, which can differ from the listing's.

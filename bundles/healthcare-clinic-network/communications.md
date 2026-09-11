@@ -43,6 +43,10 @@ timestamp: 2026-09-02T16:20:36.000Z
 
 ## Joins
 
-- [Leads](./leads.md) — `lead_id = lead_id` — The enquiry this interaction is about.
-- [Patient Access Agent](./patient-access-agent.md) — `agent_id = agent_id` — The agent who handled the interaction.
-- [Patients](./patients.md) — `patient_id = patient_id` — The patient this interaction was with.
+- [Leads](./leads.md) — `lead_id = lead_id` [N:1] — The enquiry this interaction is about.
+  - [Leads Clinic](./clinic.md) — The clinic the enquiry asked about.
+  - [Leads Patients](./patients.md) — The patient the enquiry was matched to.
+  - [Leads Sessions](./sessions.md) — The website visit the enquiry came from.
+    - [Lead Attribution](./attribution.md) — The acquisition funnel behind the enquiry.
+- [Patient Access Agent](./patient-access-agent.md) — `agent_id = agent_id` [N:1] — The agent who handled the interaction.
+- [Patients](./patients.md) — `patient_id = patient_id` [N:1] — The patient this interaction was with.

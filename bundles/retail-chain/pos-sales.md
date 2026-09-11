@@ -47,9 +47,13 @@ timestamp: 2026-09-02T16:21:06.000Z
 
 ## Joins
 
-- [Inventory (daily)](./inventory-daily.md) — `store_id = store_id`, `product_id = product_id`, `sale_date = snapshot_date` — Stock of this SKU at this store on the day of sale.
-- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` — The member who bought, where a card was scanned.
-- [Product](./product.md) — `product_id = product_id` — The SKU sold on this line.
-- [Promotion](./promotion.md) — `promotion_id = promotion_id` — The promotion applied to this line.
-- [Store](./store.md) — `store_id = store_id` — The store that rang up this line.
-- [Store Traffic](./store-traffic.md) — `store_id = store_id`, `sale_date = traffic_date` — Footfall at this store on the day of sale.
+- [Inventory (daily)](./inventory-daily.md) — `store_id = store_id`, `product_id = product_id`, `sale_date = snapshot_date` [N:1] — Stock of this SKU at this store on the day of sale.
+  - [Inventory SKU](./product.md) — The SKU as the sale-day stock snapshot records it.
+  - [Inventory Store](./store.md) — The store the sale-day stock snapshot belongs to.
+- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` [N:1] — The member who bought, where a card was scanned.
+  - [Member Home Store](./store.md) — The buyer's home store, which need not be where they bought.
+- [Product](./product.md) — `product_id = product_id` [N:1] — The SKU sold on this line.
+- [Promotion](./promotion.md) — `promotion_id = promotion_id` [N:1] — The promotion applied to this line.
+- [Store](./store.md) — `store_id = store_id` [N:1] — The store that rang up this line.
+- [Store Traffic](./store-traffic.md) — `store_id = store_id`, `sale_date = traffic_date` [N:1] — Footfall at this store on the day of sale.
+  - [Traffic Store](./store.md) — The store behind that day of footfall.

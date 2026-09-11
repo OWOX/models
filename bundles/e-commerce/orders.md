@@ -7,7 +7,7 @@ description: |
   settled revenue can be told apart instead of quietly merged.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:26:27.000Z
+timestamp: 2026-09-05T06:01:07.000Z
 ---
 
 # Schema
@@ -19,6 +19,10 @@ timestamp: 2026-09-02T16:26:27.000Z
 | `order_date` | DATE | Order Date | The date when the transaction was completed |
 | `order_id` | STRING | Order ID | PK. Unique identifier of the purchase transaction FK to [Purchases](./purchases.md) |
 | `status` | STRING | Status | Current fulfillment state of the order (e.g., Completed) |
+| `orders_total` | INTEGER | Orders | Distinct orders in the selected rows, every status. |
+| `completed_orders` | INTEGER | Completed Orders | Orders that completed — a conditional count with no helper column. |
+| `completion_rate` | FLOAT | Completion Rate | Share of orders that completed rather than being cancelled or returned. |
+| `distinct_products_in_order` | INTEGER | Distinct Products in Order | Distinct products across the selected orders' lines, counted through Purchases into Products. |
 
 # Example Questions
 
@@ -28,6 +32,19 @@ timestamp: 2026-09-02T16:26:27.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id` — The customer who placed this order.
-- [Purchases](./purchases.md) — `order_id = order_id` — The lines this order is made of.
-- [Sessions](./sessions.md) — `session_id = session_id` — The session this order was placed in.
+- [Customers](./customers.md) — `customer_id = customer_id` [N:1] — The customer who placed this order.
+  - [Customer Country](./countries.md) — The customer's home market.
+  - [Customer Acquisition Source](./traffic-sources.md) — The channel that originally acquired the customer, not the one that drove this order.
+- [Purchases](./purchases.md) — `order_id = order_id` [1:N] — The lines this order is made of.
+  - [Ordered Product](./products.md) — The products on this order's lines.
+    - [Product Page](./pages.md) — The storefront page of each ordered product.
+      - [Product Pageviews](./pageviews.md) — Views of those product pages.
+    - [Product Category](./product-category.md) — The category of each ordered product.
+- [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The session this order was placed in.
+  - [Session Country](./countries.md) — The market this order was placed from.
+  - [Session Pageviews](./pageviews.md) — The clickstream of the ordering session.
+    - [Viewed Pages](./pages.md) — The pages seen in the ordering session.
+  - [Session Traffic Source](./traffic-sources.md) — The channel that drove the ordering session.
+  - [Session Ad Spend](./unified-ad-spend.md) — Spend on that day and channel — a cohort match, not this order's cost.
+    - [Ad Spend Traffic Source](./traffic-sources.md) — The channel behind that spend.
+  - [Session Visitor](./visitors.md) — The visitor behind the ordering session.

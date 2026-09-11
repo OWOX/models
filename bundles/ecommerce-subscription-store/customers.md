@@ -37,4 +37,4 @@ timestamp: 2026-08-01T08:55:43.000Z
 
 ## Joins
 
-- [Traffic Sources](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id` — The channel that acquired this customer.
+- [Traffic Sources](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id` [N:1] — The channel that acquired this customer.

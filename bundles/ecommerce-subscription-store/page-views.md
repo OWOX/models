@@ -34,5 +34,10 @@ timestamp: 2026-09-02T16:21:32.000Z
 
 ## Joins
 
-- [Pages](./pages.md) — `page_id = page_id` — The page that was viewed.
-- [Sessions](./sessions.md) — `session_id = session_id` — The visit this page view belongs to.
+- [Pages](./pages.md) — `page_id = page_id` [N:1] — The page that was viewed.
+- [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The visit this page view belongs to.
+  - [Session Ad Spend](./ad-spend.md) — Spend on the day and channel of this visit — a cohort match.
+    - [Ad Spend Channel](./traffic-sources.md) — The channel behind that spend.
+  - [Landing Page](./pages.md) — The page this visit landed on, not the page viewed here.
+  - [Session Channel](./traffic-sources.md) — The channel that drove this visit.
+  - [Session Visitor](./visitors.md) — The visitor behind this visit.

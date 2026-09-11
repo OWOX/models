@@ -43,5 +43,11 @@ timestamp: 2026-09-02T16:21:31.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id` — The customer this value profile is for.
-- [Sessions](./sessions.md) — `acquisition_session_id = session_id` — The visit that first acquired the customer.
+- [Customers](./customers.md) — `customer_id = customer_id` [1:1] — The customer this value profile is for.
+  - [Customer Acquisition Source](./traffic-sources.md) — The channel that acquired the customer.
+- [Sessions](./sessions.md) — `acquisition_session_id = session_id` [N:1] — The visit that first acquired the customer.
+  - [Session Ad Spend](./ad-spend.md) — Spend on the day and channel of the acquiring visit — a cohort match, not this customer's CAC.
+    - [Ad Spend Channel](./traffic-sources.md) — The channel behind that spend.
+  - [Landing Page](./pages.md) — The page the acquiring visit landed on.
+  - [Session Channel](./traffic-sources.md) — The channel that drove the acquiring visit.
+  - [Session Visitor](./visitors.md) — The visitor behind the acquiring visit.

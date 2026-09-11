@@ -52,6 +52,8 @@ timestamp: 2026-09-02T16:21:29.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id` — The subscriber who signed this contract.
-- [Products](./products.md) — `product_id = product_id` — The product shipped on schedule.
-- [Selling Plans](./selling-plans.md) — `selling_plan_id = selling_plan_id` — The offer this contract was signed on.
+- [Customers](./customers.md) — `customer_id = customer_id` [N:1] — The subscriber who signed this contract.
+  - [Customer Acquisition Source](./traffic-sources.md) — The channel that acquired the subscriber.
+- [Products](./products.md) — `product_id = product_id` [N:1] — The product shipped on schedule.
+  - [Product Page](./pages.md) — The storefront page of the subscribed product.
+- [Selling Plans](./selling-plans.md) — `selling_plan_id = selling_plan_id` [N:1] — The offer this contract was signed on.

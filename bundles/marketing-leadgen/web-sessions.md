@@ -34,5 +34,6 @@ timestamp: 2026-09-02T16:20:00.000Z
 
 ## Joins
 
-- [Campaign](./campaign.md) — `campaign_id = campaign_id` — The campaign that drove the visit.
-- [Lead](./lead.md) — `lead_id = lead_id` — The lead this visit was later tied to.
+- [Campaign](./campaign.md) — `campaign_id = campaign_id` [N:1] — The campaign that drove the visit.
+- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The lead this visit was later tied to.
+  - [Lead Account](./account.md) — The company of the lead this visit belongs to.

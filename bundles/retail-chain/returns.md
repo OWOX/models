@@ -44,7 +44,18 @@ timestamp: 2026-09-02T16:21:07.000Z
 
 ## Joins
 
-- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` — The member who returned it.
-- [POS Sales](./pos-sales.md) — `sale_id = sale_id` — The receipt line being returned.
-- [Product](./product.md) — `product_id = product_id` — The SKU returned.
-- [Store](./store.md) — `store_id = store_id` — The store that took the return.
+- [Loyalty Members](./loyalty-members.md) — `member_id = member_id` [N:1] — The member who returned it.
+  - [Member Home Store](./store.md) — The home store of the member who returned.
+- [POS Sales](./pos-sales.md) — `sale_id = sale_id` [N:1] — The receipt line being returned.
+  - [Sale-Day Inventory](./inventory-daily.md) — Stock at the selling store on the day of sale.
+    - [Inventory SKU](./product.md) — The SKU as the sale-day stock snapshot records it.
+    - [Inventory Store](./store.md) — The store the sale-day stock snapshot belongs to.
+  - [Buying Member](./loyalty-members.md) — The member who bought, who need not be the one returning.
+    - [Buyer Home Store](./store.md) — The home store of the member who bought.
+  - [Sold Product](./product.md) — The SKU as sold on the original receipt line.
+  - [Sale Promotion](./promotion.md) — The promotion the returned line was bought under.
+  - [Selling Store](./store.md) — The store that made the sale, which can differ from where it came back.
+  - [Sale-Day Traffic](./store-traffic.md) — Footfall at the selling store on the day of sale.
+    - [Sale Traffic Store](./store.md) — The store behind that day of footfall — the selling store.
+- [Product](./product.md) — `product_id = product_id` [N:1] — The SKU returned.
+- [Store](./store.md) — `store_id = store_id` [N:1] — The store that took the return.

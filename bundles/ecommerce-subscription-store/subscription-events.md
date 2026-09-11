@@ -41,4 +41,9 @@ timestamp: 2026-09-02T16:21:30.000Z
 
 ## Joins
 
-- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` — The contract this event happened to.
+- [Subscriptions](./subscriptions.md) — `subscription_id = subscription_id` [N:1] — The contract this event happened to.
+  - [Subscriber](./customers.md) — The subscriber whose contract this event happened to.
+    - [Subscriber Acquisition Source](./traffic-sources.md) — The channel that acquired the subscriber.
+  - [Subscribed Product](./products.md) — The product the contract ships.
+    - [Subscribed Product Page](./pages.md) — The storefront page of that product.
+  - [Subscription Plan](./selling-plans.md) — The offer the contract was signed on.

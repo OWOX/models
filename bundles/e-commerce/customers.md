@@ -28,5 +28,5 @@ timestamp: 2026-08-11T13:25:25.000Z
 
 ## Joins
 
-- [Countries](./countries.md) — `country_id = country_id` — The customer's home market.
-- [Acquisition Traffic Source](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id` — The channel that acquired this customer.
+- [Countries](./countries.md) — `country_id = country_id` [N:1] — The customer's home market.
+- [Acquisition Traffic Source](./traffic-sources.md) — `acquisition_traffic_source_id = traffic_source_id` [N:1] — The channel that acquired this customer.

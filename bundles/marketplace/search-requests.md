@@ -34,6 +34,14 @@ timestamp: 2026-09-02T16:20:51.000Z
 
 ## Joins
 
-- [Buyer](./buyer.md) — `buyer_id = buyer_id` — The buyer who ran this search.
-- [Category](./category.md) — `category_id = category_id` — The category searched in.
-- [Orders](./orders.md) — `order_id = order_id` — The order this search led to, where it converted.
+- [Buyer](./buyer.md) — `buyer_id = buyer_id` [N:1] — The buyer who ran this search.
+- [Category](./category.md) — `category_id = category_id` [N:1] — The category searched in.
+- [Orders](./orders.md) — `order_id = order_id` [N:1] — The order this search led to, where it converted.
+  - [Orders Buyer](./buyer.md) — The buyer on the order this search led to.
+  - [Orders Category](./category.md) — The category of the order this search led to.
+  - [Orders Listings](./listings.md) — The listing bought after this search.
+    - [Listing Category](./category.md) — The category of the listing bought after this search.
+    - [Listing Seller](./seller.md) — The seller of the listing bought after this search.
+      - [Listing Seller Category](./category.md) — The primary category of that listing's seller.
+  - [Orders Seller](./seller.md) — The seller who won the order after this search.
+    - [Seller Category](./category.md) — The primary category of the winning seller.

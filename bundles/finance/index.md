@@ -9,7 +9,7 @@ description: |
   the money and the risk across the entire loan book.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-02T16:29:37Z
+timestamp: 2026-09-11T11:01:25Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

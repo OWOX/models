@@ -18,7 +18,7 @@ description: |
   reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T07:00:45.000Z
+timestamp: 2026-09-11T07:00:40.000Z
 ---
 
 # Schema
@@ -44,4 +44,4 @@ timestamp: 2026-09-02T07:00:45.000Z
 
 ## Joins
 
-- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium` — The channel this spend was bought on.
+- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium` [N:1] — The channel this spend was bought on.

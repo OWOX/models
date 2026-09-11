@@ -40,6 +40,7 @@ timestamp: 2026-09-02T16:20:35.000Z
 
 ## Joins
 
-- [Clinic](./clinic.md) — `clinic_id = clinic_id` — The clinic the enquiry asked about.
-- [Patients](./patients.md) — `patient_id = patient_id` — The patient this enquiry was matched to.
-- [Sessions](./sessions.md) — `session_id = session_id` — The website visit the enquiry came from.
+- [Clinic](./clinic.md) — `clinic_id = clinic_id` [N:1] — The clinic the enquiry asked about.
+- [Patients](./patients.md) — `patient_id = patient_id` [N:1] — The patient this enquiry was matched to.
+- [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The website visit the enquiry came from.
+  - [Sessions Attribution](./attribution.md) — The acquisition funnel behind this visit.

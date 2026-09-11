@@ -46,5 +46,6 @@ timestamp: 2026-09-02T16:21:29.000Z
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = customer_id` — The subscriber this month belongs to.
-- [Selling Plans](./selling-plans.md) — `primary_selling_plan_id = selling_plan_id` — The offer the subscriber was mainly on that month.
+- [Customers](./customers.md) — `customer_id = customer_id` [N:1] — The subscriber this month belongs to.
+  - [Customer Acquisition Source](./traffic-sources.md) — The channel that acquired the subscriber.
+- [Selling Plans](./selling-plans.md) — `primary_selling_plan_id = selling_plan_id` [N:1] — The offer the subscriber was mainly on that month.

@@ -29,4 +29,6 @@ timestamp: 2026-09-02T16:19:35.000Z
 
 ## Joins
 
-- [Loans](./loans.md) — `loan_id = loan_id` — The delinquent loan being collected on.
+- [Loans](./loans.md) — `loan_id = loan_id` [N:1] — The delinquent loan being collected on.
+  - [Loans Customer](./customer.md) — The borrower being collected from.
+  - [Loans Product](./product.md) — The lending product behind the delinquent loan.

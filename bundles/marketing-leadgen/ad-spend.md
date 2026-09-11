@@ -31,4 +31,4 @@ timestamp: 2026-07-23T17:34:31.000Z
 
 ## Joins
 
-- [Campaign](./campaign.md) — `campaign_id = campaign_id` — The campaign this spend was bought for.
+- [Campaign](./campaign.md) — `campaign_id = campaign_id` [N:1] — The campaign this spend was bought for.

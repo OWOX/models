@@ -35,5 +35,10 @@ timestamp: 2026-09-02T16:19:47.000Z
 
 ## Joins
 
-- [Encounters](./encounters.md) — `encounter_id = encounter_id` — The encounter being billed.
-- [Payer](./payer.md) — `payer_id = payer_id` — The insurer billed for this claim.
+- [Encounters](./encounters.md) — `encounter_id = encounter_id` [N:1] — The encounter being billed.
+  - [Encounters Appointments](./appointments.md) — The booking behind the billed encounter.
+    - [Encounters Appointments Department](./department.md) — The department that delivered the billed care.
+    - [Encounters Appointments Patient](./patient.md) — The patient as recorded on the booking, not on the encounter.
+    - [Encounters Appointments Provider](./provider.md) — The clinician who delivered the billed care.
+  - [Encounters Patient](./patient.md) — The patient treated in the billed encounter.
+- [Payer](./payer.md) — `payer_id = payer_id` [N:1] — The insurer billed for this claim.

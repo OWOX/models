@@ -34,4 +34,4 @@ timestamp: 2026-07-27T15:57:44.000Z
 
 ## Joins
 
-- [Category](./category.md) — `category_id = category_id` — The seller's primary category.
+- [Category](./category.md) — `category_id = category_id` [N:1] — The seller's primary category.
