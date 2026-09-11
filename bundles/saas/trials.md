@@ -30,4 +30,4 @@ timestamp: 2026-08-11T08:35:35.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account that ran the trial.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account that ran the trial.

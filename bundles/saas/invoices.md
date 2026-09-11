@@ -14,7 +14,7 @@ description: |
   `dunning_stage = 'write_off'`.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:01:57.000Z
+timestamp: 2026-09-11T08:52:41.000Z
 ---
 
 # Schema
@@ -48,7 +48,7 @@ timestamp: 2026-09-02T16:01:57.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account billed on this invoice.
-- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The subscription this invoice bills.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account billed on this invoice.
+- [Subscription](./subscription.md) — `subscription_id = subscription_id` [N:1] — The subscription this invoice bills.
   - [Subscription Account](./account.md) — The account behind the billed subscription.
   - [Subscription Plan](./plan.md) — The plan the billed subscription is on.
