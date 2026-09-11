@@ -30,4 +30,4 @@ timestamp: 2026-08-11T08:35:01.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account a seat belongs to.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account a seat belongs to.

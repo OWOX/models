@@ -38,7 +38,7 @@ timestamp: 2026-09-02T16:01:58.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account whose recurring revenue moved.
-- [Subscription](./subscription.md) — `subscription_id = subscription_id` — The subscription this change was made to.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account whose recurring revenue moved.
+- [Subscription](./subscription.md) — `subscription_id = subscription_id` [N:1] — The subscription this change was made to.
   - [Subscription Account](./account.md) — The account behind the changed subscription.
   - [Subscription Plan](./plan.md) — The plan the changed subscription is on.

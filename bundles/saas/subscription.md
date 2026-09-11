@@ -37,5 +37,5 @@ timestamp: 2026-08-18T14:00:22.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account paying for this subscription.
-- [Plan](./plan.md) — `plan_id = plan_id` — The plan this subscription is billed on.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account paying for this subscription.
+- [Plan](./plan.md) — `plan_id = plan_id` [N:1] — The plan this subscription is billed on.

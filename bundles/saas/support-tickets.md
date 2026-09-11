@@ -31,6 +31,6 @@ timestamp: 2026-09-02T16:01:59.000Z
 
 ## Joins
 
-- [Account](./account.md) — `account_id = account_id` — The account that opened the ticket.
-- [User](./user.md) — `user_id = user_id` — The seat that opened the ticket, when known.
+- [Account](./account.md) — `account_id = account_id` [N:1] — The account that opened the ticket.
+- [User](./user.md) — `user_id = user_id` [N:1] — The seat that opened the ticket, when known.
   - [User Account](./account.md) — The account of the seat that opened the ticket.
