@@ -574,3 +574,47 @@ describe("pushModel", () => {
       .toEqual(["INTEGER", "DATETIME", "NUMERIC", "BOOLEAN"]);
   });
 });
+
+// An expired session fails EVERY call the same way. Grinding through 21 marts
+// and 30 links to print 51 identical "401 Authentication failed" lines tells the
+// user nothing and burns a minute — stop at the first one and say what to do.
+describe("pushModel with an expired session", () => {
+  const authError = () => Object.assign(new Error("OWOX POST /api/data-marts -> 401 Authentication failed"), { status: 401 });
+
+  it("stops on the opening listing without touching a single mart", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.addNode({ x: 0, y: 0 }); s.addNode({ x: 1, y: 0 }); s.addNode({ x: 2, y: 0 });
+    const apiMock = vi.fn(async () => { throw authError(); });
+    const res = await pushModel(s, apiMock as any);
+    expect(res.authExpired).toBe(true);
+    expect(apiMock).toHaveBeenCalledTimes(1); // the reconciliation GET, nothing after it
+    expect(res.failed).toBe(0);               // nothing was attempted, so nothing failed
+    expect(res.errors).toHaveLength(1);
+    expect(res.errors[0]).toMatch(/session/i);
+  });
+
+  it("stops at the first mart when the session dies mid-push", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.addNode({ x: 0, y: 0 }); s.addNode({ x: 1, y: 0 }); s.addNode({ x: 2, y: 0 });
+    // The reconciliation listing is a plain GET; only the creates carry a method,
+    // so this mock lets the push start and then kills it on the first POST.
+    const apiMock = vi.fn(async (_path: string, init?: any) => {
+      if (init?.method === "POST") throw authError();
+      return [];
+    });
+    const res = await pushModel(s, apiMock as any);
+    expect(res.authExpired).toBe(true);
+    expect(res.failed).toBe(1);           // the one that hit the wall, not all three
+    expect(res.errors).toHaveLength(1);
+    expect(res.errors[0]).toMatch(/session/i);
+  });
+
+  it("keeps reporting ordinary failures per mart", async () => {
+    const s = createModelStore({ storageId: "stor_1" });
+    s.addNode({ x: 0, y: 0 }); s.addNode({ x: 1, y: 0 });
+    const apiMock = vi.fn(async () => { throw Object.assign(new Error("OWOX POST /api/data-marts -> 400 bad title"), { status: 502 }); });
+    const res = await pushModel(s, apiMock as any);
+    expect(res.authExpired).toBeFalsy();
+    expect(res.failed).toBe(2);
+  });
+});

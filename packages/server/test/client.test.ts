@@ -142,3 +142,16 @@ describe("OwoxClient read methods", () => {
     ]);
   });
 });
+
+// A push that fails on an expired OWOX token must be distinguishable from any
+// other upstream failure, so the error carries the upstream status verbatim
+// rather than only burying it in the message text.
+describe("OwoxClient error status", () => {
+  it("attaches the upstream status to the thrown error", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ message: "Authentication failed" }), { status: 401 }));
+    const c = new OwoxClient("https://app.owox.com", "tok_expired", "kid_1", fetchMock as any);
+    const err = await c.createDataMart({ title: "T", storageId: "st" } as any).catch(e => e);
+    expect(err.owoxStatus).toBe(401);
+    expect(err.message).toContain("401 Authentication failed");
+  });
+});

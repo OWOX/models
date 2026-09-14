@@ -92,7 +92,16 @@ export function buildApp() {
   // body) instead of Fastify's generic "Internal Server Error". Preserve any
   // explicit statusCode (e.g. the rate limiter's 429); default to 502 for
   // upstream OWOX failures, which carry no statusCode.
-  app.setErrorHandler((err: Error & { statusCode?: number }, _req, reply) => {
+  app.setErrorHandler((err: Error & { statusCode?: number; owoxStatus?: number }, _req, reply) => {
+    // An OWOX access token lives 15 minutes, our session up to 12 hours, so a
+    // long modelling session pushes with a dead token and every call comes back
+    // 401 "Authentication failed". Pass that through as a 401 tagged owox_auth
+    // (same tag as a missing session) — the browser re-connects with the stored
+    // key and retries, instead of showing one red line per mart. Other upstream
+    // failures stay 502: re-connecting would not fix them.
+    if (err.owoxStatus === 401) {
+      return reply.code(401).send({ error: err.message, code: "owox_auth" });
+    }
     const code = err.statusCode && err.statusCode >= 400 ? err.statusCode : 502;
     reply.code(code).send({ error: err.message || "Upstream error" });
   });

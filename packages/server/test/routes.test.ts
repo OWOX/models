@@ -64,3 +64,43 @@ describe("owox-import route", () => {
     expect(res.json()).toMatchObject({ storageId: "st_1", total: 1, truncated: false });
   });
 });
+
+// An expired OWOX access token (they live 15 minutes; our session lives 12 hours)
+// made every push call fail as a generic 502 the browser could not act on. The
+// browser needs a machine-readable signal so it can re-connect silently and retry.
+describe("expired OWOX token", () => {
+  it("turns an upstream 401 into 401 { code: owox_auth }", async () => {
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    vi.stubGlobal("fetch", vi.fn(async () =>
+      new Response(JSON.stringify({ message: "Authentication failed" }), { status: 401 })));
+    const res = await app.inject({
+      method: "POST", url: "/api/data-marts", cookies: { mc_sid: sid },
+      payload: { title: "T", storageId: "st_1" },
+    });
+    expect(res.statusCode).toBe(401);
+    expect(res.json().code).toBe("owox_auth");
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps non-auth upstream failures as 502", async () => {
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("boom", { status: 500 })));
+    const res = await app.inject({
+      method: "POST", url: "/api/data-marts", cookies: { mc_sid: sid },
+      payload: { title: "T", storageId: "st_1" },
+    });
+    expect(res.statusCode).toBe(502);
+    vi.unstubAllGlobals();
+  });
+
+  it("tags a missing session with the same code so the browser can re-connect", async () => {
+    const app = buildApp();
+    const res = await app.inject({ method: "POST", url: "/api/data-marts", payload: { title: "T" } });
+    expect(res.statusCode).toBe(401);
+    expect(res.json().code).toBe("owox_auth");
+  });
+});

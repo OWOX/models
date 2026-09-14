@@ -58,3 +58,14 @@ describe("PushToast", () => {
     expect(screen.getByText(/Join not configured/i)).toBeTruthy();
   });
 });
+
+// A dead session is not a modelling error: the headline must send the user to
+// the one thing that fixes it instead of reading like the model is broken.
+describe("PushToast on an expired session", () => {
+  it("leads with the session, not with a failure count", () => {
+    render(<PushToast result={result({ authExpired: true, errors: ["Your OWOX session expired and could not be renewed — nothing else was pushed. Connect to OWOX again, then push."] })} onClose={() => {}} />);
+    expect(screen.getByText("OWOX session expired")).toBeTruthy();
+    expect(screen.queryByText("Push completed with errors")).toBeNull();
+    expect(screen.getByText(/connect to owox again/i)).toBeTruthy();
+  });
+});

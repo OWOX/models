@@ -79,7 +79,12 @@ export class OwoxClient {
     const res = await this.f(`${this.origin}${path}`, { method, headers: this.h(), body: body ? JSON.stringify(body) : undefined });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      throw new Error(`OWOX ${method} ${path} -> ${res.status} ${owoxErrorDetail(body)}`);
+      // Carry the upstream status on the error, not just inside the message: the
+      // 401 of an expired access token has to be told apart from every other
+      // upstream failure so the browser can re-connect and retry (see app.ts).
+      const err = new Error(`OWOX ${method} ${path} -> ${res.status} ${owoxErrorDetail(body)}`) as Error & { owoxStatus?: number };
+      err.owoxStatus = res.status;
+      throw err;
     }
     return (res.status === 204 ? undefined : await res.json()) as T;
   }

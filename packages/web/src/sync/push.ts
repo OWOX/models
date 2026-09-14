@@ -20,8 +20,19 @@ export interface PushResult {
   /** Links created as "Join not configured" in OWOX because the canvas edge has no
    *  join keys yet. Counted separately: they were created, but need finishing. */
   relationshipsWithoutKeys: number;
+  /** The push stopped because the OWOX session was gone and could not be renewed.
+   *  Nothing here is a modelling error — the remaining marts were never tried. */
+  authExpired?: boolean;
   errors: string[];
 }
+
+// api() already re-connects silently when the 15-minute OWOX token expires, so a
+// 401 reaching us means re-connecting failed too (key revoked, or never stored).
+// Every subsequent call would fail identically, so the push stops here.
+const isAuthError = (e: unknown) => (e as { status?: number })?.status === 401;
+
+const SESSION_EXPIRED =
+  "Your OWOX session expired and could not be renewed — nothing else was pushed. Connect to OWOX again, then push.";
 
 // Preview what a push to the active storage would do, mirroring pushModel's skip
 // logic so the confirmation dialog's counts match reality. A mart is "already
@@ -123,9 +134,13 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     } catch (e) {
       // A forced push cannot continue on a guess — duplicates are unrecoverable.
       if (opts.force) {
+        if (isAuthError(e)) { res.authExpired = true; res.errors.push(SESSION_EXPIRED); return res; }
         res.errors.push(`Could not check which marts still exist in OWOX (${(e as Error).message}) — nothing was pushed.`);
         return res;
       }
+      // An expired session fails the listing first, before any mart is touched.
+      // Saying so beats silently falling through to 21 identical 401s below.
+      if (isAuthError(e)) { res.authExpired = true; res.errors.push(SESSION_EXPIRED); return res; }
       // A normal push falls back to the old local-state-only skip: without the
       // listing, re-creating would risk exactly the duplicates we guard against.
     }
@@ -224,9 +239,14 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       const msg = (e as Error).message;
       store.updateNode(n.key, { status: "error", error: msg });
       res.failed++;
+      if (isAuthError(e)) { res.authExpired = true; res.errors.push(SESSION_EXPIRED); break; }
       res.errors.push(`"${n.title}": ${msg}`);
     }
   }
+
+  // Relationships need a live session just as much as marts do; pushing on would
+  // only add one failed link per edge to a toast that already says what to fix.
+  if (res.authExpired) return res;
 
   // ── 3. Create joinable relationships (depends on both marts existing) ───────
   const g = store.get();
