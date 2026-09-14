@@ -1,7 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { getSession, clientFor } from "../auth/session";
 import { buildImportPayload } from "../owox/import";
-function need(req: any, reply: any) { const s = getSession(req.cookies.mc_sid); if (!s) { reply.code(401).send({ error: "Not connected" }); return null; } return s; }
+// owox_auth: the same tag the error handler puts on an expired OWOX token, so
+// the browser has one condition to react to — re-connect with the stored key and
+// retry — whether it was our session or the OWOX token that went away.
+function need(req: any, reply: any) { const s = getSession(req.cookies.mc_sid); if (!s) { reply.code(401).send({ error: "Not connected", code: "owox_auth" }); return null; } return s; }
 export async function dataMartRoutes(app: FastifyInstance) {
   app.get("/api/data-marts", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).listDataMarts(); });
   app.post("/api/data-marts", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).createDataMart(req.body as any); });

@@ -13,19 +13,25 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   const failed = result.failed + result.relationshipsFailed;
   const pushedNothing = result.created === 0 && result.relationshipsCreated === 0;
 
-  const tone = failed > 0 ? "error" : blocked > 0 ? "warn" : "ok";
+  // An expired session is not the model's fault and not something the counts can
+  // explain — it gets its own headline pointing at the one fix (re-connect).
+  const expired = !!result.authExpired;
+
+  const tone = failed > 0 || expired ? "error" : blocked > 0 ? "warn" : "ok";
   const title =
-    blocked > 0 && pushedNothing ? "Nothing pushed"
+    expired ? "OWOX session expired"
+    : blocked > 0 && pushedNothing ? "Nothing pushed"
     : failed > 0 || blocked > 0 ? "Push completed with errors"
     : "Push complete";
 
   const parts: string[] = [];
-  if (result.created > 0 || blocked === 0) parts.push(`${result.created} mart${result.created === 1 ? "" : "s"} created`);
-  if (result.relationshipsCreated) parts.push(`${result.relationshipsCreated} link${result.relationshipsCreated === 1 ? "" : "s"} created`);
+  if (expired) parts.push("the push stopped where it was");
+  else if (result.created > 0 || blocked === 0) parts.push(`${result.created} mart${result.created === 1 ? "" : "s"} created`);
+  if (!expired && result.relationshipsCreated) parts.push(`${result.relationshipsCreated} link${result.relationshipsCreated === 1 ? "" : "s"} created`);
   // Marts and links are counted apart: a bare "14 failed" next to "10 marts
   // created" reads as if marts had failed, when it was only the links.
-  if (result.failed) parts.push(`${result.failed} mart${result.failed === 1 ? "" : "s"} failed`);
-  if (result.relationshipsFailed) parts.push(`${result.relationshipsFailed} link${result.relationshipsFailed === 1 ? "" : "s"} failed`);
+  if (!expired && result.failed) parts.push(`${result.failed} mart${result.failed === 1 ? "" : "s"} failed`);
+  if (!expired && result.relationshipsFailed) parts.push(`${result.relationshipsFailed} link${result.relationshipsFailed === 1 ? "" : "s"} failed`);
 
   const dot = tone === "error" ? "bg-red-500" : tone === "warn" ? "bg-amber-500" : "bg-emerald-500";
   const border = tone === "error" ? "border-red-300" : tone === "warn" ? "border-amber-300" : "border-emerald-300";
