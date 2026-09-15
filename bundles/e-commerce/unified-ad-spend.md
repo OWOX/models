@@ -18,7 +18,7 @@ description: |
   reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-11T07:00:40.000Z
+timestamp: 2026-09-15T11:11:46.000Z
 ---
 
 # Schema
@@ -28,7 +28,7 @@ timestamp: 2026-09-11T07:00:40.000Z
 | `date` | DATE | Date | PK. The calendar date when the advertising activity occurred. |
 | `source` | STRING | Source | PK. The name of the advertising platform or network where the traffic originated. FK to [Traffic Sources](./traffic-sources.md) |
 | `medium` | STRING | Medium | PK. The marketing channel or payment model used, such as cost-per-click. FK to [Traffic Sources](./traffic-sources.md) |
-| `campaign` | STRING | Campaign | PK. The specific marketing campaign name associated with the ad spend. |
+| `campaign` | STRING | Campaign | PK. The specific marketing campaign name associated with the ad spend. FK to [Traffic Sources](./traffic-sources.md) |
 | `spend` | FLOAT | Spend | The total cost of advertising incurred during the specified period. |
 | `clicks` | INTEGER | Clicks | The total number of times users clicked on the advertisements. |
 | `impressions` | INTEGER | Impressions | The total number of times the advertisements were displayed to users. |
@@ -44,4 +44,4 @@ timestamp: 2026-09-11T07:00:40.000Z
 
 ## Joins
 
-- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium` [N:1] — The channel this spend was bought on.
+- [Traffic Sources](./traffic-sources.md) — `source = source`, `medium = medium`, `campaign = campaign` [N:1] — The channel this spend was bought on.
