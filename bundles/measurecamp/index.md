@@ -6,6 +6,8 @@ type: "index"
 
 # MeasureCamp
 
+**Authors:** [Vlad Flaks](https://www.linkedin.com/in/vladflaks), [Peter O’Neill](https://www.linkedin.com/in/peteroneill)
+
 | Data Mart | Fields |
 |-----------|--------|
 | [Attendee](./attendee.md) | 4 |
