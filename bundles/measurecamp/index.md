@@ -27,6 +27,8 @@ type: "index"
 
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
+Prefer a static picture? See the [entity-relationship diagram](./model.svg).
+
 ---
 
 _Generated with [OWOX Data Marts](https://www.owox.com/) · [Model Canvas](https://model.owox.com/) · [open source](https://github.com/OWOX/models)_

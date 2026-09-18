@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1580 826" width="1580" height="826" role="img" aria-label="Entity relationship diagram of the MeasureCamp data model: ten data marts and fifteen foreign-key relationships, with Event as the root, a people and commerce cluster (Person, Ticket, Attendee, Organizer, Sponsor) and a programme cluster (Session Board, Room, Time Slot, Session).">
+<style>
+  :root{
+    --bg:#fbfbfa; --surface:#ffffff; --border:#dcdcd6; --text:#1a1a18; --muted:#71716a;
+    --edge:#a8a8a0; --fk:#5a6f8c;
+    --root-bg:#fdf3d7; --root-fg:#8a5a06; --root-bd:#e6c98a;
+    --people-bg:#d8f3ee; --people-fg:#0b5f58; --people-bd:#8fd4c9;
+    --prog-bg:#e2e5fb; --prog-fg:#3b3796; --prog-bd:#b3b8ef;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15151a; --surface:#1e1e25; --border:#35353f; --text:#ececf0; --muted:#9a9aa6;
+      --edge:#5a5a66; --fk:#93a7c4;
+      --root-bg:#3a2b0a; --root-fg:#f0c264; --root-bd:#6b5218;
+      --people-bg:#0a3330; --people-fg:#6fe0d2; --people-bd:#1c5c55;
+      --prog-bg:#1f1c4d; --prog-fg:#aeb6f7; --prog-bd:#3b3782;
+    }
+  }
+  .bg{fill:var(--bg)}
+  .box{fill:var(--surface);stroke:var(--border);stroke-width:1}
+  .t{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+  .m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  .title{font-size:19px;font-weight:700;fill:var(--text)}
+  .sub{font-size:12px;fill:var(--muted)}
+  .ename{font-size:13px;font-weight:700}
+  .fname{font-size:10px;fill:var(--text)}
+  .ftype{font-size:9px;fill:var(--muted)}
+  .badge{font-size:8.5px;font-weight:700;letter-spacing:.4px}
+  .pk{fill:var(--root-fg)}
+  .fk{fill:var(--fk)}
+  .edge{fill:none;stroke:var(--edge);stroke-width:1.4}
+  .ahead{fill:var(--edge)}
+  .elabel{font-size:9px;fill:var(--muted)}
+  .legend{font-size:11px;fill:var(--muted)}
+  .root .hdr{fill:var(--root-bg)} .root .ename{fill:var(--root-fg)} .root .box{stroke:var(--root-bd)}
+  .people .hdr{fill:var(--people-bg)} .people .ename{fill:var(--people-fg)} .people .box{stroke:var(--people-bd)}
+  .prog .hdr{fill:var(--prog-bg)} .prog .ename{fill:var(--prog-fg)} .prog .box{stroke:var(--prog-bd)}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ahead"/></marker></defs>
+<rect class="bg" x="0" y="0" width="1580" height="826"/>
+<text class="t title" x="40" y="38">MeasureCamp — data model</text>
+<text class="t sub" x="40" y="58">10 data marts, 15 foreign-key relationships. An arrow runs from the mart holding the foreign key to the mart it references.</text>
+<polyline class="edge" points="350,330 322,330 322,150 290,150" marker-end="url(#arrow)"/>
+<polyline class="edge" points="350,390 310,390 310,455 290,455" marker-end="url(#arrow)"/>
+<polyline class="edge" points="350,110 290,110" marker-end="url(#arrow)"/>
+<polyline class="edge" points="350,210 334,210 334,520 290,520" marker-end="url(#arrow)"/>
+<polyline class="edge" points="600,200 628,200 628,620 600,620" marker-end="url(#arrow)"/>
+<polyline class="edge" points="660,120 600,120" marker-end="url(#arrow)"/>
+<polyline class="edge" points="350,620 200,620 200,551" marker-end="url(#arrow)"/>
+<polyline class="edge" points="660,490 290,490" marker-end="url(#arrow)"/>
+<polyline class="edge" points="970,300 942,300 942,460 910,460" marker-end="url(#arrow)"/>
+<polyline class="edge" points="970,360 955,360 955,730 450,730 450,681" marker-end="url(#arrow)"/>
+<polyline class="edge" points="970,500 910,500" marker-end="url(#arrow)"/>
+<polyline class="edge" points="1280,280 1252,280 1252,640 785,640 785,551" marker-end="url(#arrow)"/>
+<polyline class="edge" points="1280,200 1245,200 1245,300 1220,300" marker-end="url(#arrow)"/>
+<polyline class="edge" points="1280,240 1235,240 1235,520 1220,520" marker-end="url(#arrow)"/>
+<polyline class="edge" points="1280,120 910,120" marker-end="url(#arrow)"/>
+<text class="m elabel" x="1095" y="112" text-anchor="middle">speaker_attendee_id = attendee_id</text>
+<text class="m elabel" x="630" y="112" text-anchor="middle">1:0..1</text>
+<text class="m elabel" x="475" y="484" text-anchor="middle">1:1</text>
+<text class="m elabel" x="700" y="724" text-anchor="middle">sponsor_id</text>
+<text class="m elabel" x="1020" y="634" text-anchor="middle">session_board_id</text>
+<g class="people">
+  <rect class="box" x="40" y="80" width="250" height="121" rx="6"/>
+  <path class="hdr" d="M40,86 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="40" y1="106" x2="290" y2="106" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="52" y="98">Person</text>
+  <text class="m fname" x="52" y="122">person_id</text>
+  <text class="t badge pk" x="205" y="122">PK</text>
+  <text class="m ftype" x="280" y="122" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="139">name</text>
+  <text class="m ftype" x="280" y="139" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="156">email</text>
+  <text class="m ftype" x="280" y="156" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="173">organization</text>
+  <text class="m ftype" x="280" y="173" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="190">job_title</text>
+  <text class="m ftype" x="280" y="190" text-anchor="end">STRING</text>
+</g>
+<g class="root">
+  <rect class="box" x="40" y="430" width="250" height="121" rx="6"/>
+  <path class="hdr" d="M40,436 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="40" y1="456" x2="290" y2="456" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="52" y="448">Event</text>
+  <text class="m fname" x="52" y="472">event_id</text>
+  <text class="t badge pk" x="205" y="472">PK</text>
+  <text class="m ftype" x="280" y="472" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="489">name</text>
+  <text class="m ftype" x="280" y="489" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="506">city</text>
+  <text class="m ftype" x="280" y="506" text-anchor="end">STRING</text>
+  <text class="m fname" x="52" y="523">date</text>
+  <text class="m ftype" x="280" y="523" text-anchor="end">DATE</text>
+  <text class="m fname" x="52" y="540">location</text>
+  <text class="m ftype" x="280" y="540" text-anchor="end">STRING</text>
+</g>
+<g class="people">
+  <rect class="box" x="350" y="80" width="250" height="155" rx="6"/>
+  <path class="hdr" d="M350,86 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="350" y1="106" x2="600" y2="106" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="362" y="98">Ticket</text>
+  <text class="m fname" x="362" y="122">ticket_id</text>
+  <text class="t badge pk" x="515" y="122">PK</text>
+  <text class="m ftype" x="590" y="122" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="139">event_id</text>
+  <text class="t badge fk" x="515" y="139">FK</text>
+  <text class="m ftype" x="590" y="139" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="156">person_id</text>
+  <text class="t badge fk" x="515" y="156">FK</text>
+  <text class="m ftype" x="590" y="156" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="173">sponsor_id</text>
+  <text class="t badge fk" x="515" y="173">FK</text>
+  <text class="m ftype" x="590" y="173" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="190">type</text>
+  <text class="m ftype" x="590" y="190" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="207">release</text>
+  <text class="m ftype" x="590" y="207" text-anchor="end">INTEGER</text>
+  <text class="m fname" x="362" y="224">sponsor_consent</text>
+  <text class="m ftype" x="590" y="224" text-anchor="end">BOOLEAN</text>
+</g>
+<g class="people">
+  <rect class="box" x="350" y="300" width="250" height="121" rx="6"/>
+  <path class="hdr" d="M350,306 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="350" y1="326" x2="600" y2="326" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="362" y="318">Organizer</text>
+  <text class="m fname" x="362" y="342">organizer_id</text>
+  <text class="t badge pk" x="515" y="342">PK</text>
+  <text class="m ftype" x="590" y="342" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="359">event_id</text>
+  <text class="t badge fk" x="515" y="359">FK</text>
+  <text class="m ftype" x="590" y="359" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="376">person_id</text>
+  <text class="t badge fk" x="515" y="376">FK</text>
+  <text class="m ftype" x="590" y="376" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="393">committee_role</text>
+  <text class="m ftype" x="590" y="393" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="410">contact_details</text>
+  <text class="m ftype" x="590" y="410" text-anchor="end">STRING</text>
+</g>
+<g class="people">
+  <rect class="box" x="350" y="560" width="250" height="121" rx="6"/>
+  <path class="hdr" d="M350,566 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="350" y1="586" x2="600" y2="586" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="362" y="578">Sponsor</text>
+  <text class="m fname" x="362" y="602">sponsor_id</text>
+  <text class="t badge pk" x="515" y="602">PK</text>
+  <text class="m ftype" x="590" y="602" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="619">event_id</text>
+  <text class="t badge fk" x="515" y="619">FK</text>
+  <text class="m ftype" x="590" y="619" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="636">organization_name</text>
+  <text class="m ftype" x="590" y="636" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="653">tier</text>
+  <text class="m ftype" x="590" y="653" text-anchor="end">STRING</text>
+  <text class="m fname" x="362" y="670">status</text>
+  <text class="m ftype" x="590" y="670" text-anchor="end">STRING</text>
+</g>
+<g class="people">
+  <rect class="box" x="660" y="80" width="250" height="104" rx="6"/>
+  <path class="hdr" d="M660,86 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="660" y1="106" x2="910" y2="106" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="672" y="98">Attendee</text>
+  <text class="m fname" x="672" y="122">attendee_id</text>
+  <text class="t badge pk" x="825" y="122">PK</text>
+  <text class="m ftype" x="900" y="122" text-anchor="end">STRING</text>
+  <text class="m fname" x="672" y="139">ticket_id</text>
+  <text class="t badge fk" x="825" y="139">FK</text>
+  <text class="m ftype" x="900" y="139" text-anchor="end">STRING</text>
+  <text class="m fname" x="672" y="156">is_first_measurecamp</text>
+  <text class="m ftype" x="900" y="156" text-anchor="end">BOOLEAN</text>
+  <text class="m fname" x="672" y="173">is_speaker</text>
+  <text class="m ftype" x="900" y="173" text-anchor="end">BOOLEAN</text>
+</g>
+<g class="prog">
+  <rect class="box" x="660" y="430" width="250" height="121" rx="6"/>
+  <path class="hdr" d="M660,436 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="660" y1="456" x2="910" y2="456" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="672" y="448">Session Board</text>
+  <text class="m fname" x="672" y="472">session_board_id</text>
+  <text class="t badge pk" x="825" y="472">PK</text>
+  <text class="m ftype" x="900" y="472" text-anchor="end">STRING</text>
+  <text class="m fname" x="672" y="489">event_id</text>
+  <text class="t badge fk" x="825" y="489">FK</text>
+  <text class="m ftype" x="900" y="489" text-anchor="end">STRING</text>
+  <text class="m fname" x="672" y="506">number_of_rooms</text>
+  <text class="m ftype" x="900" y="506" text-anchor="end">INTEGER</text>
+  <text class="m fname" x="672" y="523">number_of_session_slots</text>
+  <text class="m ftype" x="900" y="523" text-anchor="end">INTEGER</text>
+  <text class="m fname" x="672" y="540">session_length_minutes</text>
+  <text class="m ftype" x="900" y="540" text-anchor="end">INTEGER</text>
+</g>
+<g class="prog">
+  <rect class="box" x="970" y="250" width="250" height="138" rx="6"/>
+  <path class="hdr" d="M970,256 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="970" y1="276" x2="1220" y2="276" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="982" y="268">Room</text>
+  <text class="m fname" x="982" y="292">room_id</text>
+  <text class="t badge pk" x="1135" y="292">PK</text>
+  <text class="m ftype" x="1210" y="292" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="309">session_board_id</text>
+  <text class="t badge fk" x="1135" y="309">FK</text>
+  <text class="m ftype" x="1210" y="309" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="326">sponsor_id</text>
+  <text class="t badge fk" x="1135" y="326">FK</text>
+  <text class="m ftype" x="1210" y="326" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="343">name</text>
+  <text class="m ftype" x="1210" y="343" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="360">capacity</text>
+  <text class="m ftype" x="1210" y="360" text-anchor="end">INTEGER</text>
+  <text class="m fname" x="982" y="377">style</text>
+  <text class="m ftype" x="1210" y="377" text-anchor="end">STRING</text>
+</g>
+<g class="prog">
+  <rect class="box" x="970" y="450" width="250" height="138" rx="6"/>
+  <path class="hdr" d="M970,456 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="970" y1="476" x2="1220" y2="476" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="982" y="468">Time Slot</text>
+  <text class="m fname" x="982" y="492">time_slot_id</text>
+  <text class="t badge pk" x="1135" y="492">PK</text>
+  <text class="m ftype" x="1210" y="492" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="509">session_board_id</text>
+  <text class="t badge fk" x="1135" y="509">FK</text>
+  <text class="m ftype" x="1210" y="509" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="526">name</text>
+  <text class="m ftype" x="1210" y="526" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="543">type</text>
+  <text class="m ftype" x="1210" y="543" text-anchor="end">STRING</text>
+  <text class="m fname" x="982" y="560">start_time</text>
+  <text class="m ftype" x="1210" y="560" text-anchor="end">TIMESTAMP</text>
+  <text class="m fname" x="982" y="577">end_time</text>
+  <text class="m ftype" x="1210" y="577" text-anchor="end">TIMESTAMP</text>
+</g>
+<g class="prog">
+  <rect class="box" x="1280" y="80" width="250" height="223" rx="6"/>
+  <path class="hdr" d="M1280,86 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v20 h-250 z"/>
+  <line x1="1280" y1="106" x2="1530" y2="106" stroke="var(--border)" stroke-width="1"/>
+  <text class="t ename" x="1292" y="98">Session</text>
+  <text class="m fname" x="1292" y="122">session_id</text>
+  <text class="t badge pk" x="1445" y="122">PK</text>
+  <text class="m ftype" x="1520" y="122" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="139">session_board_id</text>
+  <text class="t badge fk" x="1445" y="139">FK</text>
+  <text class="m ftype" x="1520" y="139" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="156">room_id</text>
+  <text class="t badge fk" x="1445" y="156">FK</text>
+  <text class="m ftype" x="1520" y="156" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="173">time_slot_id</text>
+  <text class="t badge fk" x="1445" y="173">FK</text>
+  <text class="m ftype" x="1520" y="173" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="190">speaker_attendee_id</text>
+  <text class="t badge fk" x="1445" y="190">FK</text>
+  <text class="m ftype" x="1520" y="190" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="207">name</text>
+  <text class="m ftype" x="1520" y="207" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="224">description</text>
+  <text class="m ftype" x="1520" y="224" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="241">type</text>
+  <text class="m ftype" x="1520" y="241" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="258">level</text>
+  <text class="m ftype" x="1520" y="258" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="275">language</text>
+  <text class="m ftype" x="1520" y="275" text-anchor="end">STRING</text>
+  <text class="m fname" x="1292" y="292">audience</text>
+  <text class="m ftype" x="1520" y="292" text-anchor="end">STRING</text>
+</g>
+<g class="root"><rect class="box hdr" x="40" y="762" width="13" height="13" rx="3"/></g>
+<text class="t legend" x="60" y="772">Event — the root every other mart hangs off</text>
+<g class="people"><rect class="box hdr" x="358.3" y="762" width="13" height="13" rx="3"/></g>
+<text class="t legend" x="378.3" y="772">People &amp; commerce</text>
+<g class="prog"><rect class="box hdr" x="518" y="762" width="13" height="13" rx="3"/></g>
+<text class="t legend" x="538" y="772">Programme &amp; board</text>
+<text class="t legend" x="677.7" y="772"><tspan class="badge pk">PK</tspan> primary key   <tspan class="badge fk">FK</tspan> foreign key</text>
+<text class="t legend" x="40" y="800">bundles/measurecamp · no attendance link between Attendee and Session — MeasureCamp does not track who sat in which room.</text>
+</svg>
