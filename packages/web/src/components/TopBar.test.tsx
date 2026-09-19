@@ -53,6 +53,33 @@ describe("TopBar", () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
+  it("lists OKF plus all three image formats in the Export menu", () => {
+    render(<TopBar signedIn={false} />);
+    fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
+    expect(screen.getByRole("menuitem", { name: /OKF \(Markdown\)/ })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "PNG image" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "SVG · vector" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "SVG · exact snapshot" })).toBeTruthy();
+  });
+
+  it("reports the chosen image format, then closes the menu", () => {
+    const onExportImage = vi.fn();
+    render(<TopBar signedIn={false} onExportImage={onExportImage} />);
+    fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "PNG image" }));
+    expect(onExportImage).toHaveBeenCalledWith("png");
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("explains a format on hover inside the Export menu", () => {
+    render(<TopBar signedIn={false} />);
+    fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
+    expect(screen.queryByText(/Renders everywhere/)).toBeNull();
+    fireEvent.mouseEnter(screen.getByRole("button", { name: "About PNG image" }));
+    // The first-visit Templates hint is a tooltip too, so match on the copy.
+    expect(screen.getByText(/Renders everywhere/)).toBeTruthy();
+  });
+
   it("renders a Business Goal button and fires onOpenGoal", () => {
     const onOpenGoal = vi.fn();
     render(<TopBar signedIn={false} onOpenGoal={onOpenGoal} questionsEnabled />);

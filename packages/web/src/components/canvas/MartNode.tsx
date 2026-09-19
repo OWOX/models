@@ -6,13 +6,7 @@ import type { ViewMode } from "../../state/viewMode";
 import { NOTHING_HIDDEN, type ObjHidden } from "../../state/objLabels";
 import { DataMartIcon } from "../../lib/icons";
 import { ERD_COLLAPSED_ROWS } from "./layoutSize";
-
-const SOURCE_COLOR: Record<string, string> = {
-  SQL: "#10b981",
-  CONNECTOR: "#f59e0b",
-  VIEW: "#3b82f6",
-  TABLE: "#8b5cf6",
-};
+import { sourceColor, statusColor } from "./nodeStyle";
 
 const STATUS_TIP: Record<string, string> = {
   created: "Created in OWOX",
@@ -25,16 +19,11 @@ export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: stri
 
 function StatusDot({ status }: { status: string }) {
   const base = "absolute top-[10px] right-[10px] w-[9px] h-[9px] rounded-full z-10";
-  const colors: Record<string, string> = {
-    created: "bg-[#10b981]",
-    pending: "bg-slate-300",
-    creating: "bg-[#1e88e5] animate-pulse",
-    error: "bg-[#ef4444]",
-  };
   return (
     <span
       data-testid="status-dot"
-      className={`${base} ${colors[status] ?? "bg-slate-300"}`}
+      className={`${base} ${status === "creating" ? "animate-pulse" : ""}`}
+      style={{ background: statusColor(status) }}
       title={STATUS_TIP[status] ?? status}
     />
   );
@@ -81,7 +70,10 @@ function FieldAnchors({ name }: { name: string }) {
 
 function FieldRow({ f }: { f: SchemaField }) {
   return (
-    <div className="relative flex items-center gap-2 px-3 py-[5px] text-[11.5px] border-b border-[#f3f5f8] last:border-b-0">
+    <div
+      data-field={f.name}
+      className="relative flex items-center gap-2 px-3 py-[5px] text-[11.5px] border-b border-[#f3f5f8] last:border-b-0"
+    >
       <FieldAnchors name={f.name} />
       {f.pk
         ? <KeyRound size={11} className="text-amber-500 flex-shrink-0" />
@@ -100,7 +92,7 @@ function ErdBody({ node }: { node: MartNodeData }) {
   const [expanded, setExpanded] = useState(false);
   const schema = node.schema;
   if (schema.length === 0) {
-    return <div className="px-3 pb-[10px] text-[11px] text-slate-400">no fields</div>;
+    return <div data-no-fields="" className="px-3 pb-[10px] text-[11px] text-slate-400">no fields</div>;
   }
 
   const keyFields = new Set(node._keyFields ?? []);
@@ -116,6 +108,7 @@ function ErdBody({ node }: { node: MartNodeData }) {
       {visible.map(f => <FieldRow key={f.name} f={f} />)}
       {hidden > 0 && (
         <button
+          data-more-row=""
           onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
           className="w-full flex items-center justify-center gap-1 px-3 py-[5px] text-[11px] font-medium text-[#1e88e5] hover:bg-[#f1f5fb] border-t border-[#f3f5f8]"
         >
@@ -131,7 +124,7 @@ function ErdBody({ node }: { node: MartNodeData }) {
 function MartNodeInner({ data }: NodeProps) {
   const node = data as unknown as MartNodeData;
   const viewMode = node._viewMode ?? "compact";
-  const color = SOURCE_COLOR[node.inputSource] ?? "#94a3b8";
+  const color = sourceColor(node.inputSource);
   const isErd = viewMode === "erd";
   const hidden = node._objHidden ?? NOTHING_HIDDEN;
   // The source badge and the header accent stripe both encode inputSource

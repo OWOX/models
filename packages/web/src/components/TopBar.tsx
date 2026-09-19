@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Download, Upload, ChevronDown, Target, FileText, Image as ImageIcon, RefreshCw, Check, LogOut } from "lucide-react";
+import { Download, Upload, ChevronDown, Target, FileText, RefreshCw, Check, LogOut } from "lucide-react";
 import { ProjectIcon, StorageIcon, LibraryIcon } from "../lib/icons";
 import { EnableControl } from "./EnableControl";
+import { FormatTip, IMAGE_FORMATS, type ImageFormat } from "./ui/imageFormats";
 
 // First-visit onboarding hint pointing at the Library. Persisted so it only
 // ever shows once per browser; dismissed as soon as the user hovers it.
@@ -21,7 +22,7 @@ export interface TopBarProps {
   onImport?: () => void;
   onImportFromOwox?: () => void;
   onExport?: () => void;
-  onExportSvg?: () => void;
+  onExportImage?: (format: ImageFormat) => void;
   exportDisabled?: boolean;
   onShare?: () => void;
   shareDisabled?: boolean;
@@ -84,7 +85,7 @@ function BarTip({ label }: { label: string }) {
 
 export function TopBar({
   pendingCount = 0, storages = [], storageId, onStorageChange, onRefreshStorages,
-  onImport, onImportFromOwox, onExport, onExportSvg, exportDisabled = false,
+  onImport, onImportFromOwox, onExport, onExportImage, exportDisabled = false,
   onPush, onSignOut, onLibrary,
   signedIn, projectTitle,
   onOpenGoal, goalSet = false, questionsEnabled = false,
@@ -315,13 +316,23 @@ export function TopBar({
         {exportMenuOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-            <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[232px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
+            <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[248px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
               <button role="menuitem" onClick={() => { setExportMenuOpen(false); onExport?.(); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
                 <FileText size={15} className="text-slate-500" /> OKF (Markdown)
               </button>
-              <button role="menuitem" onClick={() => { setExportMenuOpen(false); onExportSvg?.(); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
-                <ImageIcon size={15} className="text-slate-500" /> Image (SVG)
-              </button>
+              <div className="my-1 border-t border-[#eef1f5]" />
+              {IMAGE_FORMATS.map(({ id, icon: Icon, label, tip }) => (
+                <div key={id} className="group/row flex items-center hover:bg-[#f1f3f7]">
+                  <button
+                    role="menuitem"
+                    onClick={() => { setExportMenuOpen(false); onExportImage?.(id); }}
+                    className="flex-1 text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px]"
+                  >
+                    <Icon size={15} className="text-slate-500" /> {label}
+                  </button>
+                  <FormatTip label={label}>{tip}</FormatTip>
+                </div>
+              ))}
             </div>
           </>
         )}
