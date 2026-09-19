@@ -17,7 +17,11 @@ tags: ["owox", "sql"]
 | Column | Type | Description |
 |--------|------|-------------|
 | `event_id` | STRING | PK. |
+| `city_id` | STRING | FK to [City](./city.md) |
 | `name` | STRING |  |
-| `city` | STRING |  |
 | `date` | DATE |  |
 | `location` | STRING |  |
+
+## Joins
+
+- [City](./city.md) — `city_id = city_id`

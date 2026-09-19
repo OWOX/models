@@ -11,6 +11,7 @@ type: "index"
 | Data Mart | Fields |
 |-----------|--------|
 | [Attendee](./attendee.md) | 4 |
+| [City](./city.md) | 2 |
 | [Event](./event.md) | 5 |
 | [Organizer](./organizer.md) | 5 |
 | [Person](./person.md) | 5 |
