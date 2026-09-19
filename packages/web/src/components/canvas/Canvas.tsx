@@ -34,7 +34,7 @@ import { graphToBundleFiles, downloadBundle } from "../../okf/io";
 import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl } from "../../share/url";
 import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
 import { readOkfImportUrl, clearOkfFromUrl } from "../../share/okfLink";
-import { exportCanvasSvg } from "../../share/exportImage";
+import { exportCanvasPng, exportCanvasSvg, exportCanvasVectorSvg } from "../../share/exportImage";
 import { pushModel, pushPreview, type PushResult, type PushOptions } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
 
@@ -72,6 +72,8 @@ import { AccountPanel } from "../rail/AccountPanel";
 import { MyModelsPanel } from "../rail/MyModelsPanel";
 import { HistoryPanel } from "../rail/HistoryPanel";
 import { SharePanel } from "../rail/SharePanel";
+import type { ImageBackground, ImageFormat } from "../ui/imageFormats";
+import { ImageBackgroundDialog } from "../ImageBackgroundDialog";
 import { DiffDialog } from "../DiffDialog";
 import { GoalDialog } from "../GoalDialog";
 import { loadGoal, persistGoal, type BusinessGoal } from "../../state/goal";
@@ -523,11 +525,23 @@ function CanvasInner() {
     clearCanvas();
   }, [handleExport, clearCanvas]);
 
-  // Export the canvas as an SVG (whole model, OWOX watermark). Uses the live RF
-  // node list (measured sizes) to frame the export.
+  // Export the canvas as an image (whole model, OWOX watermark). Uses the live
+  // RF node list (measured sizes) to frame the export; exportImage.ts explains
+  // why there are three formats. Picking a format opens the background dialog
+  // rather than downloading straight away — white or transparent is a real
+  // choice, and it depends on where the file is going.
   const imageName = (me?.projectTitle ?? "model").trim() || "model";
-  const handleExportSvg = useCallback(() => {
-    exportCanvasSvg(rfNodes, imageName).catch(() => setShareToast("Couldn't export the image — please try again."));
+  const [pendingFormat, setPendingFormat] = useState<ImageFormat | null>(null);
+  const [imageBackground, setImageBackground] = useState<ImageBackground>("white");
+  const runExportImage = useCallback((format: ImageFormat, background: ImageBackground) => {
+    setImageBackground(background); // remembered as the default for the next export
+    setPendingFormat(null);
+    const opts = { transparent: background === "transparent" };
+    const run =
+      format === "png" ? exportCanvasPng(rfNodes, imageName, opts)
+      : format === "vector" ? exportCanvasVectorSvg(rfNodes, imageName, opts)
+      : exportCanvasSvg(rfNodes, imageName, opts);
+    run.catch(() => setShareToast("Couldn't export the image — please try again."));
   }, [rfNodes, imageName]);
 
   // Copy a shareable link that reopens this exact model. Falls back to a prompt
@@ -824,7 +838,7 @@ function CanvasInner() {
         onImport={() => setShowImport(true)}
         onImportFromOwox={() => setShowOwoxImport(true)}
         onExport={handleExport}
-        onExportSvg={handleExportSvg}
+        onExportImage={setPendingFormat}
         exportDisabled={graph.nodes.length === 0}
         onShare={handleShare}
         shareDisabled={graph.nodes.length === 0}
@@ -874,6 +888,14 @@ function CanvasInner() {
           onForcePush={() => { setShowPushConfirm(false); void runPush(storages, { force: true }); }}
           onChangeProject={handleChangeProject}
           onClose={() => setShowPushConfirm(false)}
+        />
+      )}
+      {pendingFormat !== null && (
+        <ImageBackgroundDialog
+          format={pendingFormat}
+          initial={imageBackground}
+          onConfirm={background => runExportImage(pendingFormat, background)}
+          onClose={() => setPendingFormat(null)}
         />
       )}
       {showClear && (
@@ -1092,7 +1114,7 @@ function CanvasInner() {
             <SharePanel
               shareUrl={buildShareUrl(store.get(), modelName)}
               onCopy={() => void handleShare()}
-              onExportImage={handleExportSvg}
+              onExportImage={setPendingFormat}
             />
           )}
         </ModelSheet>

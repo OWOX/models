@@ -29,11 +29,42 @@ describe("SharePanel", () => {
     expect(onCopy).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onExportImage when Export as image button is clicked", () => {
+  it("offers all three image formats", () => {
+    render(<SharePanel {...defaultProps} />);
+    expect(screen.getByRole("button", { name: "PNG image" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "SVG · vector" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "SVG · exact snapshot" })).toBeTruthy();
+  });
+
+  it.each([
+    ["PNG image", "png"],
+    ["SVG · vector", "vector"],
+    ["SVG · exact snapshot", "snapshot"],
+  ])("exports %s as the %s format", (label, format) => {
     const onExportImage = vi.fn();
     render(<SharePanel {...defaultProps} onExportImage={onExportImage} />);
-    fireEvent.click(screen.getByRole("button", { name: /export as image/i }));
-    expect(onExportImage).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: label }));
+    expect(onExportImage).toHaveBeenCalledWith(format);
+  });
+
+  it("leaves the background choice to the dialog that follows", () => {
+    render(<SharePanel {...defaultProps} />);
+    expect(screen.queryByRole("checkbox")).toBeNull();
+  });
+
+  it("explains each format on hover", () => {
+    render(<SharePanel {...defaultProps} />);
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    fireEvent.mouseEnter(screen.getByRole("button", { name: "About SVG · vector" }));
+    expect(screen.getByRole("tooltip").textContent).toMatch(/Figma/);
+    fireEvent.mouseLeave(screen.getByRole("button", { name: "About SVG · vector" }));
+    expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("warns that the snapshot format is the compromised one", () => {
+    render(<SharePanel {...defaultProps} />);
+    fireEvent.mouseEnter(screen.getByRole("button", { name: "About SVG · exact snapshot" }));
+    expect(screen.getByRole("tooltip").textContent).toMatch(/Safari renders it wrong/);
   });
 
   it("renders without gating — no sign-in prompt visible", () => {

@@ -1,4 +1,5 @@
-import { Share2, ImageDown } from "lucide-react";
+import { Share2 } from "lucide-react";
+import { FormatTip, IMAGE_FORMATS, type ImageFormat } from "../ui/imageFormats";
 
 export function SharePanel({
   shareUrl,
@@ -7,7 +8,7 @@ export function SharePanel({
 }: {
   shareUrl: string;
   onCopy(): void;
-  onExportImage(): void;
+  onExportImage(format: ImageFormat): void;
 }) {
   return (
     <div className="flex flex-col gap-5">
@@ -39,14 +40,25 @@ export function SharePanel({
         </button>
       </div>
 
-      {/* Export as image */}
-      <button
-        onClick={onExportImage}
-        className="flex items-center justify-center gap-2 rounded-lg border border-[#d8dee8] bg-white px-4 py-2.5 text-[14px] font-[550] text-slate-900 hover:bg-[#f1f3f7] cursor-pointer"
-      >
-        <ImageDown size={16} />
-        Export as image
-      </button>
+      {/* Export as image — one row per format, each with its own caveat */}
+      <div className="flex flex-col gap-2">
+        <div className="text-[12px] font-[550] text-slate-500">Export as image</div>
+        {IMAGE_FORMATS.map(({ id, icon: Icon, label, tip }) => (
+          <div
+            key={id}
+            className="group/row flex items-center rounded-lg border border-[#d8dee8] bg-white hover:bg-[#f1f3f7]"
+          >
+            <button
+              onClick={() => onExportImage(id)}
+              className="flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-[13.5px] font-[550] text-slate-900 cursor-pointer"
+            >
+              <Icon size={16} className="flex-shrink-0 text-slate-400" />
+              {label}
+            </button>
+            <FormatTip label={label}>{tip}</FormatTip>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

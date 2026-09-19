@@ -81,6 +81,12 @@ function RelEdgeInner(props: EdgeProps) {
       {(label || cardShown) && (
         <EdgeLabelRenderer>
           <div
+            data-rel-label=""
+            data-rel-text={label}
+            data-rel-card={cardShown ? cardinality : ""}
+            data-rel-x={labelX}
+            data-rel-y={labelY}
+            data-rel-selected={selected ? "1" : ""}
             style={{
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
