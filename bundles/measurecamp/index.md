@@ -29,19 +29,21 @@ type: "index"
 
 **Authors:** [Vlad Flaks](https://www.linkedin.com/in/vladflaks), [Peter O’Neill](https://www.linkedin.com/in/peteroneill)
 
-| Data Mart | Fields |
-|-----------|--------|
-| [Attendee](./attendee.md) | 4 |
-| [City](./city.md) | 2 |
-| [Event](./event.md) | 5 |
-| [Organizer](./organizer.md) | 5 |
-| [Person](./person.md) | 5 |
-| [Room](./room.md) | 6 |
-| [Session](./session.md) | 11 |
-| [Session Board](./session-board.md) | 5 |
-| [Sponsor](./sponsor.md) | 5 |
-| [Ticket](./ticket.md) | 7 |
-| [Time Slot](./time-slot.md) | 6 |
+**Website:** [measurecamp.org](https://measurecamp.org/)
+
+| Data Mart | Fields | Description |
+|-----------|--------|-------------|
+| [Attendee](./attendee.md) | 4 | One row per ticket used on the day — the people who actually turned up, as distinct from those who registered. |
+| [City](./city.md) | 2 | Lookup of the cities MeasureCamp runs in, so editions in the same place across years resolve to one row. |
+| [Event](./event.md) | 5 | One row per edition: a single day, in one city, at one venue, run by its own local committee. |
+| [Organizer](./organizer.md) | 5 | One row per person per role on an edition's volunteer committee. |
+| [Person](./person.md) | 5 | One row per human, held once and reused across editions as ticket holder, attendee or organiser. |
+| [Room](./room.md) | 6 | One row per room offered on a session board, with its capacity, layout and the sponsor it is named after. |
+| [Session](./session.md) | 11 | One row per session card an attendee placed on the board to claim a room and a time slot. |
+| [Session Board](./session-board.md) | 5 | One board per event — the grid of rooms against time slots that the day is built on. |
+| [Sponsor](./sponsor.md) | 5 | One row per sponsorship per event, with its tier and where it sits in the pipeline. |
+| [Ticket](./ticket.md) | 7 | One row per ticket issued for an edition — the only way in — naming its holder and the capacity they come in as. |
+| [Time Slot](./time-slot.md) | 6 | The day cut into named slots — sessions, breaks, lunch, closing and party — forming the board's other axis. |
 
 # Example Questions
 
