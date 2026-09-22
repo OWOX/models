@@ -14,6 +14,7 @@ Generated 2026-09-15T11:13:12Z.
 - [E-commerce Subscription Store](./ecommerce-subscription-store/index.md) — 15 concept(s)
 - [Finance](./finance/index.md) — 8 concept(s)
 - [Healthcare](./healthcare/index.md) — 8 concept(s)
+- [Healthcare Clinic Attribution](./healthcare-clinic-attribution/index.md) — 14 concept(s)
 - [Healthcare Clinic Network](./healthcare-clinic-network/index.md) — 10 concept(s)
 - [Marketing Leadgen](./marketing-leadgen/index.md) — 8 concept(s)
 - [Marketplace](./marketplace/index.md) — 8 concept(s)
