@@ -12,6 +12,9 @@ description: |
   reissued, so a patient paying today still resolves to the advertising that first brought them,
   whether that was weeks or years earlier.
 
+  That stitching — one identity held across devices, browsers and years — is the pattern used by
+  APAS® Cloud, whose co-founder described it for this model.
+
   Two distinctions inside it are expensive to lose. An enquiry is not a qualified enquiry:
   qualification is a clinician's decision, taken at a consultation, and the field is empty on the
   enquiry record until then — so a report that counts empty as "not qualified" misreads its own
@@ -26,45 +29,18 @@ description: |
   absent, and worth naming so that nobody looks for them: insurance claims as objects — only
   their trace on an invoice and a payment — multiple clinic locations, clinician capacity and
   scheduling, and a coded procedure catalogue.
+
+  **Three healthcare bundles, and which is which.** `healthcare` models a hospital system:
+  appointments, clinical encounters, bed census and the insurance claims that pay for them.
+  `healthcare-clinic-network` models a multi-location outpatient operation, with advertising
+  spend, clinics, providers and no-shows. This one models a single practice, and its subject is
+  the identity and attribution chain: one person, followed from the click that found them to
+  the payment that settled their treatment.
 tags: ["owox", "index"]
 type: "index"
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
-
-# Healthcare Clinic Attribution
-
-One healthcare practice, modelled as a single chain from an advertising click to money
-received. An ad click (**Click**) brings someone to the website, where the visit
-(**Session**) and every page opened during it (**Page View**, **Page**) are recorded. At
-the first of those page views a person identity (**Person**) is minted — before a name, an
-email or a phone number — and it is never reissued. That person later gets in touch, by web
-form (**Form Submission**) or by telephone (**Call**); both are the same step, and either
-opens one enquiry (**Lead**). The enquiry is screened (**Consultation**): first by reception
-or a practice manager on the phone, then by a clinician in the room, both drawn from one
-staff list (**Employee**). A clinician's yes is what a treatment (**Treatment**) is booked
-from. The person becomes a paying patient (**Customer (Patient)**) at the first bill or the
-first payment; bills are raised against the treatment (**Invoice**), and the money that
-arrives against them is recorded separately (**Revenue**).
-
-Two things are worth knowing before reading it. Qualification is decided at a consultation
-and nowhere else, so the enquiry record's own `is_qualified` field is empty at the point the
-enquiry is created; anyone asking whether an enquiry was accepted has to ask it of the
-consultation. And a bill is kept apart from a payment, because a treatment is settled in two
-pieces on two different clocks — the patient's copay before treatment, the insurer's share
-after the claim has been processed — which is what lets a practice see how long its money
-takes to arrive and who it is waiting on.
-
-The way one human is stitched together here — across several devices, several browsers and
-several years, into one identity that outlives all of them — is the pattern used by
-[APAS® Cloud](https://www.apascloud.com/), whose co-founder described it for this model.
-
-**Three healthcare bundles, and which is which.** `healthcare` models a hospital system:
-appointments, clinical encounters, bed census and the insurance claims that pay for them.
-`healthcare-clinic-network` models a multi-location outpatient operation, with advertising
-spend, clinics, providers and no-shows. This one models a single practice, and its subject is
-the identity and attribution chain: one person, followed from the click that found them to
-the payment that settled their treatment.
 
 **Authors:** [Lesley van de Mortel](https://www.linkedin.com/in/lezvandemortel/), [Vlad Flaks](https://github.com/vladflaks)
 
