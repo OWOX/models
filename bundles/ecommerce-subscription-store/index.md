@@ -57,4 +57,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2610" height="1414" alt="ecommerce-subscription-store" src="https://github.com/user-attachments/assets/33161fc0-37f1-4f26-b695-b8e7ef8d8817" />
+## Model preview
+
+![E-commerce Subscription Store model diagram](../res/screens/ecommerce-subscription-store.svg)

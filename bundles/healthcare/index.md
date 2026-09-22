@@ -43,4 +43,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2510" height="1206" alt="healthcare" src="https://github.com/user-attachments/assets/0bd92b71-ed57-48c7-9ae8-da8ad27f8baf" />
+## Model preview
+
+![Healthcare model diagram](../res/screens/healthcare.svg)

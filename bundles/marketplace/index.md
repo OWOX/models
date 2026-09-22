@@ -42,4 +42,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2568" height="1162" alt="marketplace" src="https://github.com/user-attachments/assets/b41e2207-bcdf-40fe-b11a-6451b59d6e69" />
+## Model preview
+
+![Marketplace model diagram](../res/screens/marketplace.svg)

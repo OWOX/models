@@ -41,4 +41,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2306" height="1424" alt="finance" src="https://github.com/user-attachments/assets/e590a0cf-8e6a-4614-aa4d-7f48e381ff65" />
+## Model preview
+
+![Finance model diagram](../res/screens/finance.svg)

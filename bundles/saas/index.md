@@ -42,4 +42,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2547" height="1324" alt="CleanShot 2026-07-23 at 15 16 54@2x" src="https://github.com/user-attachments/assets/8156374b-007b-4da5-9cad-18cec0118779" />
+## Model preview
+
+![SaaS model diagram](../res/screens/saas.svg)
