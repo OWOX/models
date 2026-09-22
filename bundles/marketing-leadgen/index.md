@@ -42,4 +42,6 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 <!-- OWOX:GENERATED:END -->
 
-<img width="2602" height="1290" alt="marketing_leadgen" src="https://github.com/user-attachments/assets/ab729633-9481-43f7-9751-9cbd6e4e41eb" />
+## Model preview
+
+![Marketing Leadgen model diagram](../res/screens/marketing-leadgen.svg)
