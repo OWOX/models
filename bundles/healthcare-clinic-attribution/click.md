@@ -15,8 +15,9 @@ description: |
   inflate whichever channel they land in. Lesley van de Mortel, who described this model,
   uses that minimum in her own SQL and pairs it with a check on `utm_source` and
   `utm_medium`, so a claimed channel agrees with itself from two directions.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:59.000Z
 ---
 
 # Schema

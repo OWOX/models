@@ -17,8 +17,9 @@ description: |
   `direction` separates calls received from calls placed: a first screen can begin with
   the practice ringing back, and treating a returned call as a fresh enquiry would
   double-count demand.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:59.000Z
 ---
 
 # Schema
@@ -26,7 +27,7 @@ type: "OWOX Data Mart"
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `call_id` | STRING | Call ID | PK. Unique identifier for this one call, separate from the enquiry it belongs to — one enquiry can run to several calls. |
-| `lead_id` | INTEGER | Lead ID | The enquiry record this call opened or added to; every later call about the same enquiry carries the same value. FK to [Lead](./lead.md) |
+| `lead_id` | STRING | Lead ID | The enquiry record this call opened or added to; every later call about the same enquiry carries the same value. FK to [Lead](./lead.md) |
 | `person_id` | STRING | Person ID | The human on the other end, where they can be recognised from the website — reachable through the [enquiry](./lead.md) this call opened or through the [visit](./session.md) it was placed from. Empty for a caller never seen online, which is a fact about the call rather than missing data. |
 | `session_id` | STRING | Session ID | The visit the call was placed from, where there was one. Empty for a caller who dialled a number they saw somewhere other than the site. FK to [Session](./session.md) |
 | `click_id` | STRING | Click ID | The paid click behind the call. Empty for organic callers and for anyone who never visited the site at all. FK to [Click](./click.md) |
@@ -47,11 +48,11 @@ type: "OWOX Data Mart"
 
 ## Joins
 
-- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The CRM record this call produced or added to.
-  - [Lead Person](./person.md) — The human the CRM enquiry is filed under, which gathers every call about the same enquiry.
-- [Session](./session.md) — `session_id = session_id` [N:1] — The visit the call was placed from; absent for a caller with no web history.
-  - [Session Person](./person.md) — The human behind the visit this call was placed from.
 - [Click](./click.md) — `click_id = click_id` [N:1] — The paid click behind the call; absent for organic and offline callers.
   - [Click Person](./person.md) — The human the paid click behind this call was attributed to.
   - [Click Session](./session.md) — The visit the ad click produced, which need not be the visit this call was placed from.
     - [Click Session Person](./person.md) — The human behind the visit that ad click produced.
+- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The CRM record this call produced or added to.
+  - [Lead Person](./person.md) — The human the CRM enquiry is filed under, which gathers every call about the same enquiry.
+- [Session](./session.md) — `session_id = session_id` [N:1] — The visit the call was placed from; absent for a caller with no web history.
+  - [Session Person](./person.md) — The human behind the visit this call was placed from.

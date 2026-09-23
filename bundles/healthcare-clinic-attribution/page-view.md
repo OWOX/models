@@ -16,8 +16,9 @@ description: |
   `time_on_page_seconds` is measured from when the next page was opened, so it cannot be
   known for the last page of a visit. That value is empty rather than zero, and treating
   it as zero understates how long the site was read for.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:20:00.000Z
 ---
 
 # Schema

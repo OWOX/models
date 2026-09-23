@@ -18,15 +18,16 @@ description: |
   enquiries as `is_qualified = false` will therefore undercount them: the enquiries that
   were never accepted are not false, they are empty. To judge an enquiry's outcome, look
   at the consultations attached to it, not at this field.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:58.000Z
 ---
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `lead_id` | INTEGER | Lead ID | PK. The CRM's own numeric identifier for the enquiry, issued when the first form or call arrives. |
+| `lead_id` | STRING | Lead ID | PK. The CRM's own reference for the enquiry, issued when the first form or call arrives. It is a number in the CRM, carried here as a fixed-width string of digits so that sorting by it always follows the order the records were issued. |
 | `person_id` | STRING | Person ID | The human this enquiry belongs to, which is what ties a named enquiry back to the anonymous browsing and advertising that preceded it. FK to [Person](./person.md) |
 | `first_name` | STRING | Lead First Name | Given name as the enquirer supplied it, which is what the practice has to work with — it need not match any later clinical record. |
 | `last_name` | STRING | Lead Last Name | Family name as the enquirer supplied it. |

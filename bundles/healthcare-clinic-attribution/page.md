@@ -8,8 +8,9 @@ description: |
   the same once a clinician has looked at them. `page_type` is what lets that question be
   asked of a kind of page rather than of one URL — whether the visitor was reading about
   a treatment, checking prices, or browsing the blog.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:57.000Z
 ---
 
 # Schema
