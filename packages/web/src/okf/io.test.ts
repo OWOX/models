@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { bundleToZip, zipToFiles, graphToBundleFiles } from "./io";
-import type { ModelGraph } from "@mc/okf";
+import { isBundleIndex, type ModelGraph } from "@mc/okf";
 
 describe("zip round-trip", () => {
   it("zips and unzips bundle files losslessly", () => {
@@ -20,7 +20,7 @@ describe("graphToBundleFiles", () => {
 
   it("appends an OWOX attribution footer to the bundle index only", () => {
     const files = graphToBundleFiles(graph, "Demo");
-    const indexKey = Object.keys(files).find(k => k.endsWith("index.md"))!;
+    const indexKey = Object.keys(files).find(isBundleIndex)!;
     expect(files[indexKey]).toContain("Generated with");
     expect(files[indexKey]).toContain("OWOX Data Marts");
     expect(files[indexKey]).toContain("github.com/OWOX/models");

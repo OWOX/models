@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, ChevronDown, Rocket, BadgeCheck } from "lucide-react";
 import type { ModelGraph } from "@mc/okf";
-import { parseFrontmatter } from "@mc/okf";
+import { parseFrontmatter, isBundleIndex } from "@mc/okf";
 import { INDUSTRY_TEMPLATES, DATASET_TEMPLATES, type Template } from "../templates";
 import { DataMartIcon, JoinIcon } from "../lib/icons";
 import { ShareButton } from "./ShareButton";
@@ -144,7 +144,7 @@ function VerifiedTemplateRow({
         const parsed = filesToGraph(files);
         // OKF carries no OWOX identity — mark nodes pending (mirrors ImportDialog).
         const g: ModelGraph = { ...parsed, nodes: parsed.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
-        const idx = Object.entries(files).find(([p]) => p.toLowerCase().endsWith("index.md"))?.[1] ?? "";
+        const idx = Object.entries(files).find(([p]) => isBundleIndex(p))?.[1] ?? "";
         let desc: string | null = null;
         try { const t = parseFrontmatter(idx).data.description; desc = typeof t === "string" && t.trim() ? t.trim() : null; } catch { /* ignore */ }
         if (mountedRef.current) { setGraph(g); setDescription(desc); setImageSrc(firstImageSrc(idx)); }

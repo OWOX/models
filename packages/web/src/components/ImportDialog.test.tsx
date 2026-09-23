@@ -162,6 +162,24 @@ describe("ImportDialog GitHub URL import", () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
+  it("imports a mart named *-index.md and still reads the model name from index.md", async () => {
+    const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/seo/";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const bodies: Record<string, string> = {
+        [base + "index.md"]: "---\ntitle: SEO\n---\n[Pages](./pages.md)\n[Initiate Index](./initiate-index.md)",
+        [base + "pages.md"]: "---\ntitle: Pages\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
+        [base + "initiate-index.md"]: "---\ntitle: Initiate Index\ntype: OWOX Data Mart\n---\n\n## Schema\n\n- id INTEGER\n",
+      };
+      const body = bodies[url];
+      return { ok: body != null, status: body != null ? 200 : 404, text: async () => body ?? "" } as Response;
+    }));
+
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl="https://github.com/OWOX/models/tree/main/bundles/seo" />);
+    await waitFor(() => expect(screen.getByText(/Will import 2 marts/i)).toBeTruthy());
+    expect(screen.getByText(/^Initiate Index$/i)).toBeTruthy();
+    expect(screen.getByText(/^SEO$/)).toBeTruthy();
+  });
+
   it("rejects a URL with no OKF marts: shows an error, no count, Import disabled", async () => {
     const base = "https://raw.githubusercontent.com/OWOX/models/main/bundles/";
     vi.stubGlobal("fetch", vi.fn(async (u: string) => {

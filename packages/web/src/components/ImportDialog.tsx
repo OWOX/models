@@ -3,7 +3,7 @@ import { Copy, Check } from "lucide-react";
 import { filesToGraph, parsePastedMarkdown, zipToFiles } from "../okf/io";
 import { fetchOkfBundleFromUrl, isAllowedGithubHost } from "../okf/github";
 import { buildOkfDeeplink } from "../share/okfLink";
-import { parseFrontmatter, type ModelGraph } from "@mc/okf";
+import { parseFrontmatter, isBundleIndex, type ModelGraph } from "@mc/okf";
 
 type TabId = "upload" | "paste" | "github";
 const TABS: { id: TabId; label: string }[] = [
@@ -85,7 +85,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
 
   // Model name from the bundle's index.md frontmatter title, when present.
   function modelNameOf(files: Record<string, string>): string | null {
-    const idx = Object.entries(files).find(([p]) => p.toLowerCase().endsWith("index.md"));
+    const idx = Object.entries(files).find(([p]) => isBundleIndex(p));
     if (!idx) return null;
     try {
       const t = parseFrontmatter(idx[1]).data.title;
