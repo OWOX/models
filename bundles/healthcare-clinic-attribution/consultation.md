@@ -1,56 +1,25 @@
 ---
 title: "Consultation"
 description: |
-  Where an enquiry is judged. A practice screens in two steps: first a phone conversation
-  with a receptionist or a practice manager, then — only for those who get that far — an
-  appointment with a clinician. Both are held here, told apart by `type` and by who
-  conducted them, because they differ in who does the screening and not in what is recorded.
+  Where an enquiry is judged. A practice screens in two steps, both held here, told
+  apart by `type` and by who conducted them: they differ in who screens, not in what
+  is recorded. A `Pre-Consultation` is a telephone conversation held by a receptionist or
+  a practice manager — not a clinician — who decides whether the practice is a plausible
+  fit. A `Consultation` is the appointment that follows: a clinician examines the person
+  and decides whether treatment can go ahead. The first step exists because the second is
+  expensive: without it every enquiry would go straight to a clinician, and no practice
+  has the hours for that.
 
-  This is the mart that turns advertising from a volume report into a quality report. Every
-  screened enquiry ends up here as a verdict and, when the answer is no, as a reason. That
-  is what lets a practice say which campaigns bring people it can actually treat, rather
-  than which campaigns bring the most enquiries.
+  **Qualification is decided here, and only here.** The [enquiry](./lead.md) record
+  carries a field of the same name, but it is empty: at the moment of a form or a call
+  nobody has yet formed a view. One enquiry can be screened more than once, so it may
+  have several rows here, to be read in order. `disqualification_reason` carries the
+  practice's own account of a refusal, which turns a low acceptance rate from a count
+  into a diagnosis and shows which campaigns bring people the practice can actually
+  treat.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Consultation
-
-One row per screening step, keyed by `consultation_id`. An [enquiry](./lead.md) can be
-screened more than once, so a single enquiry may have several rows here, and they should be
-read in order rather than collapsed to one.
-
-**The two steps.** A `Pre-Consultation` is a telephone conversation held by someone who is
-not a clinician — a receptionist or a practice manager. They ask a few
-questions about what the person is struggling with and decide whether the practice is a
-plausible fit and whether the person should be brought in at all. A `Consultation` is the
-appointment that follows: a clinician sees the person, examines them or runs tests, and
-decides whether treatment can go ahead.
-
-The first step exists because the second one is expensive. Without a phone screen, every
-enquiry would go straight to a clinician, and no practice has the clinical hours to see
-everyone who gets in touch. The screen is what makes the clinic's diary affordable, and it
-is where the enquiries that are not a good fit for the practice are filtered out —
-invisibly, unless the step is recorded in its own right. Both steps point at the same
-[staff list](./employee.md), so the same question — who held it, and how did it end — can
-be asked of either.
-
-**Qualification is decided here, and only here.** `is_qualified` is the verdict of this
-particular screen: true when the person moves forward, false when they do not. The enquiry
-record carries a field of the same name, but it is empty, because at the moment
-someone fills in a form or rings the practice nobody has yet formed a view. Anyone asking
-whether an enquiry was accepted should ask it of this mart.
-
-**`disqualification_reason` is what makes a refusal useful.** Without it, a channel that
-brings poor enquiries shows up only as a lower acceptance rate — a number that says
-something is wrong and nothing about what. With it, each refusal carries the practice's
-own account of why the person was not taken forward, so a channel can be read by the
-reasons it produces and not only by the share it loses. That is the difference between a
-count and a diagnosis, and the reasons are the clinic's own to record.
-
-A qualifying consultation is what a booked [treatment](./treatment.md) is arranged from,
-which is how a
-clinician's verdict eventually connects to money received.
 
 # Schema
 

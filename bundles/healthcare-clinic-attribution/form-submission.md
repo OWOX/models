@@ -1,49 +1,26 @@
 ---
 title: "Form Submission"
 description: |
-  Every web form the practice receives — a consultation request, a callback request, an
-  enquiry about a treatment — held as its own record with the advertising that produced it
-  attached to it. A form submission is one of the two ways an enquiry begins; ringing the
-  practice is the other, and the two are the same step in the funnel.
+  Every web form the practice receives, with the advertising that produced it attached. A
+  form submission is one of the two ways an enquiry begins; ringing the practice is the
+  other, and the two are the same step in the funnel. A submission opens a
+  [CRM record](./lead.md) if the person has not enquired before and attaches to the
+  existing one if they have, so one enquiry can produce several rows: counting rows
+  counts contact attempts, not prospective patients.
 
-  This is where the trail from advertising to a named person is actually made. The campaign,
-  the keyword, the creative and the platform's own click identifier are all carried on the
-  submission and copied onto the CRM record it creates, so an enquiry can still be traced to
-  the ad that produced it long after the visit has ended.
+  It carries two families of identifiers worth keeping apart. The five `utm_*` fields are
+  what the link itself declared, set by hand when the ad was built; the four click
+  identifiers — `gclid`, `fbclid`, `msclkid`, `ttclid` — are what the advertising
+  platform attached, and they are the harder evidence of the two. As on the
+  [ad click](./click.md), **a platform click identifier shorter than ten characters
+  should be treated as absent.**
+
+  An empty attribution field is normal rather than broken: someone who arrived through
+  unpaid search or typed the address in carries no campaign and no click identifier, and
+  the identifiers of platforms a person did not come through are empty too.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Form Submission
-
-One row per web form received, keyed by `form_submission_id`. A submission is the first
-engagement with the practice: it creates a [CRM record](./lead.md) if the person has not enquired
-before, and attaches to the existing one if they have. One enquiry can produce several
-submissions — someone fills in a form, hears nothing quickly enough, and fills in another —
-so counting rows here counts contact attempts, not prospective patients.
-
-A submission carries two families of advertising identifiers, and they are worth keeping
-apart. The five `utm_*` fields are what the link itself declared, set by hand when the ad
-was built. The four click identifiers — `gclid`, `fbclid`, `msclkid`, `ttclid` — are what
-the advertising platform attached, and they are the harder evidence of the two. In
-practice a channel is best segmented on both at once: the platform identifier present and
-long enough to be genuine, agreeing with a `utm_source` and `utm_medium` that name the same
-channel. As on the [ad click](./click.md), **a platform click identifier shorter than ten characters
-should be treated as absent** — below that length what turns up is placeholder text and
-truncated debris rather than a click, and counting it inflates whichever channel is being
-judged.
-
-An empty attribution field here is normal rather than broken. Someone who found the
-practice through unpaid search or typed the address in carries no campaign and no click
-identifier at all, and the identifiers belonging to the platforms a person did not arrive
-through are empty as well. What is not empty is what flows onward
-into the enquiry record, which is how a campaign stays attached to a name through months
-of follow-up.
-
-`click_id` is the practice's own link back to the paid click, and it is empty for organic
-and direct arrivals. `session_id` ties the submission to the [visit](./session.md) it
-happened in, which is what allows the pages read before the form was sent to be counted as part of the same
-decision.
 
 # Schema
 

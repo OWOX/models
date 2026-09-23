@@ -1,54 +1,23 @@
 ---
 title: "Click"
 description: |
-  Every click on one of the practice's ads, held as its own record rather than as a few
-  columns on whatever happened next. This is the paid end of the journey: the moment money
-  was spent on a particular person, on a particular platform, through a particular creative
-  — before anyone knows whether that person will ever become a patient.
+  Every click on one of the practice's ads, held as its own record rather than as columns
+  on whatever happened next, and keyed the same way on every platform so clicks across
+  Google, Meta, Microsoft and TikTok count in one place. `session_id` is empty when the
+  click produced no visit — the person tapped and went straight back, the page failed,
+  tracking was blocked — and those clicks were still paid for, so dropping them is how
+  advertising quietly looks better than it was.
 
-  Keeping clicks separate is what lets a practice ask an honest question about advertising.
-  A click that produced no visit still cost money; a person who clicked four ads over five
-  months is not four people; and a creative that draws clicks cheaply is not necessarily the
-  one that draws patients a clinician will accept.
+  `platform_click_id` holds the raw value the ad platform itself attached: the `gclid`,
+  `fbclid`, `msclkid` or `ttclid`. It is the harder evidence of a paid arrival, and needs
+  one guard: **a value shorter than ten characters should be treated as absent** — below
+  that what turns up is `undefined`, `null`, empty strings and truncated fragments, which
+  inflate whichever channel they land in. Lesley van de Mortel, who described this model,
+  uses that minimum in her own SQL and pairs it with a check on `utm_source` and
+  `utm_medium`, so a claimed channel agrees with itself from two directions.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Click
-
-One row per ad click, keyed by `click_id` — an identifier the practice controls, minted the
-same way whatever platform the click came from, so clicks across Google, Meta, Microsoft
-and TikTok can be counted in one place without translating between four sets of rules.
-
-A click belongs to a [person](./person.md) and, when it produced one, to a
-[visit](./session.md). `session_id` is empty
-when the click never produced one: the person tapped and immediately went back, the page
-failed to load, or tracking was blocked. Those clicks are still paid for, and dropping them
-because they have no visit is how advertising quietly looks better than it was.
-
-`platform_click_id` holds the raw value the ad platform itself attached — the `gclid` from
-Google, the `fbclid` from Meta, the `msclkid` from Microsoft, the `ttclid` from TikTok.
-These values are the evidence that a person genuinely came through paid advertising, and
-they need one guard before they can be trusted: **a platform click identifier shorter than
-ten characters should be treated as absent.** What turns up below that threshold is the
-debris of tracking — the literal text `undefined`, `null`, empty strings and truncated
-fragments picked up along the way. Counting those as clicks inflates whichever channel they
-were recorded against. Lesley van de Mortel, who described this model, uses that
-ten-character minimum in her own SQL, and pairs it with
-a check on `utm_source` and `utm_medium` so that a claimed channel has to agree with itself
-from two directions.
-
-`utm_content` is where the creative identifier lives. That single convention is what makes
-"which ad actually works" an answerable question rather than a guess: without it a practice
-can compare platforms and campaigns but never the individual image, video or headline
-inside them, which is the level at which advertising is actually changed. When a clinic is
-running several variations of the same promise, this is the field that tells them which
-promise brought the patient.
-
-The UTM fields here also travel onward: whatever is set on the click is carried into the
-[enquiry](./lead.md) that follows — the [web form](./form-submission.md) or the
-[phone call](./call.md) — and from there into the CRM record,
-which is what keeps a click attached to money collected months later.
 
 # Schema
 

@@ -1,50 +1,25 @@
 ---
 title: "Person"
 description: |
-  The human behind everything else in this model, recognised from their very first page view
-  and never renumbered afterwards. A patient's arrival need not be one sitting: someone reads
-  about a treatment on a phone, comes back on a laptop weeks later, rings the practice, and
-  books months after that. Person is what holds those fragments together, and it keeps the source,
-  medium and campaign of that first arrival frozen on the record — so the ad that started a
-  journey is still attached to it when the money finally arrives, whether that takes two
-  weeks or twenty years.
+  The human behind everything else in this model. The identity is minted at the very
+  first page view — before anyone has given a name, an email or a phone number — and is
+  never reissued, so a phone at lunchtime, a laptop weeks later and a call months after
+  that all belong to one person. It keeps the source, medium and campaign of that first arrival
+  frozen, so the ad that started a journey is still attached when the money arrives,
+  whether that takes two weeks or twenty years.
+
+  Two levels of identity sit here, and keeping them apart is what makes attribution
+  honest. `visitor_id`, carried on the [session](./session.md), is browser-level — the
+  Google Analytics `client_id` — and changes with a new device, a cleared cookie or a
+  different browser. `person_id` sits above it: several of those resolved to one human.
+  Grouping by `visitor_id` counts devices; grouping by `person_id` counts people, and a
+  practice's patient numbers only mean anything at the second level. This way of
+  stitching a person together across devices and years is the one
+  [APAS® Cloud](https://www.apascloud.com/) uses, described for this model by its
+  co-founder.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Person
-
-One row per human known to the practice, keyed by `person_id`. The identity is minted on
-the very first page view — before anyone has given a name, an email or a phone number —
-and it is never reissued. Everything later in the model hangs off it:
-[sessions](./session.md), [page views](./page-view.md), [ad clicks](./click.md),
-[enquiries](./lead.md), [consultations](./consultation.md),
-[treatments](./treatment.md) and the money.
-
-There are two levels of identity here, and keeping them apart is what makes attribution
-honest. `visitor_id`, carried on the session, is a browser-level identifier — the
-equivalent of the Google Analytics `client_id`. It changes when someone switches from
-their phone to a laptop, clears their cookies, or returns in a different browser.
-`person_id` sits above it: several `visitor_id` values, several devices and several years
-of visits resolved to one human. Grouping by `visitor_id` counts devices; grouping by
-`person_id` counts people, and a practice's patient numbers only mean anything at the
-second level.
-
-This way of stitching a person together across devices and years is the one used by
-[APAS® Cloud](https://www.apascloud.com/), whose co-founder described it for this model.
-
-Because the identity is minted at the first page view and survives indefinitely, a patient
-who first clicked an ad years ago still resolves to their original source. That is what
-`first_source`, `first_medium` and `first_campaign` record: the first touch, frozen at the
-moment the practice was found, and never overwritten by whatever brought the person back
-later. It is what answers "which advertising produced this patient" in a business where the
-click and the treatment can be years apart.
-
-`identified_at` is NULL for as long as the person is still anonymous — the state everyone
-is in before they first give contact details; it fills in the moment those details
-are given. `first_landing_page_url` is kept as plain text rather than as a link to a
-page record, because a site gets rewritten and the page that brought someone in years ago
-may no longer exist.
 
 # Schema
 

@@ -1,20 +1,16 @@
 ---
 title: "Page"
 description: |
-  Every page of the practice's website that a visitor can land on, held once and reused by
-  every view of it. Keeping pages as their own object rather than as a URL repeated on each
-  view is what lets a clinic ask which kinds of page do the work: whether the enquiries that
-  begin on a treatment page and the ones that begin on a pricing page fare the same once a
-  clinician has looked at them.
+  Every page of the practice's website that a visitor can land on, held once and reused
+  by every view of it. Keeping pages as their own object rather than as a URL repeated on
+  each view is what lets a clinic ask which kinds of page do the work: whether the
+  enquiries that begin on a treatment page and the ones that begin on a pricing page fare
+  the same once a clinician has looked at them. `page_type` is what lets that question be
+  asked of a kind of page rather than of one URL — whether the visitor was reading about
+  a treatment, checking prices, or browsing the blog.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Page
-
-One row per page of the site, keyed by `page_id`. `page_type` is what lets a question be
-asked of a kind of page rather than of one URL: whether the visitor was reading about a
-treatment, checking prices, or browsing the blog.
 
 # Schema
 
