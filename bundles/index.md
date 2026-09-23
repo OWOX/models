@@ -21,5 +21,6 @@ Generated 2026-09-15T11:13:12Z.
 - [MeasureCamp](./measurecamp/index.md) — 11 concept(s)
 - [Retail Chain](./retail-chain/index.md) — 10 concept(s)
 - [SaaS](./saas/index.md) — 10 concept(s)
+- [SEO](./seo/index.md) — 18 concept(s)
 - [Trading](./trading/index.md) — 8 concept(s)
 
