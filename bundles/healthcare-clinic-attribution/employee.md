@@ -2,37 +2,22 @@
 title: "Employee"
 description: |
   Everyone at the practice who takes part in turning an enquiry into a booked treatment —
-  clinicians, receptionists and practice managers alike — kept as one list and told apart by
-  `type`. Both screening steps are staffed from here: the phone call that decides whether an
+  clinicians, receptionists and practice managers alike — kept as one list and told apart
+  by `type`: `Doctor`, `Receptionist`, `Manager`. They are one mart rather than three
+  because they carry the same properties and differ only in what they do; splitting them
+  would duplicate the same five fields three times and make every question about staff a
+  question asked three times.
+
+  Both screening steps are staffed from here: the phone call that decides whether an
   enquiry is worth an appointment, and the appointment itself, where a clinician decides
-  whether treatment can go ahead. Holding them in one place is what lets a practice see where
-  in that chain its enquiries are actually lost, and to whom.
+  whether treatment can go ahead. Because both [consultations](./consultation.md) point
+  at this one mart, the same question — who held it, and how did it end — answers for
+  either step, which is what lets a practice see where its enquiries are actually lost,
+  and to whom. Without it every enquiry would appear to go straight to the doctor, and
+  the screen that turns away a poor fit would be invisible.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Employee
-
-One row per member of staff involved in the path from enquiry to treatment, keyed by
-`employee_id`. Doctors, receptionists and practice managers are held in one list rather
-than three, for a plain reason: they carry exactly the same properties — a name, a
-position, a place in the practice — and differ only in what they do. `type` is that
-difference, and it takes the values `Doctor`, `Receptionist` and `Manager`. Splitting them
-into separate objects would duplicate the same five fields three times and make every
-question about staff a question that has to be asked three times.
-
-Keeping them together is also what makes the screening step legible. An
-[enquiry](./lead.md) is first taken over the phone by someone who is not a clinician — a
-receptionist or a manager — who asks a few questions and decides whether the person is a
-plausible candidate for the practice. Only then does a clinician see them in the room and
-decide whether treatment can go ahead. Those are two [consultations](./consultation.md) of
-different types, held by people of different types, and because both point at this one mart the same question —
-who held it, and how did it end — answers for either step. Without that, every enquiry
-would appear to go straight to the doctor, and the practice would lose sight of the screen
-that turns away the enquiries it is not a fit for.
-
-`specialty` is meaningful only for clinicians and is left empty for reception and
-management staff; `position` is the practice's own job title, finer than `type`.
 
 # Schema
 

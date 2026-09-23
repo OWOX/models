@@ -1,48 +1,25 @@
 ---
 title: "Call"
 description: |
-  Every telephone conversation between the practice and someone enquiring — the call they
-  make and the call reception makes back. A phone call and a web form are the same step in
-  the funnel, not two different funnels: both are the first engagement, both create the same
-  CRM record, and both carry the same advertising identifiers when the caller can be
-  recognised from the website.
+  Every telephone conversation between the practice and someone enquiring. A phone call
+  and a web form are the same step in the funnel, not two funnels: both are the first
+  engagement, both create the same [CRM record](./lead.md), and both carry the same
+  advertising identifiers when the caller was on the website. A report built on web forms
+  alone leaves telephone enquiries out and credits the wrong channels.
 
-  Treating the phone as a lesser channel is how a clinic misreads its own advertising.
-  People want to speak to someone at the practice before committing to an appointment, and
-  a report built on web forms alone leaves every one of those enquiries out of the count.
+  **Those identifiers are empty for a caller with no web history, and that is the record
+  being accurate rather than a tracking defect.** Someone rings a number from a leaflet,
+  a sign or a recommendation, having never opened the site; there is no visit to match
+  them to and no [click](./click.md) to credit. Dropping unattributed calls makes the
+  measurable channels look better than they are, so they are kept and reported as demand
+  the practice knows it has and cannot yet trace.
+
+  `direction` separates calls received from calls placed: a first screen can begin with
+  the practice ringing back, and treating a returned call as a fresh enquiry would
+  double-count demand.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Call
-
-One row per telephone call, keyed by `call_id`. A call sits at exactly the same level as a
-[web form](./form-submission.md): someone rings the practice or reception rings them, and
-that contact opens a [CRM record](./lead.md) if there is not one already. This is where a
-funnel built only on web forms goes wrong — form submissions are easy to count, calls are not, and leaving the calls out
-quietly credits the wrong channels.
-
-Because a call and a form are the same step, this mart carries the same attribution
-columns a form submission does. When the caller has been on the website, `person_id`,
-`session_id` and `click_id` resolve their [visit](./session.md) and the advertising behind
-it, and the `utm_*` fields record what that link declared.
-
-**Those columns are empty for a caller with no web history, and that is the record being
-accurate rather than a tracking defect.** Someone rings a number from a
-printed leaflet, a sign, a directory or a recommendation, having never opened the site at
-all; there is no visit to match them to and no [click](./click.md) to credit. The number
-they dialled is what is left to say where they came from. Dropping unattributed calls makes the
-measurable channels look better than they are, so they are kept, counted, and reported as
-what they are: demand the practice knows it has and cannot yet trace.
-
-`tracking_number` is what rescues part of that. A practice that publishes a different
-number in each place — on the site, in an ad, on print — can read the channel off the
-number dialled even when the caller was never seen online.
-
-`direction` separates the calls the practice receives from the ones it places. Both belong
-here, because a first screen can begin with the practice ringing the person back rather
-than with an inbound call, and treating a returned call as a fresh enquiry would
-double-count demand.
 
 # Schema
 

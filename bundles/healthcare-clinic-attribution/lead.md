@@ -1,54 +1,26 @@
 ---
 title: "Lead"
 description: |
-  The enquiry as the practice's CRM holds it: a named person with contact details, created
-  the moment someone first gets in touch — by web form or by phone — and worked from there.
-  This is the record a receptionist opens, the one a marketing report counts, and the one the
-  advertising identifiers are copied onto when the enquiry arrives, which is what keeps a
-  campaign attached to a name long after the visit that produced it has ended.
+  The enquiry as the practice's CRM holds it: a named person with contact details,
+  created the moment someone first gets in touch, by web form or by phone. It does not
+  exist beforehand, which is why the [form submission](./form-submission.md) and the
+  [call](./call.md) point at the lead rather than the other way round. `person_id`
+  traces the enquiry back to the [browsing](./person.md) that preceded it by months or
+  years, and the advertising identifiers copied onto the record keep a campaign attached
+  to that name long afterwards. One lead is one person's enquiry, not one contact
+  attempt: the same lead may submit several forms, make several calls, and be screened
+  more than once.
 
-  One lead is one person's enquiry, not one contact attempt. The same lead may submit five
-  forms and make ten calls, and be screened more than once; all of that hangs off this single
-  record. Read `is_qualified` with care: it is empty here, because at the enquiry
-  stage nobody has decided yet.
+  **`is_qualified` is empty on this mart, and that is by design, not by omission.** The
+  CRM carries the field from the start, but at the enquiry stage nobody has yet spoken to
+  the person; the decision is taken later, at a
+  [consultation](./consultation.md), and stored there. A report that counts unqualified
+  enquiries as `is_qualified = false` will therefore undercount them: the enquiries that
+  were never accepted are not false, they are empty. To judge an enquiry's outcome, look
+  at the consultations attached to it, not at this field.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Lead
-
-One row per enquiry, keyed by `lead_id`, as the practice's CRM — Salesforce, HubSpot or
-whichever system the clinic runs on — records it. The lead comes into being *after* the
-first engagement: someone submits a web form or rings the practice, and that contact
-creates the CRM record. It does not exist beforehand, which is why the
-[form submission](./form-submission.md) and the [call](./call.md) each point at the lead
-rather than the other way round.
-
-The lead is also the point at which an anonymous journey acquires a name. Everything before
-it — [visits](./session.md), [page views](./page-view.md), [ad clicks](./click.md) —
-belongs to a [person](./person.md) the practice cannot yet address.
-`person_id` is the link between the two, and it is what allows an enquiry to be traced back
-to the advertising that started it months or years earlier.
-
-**`is_qualified` is empty on this mart, and that is by design, not by omission.** The CRM carries the field from the very start, because it is a standard part of
-the record, but at the enquiry stage nobody at the practice has yet spoken to the person or
-formed a view. The decision is taken later, at a [consultation](./consultation.md), and it is stored
-there.
-A report that counts unqualified enquiries as `is_qualified = false` will therefore
-undercount them: the enquiries that were never accepted are not false, they are
-empty. To judge an enquiry's outcome, look at the consultations attached to it, not at this
-field.
-
-One lead holds many engagements. A person who fills in a form, does not hear back quickly
-enough and then telephones has produced one lead, one form submission and one call — not
-two or three enquiries. Counting rows on the engagement marts counts contact attempts;
-counting rows here counts prospective patients, and the two numbers can be far apart in a
-practice that follows up by phone.
-
-`first_engagement_type` records which of the two started it, and it is the cheapest way to
-split a channel's telephone demand from its web demand without joining anything. The
-contact details are the practice's own working copy, held on the record the staff actually
-use.
 
 # Schema
 

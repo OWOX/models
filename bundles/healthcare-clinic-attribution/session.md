@@ -2,45 +2,24 @@
 title: "Session"
 description: |
   One visit to the practice's website, from the moment someone arrives to the moment they
-  stop reading. A session carries the channel that brought this particular visit, the device
-  it happened on and where in the world it came from — so it is the object that answers
-  "what was this trip to the site for", while the person record answers "who was this and
-  what first brought them here".
+  go quiet; everything seen or clicked in between belongs to it. A session carries the
+  channel that brought this particular visit, the device it happened on and where in the
+  world it came from, so it answers "what was this trip for", while the
+  [person](./person.md) record answers "who was this and what first brought them here".
 
-  Sessions are where the journey becomes countable. One path can run across many of them:
-  a phone at lunchtime, a laptop in the evening, a return three weeks later after an ad is
-  seen again. Each of those is a session, each carries its own source and campaign, and all
-  of them resolve back to the same person.
+  `visitor_id` is browser-level — the Google Analytics `client_id` — lost when someone
+  switches device, clears cookies or changes browser; `person_id` sits above it. Counting
+  distinct visitors counts browsers, counting distinct people counts prospective
+  patients, and only the second means anything for a practice's own numbers.
+
+  The UTM fields describe *this* visit and are deliberately not the first-touch source
+  frozen on the person: someone who arrived through an ad and returned through a branded
+  search has one record of each, which separates the channel that creates demand from the
+  channel that merely collects it. `campaign`, `term` and `content` are empty for visits
+  that carry no campaign at all, the normal state for direct and organic arrivals.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Session
-
-One row per visit to the site, keyed by `session_id`. A session begins with a
-[page view](./page-view.md) and ends when the visitor goes quiet; everything seen or clicked in between belongs to it.
-
-There are two identifiers on this mart and they count different things. `visitor_id` is
-browser-level — the equivalent of the Google Analytics `client_id`. It belongs to one
-browser on one device, and it is lost when someone switches from their phone to a laptop,
-clears their cookies or comes back in a different browser. `person_id` sits above it, and
-several `visitor_id` values resolve to the same `person_id` once the practice can tell
-they are the same human. So counting distinct visitors and counting distinct people are
-two different questions with two different answers: the first is a count of browsers, the
-second is a count of prospective patients. For anything a practice reports on — enquiries
-per visitor, cost per new patient — the second is the one that means something.
-
-The UTM fields on this mart describe *this* visit, and they are deliberately not the same
-thing as the first-touch source frozen on the [person](./person.md). A patient who first
-arrived through an ad and came back later through a search for the clinic's name has one record of each:
-the person says which advertising found them, the session says what brought them back
-today. Keeping both is what lets a practice separate the channel that creates demand from
-the channel that merely collects it. `campaign`, `term` and `content` are empty for visits
-that carry no campaign at all, which is the normal state for direct and organic arrivals.
-
-`is_first_session` marks the very first visit a person ever made — the one during which
-their identity was minted. It is the cheapest way to split "new to us" from "back again"
-without recomputing the journey every time.
 
 # Schema
 

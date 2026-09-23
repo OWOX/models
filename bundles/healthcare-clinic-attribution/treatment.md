@@ -1,51 +1,27 @@
 ---
 title: "Treatment"
 description: |
-  The step between a clinician saying yes and the practice being paid. Once a consultation
-  qualifies someone, a treatment is booked for a date, the patient's copay is collected
-  before it starts, and the claim goes to the insurer after it. Every bill and every payment
-  in this model is raised against one of these rows.
+  The step between a clinician saying yes and the practice being paid. Once a
+  consultation qualifies someone a date is agreed and the treatment is booked, the
+  patient's copay is collected before it starts, and the claim goes to the insurer after
+  it. Every bill and every payment in this model is raised against one of these rows:
+  before this record the model describes demand, after it money.
 
-  It is also the join that makes attribution complete. A treatment points back at the
-  consultation that cleared it and forward at the patient being treated, so a clinician's
-  verdict and the money that followed sit on the same chain — and the advertising that
-  produced the enquiry can be read against treatments delivered, not only enquiries taken.
+  **Being qualified and being treated are two different things.** Someone can be cleared
+  and still decide not to go ahead, a drop-off that stays invisible unless bookings are
+  counted separately from verdicts. `booked_at` and `scheduled_date` are deliberately
+  separate too: one is when the appointment was agreed, the other the day it was set for,
+  and the distance between them is the practice's waiting time.
+
+  A treatment points back at the
+  [consultation](./consultation.md) that cleared it, forward at the
+  [patient](./customer-patient.md) receiving it and at the [clinician](./employee.md)
+  delivering it — the same staff list the screenings point at — so a clinician's verdict
+  and the money that followed sit on one chain, and advertising can be read against
+  treatments delivered, not only enquiries taken.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Treatment
-
-One row per treatment booked, keyed by `treatment_id`. Each row names the assessment that
-cleared it, the [patient](./customer-patient.md) receiving it and the
-[clinician](./employee.md) delivering it.
-
-**This is the link between a clinical decision and money.** Before it, the model describes
-demand: visits, clicks, enquiries and the screens that judge them. After it, the model
-describes money: invoices raised and payments received. The treatment is what joins the
-two — an [invoice](./invoice.md) is raised against a treatment, and a treatment is arranged
-from a [consultation](./consultation.md) that qualified the patient. Without this record a
-clinician's verdict and a bank payment have nothing in common to be joined on, and the
-question of which advertising earned anything has no path to an answer.
-
-**The sequence it sits in.** A clinician examines the person at a consultation and decides
-whether treatment can go ahead. If it can, and the person wants to proceed, a date is
-agreed and the treatment is booked. The patient's copay is collected before the treatment
-starts, and the claim to the insurer follows after it. Being qualified and being treated
-are therefore two different things: someone can be cleared and still decide not to go
-ahead, which is a drop-off that is invisible unless bookings are counted separately from
-verdicts.
-
-`booked_at` and `scheduled_date` are deliberately separate. The first is when the
-appointment was agreed, the second is the day it was set for, and the distance between them
-is the practice's waiting time — the gap between a patient hearing yes and being treated.
-`completed_date` is empty until the treatment has actually happened, which is what
-separates work delivered from work in the diary. `status` carries the same distinction in
-one field: `booked`, `completed` or `cancelled`.
-
-`employee_id` is the clinician who delivers the treatment, which is the same staff list the
-consultations point at. That makes it possible to follow one clinician from the assessments
-they held to the treatments they went on to deliver.
 
 # Schema
 

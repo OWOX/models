@@ -1,51 +1,24 @@
 ---
 title: "Invoice"
 description: |
-  A bill the practice has issued, raised against one treatment and one patient. An invoice is
-  a claim on money, not money: it records what is owed and to whom the claim was sent, and
-  nothing here says that any of it has arrived. Payments are held separately, on Revenue.
+  A bill the practice has issued, raised against one treatment and one patient. An
+  invoice is a claim on money, not money: it records what is owed and to whom, and
+  nothing here says any of it has arrived. Money actually received is recorded on
+  [Revenue](./revenue.md), joined by `invoice_id`: a report on invoices answers "what
+  have we billed", one on revenue "what have we been paid". Read as income they
+  overstate, carrying the full value of work billed, including the part an insurer has
+  not settled and the part that may never be paid at all.
 
-  A treatment is billed in two parts, and the parts settle on different terms.
-  The patient's copay is collected before the treatment starts and is money straight away,
-  though a small share of the total. The rest is claimed from the insurer after the treatment
-  and is settled only when the insurer pays, with a lag. `payer_type` is what tells the two
-  apart, and a practice that reads invoices as income will believe it has been paid when it
-  has not.
+  A treatment is billed in two parts. In the United States, where this pattern was
+  described, the patient's copay can be billed as soon as the treatment is booked, is
+  collected before it starts, and is money straight away, though a small share of the
+  total. The rest is claimed from the insurer after the treatment and becomes money only
+  when the insurer pays, with a lag. `payer_type` tells the two apart. A `written_off`
+  invoice is delivered work that earned nothing, so it belongs in any honest reading of
+  what a channel produced.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Invoice
-
-One row per bill issued, keyed by `invoice_id`. Each names the [treatment](./treatment.md)
-being billed for and the [patient](./customer-patient.md) being billed.
-
-**An invoice is not revenue.** It is a claim: the practice has sent the bill and is waiting.
-Money actually received is recorded on [Revenue](./revenue.md), a separate mart joined to
-this one by `invoice_id`, and keeping the two apart is deliberate. A report built on
-invoices answers "what have we billed"; only one built on revenue answers "what have we been
-paid". Read as income, invoices overstate what has arrived: they carry the full value of work
-billed, including the part an insurer has not settled and the part that may never be paid
-at all.
-
-**A treatment is billed in two parts.** In the United States, where this pattern was
-described, the patient pays a copay first: the practice can send that bill as soon as the
-treatment is booked, and the copay is collected before the treatment starts. It is a small
-share of the total, and it is money immediately. The rest is claimed from the insurer after
-the treatment has happened, and it becomes money only when the insurer pays, which is not
-the same day. `payer_type` separates the two — `patient_copay` for the part the patient
-settles, `insurance_claim` for the part the insurer is asked for — and any question about when cash
-arrives needs that split, because the two halves of one treatment settle on different
-terms.
-
-`status` tracks what has become of the claim: `issued` while nothing has been settled,
-`partially_paid` when some of it has, `paid` when it is closed, and `written_off` when the
-practice has given up on it. A written-off invoice is work delivered and not paid for, so it
-belongs in any honest reading of what a channel earned.
-
-`amount` and `currency` are what was asked for, on this invoice alone. The amount received
-against it can be smaller, can arrive in pieces, and can be nothing; that is recorded on
-Revenue, and the gap between the two is the practice's outstanding balance.
 
 # Schema
 

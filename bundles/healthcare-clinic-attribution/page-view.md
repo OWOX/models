@@ -1,39 +1,24 @@
 ---
 title: "Page View"
 description: |
-  Every page a visitor actually opened, in the order they opened it. Where the page record
-  describes a page once and for all, a page view is one reading of it by one person at one
-  moment — which is what turns a site map into a record of behaviour.
+  Every page a visitor actually opened, in the order they opened it. Where a
+  [page](./page.md) is described once and for all, a page view is one reading of it by
+  one person at one moment — which is what turns a site map into a record of behaviour.
 
-  This is the mart that makes "what did they read before they got in touch" answerable. A
-  practice can see whether the people who eventually book treatment passed a pricing page,
-  how deep into the site an enquiry comes from, and which pages are where visitors
-  quietly leave.
+  This mart reaches further back than anything else in the model: the very first page
+  view is where a person's identity is minted — before a name, before an email, before
+  anyone at the practice knows a prospective patient is there. It is also what makes
+  "what did they read before they got in touch" answerable. `sequence_in_session` makes a
+  journey readable as an order rather than a pile of URLs; `is_entrance` and `is_exit`
+  mark its two ends: entrances say which pages bring people in, exits say where
+  attention is lost, and those are two different lists.
+
+  `time_on_page_seconds` is measured from when the next page was opened, so it cannot be
+  known for the last page of a visit. That value is empty rather than zero, and treating
+  it as zero understates how long the site was read for.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Page View
-
-One row per page opened, keyed by `page_view_id`. A page view belongs to the
-[visit](./session.md) it happened in, to the [person](./person.md) who made it, and to
-the [page](./page.md) that was read — and it is this
-mart that holds all three, not the other way round. One page is read many times, so the
-view is what carries `page_id`; a page record carries nothing about who saw it.
-
-The very first page view in the practice's records is where a person's identity is minted,
-which is why this mart reaches further back than anything else in the model: it exists
-before a name, before an email, before a phone call, and before anyone at the practice
-knows a prospective patient is there at all.
-
-`sequence_in_session` is what makes a journey readable as a sequence rather than a pile of
-URLs — first page, second page, third — and `is_entrance` and `is_exit` mark the two ends
-of it. Entrances say which pages are doing the work of bringing people in; exits say where
-attention is lost, which is a different list.
-
-`time_on_page_seconds` is measured from when the next page was opened, so it cannot be
-known for the last page of a visit — that value is empty rather than zero, and treating it
-as zero understates how long the site was read for.
 
 # Schema
 

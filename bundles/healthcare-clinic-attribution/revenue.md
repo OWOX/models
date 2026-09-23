@@ -1,52 +1,26 @@
 ---
 title: "Revenue"
 description: |
-  Money the practice has actually received. An invoice is a claim on money; this is the
-  claim being settled, and the two are kept apart because a bill and a payment are not the
-  same event and do not happen at the same time.
+  Money the practice has actually received. Issuing a bill creates a claim; only a
+  payment creates revenue, and the two are kept apart because they are not the same event
+  and do not happen at the same time. A single [invoice](./invoice.md) can be settled in
+  more than one payment, or in none, so this mart is joined to the invoice rather than
+  folded into it.
 
   A treatment is paid for in two pieces. The patient's copay is collected before the
   treatment starts and is revenue straight away, though a small share of the total. The
-  remainder comes from the insurer, after the claim has been submitted and with a lag, and
-  `days_to_payment` is where the length of that wait is recorded. Read with `payment_source`,
-  it tells a practice how long its money takes to arrive and who it is waiting on.
+  rest comes from the insurer, after the claim is submitted and with a lag;
+  `days_to_payment` records that wait, and read with `payment_source` it says who the
+  practice is waiting on. That lag is why a total taken over the month a treatment
+  happened is not the same as one taken over the month the money landed.
+
+  Revenue reaches advertising through the [patient](./customer-patient.md), whose
+  `person_id` goes back to the first visit and the campaign frozen on it. One patient's
+  payments can spread over years, so a campaign total sums a whole
+  history rather than a single purchase.
 tags: ["owox", "view"]
 type: "OWOX Data Mart"
 ---
-
-# Revenue
-
-One row per payment received, keyed by `revenue_id`. Each names the
-[invoice](./invoice.md) it settles and the [patient](./customer-patient.md) it came in for.
-
-**This is money, and the invoice is not.** Issuing a bill creates a claim; only a payment
-creates revenue. A single invoice can be settled in more than one payment, or in none, so
-this mart is joined to the invoice rather than folded into it. Subtracting what is here from
-what was billed is how a practice sees what it is still owed, and by whom.
-
-**Two sources, arriving at two different moments.** `payment_source` tells them apart.
-`patient_copay` is the part the patient pays; it is collected before the treatment starts
-and is revenue straight away, and it is a small share of the total. `insurance_reimbursement`
-is the rest: the practice submits a claim to the insurer after the treatment, and the money
-arrives later, once the claim has been processed. That lag is why a practice can be busy and
-short of cash at the same time, and why a total taken over the month a treatment happened
-is not the same as one taken over the month the money landed.
-
-`days_to_payment` is that wait as a number: the distance between the bill and the money.
-Averaged by `payment_source` it separates a copay collected before treatment from an
-insurer's reimbursement; tracked over time, it is how a practice sees whether its
-insurers have started paying more slowly.
-
-**Revenue resolves to advertising through the patient.** Every row carries `customer_id`,
-so payments roll up to one patient, and the patient carries `person_id`, which reaches back
-to the first visit and the source, medium and campaign frozen on it. That path is what turns
-"which campaigns bring enquiries" into "which campaigns brought money", including money
-received long after the click. One patient can have several payments spread over years, so
-totals per campaign are sums over a patient's whole history rather than over a single
-purchase.
-
-`amount` and `currency` describe this payment alone, not the invoice it belongs to; the
-invoice keeps its own figure, and the difference between the two is what is outstanding.
 
 # Schema
 
