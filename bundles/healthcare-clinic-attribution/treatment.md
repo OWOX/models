@@ -19,8 +19,9 @@ description: |
   delivering it — the same staff list the screenings point at — so a clinician's verdict
   and the money that followed sit on one chain, and advertising can be read against
   treatments delivered, not only enquiries taken.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:20:01.000Z
 ---
 
 # Schema

@@ -18,8 +18,9 @@ description: |
   An empty attribution field is normal rather than broken: someone who arrived through
   unpaid search or typed the address in carries no campaign and no click identifier, and
   the identifiers of platforms a person did not come through are empty too.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:20:00.000Z
 ---
 
 # Schema
@@ -27,7 +28,7 @@ type: "OWOX Data Mart"
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `form_submission_id` | STRING | Form Submission ID | PK. Unique identifier for this one form, separate from the enquiry it belongs to — one enquiry can produce several. |
-| `lead_id` | INTEGER | Lead ID | The enquiry record this submission opened or added to; repeat submissions from the same person all carry the same value. FK to [Lead](./lead.md) |
+| `lead_id` | STRING | Lead ID | The enquiry record this submission opened or added to; repeat submissions from the same person all carry the same value. FK to [Lead](./lead.md) |
 | `person_id` | STRING | Person ID | The human who submitted it. Reach them through the [enquiry](./lead.md) this submission opened or through the [visit](./session.md) it was sent during, both of which carry the same identifier back to the anonymous browsing and advertising that came before. |
 | `session_id` | STRING | Session ID | The visit the form was sent during, which is how the pages read beforehand can be counted as part of the same decision. FK to [Session](./session.md) |
 | `click_id` | STRING | Click ID | The paid click that brought this person to the site. Empty for organic and direct arrivals, which is the normal state rather than missing data. FK to [Click](./click.md) |
@@ -52,11 +53,11 @@ type: "OWOX Data Mart"
 
 ## Joins
 
-- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The CRM record this submission produced or added to; one lead may submit several forms.
-  - [Lead Person](./person.md) — The human the CRM enquiry is filed under, which can gather several submissions under one record.
-- [Session](./session.md) — `session_id = session_id` [N:1] — The visit it was submitted during.
-  - [Session Person](./person.md) — The human behind the visit this form was sent during.
 - [Click](./click.md) — `click_id = click_id` [N:1] — The paid click that brought them; absent for organic and direct visits.
   - [Click Person](./person.md) — The human the paid click that brought this person was attributed to.
   - [Click Session](./session.md) — The visit the ad click produced, which need not be the visit this form was sent during.
     - [Click Session Person](./person.md) — The human behind the visit that ad click produced.
+- [Lead](./lead.md) — `lead_id = lead_id` [N:1] — The CRM record this submission produced or added to; one lead may submit several forms.
+  - [Lead Person](./person.md) — The human the CRM enquiry is filed under, which can gather several submissions under one record.
+- [Session](./session.md) — `session_id = session_id` [N:1] — The visit it was submitted during.
+  - [Session Person](./person.md) — The human behind the visit this form was sent during.

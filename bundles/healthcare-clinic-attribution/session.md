@@ -17,8 +17,9 @@ description: |
   search has one record of each, which separates the channel that creates demand from the
   channel that merely collects it. `campaign`, `term` and `content` are empty for visits
   that carry no campaign at all, the normal state for direct and organic arrivals.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:59.000Z
 ---
 
 # Schema

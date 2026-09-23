@@ -15,8 +15,9 @@ description: |
   either step, which is what lets a practice see where its enquiries are actually lost,
   and to whom. Without it every enquiry would appear to go straight to the doctor, and
   the screen that turns away a poor fit would be invisible.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:57.000Z
 ---
 
 # Schema

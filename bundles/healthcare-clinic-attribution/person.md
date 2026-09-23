@@ -17,8 +17,9 @@ description: |
   stitching a person together across devices and years is the one
   [APAS® Cloud](https://www.apascloud.com/) uses, described for this model by its
   co-founder.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:58.000Z
 ---
 
 # Schema

@@ -16,8 +16,9 @@ description: |
   the same. `person_id` resolves a paying patient back to the anonymous first visit, so
   the advertising that started a journey can be credited with the money that ended it,
   however long the gap.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:19:58.000Z
 ---
 
 # Schema

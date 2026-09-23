@@ -18,8 +18,9 @@ description: |
   `person_id` goes back to the first visit and the campaign frozen on it. One patient's
   payments can spread over years, so a campaign total sums a whole
   history rather than a single purchase.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:20:03.000Z
 ---
 
 # Schema

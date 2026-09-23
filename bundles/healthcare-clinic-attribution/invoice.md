@@ -16,8 +16,9 @@ description: |
   when the insurer pays, with a lag. `payer_type` tells the two apart. A `written_off`
   invoice is delivered work that earned nothing, so it belongs in any honest reading of
   what a channel produced.
-tags: ["owox", "view"]
+tags: ["owox"]
 type: "OWOX Data Mart"
+timestamp: 2026-09-23T14:20:02.000Z
 ---
 
 # Schema
