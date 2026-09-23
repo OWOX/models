@@ -1,4 +1,4 @@
-import { serializeBundle, parseBundle, type ModelGraph } from "@mc/okf";
+import { serializeBundle, parseBundle, isBundleIndex, type ModelGraph } from "@mc/okf";
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 // Branded footer appended to the bundle index — every exported model carries an
@@ -12,7 +12,7 @@ const OKF_FOOTER =
 export function graphToBundleFiles(g: ModelGraph, projectTitle: string): Record<string, string> {
   const files = serializeBundle(g, projectTitle).files;
   // Append the OWOX footer to the bundle's index.md (per-mart docs stay clean).
-  const indexKey = Object.keys(files).find(k => k.endsWith("index.md"));
+  const indexKey = Object.keys(files).find(isBundleIndex);
   if (indexKey) files[indexKey] = files[indexKey].replace(/\s*$/, "") + OKF_FOOTER;
   return files;
 }

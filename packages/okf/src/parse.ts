@@ -10,9 +10,15 @@ function basename(path: string): string {
   return path.split(/[\\/]/).pop()!.replace(/\.md$/i, "");
 }
 
+/** True only for the bundle's own index file (`index.md`, any folder, any case).
+ *  A suffix check would also swallow marts like `initiate-index.md`. */
+export function isBundleIndex(path: string): boolean {
+  return /\.md$/i.test(path) && basename(path).toLowerCase() === "index";
+}
+
 export function parseBundle(files: Record<string, string>): ModelGraph {
   const docs = Object.entries(files)
-    .filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"))
+    .filter(([p]) => p.endsWith(".md") && !isBundleIndex(p))
     .filter(([, text]) => isMartDoc(text));
   const nodes: ModelNode[] = []; const slugToKey = new Map<string, string>();
   const pkByKey = new Map<string, string | undefined>();

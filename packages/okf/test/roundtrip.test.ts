@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { serializeBundle, parseBundle } from "../src/index";
+import { serializeBundle, parseBundle, isBundleIndex } from "../src/index";
 import type { ModelGraph } from "../src/types";
 
 const graph: ModelGraph = {
@@ -127,7 +127,7 @@ describe("serialize → parse round-trip (superset)", () => {
     };
 
     const { files } = serializeBundle(collidingGraph, "Demo");
-    const martFiles = Object.keys(files).filter(f => !f.endsWith("index.md"));
+    const martFiles = Object.keys(files).filter(f => !isBundleIndex(f));
     expect(martFiles).toHaveLength(2);
 
     const back = parseBundle(files);
