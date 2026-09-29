@@ -1,84 +1,134 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { MartNode } from "./MartNode";
 import { NOTHING_HIDDEN, ALL_HIDDEN, type ObjHidden } from "../../state/objLabels";
+import type { CardRelationship } from "./relationships";
 
 const node = {
   key: "n1", title: "Users", inputSource: "VIEW", status: "created", owoxId: "x",
   position: { x: 0, y: 0 },
   schema: [
     { name: "id", type: "INT64", pk: true },
-    { name: "email", type: "STRING", pk: false },
+    { name: "email", type: "STRING", pk: false, alias: "Email address", description: "Where we write" },
   ],
 };
 
-function renderNode(viewMode: "compact" | "erd", hidden: Partial<ObjHidden> = {}) {
+const relationships: CardRelationship[] = [
+  { id: "e1", direction: "outgoing", otherTitle: "Orders", joinFields: [{ field: "id", otherField: "user_id" }] },
+  { id: "e2", direction: "incoming", otherTitle: "Sessions", joinFields: [] },
+];
+
+function renderNode(viewMode: "compact" | "erd", hidden: Partial<ObjHidden> = {}, extra: Record<string, unknown> = {}) {
   return render(
     <ReactFlowProvider>
       {/* @ts-expect-error minimal NodeProps for a render-only test */}
-      <MartNode id="n1" data={{ ...node, _viewMode: viewMode, _objHidden: { ...NOTHING_HIDDEN, ...hidden } }} />
+      <MartNode id="n1" data={{ ...node, _viewMode: viewMode, _objHidden: { ...NOTHING_HIDDEN, ...hidden }, _relationships: relationships, ...extra }} />
     </ReactFlowProvider>,
   );
 }
 
-describe("MartNode ERD rendering", () => {
-  it("shows the field count (not rows) in compact mode", () => {
+describe("MartNode card", () => {
+  it("shows the source, field and relationship badges in compact mode, without rows", () => {
     renderNode("compact");
+    expect(screen.getByText("View")).toBeTruthy();
     expect(screen.getByText("2 fields")).toBeTruthy();
+    expect(screen.getByText("2 relationships")).toBeTruthy();
     expect(screen.queryByText("INT64")).toBeNull();
   });
 
-  it("shows each field name and type in ERD mode", () => {
+  it("shows no badge for a zero count", () => {
+    renderNode("compact", {}, { _relationships: [], schema: [] });
+    expect(screen.queryByText(/field/)).toBeNull();
+    expect(screen.queryByText(/relationship/)).toBeNull();
+  });
+
+  it("shows each field and type in ERD mode, alias first", () => {
     renderNode("erd");
     expect(screen.getByText("id")).toBeTruthy();
     expect(screen.getByText("INT64")).toBeTruthy();
+    expect(screen.getByText("Email address")).toBeTruthy();
+    expect(screen.getByText("Where we write")).toBeTruthy();
+  });
+
+  it("drops aliases and descriptions from the rows when they are unticked", () => {
+    renderNode("erd", { fieldAlias: true, fieldDescription: true });
     expect(screen.getByText("email")).toBeTruthy();
-    expect(screen.getByText("STRING")).toBeTruthy();
+    expect(screen.queryByText("Email address")).toBeNull();
+    expect(screen.queryByText("Where we write")).toBeNull();
+  });
+});
+
+describe("MartNode badges open lists", () => {
+  it("lists the fields under the card when the fields badge is clicked, and hides them again", () => {
+    renderNode("compact");
+    const badge = screen.getByRole("button", { name: "Show fields of Users" });
+    fireEvent.click(badge);
+    expect(screen.getByText("INT64")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Hide fields of Users" }).getAttribute("aria-expanded")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Hide fields of Users" }));
+    expect(screen.queryByText("INT64")).toBeNull();
+  });
+
+  it("lists the relationships with direction and join fields", () => {
+    renderNode("compact");
+    fireEvent.click(screen.getByRole("button", { name: "Show relationships of Users" }));
+    const list = screen.getByRole("list", { name: "Relationships of Users" });
+    expect(list.textContent).toContain("Orders");
+    expect(list.textContent).toContain("id = user_id");
+    expect(list.textContent).toContain("Sessions");
+    expect(list.textContent).toContain("Join fields not set");
+    expect(screen.getByLabelText("Joins")).toBeTruthy();
+    expect(screen.getByLabelText("Joined by")).toBeTruthy();
+  });
+
+  it("opens one list at a time", () => {
+    renderNode("compact");
+    fireEvent.click(screen.getByRole("button", { name: "Show fields of Users" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show relationships of Users" }));
+    expect(screen.queryByText("INT64")).toBeNull();
+    expect(screen.getByRole("list", { name: "Relationships of Users" })).toBeTruthy();
+  });
+
+  it("keeps the field count a plain badge in ERD, where the rows are already listed", () => {
+    renderNode("erd");
+    expect(screen.queryByRole("button", { name: /fields of Users/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "Show relationships of Users" })).toBeTruthy();
   });
 });
 
 describe("MartNode object-labels", () => {
-  it("nothing hidden: shows the source chip, field count and status dot", () => {
-    renderNode("compact");
-    expect(screen.getByText("VIEW")).toBeTruthy();
-    expect(screen.getByText("2 fields")).toBeTruthy();
-    expect(screen.getByTestId("status-dot")).toBeTruthy();
-  });
-
-  it("hides the source chip on its own", () => {
+  it("hides the source badge on its own", () => {
     renderNode("compact", { source: true });
-    expect(screen.queryByText("VIEW")).toBeNull();
-    expect(screen.getByText("2 fields")).toBeTruthy();
-    expect(screen.getByTestId("status-dot")).toBeTruthy();
-  });
-
-  it("hides the field count on its own", () => {
-    renderNode("compact", { fields: true });
-    expect(screen.getByText("VIEW")).toBeTruthy();
-    expect(screen.queryByText("2 fields")).toBeNull();
-    expect(screen.getByTestId("status-dot")).toBeTruthy();
-  });
-
-  it("hides the status dot on its own — the combination the enum couldn't express", () => {
-    renderNode("compact", { status: true });
-    expect(screen.queryByTestId("status-dot")).toBeNull();
-    expect(screen.getByText("VIEW")).toBeTruthy();
+    expect(screen.queryByText("View")).toBeNull();
     expect(screen.getByText("2 fields")).toBeTruthy();
   });
 
-  it("hides the source chip and the status dot while keeping the field count", () => {
-    renderNode("compact", { source: true, status: true });
-    expect(screen.queryByText("VIEW")).toBeNull();
-    expect(screen.queryByTestId("status-dot")).toBeNull();
+  it("hides the relationships badge, and with it the list", () => {
+    renderNode("compact", { relationships: true });
+    expect(screen.queryByText("2 relationships")).toBeNull();
     expect(screen.getByText("2 fields")).toBeTruthy();
+  });
+
+  it("marks a draft with a status pill, and nothing once pushed", () => {
+    const { unmount } = renderNode("compact", {}, { status: "pending" });
+    expect(screen.getByText("Draft")).toBeTruthy();
+    unmount();
+    renderNode("compact");
+    expect(screen.queryByText("Draft")).toBeNull();
+  });
+
+  it("hides the status pill when its label is unticked", () => {
+    renderNode("compact", { status: true }, { status: "error" });
+    expect(screen.queryByText("Error")).toBeNull();
   });
 
   it("all hidden: leaves just the title", () => {
-    renderNode("compact", ALL_HIDDEN);
-    expect(screen.queryByText("VIEW")).toBeNull();
+    renderNode("compact", ALL_HIDDEN, { status: "pending" });
+    expect(screen.queryByText("View")).toBeNull();
     expect(screen.queryByText("2 fields")).toBeNull();
-    expect(screen.queryByTestId("status-dot")).toBeNull();
+    expect(screen.queryByText("2 relationships")).toBeNull();
+    expect(screen.queryByText("Draft")).toBeNull();
     expect(screen.getByText("Users")).toBeTruthy();
   });
 
@@ -86,11 +136,11 @@ describe("MartNode object-labels", () => {
     render(
       <ReactFlowProvider>
         {/* @ts-expect-error minimal NodeProps for a render-only test */}
-        <MartNode id="n1" data={{ ...node, _viewMode: "compact" }} />
+        <MartNode id="n1" data={{ ...node, status: "pending", _viewMode: "compact" }} />
       </ReactFlowProvider>,
     );
-    expect(screen.getByText("VIEW")).toBeTruthy();
+    expect(screen.getByText("View")).toBeTruthy();
     expect(screen.getByText("2 fields")).toBeTruthy();
-    expect(screen.getByTestId("status-dot")).toBeTruthy();
+    expect(screen.getByText("Draft")).toBeTruthy();
   });
 });

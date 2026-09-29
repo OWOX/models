@@ -1,7 +1,25 @@
-/* Show React Flow handles on node hover/select */
+/* Card ports: a side an edge attaches to keeps its gray socket on screen (as in
+   the OWOX product); the rest show on hover/select as connect targets. */
+.mart-handle {
+  opacity: 0;
+  transition: opacity 0.12s, transform 0.12s, border-color 0.12s;
+}
+.mart-handle--used {
+  opacity: 1;
+}
 .react-flow__node:hover .mart-handle,
 .react-flow__node.selected .mart-handle {
   opacity: 1 !important;
+}
+.react-flow__node:hover .mart-handle:hover {
+  border-color: #e6f0fa !important;
+  background: #0084ff !important;
+}
+.react-flow__node:hover .mart-handle.react-flow__handle-left:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+}
+.react-flow__node:hover .mart-handle.react-flow__handle-right:hover {
+  transform: translate(50%, -50%) scale(1.3);
 }
 
 /* Canvas dot background is handled by React Flow Background component */
@@ -14,15 +32,15 @@
   cursor: crosshair;
 }
 
-/* Node selected ring */
+/* Node selected ring — the product's selected Data Mart card. */
 .react-flow__node.selected > div {
-  border-color: #1e88e5 !important;
-  box-shadow: 0 0 0 3px #e6f1fb, 0 6px 18px rgba(30, 136, 229, 0.15) !important;
+  border-color: #0084ff !important;
+  box-shadow: 0 0 0 1px #0084ff !important;
 }
 
 /* Edge selected */
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #1e88e5;
+  stroke: #0084ff;
   stroke-width: 2.5;
 }
 

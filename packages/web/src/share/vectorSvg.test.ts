@@ -5,16 +5,22 @@ import { buildVectorSvg, PADDING } from "./vectorSvg";
 const node = (over: Partial<SceneNode> = {}): SceneNode => ({
   x: 0, y: 0, width: 250, height: 160,
   title: "Orders",
-  color: "#10b981",
-  source: "SQL",
-  status: "#10b981",
-  fieldCount: null,
-  fields: [
-    { label: "order_id", type: "STRING", pk: true },
-    { label: "revenue", type: "NUMERIC", pk: false },
-  ],
-  more: null,
-  empty: false,
+  inputSource: "SQL",
+  status: null,
+  description: false,
+  badgeLines: [[
+    { kind: "source", label: "SQL", expanded: false },
+    { kind: "fields", label: "2 fields", expanded: false },
+  ]],
+  sections: [{
+    kind: "fields",
+    rows: [
+      { label: "order_id", type: "STRING", pk: true },
+      { label: "revenue", type: "NUMERIC", pk: false, description: "Net of refunds" },
+    ],
+    more: null,
+  }],
+  sockets: { left: false, right: false, y: 26 },
   ...over,
 });
 
@@ -58,35 +64,62 @@ describe("buildVectorSvg", () => {
     expect(svg).toContain(">NUMERIC<");
   });
 
-  it("paints the source chip in the node's accent colour", () => {
-    expect(buildVectorSvg(scene()).svg).toContain('fill="#10b981"');
-    expect(buildVectorSvg(scene()).svg).toContain(">SQL<");
+  it("draws the badges as soft pills with their text", () => {
+    const svg = buildVectorSvg(scene()).svg;
+    expect(svg).toContain(">SQL<");
+    expect(svg).toContain(">2 fields<");
+    expect(svg).toContain('fill="#f5f5f5"');
   });
 
-  it("omits the chip, dot and count when the canvas hides them", () => {
+  it("fills an opened badge darker, as the card does", () => {
     const svg = buildVectorSvg(scene({
-      nodes: [node({ source: null, status: null, fieldCount: null })],
+      nodes: [node({ badgeLines: [[{ kind: "relationships", label: "3 relationships", expanded: true }]] })],
     })).svg;
+    expect(svg).toContain('fill="#ebebec"');
+  });
+
+  it("omits badges, status and sections the canvas does not show", () => {
+    const svg = buildVectorSvg(scene({ nodes: [node({ badgeLines: [], sections: [] })] })).svg;
     expect(svg).not.toContain(">SQL<");
-    expect(svg).not.toContain('r="4.5"'); // the status dot; the PK key icon has its own circle
+    expect(svg).not.toContain(">order_id<");
+    expect(svg).not.toContain(">Draft<");
   });
 
-  it("renders the compact field count instead of rows", () => {
+  it("draws the status pill next to the title", () => {
     const svg = buildVectorSvg(scene({
-      nodes: [node({ fields: [], fieldCount: "7 fields" })],
+      nodes: [node({ status: { label: "Draft", tip: "", bg: "#f5f5f5", fg: "#65676f", status: "pending" } })],
     })).svg;
-    expect(svg).toContain(">7 fields<");
-    expect(svg).not.toContain(">order_id<");
+    expect(svg).toContain(">Draft<");
+  });
+
+  it("writes a shown field description under its row", () => {
+    expect(buildVectorSvg(scene()).svg).toContain(">Net of refunds<");
   });
 
   it("renders the expand-toggle row when the canvas shows one", () => {
-    const svg = buildVectorSvg(scene({ nodes: [node({ more: "+6 more fields" })] })).svg;
+    const svg = buildVectorSvg(scene({
+      nodes: [node({ sections: [{ kind: "fields", rows: [], more: "+6 more fields" }] })],
+    })).svg;
     expect(svg).toContain(">+6 more fields<");
   });
 
-  it("renders the empty-schema placeholder", () => {
-    const svg = buildVectorSvg(scene({ nodes: [node({ fields: [], empty: true })] })).svg;
-    expect(svg).toContain(">no fields<");
+  it("renders an opened relationships list", () => {
+    const svg = buildVectorSvg(scene({
+      nodes: [node({ sections: [{ kind: "relationships", rows: [
+        { direction: "outgoing", title: "Users", joins: ["user_id = id"] },
+        { direction: "incoming", title: "Items", joins: [] },
+      ] }] })],
+    })).svg;
+    expect(svg).toContain(">Users<");
+    expect(svg).toContain(">user_id = id<");
+    expect(svg).toContain(">Join fields not set<");
+  });
+
+  it("draws a socket dot only on a side an edge attaches to", () => {
+    const none = buildVectorSvg(scene()).svg;
+    const left = buildVectorSvg(scene({ nodes: [node({ sockets: { left: true, right: false, y: 26 } })] })).svg;
+    expect(none).not.toContain('fill="#606060"');
+    expect(left.match(/fill="#606060"/g)).toHaveLength(1);
   });
 
   it("carries edge paths through with their stroke and an arrowhead", () => {
@@ -119,15 +152,16 @@ describe("buildVectorSvg", () => {
 
   it("draws an edge label with its cardinality pill", () => {
     const svg = buildVectorSvg(scene({
-      labels: [{ x: 100, y: 50, text: "a = b", cardinality: "1:N", selected: false }],
+      labels: [{ x: 100, y: 50, lines: ["a = b", "c = d"], cardinality: "1:N", selected: false }],
     })).svg;
     expect(svg).toContain(">a = b<");
+    expect(svg).toContain(">c = d<");
     expect(svg).toContain(">1:N<");
   });
 
   it("escapes markup-breaking characters in model text", () => {
     const svg = buildVectorSvg(scene({
-      nodes: [node({ title: 'Sales & <Ops> "2024"', fields: [] })],
+      nodes: [node({ title: 'Sales & <Ops> "2024"', sections: [] })],
     })).svg;
     expect(svg).toContain("&amp;");
     expect(svg).not.toContain("<Ops>");
