@@ -7,14 +7,29 @@ import {
 } from "@xyflow/react";
 import type { ModelEdge } from "@mc/okf";
 import { visibleKeys, showCardinality, type RelLabelMode } from "../../state/relLabels";
+import {
+  CARD_COLORS,
+  CARDINALITY_BG,
+  EDGE_NEUTRAL,
+  EDGE_SELECTED_STROKE_WIDTH,
+  EDGE_STROKE_WIDTH,
+  OWOX_BLUE,
+} from "./nodeStyle";
 
 export type RelEdgeData = Pick<ModelEdge, "keys" | "bidirectional" | "cardinality"> & {
   relLabelMode?: RelLabelMode;
+  /** One end is the selected card — the edge lights up like a selected one. */
+  highlighted?: boolean;
 };
+
+/** The label's join lines, one "left = right" per key, as the product shows them. */
+export function joinLines(keys: ModelEdge["keys"], mode: RelLabelMode): string[] {
+  return visibleKeys(keys, mode).map(k => `${k.left || "?"} = ${k.right || "?"}`);
+}
 
 function RelEdgeInner(props: EdgeProps) {
   // Custom <marker> defs are built inline below; RF's markerEnd/markerStart
-  // props are intentionally not used.
+  // props are intentionally not used — their fill has to follow the stroke.
   const {
     id,
     sourceX, sourceY, targetX, targetY,
@@ -28,20 +43,19 @@ function RelEdgeInner(props: EdgeProps) {
   const bidirectional = edgeData?.bidirectional ?? false;
   const cardinality = edgeData?.cardinality;
   const mode: RelLabelMode = edgeData?.relLabelMode ?? "all";
+  const active = Boolean(selected || edgeData?.highlighted);
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX, sourceY, sourcePosition,
     targetX, targetY, targetPosition,
   });
 
-  const shownKeys = visibleKeys(keys, mode);
-  const label = shownKeys.length > 0
-    ? shownKeys.map(k => `${k.left || "?"} = ${k.right || "?"}`).join(", ")
-    : "";
+  const lines = joinLines(keys, mode);
   const cardShown = Boolean(cardinality) && showCardinality(keys, mode);
 
-  const strokeColor = selected ? "#1e88e5" : "#94a3b8";
-  const strokeWidth = selected ? 2.5 : 2;
+  // Corporate gray at rest; blue only when the edge (or one of its cards) is selected.
+  const strokeColor = active ? OWOX_BLUE : EDGE_NEUTRAL;
+  const strokeWidth = active ? EDGE_SELECTED_STROKE_WIDTH : EDGE_STROKE_WIDTH;
 
   return (
     <>
@@ -76,46 +90,53 @@ function RelEdgeInner(props: EdgeProps) {
         path={edgePath}
         markerEnd={`url(#arr-end-${id})`}
         markerStart={bidirectional ? `url(#arr-start-${id})` : undefined}
-        style={{ stroke: strokeColor, strokeWidth }}
+        style={{ stroke: strokeColor, strokeWidth, transition: "stroke 0.2s" }}
       />
-      {(label || cardShown) && (
+      {(lines.length > 0 || cardShown) && (
         <EdgeLabelRenderer>
           <div
             data-rel-label=""
-            data-rel-text={label}
+            data-rel-text={lines.join("\n")}
             data-rel-card={cardShown ? cardinality : ""}
             data-rel-x={labelX}
             data-rel-y={labelY}
-            data-rel-selected={selected ? "1" : ""}
+            data-rel-selected={active ? "1" : ""}
             style={{
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: "all",
-              background: "#fff",
-              border: `1px solid ${selected ? "#1e88e5" : "#d8dee8"}`,
-              borderRadius: 6,
-              padding: "2px 8px",
+              background: CARD_COLORS.background,
+              border: `1px solid ${active ? OWOX_BLUE : CARD_COLORS.border}`,
+              borderRadius: 8,
+              padding: "3px 8px",
               fontSize: 11,
-              fontWeight: 550,
-              color: "#0f172a",
+              fontWeight: 600,
+              lineHeight: 1.5,
+              color: CARD_COLORS.foreground,
               whiteSpace: "nowrap",
-              boxShadow: "0 1px 4px rgba(15,23,42,0.06)",
+              boxShadow: "0 1px 3px 0 rgba(0,0,0,0.08)",
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
             }}
             className="nodrag nopan"
           >
-            {label}
+            {lines.length > 0 && (
+              <span style={{ display: "flex", flexDirection: "column" }}>
+                {/* Index keys: duplicate join conditions are representable. */}
+                {lines.map((line, i) => <span key={`${i}-${line}`}>{line}</span>)}
+              </span>
+            )}
             {cardShown && (
               <span
                 style={{
                   padding: "0 5px",
                   borderRadius: 4,
-                  background: "#e6f1fb",
-                  color: "#1e88e5",
+                  background: CARDINALITY_BG,
+                  color: OWOX_BLUE,
                   fontSize: 10,
                   fontWeight: 700,
+                  lineHeight: "13px",
                 }}
               >
                 {cardinality}

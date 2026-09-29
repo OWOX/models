@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { Dock } from "./Dock";
-import { NOTHING_HIDDEN, ALL_HIDDEN } from "../../state/objLabels";
+import { NOTHING_HIDDEN, ALL_HIDDEN, type ObjHidden } from "../../state/objLabels";
 
 const base = {
   activeTool: "select" as const,
@@ -58,61 +58,74 @@ describe("Dock object-labels flyout", () => {
     act(() => { vi.advanceTimersByTime(500); });
   };
 
+  const hide = (...parts: (keyof ObjHidden)[]): ObjHidden =>
+    ({ ...NOTHING_HIDDEN, ...Object.fromEntries(parts.map(p => [p, true])) });
+
   it("opens the flyout 0.5s after hovering Add with every part ticked by default", () => {
     render(<Dock {...base} objHidden={NOTHING_HIDDEN} onObjHiddenChange={() => {}} />);
     expect(screen.queryByText("Input source")).toBeNull(); // delay pending
     openFlyout();
     const boxes = screen.getAllByRole("checkbox");
-    expect(boxes.map(b => b.getAttribute("aria-checked"))).toEqual(["true", "true", "true"]);
-    expect(screen.getByText("Input source")).toBeTruthy();
-    expect(screen.getByText("Field count")).toBeTruthy();
-    expect(screen.getByText("Status dot")).toBeTruthy();
+    expect(boxes.map(b => b.getAttribute("aria-checked"))).toEqual(["true", "true", "true", "true", "true", "true"]);
+    expect(screen.getByRole("group", { name: "Card content" }).textContent)
+      .toBe("Card contentInput sourceFieldsRelationshipsStatus badge");
+    expect(screen.getByRole("group", { name: "Field rows" }).textContent)
+      .toBe("Field rowsField aliasesField descriptions");
+  });
+
+  it("offers the field rows only while the card shows its fields", () => {
+    const { rerender } = render(<Dock {...base} objHidden={hide("fields")} onObjHiddenChange={() => {}} />);
+    openFlyout();
+    expect(screen.queryByRole("group", { name: "Field rows" })).toBeNull();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(4);
+    rerender(<Dock {...base} objHidden={NOTHING_HIDDEN} onObjHiddenChange={() => {}} />);
+    expect(screen.getByRole("group", { name: "Field rows" })).toBeTruthy();
   });
 
   it("reflects a hidden part as an unticked box", () => {
-    render(<Dock {...base} objHidden={{ source: false, fields: false, status: true }} onObjHiddenChange={() => {}} />);
+    render(<Dock {...base} objHidden={hide("relationships")} onObjHiddenChange={() => {}} />);
     openFlyout();
-    expect(screen.getByRole("checkbox", { name: /Status dot/ }).getAttribute("aria-checked")).toBe("false");
-    expect(screen.getByRole("checkbox", { name: /Field count/ }).getAttribute("aria-checked")).toBe("true");
+    expect(screen.getByRole("checkbox", { name: "Relationships" }).getAttribute("aria-checked")).toBe("false");
+    expect(screen.getByRole("checkbox", { name: "Fields" }).getAttribute("aria-checked")).toBe("true");
   });
 
   it("unticking a part hides it, leaving the others alone", () => {
     const onChange = vi.fn();
-    render(<Dock {...base} objHidden={{ source: true, fields: false, status: false }} onObjHiddenChange={onChange} />);
+    render(<Dock {...base} objHidden={hide("source")} onObjHiddenChange={onChange} />);
     openFlyout();
-    fireEvent.click(screen.getByRole("checkbox", { name: /Status dot/ }));
-    expect(onChange).toHaveBeenCalledWith({ source: true, fields: false, status: true });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Status badge" }));
+    expect(onChange).toHaveBeenCalledWith(hide("source", "status"));
   });
 
   it("re-ticking a part brings it back", () => {
     const onChange = vi.fn();
-    render(<Dock {...base} objHidden={{ source: true, fields: false, status: true }} onObjHiddenChange={onChange} />);
+    render(<Dock {...base} objHidden={hide("source", "fieldAlias")} onObjHiddenChange={onChange} />);
     openFlyout();
-    fireEvent.click(screen.getByRole("checkbox", { name: /Status dot/ }));
-    expect(onChange).toHaveBeenCalledWith({ source: true, fields: false, status: false });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Field aliases" }));
+    expect(onChange).toHaveBeenCalledWith(hide("source"));
   });
 
   it("keeps the flyout open across toggles so several parts can be picked", () => {
     render(<Dock {...base} objHidden={NOTHING_HIDDEN} onObjHiddenChange={() => {}} />);
     openFlyout();
-    fireEvent.click(screen.getByRole("checkbox", { name: /Field count/ }));
-    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
-    fireEvent.click(screen.getByRole("checkbox", { name: /Status dot/ }));
-    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Fields" }));
+    expect(screen.getAllByRole("checkbox")).toHaveLength(6);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Relationships" }));
+    expect(screen.getAllByRole("checkbox")).toHaveLength(6);
   });
 
-  it("ticks everything back on via the check-all row, and clears it via uncheck-all", () => {
+  it("shows everything via Show all, and strips the cards via Title only", () => {
     const onChange = vi.fn();
     render(<Dock {...base} objHidden={ALL_HIDDEN} onObjHiddenChange={onChange} />);
     openFlyout();
     expect(screen.getByTestId("obj-label-hide-all").getAttribute("aria-pressed")).toBe("true");
-    fireEvent.click(screen.getByTestId("obj-label-reset"));
+    fireEvent.click(screen.getByRole("button", { name: "Show all" }));
     expect(onChange).toHaveBeenCalledWith(NOTHING_HIDDEN);
-    fireEvent.click(screen.getByTestId("obj-label-hide-all"));
+    fireEvent.click(screen.getByRole("button", { name: "Title only" }));
     expect(onChange).toHaveBeenLastCalledWith(ALL_HIDDEN);
   });
 
-  it("marks the check-all row as active when nothing is hidden", () => {
+  it("marks Show all as active when nothing is hidden", () => {
     render(<Dock {...base} objHidden={NOTHING_HIDDEN} onObjHiddenChange={() => {}} />);
     openFlyout();
     expect(screen.getByTestId("obj-label-reset").getAttribute("aria-pressed")).toBe("true");
@@ -123,9 +136,9 @@ describe("Dock object-labels flyout", () => {
     const badge = () => screen.getByTestId("obj-label-badge").textContent;
     const { rerender } = render(<Dock {...base} objHidden={NOTHING_HIDDEN} onObjHiddenChange={() => {}} />);
     expect(badge()).toBe("≡");
-    rerender(<Dock {...base} objHidden={{ source: false, fields: true, status: false }} onObjHiddenChange={() => {}} />);
-    expect(badge()).toBe("#");
-    rerender(<Dock {...base} objHidden={{ source: true, fields: false, status: true }} onObjHiddenChange={() => {}} />);
+    rerender(<Dock {...base} objHidden={hide("fields")} onObjHiddenChange={() => {}} />);
+    expect(badge()).toBe("1");
+    rerender(<Dock {...base} objHidden={hide("source", "status")} onObjHiddenChange={() => {}} />);
     expect(badge()).toBe("2");
     rerender(<Dock {...base} objHidden={ALL_HIDDEN} onObjHiddenChange={() => {}} />);
     expect(badge()).toBe("⊘");

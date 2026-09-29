@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore, useState } from "react";
 import type { FC } from "react";
 import {
   ReactFlow as ReactFlowBase,
@@ -62,7 +62,8 @@ import { Dock, type Tool } from "./Dock";
 import { MartNode } from "./MartNode";
 import { RelEdge } from "./RelEdge";
 import { buildRfEdges, isEdgeReconnectable } from "./edges";
-import { erdAwareNodeSize } from "./layoutSize";
+import { COMPACT_NODE_WIDTH, erdAwareNodeSize } from "./layoutSize";
+import { relationshipsByNode, type CardRelationship } from "./relationships";
 import { Inspector } from "../inspector/Inspector";
 import { RightRail } from "../rail/RightRail";
 import { ModelSheet } from "../rail/ModelSheet";
@@ -93,7 +94,7 @@ const templateGraph = readTemplateModel();
 clearTemplateFromUrl(); // strip the param (clean URL on refresh) even if the id was unknown
 let templateInitial: ModelGraph | undefined;
 if (templateGraph) {
-  const positions = runDagreLayout(templateGraph.nodes, templateGraph.edges, loadViewMode());
+  const positions = runDagreLayout(templateGraph.nodes, templateGraph.edges, loadViewMode(), loadObjHidden());
   templateInitial = { ...templateGraph, nodes: templateGraph.nodes.map(n => ({ ...n, position: positions.get(n.key) ?? n.position })) };
 }
 
@@ -135,13 +136,47 @@ const TEMPLATE_NICHE: Record<string, string> = {
 };
 
 // ── helpers to convert between model and RF types ───────────────────────────
-function toRFNode(n: ModelNode, viewMode: ViewMode, objHidden: ObjHidden, keyFields?: string[]): Node {
+type CardExtras = {
+  keyFields: string[];
+  relationships: CardRelationship[];
+  sides: { left: boolean; right: boolean };
+  raised: boolean;
+  onRaisedChange: (key: string, raised: boolean) => void;
+};
+
+// A card lifted above its neighbours while a list it opened runs past it.
+const RAISED_NODE_Z_INDEX = 1000;
+
+function toRFNode(n: ModelNode, viewMode: ViewMode, objHidden: ObjHidden, extras: CardExtras): Node {
   return {
     id: n.key,
     type: "mart",
     position: n.position,
-    data: { ...n, _viewMode: viewMode, _keyFields: keyFields, _objHidden: objHidden } as unknown as Record<string, unknown>,
+    zIndex: extras.raised ? RAISED_NODE_Z_INDEX : 0,
+    data: {
+      ...n,
+      _viewMode: viewMode,
+      _keyFields: extras.keyFields,
+      _objHidden: objHidden,
+      _relationships: extras.relationships,
+      _sides: extras.sides,
+      _onRaisedChange: extras.onRaisedChange,
+    } as unknown as Record<string, unknown>,
   };
+}
+
+// Which sides of each card a card-level edge (not a field-row anchor) attaches
+// to — those sides keep their socket dot on screen.
+function socketSides(rfEdges: Edge[]): Map<string, { left: boolean; right: boolean }> {
+  const m = new Map<string, { left: boolean; right: boolean }>();
+  const mark = (key: string, handle: string | null | undefined) => {
+    if (handle !== "left" && handle !== "right") return;
+    const sides = m.get(key) ?? { left: false, right: false };
+    sides[handle] = true;
+    m.set(key, sides);
+  };
+  for (const e of rfEdges) { mark(e.source, e.sourceHandle); mark(e.target, e.targetHandle); }
+  return m;
 }
 
 // Field names involved in a relationship, per node key — so the ERD node can keep
@@ -158,20 +193,29 @@ function keyFieldsByNode(edges: ModelEdge[]): Map<string, Set<string>> {
 }
 
 // ── Dagre auto-layout ────────────────────────────────────────────────────────
-const NODE_W = 200;
-const NODE_H = 90;
+// A new card is dropped centred on the click; its height is the bare title row + padding.
+const NODE_W = COMPACT_NODE_WIDTH;
+const NODE_H = 52;
 
-function runDagreLayout(nodes: ModelNode[], edges: ModelEdge[], viewMode: ViewMode): Map<string, { x: number; y: number }> {
+function runDagreLayout(nodes: ModelNode[], edges: ModelEdge[], viewMode: ViewMode, hidden: ObjHidden): Map<string, { x: number; y: number }> {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: "LR", nodesep: 60, ranksep: 150 });
-  nodes.forEach(n => { const s = erdAwareNodeSize(n, viewMode); g.setNode(n.key, { width: s.width, height: s.height }); });
+  // Size every card from what it will show: its badges and, in ERD, its collapsed rows.
+  const rels = relationshipsByNode(nodes, edges);
+  const kf = keyFieldsByNode(edges);
+  const sizes = new Map(nodes.map(n => [n.key, erdAwareNodeSize(n, viewMode, {
+    hidden,
+    relationshipCount: rels.get(n.key)?.length ?? 0,
+    keyFields: [...(kf.get(n.key) ?? [])],
+  })]));
+  nodes.forEach(n => { const s = sizes.get(n.key)!; g.setNode(n.key, { width: s.width, height: s.height }); });
   edges.forEach(e => g.setEdge(e.from, e.to));
   dagre.layout(g);
   const positions = new Map<string, { x: number; y: number }>();
   nodes.forEach(n => {
     const pos = g.node(n.key);
-    const s = erdAwareNodeSize(n, viewMode);
+    const s = sizes.get(n.key)!;
     positions.set(n.key, { x: pos.x - s.width / 2, y: pos.y - s.height / 2 });
   });
   return positions;
@@ -355,26 +399,57 @@ function CanvasInner() {
   const [rfNodes, setRfNodes, onRfNodesChange] = useNodesState<Node>([]);
   const [rfEdges, setRfEdges, onRfEdgesChange] = useEdgesState<Edge>([]);
 
+  // Cards whose opened list runs past them — lifted over their neighbours. Kept
+  // in a ref too, so a rebuild of the nodes array keeps the lift.
+  const raisedRef = useRef<Set<string>>(new Set());
+  const handleRaisedChange = useCallback((key: string, raised: boolean) => {
+    if (raisedRef.current.has(key) === raised) return;
+    if (raised) raisedRef.current.add(key);
+    else raisedRef.current.delete(key);
+    const zIndex = raised ? RAISED_NODE_Z_INDEX : 0;
+    setRfNodes(nds => nds.map(n => (n.id === key && (n.zIndex ?? 0) !== zIndex ? { ...n, zIndex } : n)));
+  }, [setRfNodes]);
+
+  const builtEdges = useMemo(
+    () => buildRfEdges(graph.edges, graph.nodes, viewMode, relLabelMode),
+    [graph.edges, graph.nodes, viewMode, relLabelMode],
+  );
+
   useEffect(() => {
     const kf = keyFieldsByNode(graph.edges);
-    setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode, objHidden, [...(kf.get(n.key) ?? [])])));
-  }, [graph.nodes, graph.edges, viewMode, objHidden, setRfNodes]);
-  useEffect(() => { setRfEdges(buildRfEdges(graph.edges, graph.nodes, viewMode, relLabelMode)); }, [graph.edges, graph.nodes, viewMode, relLabelMode, setRfEdges]);
+    const rels = relationshipsByNode(graph.nodes, graph.edges);
+    const sides = socketSides(builtEdges);
+    setRfNodes(graph.nodes.map(n => toRFNode(n, viewMode, objHidden, {
+      keyFields: [...(kf.get(n.key) ?? [])],
+      relationships: rels.get(n.key) ?? [],
+      sides: sides.get(n.key) ?? { left: false, right: false },
+      raised: raisedRef.current.has(n.key),
+      onRaisedChange: handleRaisedChange,
+    })));
+  }, [graph.nodes, graph.edges, builtEdges, viewMode, objHidden, setRfNodes, handleRaisedChange]);
+  useEffect(() => { setRfEdges(builtEdges); }, [builtEdges, setRfEdges]);
 
   // Mark only the selected relationship as reconnectable so dragging an endpoint
   // moves the line the user picked (not whichever overlapping edge RF would grab),
   // and raise it above the others so its reconnect anchor isn't buried under an
   // overlapping line (otherwise the drag handle never appears). Patches in place —
   // never touches `selected` — and re-applies after any rebuild of the edges array.
+  //
+  // A selected card lights up every edge connected to it (as in the product), so
+  // all of its relationships read at once; those edges rise above the rest too.
   useEffect(() => {
     const selId = selection?.type === "edge" ? selection.id : null;
+    const nodeId = selection?.type === "node" ? selection.id : null;
     setRfEdges(eds => eds.map(e => {
-      const modelEdgeId = (e.data as { modelEdgeId?: string } | undefined)?.modelEdgeId;
+      const data = e.data as { modelEdgeId?: string; highlighted?: boolean } | undefined;
+      const modelEdgeId = data?.modelEdgeId;
       const reconnectable = isEdgeReconnectable(modelEdgeId, selId, viewMode);
-      const zIndex = modelEdgeId != null && modelEdgeId === selId ? 1000 : 0;
-      return (e.reconnectable === reconnectable && e.zIndex === zIndex) ? e : { ...e, reconnectable, zIndex };
+      const highlighted = nodeId != null && (e.source === nodeId || e.target === nodeId);
+      const zIndex = (modelEdgeId != null && modelEdgeId === selId) || highlighted ? 1000 : 0;
+      if (e.reconnectable === reconnectable && e.zIndex === zIndex && Boolean(data?.highlighted) === highlighted) return e;
+      return { ...e, reconnectable, zIndex, data: { ...e.data, highlighted } };
     }));
-  }, [selection, viewMode, graph.edges, graph.nodes, setRfEdges]);
+  }, [selection, viewMode, builtEdges, setRfEdges]);
 
   // Mirror the model to localStorage on every change so a refresh/crash doesn't
   // lose work (Push to OWOX remains the real save).
@@ -458,7 +533,7 @@ function CanvasInner() {
   const handleToolChange = useCallback((t: Tool) => {
     if (t === "layout") {
       const { nodes, edges } = store.get();
-      const positions = runDagreLayout(nodes, edges, viewMode);
+      const positions = runDagreLayout(nodes, edges, viewMode, objHidden);
       // Turn on node transitions, move everything, then frame the result — so the
       // model visibly "organizes itself" instead of snapping. Cleared after the
       // glide so dragging stays instant.
@@ -469,7 +544,7 @@ function CanvasInner() {
       return;
     }
     setTool(t);
-  }, [viewMode, fitView]);
+  }, [viewMode, objHidden, fitView]);
 
   const handleToggleView = useCallback(() => {
     setViewMode(prev => {
@@ -567,17 +642,17 @@ function CanvasInner() {
   // not persist node positions (Dagre re-lays out on load, by design), so without
   // this every imported node piles up at the origin and must be dragged apart.
   const withLayout = useCallback((g: ModelGraph): ModelGraph => {
-    const positions = runDagreLayout(g.nodes, g.edges, viewMode);
+    const positions = runDagreLayout(g.nodes, g.edges, viewMode, objHidden);
     return { ...g, nodes: g.nodes.map(n => ({ ...n, position: positions.get(n.key) ?? n.position })) };
-  }, [viewMode]);
+  }, [viewMode, objHidden]);
 
   // Merge a freshly loaded graph into the canvas, laying out only the new nodes
   // so the existing layout isn't reshuffled. Shared by OKF + OWOX import (merge).
   const applyMergeWithLayout = useCallback((g: ModelGraph) => {
     const { graph, newKeys } = mergeGraphs(store.get(), g);
-    const positions = runDagreLayout(graph.nodes, graph.edges, viewMode);
+    const positions = runDagreLayout(graph.nodes, graph.edges, viewMode, objHidden);
     store.set({ ...graph, nodes: graph.nodes.map(n => newKeys.has(n.key) ? { ...n, position: positions.get(n.key) ?? n.position } : n) });
-  }, [viewMode]);
+  }, [viewMode, objHidden]);
 
   const handleImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
     if (mode === "merge") {

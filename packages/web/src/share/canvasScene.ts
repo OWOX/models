@@ -1,12 +1,13 @@
 // Reads the live canvas into a plain, serialisable description of what is on
 // screen — the input the vector SVG renderer draws from.
 //
-// Why read the DOM at all: two things the model alone can't tell us. Which ERD
-// field rows are visible is component-local state inside MartNode (the "+N more"
-// toggle), and the edge curves are geometry React Flow computes from mounted
-// handle positions. Both are published as stable `data-` attributes by
-// MartNode/RelEdge; everything else (titles, types, colours) comes from the
-// model, so the two renderers can't disagree about content.
+// Why read the DOM at all: things the model alone can't tell us. Which badge a
+// card has opened, which field rows are visible (the "+N more" toggle) and how
+// the badges wrapped are component-local state inside MartNode, and the edge
+// curves are geometry React Flow computes from mounted handle positions. All of
+// it is published as stable `data-` attributes by MartNode/RelEdge; everything
+// else (titles, types, colours) comes from the model, so the two renderers
+// can't disagree about content.
 //
 // Coordinates are React Flow's flow space: node positions, edge paths and edge
 // label positions all share it, independent of the user's current pan/zoom.
@@ -15,9 +16,30 @@ import type { Node } from "@xyflow/react";
 import type { ModelNode, SchemaField } from "@mc/okf";
 import { NOTHING_HIDDEN, type ObjHidden } from "../state/objLabels";
 import type { ViewMode } from "../state/viewMode";
-import { sourceColor, statusColor } from "../components/canvas/nodeStyle";
+import { statusBadge, type StatusBadge } from "../components/canvas/nodeStyle";
+import {
+  cardBadges,
+  fieldDescriptionLine,
+  fieldRowLabel,
+  packBadges,
+  type CardBadgeKind,
+} from "../components/canvas/layoutSize";
+import type { CardRelationship } from "../components/canvas/relationships";
 
-export type SceneField = { label: string; type: string; pk: boolean };
+export type SceneField = { label: string; type: string; pk: boolean; description?: string | null };
+
+export type SceneBadge = { kind: CardBadgeKind; label: string; expanded: boolean };
+
+export type SceneRelationship = {
+  direction: CardRelationship["direction"];
+  title: string;
+  /** "field = field" lines; empty when the join fields are not set. */
+  joins: string[];
+};
+
+export type SceneSection =
+  | { kind: "fields"; rows: SceneField[]; more: string | null }
+  | { kind: "relationships"; rows: SceneRelationship[] };
 
 export type SceneNode = {
   x: number;
@@ -25,20 +47,18 @@ export type SceneNode = {
   width: number;
   height: number;
   title: string;
-  /** Accent stripe + chip colour. */
-  color: string;
-  /** Chip text, or null when the source label is hidden. */
-  source: string | null;
-  /** Status dot colour, or null when the dot is hidden. */
-  status: string | null;
-  /** Compact-mode "N fields" text, or null when hidden or in ERD mode. */
-  fieldCount: string | null;
-  /** The ERD rows actually on screen, in the order they are rendered. */
-  fields: SceneField[];
-  /** "+3 more fields" / "Show less" row text, or null when there is no toggle. */
-  more: string | null;
-  /** True for an ERD node whose mart has no schema at all. */
-  empty: boolean;
+  /** The input source — picks the source badge's glyph. */
+  inputSource: string;
+  /** Status pill next to the title, or null when there is none or it is hidden. */
+  status: (StatusBadge & { status: string }) | null;
+  /** The card has a description, so its title row keeps room for the hover-only info glyph. */
+  description: boolean;
+  /** Badge lines as rendered, top to bottom. */
+  badgeLines: SceneBadge[][];
+  /** Lists under the header, in render order: an opened list and/or the ERD rows. */
+  sections: SceneSection[];
+  /** Sides whose socket dot is on screen, and the dot's y inside the card. */
+  sockets: { left: boolean; right: boolean; y: number };
 };
 
 export type SceneEdge = {
@@ -51,7 +71,8 @@ export type SceneEdge = {
 export type SceneLabel = {
   x: number;
   y: number;
-  text: string;
+  /** One line per join key. */
+  lines: string[];
   cardinality: string | null;
   selected: boolean;
 };
@@ -62,23 +83,62 @@ export type CanvasScene = {
   labels: SceneLabel[];
 };
 
-type MartData = ModelNode & { _viewMode?: ViewMode; _objHidden?: ObjHidden };
+type MartData = ModelNode & {
+  _viewMode?: ViewMode;
+  _objHidden?: ObjHidden;
+  _relationships?: CardRelationship[];
+  _sides?: { left: boolean; right: boolean };
+};
 
-const DEFAULT_STROKE = "#94a3b8";
-const DEFAULT_STROKE_WIDTH = 2;
+const DEFAULT_STROKE = "#606060";
+const DEFAULT_STROKE_WIDTH = 1.5;
+/** Socket y on an ERD card: the middle of its title row. */
+const ERD_SOCKET_Y = 26;
 
-function fieldCountText(schema: SchemaField[]): string {
-  const n = schema.length;
-  return n > 0 ? `${n} field${n > 1 ? "s" : ""}` : "no fields";
-}
-
-/** The rendered field rows of one node, resolved against the mart's schema. */
-export function readVisibleFields(el: Element | null, schema: SchemaField[]): SceneField[] {
+/** The rendered field rows under `el`, resolved against the mart's schema. */
+export function readVisibleFields(el: Element | null, schema: SchemaField[], hidden: ObjHidden = NOTHING_HIDDEN): SceneField[] {
   if (!el) return [];
   const byName = new Map(schema.map(f => [f.name, f]));
   return Array.from(el.querySelectorAll("[data-field]")).flatMap(row => {
     const f = byName.get(row.getAttribute("data-field") ?? "");
-    return f ? [{ label: f.alias || f.name, type: f.type, pk: Boolean(f.pk) }] : [];
+    return f
+      ? [{ label: fieldRowLabel(f, hidden), type: f.type, pk: Boolean(f.pk), description: fieldDescriptionLine(f, hidden) }]
+      : [];
+  });
+}
+
+function readBadgeLines(el: Element | null, data: MartData, hidden: ObjHidden, viewMode: ViewMode): SceneBadge[][] {
+  const lines = el ? Array.from(el.querySelectorAll("[data-badge-line]")) : [];
+  if (lines.length > 0) {
+    return lines.map(line =>
+      Array.from(line.querySelectorAll("[data-badge]")).map(b => ({
+        kind: b.getAttribute("data-badge") as CardBadgeKind,
+        label: b.textContent?.trim() ?? "",
+        expanded: b.getAttribute("data-expanded") === "1",
+      })),
+    );
+  }
+  // Not mounted (or not yet rendered): pack the badges the way the card does.
+  const badges = cardBadges(data, { hidden, relationshipCount: data._relationships?.length ?? 0 });
+  return packBadges(badges, viewMode).map(line => line.map(b => ({ ...b, expanded: false })));
+}
+
+function readSections(el: Element | null, data: MartData, hidden: ObjHidden): SceneSection[] {
+  if (!el) return [];
+  return Array.from(el.querySelectorAll("[data-section]")).map((section): SceneSection => {
+    if (section.getAttribute("data-section") === "relationships") {
+      const rows = Array.from(section.querySelectorAll("[data-rel-row]")).map(row => ({
+        direction: (row.getAttribute("data-rel-row") ?? "outgoing") as CardRelationship["direction"],
+        title: row.querySelector("[data-rel-title]")?.textContent?.trim() ?? "",
+        joins: Array.from(row.querySelectorAll("[data-rel-join]:not([data-rel-unset])")).map(j => j.textContent?.trim() ?? ""),
+      }));
+      return { kind: "relationships", rows };
+    }
+    return {
+      kind: "fields",
+      rows: readVisibleFields(section, data.schema ?? [], hidden),
+      more: section.querySelector("[data-more-row]")?.textContent?.trim() || null,
+    };
   });
 }
 
@@ -92,8 +152,9 @@ function readNode(rf: Node, root: ParentNode): SceneNode | null {
 
   // Mirrors MartNode's own visibility rules — same inputs, same outcome.
   const hidden = data._objHidden ?? NOTHING_HIDDEN;
-  const isErd = (data._viewMode ?? "compact") === "erd";
-  const schema = data.schema ?? [];
+  const viewMode = data._viewMode ?? "compact";
+  const badge = hidden.status ? null : statusBadge(data.status);
+  const sides = data._sides ?? { left: false, right: false };
 
   return {
     x: rf.position.x,
@@ -101,13 +162,12 @@ function readNode(rf: Node, root: ParentNode): SceneNode | null {
     width,
     height,
     title: data.title,
-    color: sourceColor(data.inputSource),
-    source: hidden.source ? null : data.inputSource,
-    status: hidden.status ? null : statusColor(data.status),
-    fieldCount: isErd || hidden.fields ? null : fieldCountText(schema),
-    fields: isErd ? readVisibleFields(el, schema) : [],
-    more: isErd ? (el?.querySelector("[data-more-row]")?.textContent?.trim() || null) : null,
-    empty: isErd && schema.length === 0,
+    inputSource: data.inputSource,
+    status: badge ? { ...badge, status: data.status } : null,
+    description: Boolean(data.description),
+    badgeLines: readBadgeLines(el, data, hidden, viewMode),
+    sections: readSections(el, data, hidden),
+    sockets: { ...sides, y: viewMode === "erd" ? ERD_SOCKET_Y : height / 2 },
   };
 }
 
@@ -132,9 +192,10 @@ function readLabels(root: ParentNode): SceneLabel[] {
     const y = Number.parseFloat(el.getAttribute("data-rel-y") ?? "");
     if (!Number.isFinite(x) || !Number.isFinite(y)) return [];
     const text = el.getAttribute("data-rel-text") ?? "";
+    const lines = text ? text.split("\n") : [];
     const cardinality = el.getAttribute("data-rel-card") || null;
-    if (!text && !cardinality) return [];
-    return [{ x, y, text, cardinality, selected: el.getAttribute("data-rel-selected") === "1" }];
+    if (lines.length === 0 && !cardinality) return [];
+    return [{ x, y, lines, cardinality, selected: el.getAttribute("data-rel-selected") === "1" }];
   });
 }
 
