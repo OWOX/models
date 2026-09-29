@@ -12,6 +12,7 @@ Generated 2026-09-23T16:03:30Z.
 
 - [E-Commerce](./e-commerce/index.md) — 12 concept(s)
 - [E-commerce Subscription Store](./ecommerce-subscription-store/index.md) — 15 concept(s)
+- [Facebook Ads](./facebook-ads/index.md) — 15 concept(s)
 - [Finance](./finance/index.md) — 8 concept(s)
 - [Healthcare](./healthcare/index.md) — 8 concept(s)
 - [Healthcare Clinic Attribution](./healthcare-clinic-attribution/index.md) — 14 concept(s)
