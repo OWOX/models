@@ -184,7 +184,7 @@ function titleRow(node: SceneNode): string {
 
 function badgeGlyph(node: SceneNode, badge: SceneBadge): SvgIconName {
   if (badge.kind === "source") return SOURCE_ICON[node.inputSource] ?? "code";
-  return badge.kind === "fields" ? "columns3" : "waypoints";
+  return badge.kind === "fields" ? "columns3" : "link2";
 }
 
 function badgeLines(node: SceneNode): { markup: string; height: number } {

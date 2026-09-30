@@ -16,13 +16,12 @@ import {
   PencilLine,
   Plug,
   Table,
-  Waypoints,
   type LucideIcon,
 } from "lucide-react";
 import type { InputSource, ModelNode, SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import { NOTHING_HIDDEN, type ObjHidden } from "../../state/objLabels";
-import { DataMartIcon } from "../../lib/icons";
+import { DataMartIcon, JoinIcon } from "../../lib/icons";
 import { UI_FONT } from "../../share/svgText";
 import {
   cardBadges,
@@ -66,7 +65,8 @@ const STATUS_ICONS: Record<string, LucideIcon> = {
 
 const BADGE_ICONS: Record<Exclude<CardBadge["kind"], "source">, LucideIcon> = {
   fields: Columns3,
-  relationships: Waypoints,
+  // The join icon used across the app and by the product, so relationships read the same everywhere.
+  relationships: JoinIcon,
 };
 
 /**
