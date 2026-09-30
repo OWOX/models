@@ -76,6 +76,8 @@ describe("buildVectorSvg", () => {
       nodes: [node({ badgeLines: [[{ kind: "relationships", label: "3 relationships", expanded: true }]] })],
     })).svg;
     expect(svg).toContain('fill="#ebebec"');
+    // The relationships badge draws the join glyph (Lucide Link2), as the product does.
+    expect(svg).toContain('d="M9 17H7A5 5 0 0 1 7 7h2"');
   });
 
   it("omits badges, status and sections the canvas does not show", () => {
