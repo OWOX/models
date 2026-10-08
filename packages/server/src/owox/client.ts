@@ -1,3 +1,4 @@
+import { renderOwoxRefs } from "@mc/okf";
 import type { OwoxKeyParts, DataMartListItem, CreateDataMartInput, ImportMart, ImportRelationship } from "./types";
 type FetchFn = typeof fetch;
 
@@ -139,6 +140,7 @@ export class OwoxClient {
         name: f.name, type: f.type, pk: !!f.isPrimaryKey,
         ...(f.alias ? { alias: f.alias } : {}),
         ...(f.description ? { description: f.description } : {}),
+        ...(f.calculated?.formula !== undefined ? { formula: renderOwoxRefs(String(f.calculated.formula)) } : {}),
       })),
       inputSource, definition,
     };
@@ -159,6 +161,7 @@ export class OwoxClient {
       out.push({
         sourceId: r.sourceDataMart.id,
         targetId: r.targetDataMart.id,
+        ...(r.targetAlias ? { targetAlias: r.targetAlias } : {}),
         joinConditions: (r.joinConditions ?? []).map((j: any) => ({
           sourceFieldName: j.sourceFieldName, targetFieldName: j.targetFieldName,
         })),

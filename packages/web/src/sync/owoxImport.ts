@@ -4,11 +4,11 @@ export type ImportFilter = "all" | "published" | "with-relationships";
 
 export interface ImportMart {
   id: string; title: string; status?: string; description?: string;
-  schema: { name: string; type: string; pk: boolean; alias?: string; description?: string }[];
+  schema: { name: string; type: string; pk: boolean; alias?: string; description?: string; formula?: string }[];
   inputSource: InputSource; definition: string | null;
 }
 export interface ImportRelationship {
-  sourceId: string; targetId: string;
+  sourceId: string; targetId: string; targetAlias?: string;
   joinConditions: { sourceFieldName: string; targetFieldName: string }[];
 }
 export interface ImportPayload {
@@ -47,7 +47,7 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
   const nodes: ModelNode[] = marts.map((m, i) => ({
     key: `n${i + 1}`, title: m.title, inputSource: m.inputSource, definition: m.definition,
     ...(m.description ? { description: m.description } : {}),
-    schema: m.schema.map(f => ({ name: f.name, type: f.type, pk: f.pk, ...(f.alias ? { alias: f.alias } : {}), ...(f.description ? { description: f.description } : {}) })),
+    schema: m.schema.map(f => ({ name: f.name, type: f.type, pk: f.pk, ...(f.alias ? { alias: f.alias } : {}), ...(f.description ? { description: f.description } : {}), ...(f.formula !== undefined ? { formula: f.formula } : {}) })),
     // Tag the storage this owoxId belongs to — push compares it to the active
     // storage so the mart isn't treated as "already created" in another project.
     position: { x: 0, y: 0 }, status: "created", owoxId: m.id, owoxStorageId: payload.storageId, createdAt: null,
@@ -61,9 +61,13 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
     if (!from || !to) continue;                       // dangling → drop
     const pair = [from, to].sort().join("|");
     const existing = seen.get(pair);
-    if (existing) { existing.bidirectional = true; continue; }
+    if (existing) {
+      existing.bidirectional = true;
+      if (r.targetAlias && existing.from !== from) existing.reverseAlias = r.targetAlias;
+      continue;
+    }
     const keys = r.joinConditions.map(j => ({ left: j.sourceFieldName, right: j.targetFieldName }));
-    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true };
+    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true, ...(r.targetAlias ? { alias: r.targetAlias } : {}) };
     edges.push(e); seen.set(pair, e);
   }
   return { storageId: payload.storageId, nodes, edges };

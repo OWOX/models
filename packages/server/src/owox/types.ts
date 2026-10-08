@@ -9,13 +9,14 @@ export interface ImportMart {
   title: string;
   status?: string;
   description?: string;
-  schema: { name: string; type: string; pk: boolean; alias?: string; description?: string }[];
+  schema: { name: string; type: string; pk: boolean; alias?: string; description?: string; formula?: string }[];
   inputSource: "SQL" | "CONNECTOR" | "VIEW" | "TABLE";
   definition: string | null;
 }
 export interface ImportRelationship {
   sourceId: string;
   targetId: string;
+  targetAlias?: string;
   joinConditions: { sourceFieldName: string; targetFieldName: string }[];
 }
 export interface ImportPayload {
