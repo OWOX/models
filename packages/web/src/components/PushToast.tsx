@@ -10,7 +10,8 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   const blocked = result.blocked ?? 0;
   const keyless = result.relationshipsWithoutKeys ?? 0;
   const recreated = result.recreated ?? 0;
-  const failed = result.failed + result.relationshipsFailed;
+  const calcFailed = result.calculatedFailed ?? 0;
+  const failed = result.failed + result.relationshipsFailed + calcFailed;
   const pushedNothing = result.created === 0 && result.relationshipsCreated === 0;
 
   // An expired session is not the model's fault and not something the counts can
@@ -32,6 +33,8 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   // created" reads as if marts had failed, when it was only the links.
   if (!expired && result.failed) parts.push(`${result.failed} mart${result.failed === 1 ? "" : "s"} failed`);
   if (!expired && result.relationshipsFailed) parts.push(`${result.relationshipsFailed} link${result.relationshipsFailed === 1 ? "" : "s"} failed`);
+
+  if (!expired && calcFailed) parts.push(`${calcFailed} ${calcFailed === 1 ? "mart's" : "marts'"} calculated fields refused`);
 
   const dot = tone === "error" ? "bg-red-500" : tone === "warn" ? "bg-amber-500" : "bg-emerald-500";
   const border = tone === "error" ? "border-red-300" : tone === "warn" ? "border-amber-300" : "border-emerald-300";

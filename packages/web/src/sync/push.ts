@@ -36,6 +36,12 @@ const isAuthError = (e: unknown) => (e as { status?: number })?.status === 401;
 const SESSION_EXPIRED =
   "Your OWOX session expired and could not be renewed — nothing else was pushed. Connect to OWOX again, then push.";
 
+// A calculated field OWOX can accept: named, with a non-blank formula. A field added
+// with "+ Add calculated field" and never filled in would otherwise make OWOX refuse
+// the whole schema PUT, taking the mart's valid calculated fields down with it.
+const isPushableCalculated = (f: SchemaField) =>
+  isCalculated(f) && !!f.name.trim() && !!(f.formula ?? "").trim();
+
 // Preview what a push to the active storage would do, mirroring pushModel's skip
 // logic so the confirmation dialog's counts match reality. A mart is "already
 // live here" when it's created AND tagged to the active storage; such marts are
@@ -57,7 +63,7 @@ export function pushPreview(graph: ModelGraph, storageId: string | null): { mart
   }
   const calculatedFields = graph.nodes
     .filter(n => !skipped.has(n.key))
-    .reduce((sum, n) => sum + n.schema.filter(isCalculated).length, 0);
+    .reduce((sum, n) => sum + n.schema.filter(isPushableCalculated).length, 0);
   return { marts, relationships, alreadyPushed: skipped.size, calculatedFields };
 }
 
@@ -186,9 +192,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     const g0 = store.get();
     for (const e of g0.edges) {
       for (const k of e.keys) {
-        if (k.left) ensureField(store, e.from, k.left, joinFieldType(g0.nodes, g0.edges, e.from, k.left));
-        if (k.right) ensureField(store, e.to, k.right, joinFieldType(g0.nodes, g0.edges, e.to, k.right));
-        if (k.left && k.right) alignJoinKeyTypes(store, e.from, k.left, e.to, k.right);
+        // Step 1 never targets a calculated field: it is not a column of the mart.
+        const leftCalc = isCalcField(g0.nodes, e.from, k.left);
+        const rightCalc = isCalcField(g0.nodes, e.to, k.right);
+        if (k.left && !leftCalc) ensureField(store, e.from, k.left, joinFieldType(g0.nodes, g0.edges, e.from, k.left));
+        if (k.right && !rightCalc) ensureField(store, e.to, k.right, joinFieldType(g0.nodes, g0.edges, e.to, k.right));
+        if (k.left && k.right && !leftCalc && !rightCalc) alignJoinKeyTypes(store, e.from, k.left, e.to, k.right);
       }
     }
   }
@@ -203,6 +212,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   // Ghosts — created here, but no longer in OWOX — are likewise NOT skipped.
   const skippedKeys = new Set<string>();
   const pushedHere = new Map<string, string>();
+  const baseFailed = new Set<string>();   // marts whose base schema PUT was refused
   for (const n of store.get().nodes) {
     if (blockedKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
     if (!opts.force && n.status === "created" && n.owoxStorageId === storageId && !ghostKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
@@ -239,6 +249,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
             }),
           });
         } catch (e) {
+          baseFailed.add(n.key);
           res.errors.push(`Schema for "${n.title}": ${(e as Error).message}`);
         }
       }
@@ -319,8 +330,14 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   if (storageType) {
     for (const [key, owoxId] of pushedHere) {
       const n = store.get().nodes.find(x => x.key === key);
-      const named = n?.schema.filter(f => f.name.trim()) ?? [];
-      if (!n || !named.some(isCalculated)) continue;
+      if (!n || baseFailed.has(key)) continue;   // the base error is already reported
+      for (const f of n.schema) {
+        if (isCalculated(f) && !isPushableCalculated(f)) {
+          res.errors.push(`Calculated field "${f.name.trim() || "(unnamed)"}" in "${n.title}" has no formula — skipped.`);
+        }
+      }
+      const named = n.schema.filter(f => f.name.trim() && (!isCalculated(f) || isPushableCalculated(f)));
+      if (!named.some(isCalculated)) continue;
       try {
         await api(`/api/data-marts/${owoxId}/schema`, {
           method: "PUT",
@@ -351,6 +368,10 @@ function definitionBody(n: ModelNode): unknown | null {
     case "VIEW":  return { definitionType: "VIEW",  definition: { fullyQualifiedName: text } };
     default:      return null; // CONNECTOR / unknown
   }
+}
+
+function isCalcField(nodes: ModelNode[], nodeKey: string, fieldName: string): boolean {
+  return !!fieldName && !!nodes.find(n => n.key === nodeKey)?.schema.some(f => f.name === fieldName && isCalculated(f));
 }
 
 // Add a field to a node's output schema if it isn't there yet (default STRING).

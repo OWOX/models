@@ -58,6 +58,18 @@ describe("pushPreview", () => {
     ] });
     expect(pushPreview(g, "st_1").calculatedFields).toBe(1);
   });
+
+  it("does not count calculated fields with a blank name or formula", () => {
+    const g = mk({ nodes: [
+      { key: "n1", title: "A", inputSource: "SQL", position: { x: 0, y: 0 }, status: "pending",
+        schema: [
+          { name: "ok", type: "NUMERIC", pk: false, formula: "SUM(a)" },
+          { name: "", type: "NUMERIC", pk: false, formula: "SUM(a)" },
+          { name: "blank", type: "NUMERIC", pk: false, formula: "  " },
+        ] },
+    ] });
+    expect(pushPreview(g, "st_1").calculatedFields).toBe(1);
+  });
 });
 
 describe("pushModel", () => {
@@ -705,6 +717,56 @@ describe("pushModel calculated fields", () => {
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
     expect(res.authExpired).toBe(true);
     expect(res.calculatedFailed).toBe(0);
+    expect(res.errors).toContain("Your OWOX session expired and could not be renewed — nothing else was pushed. Connect to OWOX again, then push.");
+  });
+
+  it("skips an unfilled calculated field with an error line, still pushing its valid sibling", async () => {
+    const s = storeWith([
+      { name: "clicks", type: "INTEGER", pk: false },
+      { name: "draft", type: "NUMERIC", pk: false, formula: "  " },
+      { name: "", type: "NUMERIC", pk: false, formula: "" },
+      { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" },
+    ]);
+    const { api, log } = calls();
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    const [, full] = schemaPuts(log);
+    expect(full.body.schema.fields.map((f: any) => f.name)).toEqual(["clicks", "ctr"]);
+    expect(res.errors).toContain('Calculated field "draft" in "Orders" has no formula — skipped.');
+    expect(res.errors).toContain('Calculated field "(unnamed)" in "Orders" has no formula — skipped.');
+    expect(res.calculatedFailed).toBe(0);
+  });
+
+  it("sends no calculated PUT when every calculated field is unpushable", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "draft", type: "NUMERIC", pk: false, formula: "" }]);
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(schemaPuts(log)).toHaveLength(1);
+  });
+
+  it("skips the calculated step for a mart whose base schema PUT failed", async () => {
+    const s = storeWith([{ name: "c", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(c)" }]);
+    let puts = 0;
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path === "/api/data-marts" && !init) return [];
+      if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/schema")) { puts++; throw new Error("bad base column"); }
+      return {};
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(puts).toBe(1);
+    expect(res.calculatedFailed).toBe(0);
+    expect(res.errors).toEqual(['Schema for "Orders": bad base column']);
+  });
+
+  it("never retypes a calculated field used as a join key", async () => {
+    const s = createModelStore({ storageId: "st_1" });
+    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", schema: [{ name: "total", type: "NUMERIC", pk: false, formula: "SUM(x)" }] });
+    const b = s.addNode({ x: 300, y: 0 }); s.updateNode(b.key, { title: "Customers", schema: [{ name: "id", type: "INTEGER", pk: true }] });
+    const e = s.addEdge(a.key, b.key)!;
+    s.updateEdge(e.id, { keys: [{ left: "total", right: "id" }] });
+    const { api } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(s.get().nodes.find(n => n.title === "Orders")!.schema[0].type).toBe("NUMERIC");
   });
 
   it("uses the edge alias and reverse alias as targetAlias", async () => {

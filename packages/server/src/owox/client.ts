@@ -140,7 +140,7 @@ export class OwoxClient {
         name: f.name, type: f.type, pk: !!f.isPrimaryKey,
         ...(f.alias ? { alias: f.alias } : {}),
         ...(f.description ? { description: f.description } : {}),
-        ...(f.calculated?.formula !== undefined ? { formula: renderOwoxRefs(String(f.calculated.formula)) } : {}),
+        ...(f.calculated?.formula != null ? { formula: renderOwoxRefs(String(f.calculated.formula)) } : {}),
       })),
       inputSource, definition,
     };

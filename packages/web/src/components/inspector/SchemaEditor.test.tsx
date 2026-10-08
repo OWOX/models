@@ -21,6 +21,10 @@ describe("SchemaEditor calculated fields", () => {
     render(<SchemaEditor schema={[{ name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(click)" }]} onChange={() => {}} formulaContext={ctx} />);
     expect(screen.getByText('Unknown field "click"')).toBeTruthy();
   });
+  it("warns when the formula is empty", () => {
+    render(<SchemaEditor schema={[{ name: "ctr", type: "NUMERIC", pk: false, formula: "  " }]} onChange={() => {}} formulaContext={ctx} />);
+    expect(screen.getByText("Formula is empty")).toBeTruthy();
+  });
   it("edits the formula", () => {
     const onChange = vi.fn();
     render(<SchemaEditor schema={[{ name: "ctr", type: "NUMERIC", pk: false, formula: "" }]} onChange={onChange} formulaContext={ctx} />);

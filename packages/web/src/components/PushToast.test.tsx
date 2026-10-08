@@ -34,6 +34,15 @@ describe("PushToast", () => {
     expect(screen.getByText(/"Orders" still exists in OWOX \(PUBLISHED\)/)).toBeTruthy();
   });
 
+  it("does not show the success tone when only the calculated step failed", () => {
+    const { container } = render(<PushToast result={result({ created: 1, calculatedFailed: 1, errors: ['Calculated fields for "Orders": bad'] })} onClose={() => {}} />);
+    expect(screen.queryByText("Push complete")).toBeNull();
+    expect(screen.getByText(/push completed with errors/i)).toBeTruthy();
+    expect(screen.getByText(/1 mart's calculated fields refused/)).toBeTruthy();
+    expect(container.querySelector(".bg-red-500")).toBeTruthy();
+    expect(container.querySelector(".bg-emerald-500")).toBeNull();
+  });
+
   it("still flags real failures", () => {
     render(<PushToast result={result({ created: 1, failed: 2, errors: ["boom"] })} onClose={() => {}} />);
     expect(screen.getByText(/push completed with errors/i)).toBeTruthy();

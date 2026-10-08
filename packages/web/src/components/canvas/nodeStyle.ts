@@ -28,12 +28,11 @@ export const EDGE_NEUTRAL = "#606060";
 export const EDGE_STROKE_WIDTH = 1.5;
 export const EDGE_SELECTED_STROKE_WIDTH = 2.5;
 /** Primary-key glyph (OWOX yellow). */
+export const KEY_COLOR = "#F5C344";
 /** Glyph colour of calculated fields (Σ metric, fx column). */
 export const CALC_COLOR = "#6d4aff";
 /** Dashed rule between the regular and the calculated rows of a card. */
 export const CALC_DIVIDER = "#d9d0ff";
-
-export const KEY_COLOR = "#F5C344";
 /** Cardinality pill on an edge label. */
 export const CARDINALITY_BG = "#E6F0FA";
 

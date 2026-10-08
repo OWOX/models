@@ -156,6 +156,9 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
                     {formulaContext.joined.length > 0 && <> · Joined: {formulaContext.joined.map(j => `${j.alias}.*`).join(", ")}</>}
                   </p>
                 )}
+                {!(field.formula ?? "").trim() && (
+                  <p className="mt-[2px] text-[11px] text-amber-700">Formula is empty</p>
+                )}
                 {formulaContext && formulaWarnings(field.formula ?? "", formulaContext, field.name).map(w => (
                   <p key={w} className="mt-[2px] text-[11px] text-amber-700">{w}</p>
                 ))}
@@ -176,7 +179,7 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
         </button>
         <button
           onClick={addCalculatedField}
-          className="flex-1 border-none border-l border-[#eef1f5] bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors"
+          className="flex-1 border-none bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors"
           style={{ borderLeft: "1px solid #eef1f5" }}
         >
           + Add calculated field

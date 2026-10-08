@@ -1,5 +1,5 @@
 import type { Edge } from "@xyflow/react";
-import type { ModelNode, ModelEdge } from "@mc/okf";
+import { isCalculated, type ModelNode, type ModelEdge } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import type { RelLabelMode } from "../../state/relLabels";
 import { erdAwareNodeSize } from "./layoutSize";
@@ -66,7 +66,7 @@ export function buildRfEdges(edges: ModelEdge[], nodes: ModelNode[], viewMode: V
   }
 
   const fieldsByKey = new Map<string, Set<string>>(
-    nodes.map(n => [n.key, new Set(n.schema.map(f => f.name))]),
+    nodes.map(n => [n.key, new Set(n.schema.filter(f => !isCalculated(f)).map(f => f.name))]),
   );
 
   return edges.flatMap(e => {

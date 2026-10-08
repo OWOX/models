@@ -43,10 +43,10 @@ export function PushConfirmDialog({ projectTitle, storage, counts, onConfirm, on
         </div>
 
         <p className="text-[13px] font-medium text-slate-700">
-          {counts.marts} {counts.marts === 1 ? "mart" : "marts"} and {counts.relationships} {counts.relationships === 1 ? "relationship" : "relationships"} will be pushed.
+          {counts.marts} {counts.marts === 1 ? "mart" : "marts"}{(counts.calculatedFields ?? 0) > 0 ? "," : " and"} {counts.relationships} {counts.relationships === 1 ? "relationship" : "relationships"}
           {(counts.calculatedFields ?? 0) > 0 && (
-            <> · {counts.calculatedFields} calculated {counts.calculatedFields === 1 ? "field" : "fields"}</>
-          )}
+            <> and {counts.calculatedFields} calculated {counts.calculatedFields === 1 ? "field" : "fields"}</>
+          )} will be pushed.
         </p>
 
         {counts.alreadyPushed > 0 && (

@@ -21,7 +21,7 @@ describe("PushConfirmDialog", () => {
 
   it("shows the calculated-field count only when there are some", () => {
     const { unmount } = render(<PushConfirmDialog {...base} counts={{ ...base.counts, calculatedFields: 2 }} {...noop} />);
-    expect(screen.getByText(/2 calculated fields/i)).toBeTruthy();
+    expect(screen.getByText(/3 marts, 2 relationships and 2 calculated fields will be pushed\./i)).toBeTruthy();
     unmount();
     render(<PushConfirmDialog {...base} counts={{ ...base.counts, calculatedFields: 0 }} {...noop} />);
     expect(screen.queryByText(/calculated field/i)).toBeNull();
