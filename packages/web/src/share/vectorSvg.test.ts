@@ -188,4 +188,15 @@ describe("buildVectorSvg", () => {
     expect(svg).toContain(">Σ<");
     expect(svg).not.toContain("M2.586 17.414");
   });
+
+  it("draws one dashed rule before the first calculated row, and none without calculated rows", () => {
+    const rows = [
+      { label: "id", type: "STRING", pk: true },
+      { label: "ctr", type: "NUMERIC", pk: false, calc: "metric" as const },
+      { label: "k", type: "STRING", pk: false, calc: "column" as const },
+    ];
+    const withCalc = buildVectorSvg(scene({ nodes: [node({ sections: [{ kind: "fields", rows, more: null }] })] })).svg;
+    expect(withCalc.match(/stroke-dasharray/g)).toHaveLength(1);
+    expect(buildVectorSvg(scene()).svg).not.toContain("stroke-dasharray");
+  });
 });

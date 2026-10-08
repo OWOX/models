@@ -165,4 +165,14 @@ describe("calculated fields", () => {
     expect(container.querySelector('[data-handleid="fl:ctr"]')).toBeNull();
     expect(container.querySelector('[data-handleid="fl:id"]')).not.toBeNull();
   });
+  it("separates regular and calculated rows with exactly one dashed border", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    const prev = container.querySelector('[data-field="id"]')!;
+    expect(prev.hasAttribute("data-calc-divider")).toBe(true);
+    expect(prev.className).toContain("border-dashed");
+    expect(prev.className).not.toContain("border-[#e5e5e5]");
+    const first = container.querySelector('[data-field="ctr"]')!;
+    expect(first.className).not.toMatch(/border-t|border-dashed/);
+    expect(container.querySelectorAll("[data-calc-divider]")).toHaveLength(1);
+  });
 });

@@ -34,7 +34,7 @@ import {
   packBadges,
   type CardBadge,
 } from "./layoutSize";
-import { CALC_COLOR, EDGE_NEUTRAL, statusBadge } from "./nodeStyle";
+import { CALC_COLOR, CALC_DIVIDER, EDGE_NEUTRAL, statusBadge } from "./nodeStyle";
 import type { CardRelationship } from "./relationships";
 
 export type MartNodeData = ModelNode & {
@@ -171,7 +171,7 @@ function FieldAnchors({ name }: { name: string }) {
   );
 }
 
-function FieldRow({ f, hidden, anchors, firstCalculated }: { f: SchemaField; hidden: ObjHidden; anchors: boolean; firstCalculated: boolean }) {
+function FieldRow({ f, hidden, anchors, beforeCalculated }: { f: SchemaField; hidden: ObjHidden; anchors: boolean; beforeCalculated: boolean }) {
   const label = fieldRowLabel(f, hidden);
   const description = fieldDescriptionLine(f, hidden);
   // The tooltip repeats the row text (it may be truncated) and adds what the row
@@ -183,8 +183,11 @@ function FieldRow({ f, hidden, anchors, firstCalculated }: { f: SchemaField; hid
     <div
       data-field={f.name}
       data-calculated={level ?? undefined}
-      // The dashed divider above the first calculated row replaces the solid one, so the row height is unchanged.
-      className={`relative border-b border-[#e5e5e5]/50 px-3.5 py-1.5 text-[11.5px] leading-[14px] last:border-b-0 ${firstCalculated ? "border-t border-dashed border-t-[#d9d0ff]" : ""}`}
+      // The row above the first calculated one draws a dashed bottom border instead of the solid
+      // hairline, so exactly one rule separates them and the row height is unchanged.
+      data-calc-divider={beforeCalculated ? "" : undefined}
+      className={`relative border-b px-3.5 py-1.5 text-[11.5px] leading-[14px] last:border-b-0 ${beforeCalculated ? "border-dashed" : "border-[#e5e5e5]/50"}`}
+      style={beforeCalculated ? { borderBottomColor: CALC_DIVIDER } : undefined}
       title={tip}
     >
       {anchors && !level && <FieldAnchors name={f.name} />}
@@ -229,7 +232,7 @@ function FieldsSection({
 
   return (
     <div data-section={section} className="border-t border-[#e5e5e5]">
-      {visible.map((f, i) => <FieldRow key={f.name} f={f} hidden={hidden} anchors={anchors} firstCalculated={isCalculated(f) && (i === 0 || !isCalculated(visible[i - 1]))} />)}
+      {visible.map((f, i) => <FieldRow key={f.name} f={f} hidden={hidden} anchors={anchors} beforeCalculated={!isCalculated(f) && i + 1 < visible.length && isCalculated(visible[i + 1])} />)}
       {hiddenCount > 0 && (
         <button
           type="button"

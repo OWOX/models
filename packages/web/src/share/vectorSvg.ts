@@ -26,7 +26,7 @@ import {
   ERD_ROW_EXTRA_LINE_HEIGHT,
   ERD_ROW_HEIGHT,
 } from "../components/canvas/layoutSize";
-import { CALC_COLOR, CARD_COLORS, CARDINALITY_BG, EDGE_NEUTRAL, KEY_COLOR, OWOX_BLUE } from "../components/canvas/nodeStyle";
+import { CALC_COLOR, CALC_DIVIDER, CARD_COLORS, CARDINALITY_BG, EDGE_NEUTRAL, KEY_COLOR, OWOX_BLUE } from "../components/canvas/nodeStyle";
 
 export const PADDING = 60; // px of breathing room around the model
 
@@ -209,6 +209,10 @@ function badgeLines(node: SceneNode): { markup: string; height: number } {
 const rule = (width: number, y: number, faint = false) =>
   `<line x1="0" y1="${round(y)}" x2="${round(width)}" y2="${round(y)}" stroke="${CARD_COLORS.border}"${faint ? ` stroke-opacity="0.5"` : ""}/>`;
 
+/** The dashed rule between the last regular row and the first calculated row. */
+const calcRule = (width: number, y: number) =>
+  `<line x1="0" y1="${round(y)}" x2="${round(width)}" y2="${round(y)}" stroke="${CALC_DIVIDER}" stroke-dasharray="3 2"/>`;
+
 function fieldsSection(node: SceneNode, section: Extract<SceneSection, { kind: "fields" }>, top: number): { markup: string; height: number } {
   const parts = [rule(node.width, top)];
   let y = top;
@@ -236,7 +240,10 @@ function fieldsSection(node: SceneNode, section: Extract<SceneSection, { kind: "
       h += ERD_ROW_EXTRA_LINE_HEIGHT;
     }
     y += h;
-    if (i < section.rows.length - 1) parts.push(rule(node.width, y, true));
+    if (i < section.rows.length - 1) {
+      const next = section.rows[i + 1];
+      parts.push(!field.calc && next.calc ? calcRule(node.width, y) : rule(node.width, y, true));
+    }
   });
 
   if (section.more !== null) {
