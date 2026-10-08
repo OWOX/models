@@ -75,4 +75,15 @@ describe("OKF calculated fields", () => {
     expect(e.alias).toBeUndefined();
     expect(e.reverseAlias).toBeUndefined();
   });
+
+  it("round-trips description lines that look like headings or an alias line", () => {
+    const g: ModelGraph = { ...graph, edges: [], nodes: [node("t", "T", [
+      { name: "first", type: "NUMERIC", pk: false, alias: "A1",
+        description: "Intro.\n# of distinct customers\n## Heading\n- **Alias:** x\n\\# literal backslash",
+        formula: "COUNT(DISTINCT id)" },
+      { name: "second", type: "NUMERIC", pk: false, formula: "SUM(amount)" },
+    ])] };
+    const md = serializeBundle(g, "T").files["t/t.md"];
+    expect(parseBundle({ "t/t.md": md }).nodes[0].schema).toEqual(g.nodes[0].schema);
+  });
 });

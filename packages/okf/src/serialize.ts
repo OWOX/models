@@ -87,7 +87,10 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
     ? "## Calculated fields\n\n" + calc.map(f => {
         const level = formulaLevel(f.formula!) === "metric" ? "Metric" : "Column";
         const alias = f.alias ? `- **Alias:** ${f.alias}\n\n` : "";
-        const desc = f.description ? `${fenceSafe(f.description.trim())}\n\n` : "";
+        // A description line that reads as a heading or the alias line would end the
+        // section or be taken as the alias on parse; a leading backslash keeps it inert.
+        const escapeLine = (l: string) => /^\\*(#|- \*\*Alias:\*\*)/.test(l) ? `\\${l}` : l;
+        const desc = f.description ? `${fenceSafe(f.description.trim()).split("\n").map(escapeLine).join("\n")}\n\n` : "";
         return `### \`${f.name}\` · ${f.type} · ${level}\n\n${alias}${desc}\`\`\`sql\n${fenceSafe(f.formula!.trim())}\n\`\`\`\n`;
       }).join("\n") + "\n"
     : "";

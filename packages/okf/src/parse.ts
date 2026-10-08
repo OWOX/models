@@ -214,7 +214,7 @@ function parseCalculated(body: string): SchemaField[] {
     if (/^```/.test(ln)) { fence = []; continue; }
     const a = ln.match(/^- \*\*Alias:\*\*\s*(.+)$/);
     if (a) { cur.alias = a[1].trim(); continue; }
-    desc.push(ln);
+    desc.push(/^\\+(#|- \*\*Alias:\*\*)/.test(ln) ? ln.slice(1) : ln);   // undo the serializer's escape
   }
   flush();
   return out;
