@@ -13,7 +13,7 @@
 // label positions all share it, independent of the user's current pan/zoom.
 
 import type { Node } from "@xyflow/react";
-import type { ModelNode, SchemaField } from "@mc/okf";
+import { formulaLevel, isCalculated, type FormulaLevel, type ModelNode, type SchemaField } from "@mc/okf";
 import { NOTHING_HIDDEN, type ObjHidden } from "../state/objLabels";
 import type { ViewMode } from "../state/viewMode";
 import { statusBadge, type StatusBadge } from "../components/canvas/nodeStyle";
@@ -26,7 +26,7 @@ import {
 } from "../components/canvas/layoutSize";
 import type { CardRelationship } from "../components/canvas/relationships";
 
-export type SceneField = { label: string; type: string; pk: boolean; description?: string | null };
+export type SceneField = { label: string; type: string; pk: boolean; description?: string | null; calc?: FormulaLevel };
 
 export type SceneBadge = { kind: CardBadgeKind; label: string; expanded: boolean };
 
@@ -102,7 +102,7 @@ export function readVisibleFields(el: Element | null, schema: SchemaField[], hid
   return Array.from(el.querySelectorAll("[data-field]")).flatMap(row => {
     const f = byName.get(row.getAttribute("data-field") ?? "");
     return f
-      ? [{ label: fieldRowLabel(f, hidden), type: f.type, pk: Boolean(f.pk), description: fieldDescriptionLine(f, hidden) }]
+      ? [{ label: fieldRowLabel(f, hidden), type: f.type, pk: Boolean(f.pk), description: fieldDescriptionLine(f, hidden), ...(isCalculated(f) ? { calc: formulaLevel(f.formula ?? "") } : {}) }]
       : [];
   });
 }

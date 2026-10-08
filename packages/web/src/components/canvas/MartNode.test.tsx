@@ -144,3 +144,25 @@ describe("MartNode object-labels", () => {
     expect(screen.getByText("Draft")).toBeTruthy();
   });
 });
+
+describe("calculated fields", () => {
+  const schema = [
+    { name: "id", type: "INT64", pk: true },
+    { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks) / SUM(impressions)" },
+    { name: "user_key", type: "STRING", pk: false, formula: "CONCAT(a, b)" },
+  ];
+  it("marks metric and column rows with their glyph and the formula tooltip", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    const metric = container.querySelector('[data-field="ctr"]')!;
+    expect(metric.getAttribute("data-calculated")).toBe("metric");
+    expect(metric.textContent).toContain("Σ");
+    expect(metric.getAttribute("title")).toContain("SUM(clicks) / SUM(impressions)");
+    expect(container.querySelector('[data-field="user_key"]')!.getAttribute("data-calculated")).toBe("column");
+    expect(container.querySelector('[data-field="user_key"]')!.textContent).toContain("fx");
+  });
+  it("gives calculated rows no edge anchors", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    expect(container.querySelector('[data-handleid="fl:ctr"]')).toBeNull();
+    expect(container.querySelector('[data-handleid="fl:id"]')).not.toBeNull();
+  });
+});

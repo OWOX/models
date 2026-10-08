@@ -26,7 +26,7 @@ import {
   ERD_ROW_EXTRA_LINE_HEIGHT,
   ERD_ROW_HEIGHT,
 } from "../components/canvas/layoutSize";
-import { CARD_COLORS, CARDINALITY_BG, EDGE_NEUTRAL, KEY_COLOR, OWOX_BLUE } from "../components/canvas/nodeStyle";
+import { CALC_COLOR, CARD_COLORS, CARDINALITY_BG, EDGE_NEUTRAL, KEY_COLOR, OWOX_BLUE } from "../components/canvas/nodeStyle";
 
 export const PADDING = 60; // px of breathing room around the model
 
@@ -215,7 +215,11 @@ function fieldsSection(node: SceneNode, section: Extract<SceneSection, { kind: "
   section.rows.forEach((field, i) => {
     const lineTop = y + ROW_PAD_Y;
     const baseline = centredBaseline(lineTop, ROW_LINE, ROW_SIZE);
-    if (field.pk) parts.push(icon("keyRound", ROW_PAD_X, lineTop + (ROW_LINE - ROW_ICON) / 2, ROW_ICON, KEY_COLOR));
+    if (field.calc) {
+      parts.push(text(field.calc === "metric" ? "Σ" : "fx", ROW_PAD_X + ROW_ICON / 2, baseline, {
+        size: TYPE_SIZE, fill: CALC_COLOR, anchor: "middle", weight: 700,
+      }));
+    } else if (field.pk) parts.push(icon("keyRound", ROW_PAD_X, lineTop + (ROW_LINE - ROW_ICON) / 2, ROW_ICON, KEY_COLOR));
     const typeWidth = measureText(field.type, TYPE_FONT);
     parts.push(text(field.type, node.width - ROW_PAD_X, baseline, {
       ...TYPE_FONT, fill: CARD_COLORS.mutedForeground, anchor: "end",

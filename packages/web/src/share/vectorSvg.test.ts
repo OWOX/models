@@ -179,4 +179,13 @@ describe("buildVectorSvg", () => {
     const { svg, width, height } = buildVectorSvg(scene());
     expect(svg).toContain(`translate(${width - 24 - 14},${height - 24 - 14})`);
   });
+
+  it("draws a calculated row with a Σ glyph instead of a key icon", () => {
+    const calcNode = node({
+      sections: [{ kind: "fields", rows: [{ label: "ctr", type: "NUMERIC", pk: false, calc: "metric" }], more: null }],
+    });
+    const { svg } = buildVectorSvg(scene({ nodes: [calcNode] }));
+    expect(svg).toContain(">Σ<");
+    expect(svg).not.toContain("M2.586 17.414");
+  });
 });

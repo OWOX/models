@@ -18,7 +18,7 @@ import {
   Table,
   type LucideIcon,
 } from "lucide-react";
-import type { InputSource, ModelNode, SchemaField } from "@mc/okf";
+import { formulaLevel, isCalculated, type InputSource, type ModelNode, type SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import { NOTHING_HIDDEN, type ObjHidden } from "../../state/objLabels";
 import { DataMartIcon, JoinIcon } from "../../lib/icons";
@@ -34,7 +34,7 @@ import {
   packBadges,
   type CardBadge,
 } from "./layoutSize";
-import { EDGE_NEUTRAL, statusBadge } from "./nodeStyle";
+import { CALC_COLOR, EDGE_NEUTRAL, statusBadge } from "./nodeStyle";
 import type { CardRelationship } from "./relationships";
 
 export type MartNodeData = ModelNode & {
@@ -171,21 +171,27 @@ function FieldAnchors({ name }: { name: string }) {
   );
 }
 
-function FieldRow({ f, hidden, anchors }: { f: SchemaField; hidden: ObjHidden; anchors: boolean }) {
+function FieldRow({ f, hidden, anchors, firstCalculated }: { f: SchemaField; hidden: ObjHidden; anchors: boolean; firstCalculated: boolean }) {
   const label = fieldRowLabel(f, hidden);
   const description = fieldDescriptionLine(f, hidden);
   // The tooltip repeats the row text (it may be truncated) and adds what the row
   // does not show: the technical name behind an alias, or the alias behind a name.
   const other = hasDistinctAlias(f) ? (label === f.name ? f.alias : f.name) : null;
+  const level = isCalculated(f) ? formulaLevel(f.formula ?? "") : null;
+  const tip = [label, other, level ? `${level === "metric" ? "Metric" : "Column"}: ${f.formula}` : null].filter(Boolean).join(" · ");
   return (
     <div
       data-field={f.name}
-      className="relative border-b border-[#e5e5e5]/50 px-3.5 py-1.5 text-[11.5px] leading-[14px] last:border-b-0"
-      title={[label, other].filter(Boolean).join(" · ")}
+      data-calculated={level ?? undefined}
+      // The dashed divider above the first calculated row replaces the solid one, so the row height is unchanged.
+      className={`relative border-b border-[#e5e5e5]/50 px-3.5 py-1.5 text-[11.5px] leading-[14px] last:border-b-0 ${firstCalculated ? "border-t border-dashed border-t-[#d9d0ff]" : ""}`}
+      title={tip}
     >
-      {anchors && <FieldAnchors name={f.name} />}
+      {anchors && !level && <FieldAnchors name={f.name} />}
       <div className="flex items-center gap-2">
-        {f.pk
+        {level
+          ? <span className="w-3 flex-shrink-0 text-center text-[10px] font-bold leading-none" style={{ color: CALC_COLOR }} aria-label={level === "metric" ? "Metric" : "Calculated column"}>{level === "metric" ? "Σ" : "fx"}</span>
+          : f.pk
           ? <KeyRound size={12} className="flex-shrink-0 text-[#F5C344]" aria-label="Primary key" />
           : <span className="w-3 flex-shrink-0" />}
         <span className="flex-1 truncate text-[#35363d]">{label}</span>
@@ -223,7 +229,7 @@ function FieldsSection({
 
   return (
     <div data-section={section} className="border-t border-[#e5e5e5]">
-      {visible.map(f => <FieldRow key={f.name} f={f} hidden={hidden} anchors={anchors} />)}
+      {visible.map((f, i) => <FieldRow key={f.name} f={f} hidden={hidden} anchors={anchors} firstCalculated={isCalculated(f) && (i === 0 || !isCalculated(visible[i - 1]))} />)}
       {hiddenCount > 0 && (
         <button
           type="button"

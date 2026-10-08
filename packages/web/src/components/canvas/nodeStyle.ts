@@ -28,6 +28,9 @@ export const EDGE_NEUTRAL = "#606060";
 export const EDGE_STROKE_WIDTH = 1.5;
 export const EDGE_SELECTED_STROKE_WIDTH = 2.5;
 /** Primary-key glyph (OWOX yellow). */
+/** Glyph colour of calculated fields (Σ metric, fx column). */
+export const CALC_COLOR = "#6d4aff";
+
 export const KEY_COLOR = "#F5C344";
 /** Cardinality pill on an edge label. */
 export const CARDINALITY_BG = "#E6F0FA";

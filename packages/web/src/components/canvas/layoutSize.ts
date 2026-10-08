@@ -1,4 +1,4 @@
-import type { ModelNode, SchemaField } from "@mc/okf";
+import { isCalculated, type ModelNode, type SchemaField } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import { NOTHING_HIDDEN, type ObjHidden } from "../../state/objLabels";
 import { measureText } from "../../share/svgText";
@@ -132,11 +132,12 @@ export function fieldRowHeight(field: SchemaField, hidden: ObjHidden = NOTHING_H
   return ERD_ROW_HEIGHT + (fieldDescriptionLine(field, hidden) ? ERD_ROW_EXTRA_LINE_HEIGHT : 0);
 }
 
-/** Keys first (primary keys and relationship keys), then the rest — stable order. */
+/** Keys first (primary keys and relationship keys), then regular fields, then calculated fields — stable order. */
 export function orderFields(schema: readonly SchemaField[], keyFields: readonly string[] = []): SchemaField[] {
   const keys = new Set(keyFields);
-  const isKey = (f: SchemaField) => f.pk || keys.has(f.name);
-  return [...schema.filter(isKey), ...schema.filter(f => !isKey(f))];
+  const isKey = (f: SchemaField) => !isCalculated(f) && (f.pk || keys.has(f.name));
+  const regular = schema.filter(f => !isCalculated(f) && !isKey(f));
+  return [...schema.filter(isKey), ...regular, ...schema.filter(isCalculated)];
 }
 
 /**
@@ -145,7 +146,7 @@ export function orderFields(schema: readonly SchemaField[], keyFields: readonly 
  */
 export function collapsedRowCount(schema: readonly SchemaField[], keyFields: readonly string[] = []): number {
   const keys = new Set(keyFields);
-  const keyCount = schema.filter(f => f.pk || keys.has(f.name)).length;
+  const keyCount = schema.filter(f => !isCalculated(f) && (f.pk || keys.has(f.name))).length;
   return Math.min(schema.length, Math.max(ERD_COLLAPSED_ROWS, keyCount));
 }
 
