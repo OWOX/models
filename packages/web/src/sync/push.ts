@@ -1,6 +1,6 @@
 import type { ModelStore } from "../state/model";
 import { api as defaultApi } from "../lib/api";
-import { type ModelNode, type ModelGraph, normalizeFieldType } from "@mc/okf";
+import { type ModelNode, type ModelGraph, normalizeFieldType, defaultJoinAlias } from "@mc/okf";
 import { joinFieldType, alignedJoinTypes } from "./joinFieldType";
 
 type Api = typeof defaultApi;
@@ -285,7 +285,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           // 400s on a missing joinConditions ("must be an array").
           body: JSON.stringify({
             targetDataMartId: toId,
-            targetAlias: aliasify(titleByKey.get(toKey) || toKey, toKey),
+            targetAlias: defaultJoinAlias(titleByKey.get(toKey) || toKey, toKey),
             joinConditions: ks.map(k => ({ sourceFieldName: k.left, targetFieldName: k.right })),
           }),
         });
@@ -315,16 +315,6 @@ function definitionBody(n: ModelNode): unknown | null {
     case "VIEW":  return { definitionType: "VIEW",  definition: { fullyQualifiedName: text } };
     default:      return null; // CONNECTOR / unknown
   }
-}
-
-// OWOX join aliases are used as SQL identifiers, so they must be alphanumeric +
-// underscore (NOT the hyphens slugify() produces) and must not start with a
-// digit. A hyphenated alias like "posts-questions" makes OWOX reject the
-// relationship with a generic 400.
-function aliasify(title: string, fallback: string): string {
-  const s = (title || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-  const safe = /^[0-9]/.test(s) ? `t_${s}` : s;
-  return safe || fallback;
 }
 
 // Add a field to a node's output schema if it isn't there yet (default STRING).

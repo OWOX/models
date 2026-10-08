@@ -1,4 +1,4 @@
-import type { ModelEdge, ModelNode, JoinKey, Cardinality } from "@mc/okf";
+import { isCalculated, defaultJoinAlias, type ModelEdge, type ModelNode, type JoinKey, type Cardinality } from "@mc/okf";
 import { JoinIcon } from "../../lib/icons";
 import { InfoTip } from "./InfoTip";
 
@@ -12,6 +12,9 @@ interface RelationshipInspectorProps {
   onEnsureField: (nodeKey: string, fieldName: string) => void;
 }
 
+// OWOX join aliases are SQL identifiers.
+const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
 export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsureField }: RelationshipInspectorProps) {
   function updateKey(i: number, patch: Partial<JoinKey>) {
     onUpdate({ keys: edge.keys.map((k, idx) => idx === i ? { ...k, ...patch } : k) });
@@ -24,11 +27,23 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
   const leftListId = `fields-${edge.from}`;
   const rightListId = `fields-${edge.to}`;
 
+  const aliasInput = (label: string, value: string | undefined, placeholder: string, key: "alias" | "reverseAlias") => (
+    <div>
+      <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+        {label} <InfoTip text="Name formulas use for the joined mart: alias.field. Pushed to OWOX as the relationship's target alias." />
+      </label>
+      <input aria-label={label} type="text" value={value ?? ""} placeholder={placeholder}
+        onChange={e => onUpdate({ [key]: e.target.value.trim() || undefined })}
+        className="w-full text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg font-mono text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]" />
+      {value && !IDENT.test(value) && <p className="mt-[4px] text-[11px] text-amber-700">Use letters, digits and _ only; don't start with a digit.</p>}
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-[15px]">
       {/* datalists power the combobox: pick a schema field or type a new one */}
-      <datalist id={leftListId}>{(fromNode?.schema ?? []).map(f => <option key={f.name} value={f.name} />)}</datalist>
-      <datalist id={rightListId}>{(toNode?.schema ?? []).map(f => <option key={f.name} value={f.name} />)}</datalist>
+      <datalist id={leftListId}>{(fromNode?.schema ?? []).filter(f => !isCalculated(f)).map(f => <option key={f.name} value={f.name} />)}</datalist>
+      <datalist id={rightListId}>{(toNode?.schema ?? []).filter(f => !isCalculated(f)).map(f => <option key={f.name} value={f.name} />)}</datalist>
 
       {/* Status pill */}
       <div className="text-[12px] px-[11px] py-[9px] rounded-lg flex items-center gap-2 bg-[#f1f5f9] text-[#475569]">
@@ -39,6 +54,9 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
       <div className="text-[13px] text-slate-500">
         <strong className="text-slate-900">{fromTitle}</strong>{" → "}<strong className="text-slate-900">{toTitle}</strong>
       </div>
+
+      {aliasInput("Join alias", edge.alias, defaultJoinAlias(toTitle, edge.to), "alias")}
+      {edge.bidirectional && aliasInput("Reverse join alias", edge.reverseAlias, defaultJoinAlias(fromTitle, edge.from), "reverseAlias")}
 
       {/* Join keys */}
       <div>
@@ -72,6 +90,10 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
             </button>
           </div>
         ))}
+
+        {edge.keys.flatMap(k => [[fromNode, k.left], [toNode, k.right]] as const)
+          .filter(([n, name]) => name && n?.schema.some(f => f.name === name && isCalculated(f)))
+          .map(([, name]) => <p key={name} className="text-[11px] text-amber-700 mb-[6px]">"{name}" is a calculated field — OWOX can't join on it.</p>)}
 
         <button
           onClick={addKey}
