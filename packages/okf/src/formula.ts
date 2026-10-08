@@ -1,0 +1,94 @@
+import type { SchemaField } from "./types";
+
+export type FormulaLevel = "metric" | "column";
+
+// Every aggregate ODM recognises across its storages (docs: calculated fields → Types & Storage Support).
+const AGGREGATES = [
+  "SUM", "COUNT", "AVG", "MIN", "MAX", "STDDEV", "VARIANCE", "ANY_VALUE", "COUNTIF", "COUNT_IF",
+  "STRING_AGG", "APPROX_COUNT_DISTINCT", "APPROX_DISTINCT", "ARRAY_AGG", "LISTAGG",
+  "PERCENTILE_CONT", "PERCENTILE", "COLLECT_LIST",
+];
+const AGGREGATE_CALL = new RegExp(`\\b(?:${AGGREGATES.join("|")})\\s*\\(`, "i");
+
+// Words that look like identifiers but are SQL syntax or type names, never fields.
+const NOT_FIELDS = new Set([
+  "SELECT", "FROM", "WHERE", "CASE", "WHEN", "THEN", "ELSE", "END", "AND", "OR", "NOT", "NULL", "TRUE", "FALSE",
+  "AS", "IS", "IN", "LIKE", "BETWEEN", "DISTINCT", "INTERVAL", "IF", "OVER", "PARTITION", "BY", "ORDER",
+  "ASC", "DESC", "LIMIT", "SAFE", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR", "HOUR", "MINUTE", "SECOND",
+  "STRING", "INT64", "INTEGER", "INT", "FLOAT64", "FLOAT", "NUMERIC", "BIGNUMERIC", "DECIMAL", "BOOL", "BOOLEAN",
+  "DATE", "DATETIME", "TIME", "TIMESTAMP", "BYTES", "JSON", "VARCHAR",
+]);
+
+export function isCalculated(f: Pick<SchemaField, "formula">): boolean {
+  return f.formula !== undefined;
+}
+
+// Blank out string literals and comments (same length, so offsets stay valid):
+// their contents must never read as calls or references.
+function codeOnly(sql: string): string {
+  const blank = (m: string) => m.replace(/[^\n]/g, " ");
+  return sql
+    .replace(/\/\*[\s\S]*?\*\//g, blank)
+    .replace(/--[^\n]*/g, blank)
+    .replace(/'(?:[^'\\]|\\.)*'/g, blank)
+    .replace(/"(?:[^"\\]|\\.)*"/g, blank);
+}
+
+export function formulaLevel(formula: string): FormulaLevel {
+  return AGGREGATE_CALL.test(codeOnly(formula)) ? "metric" : "column";
+}
+
+export function formulaReferences(formula: string): { alias: string | null; field: string }[] {
+  const out: { alias: string | null; field: string }[] = [];
+  const seen = new Set<string>();
+  const code = codeOnly(formula);
+  for (const m of code.matchAll(/(?<![\w.])([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?(?!\w)/g)) {
+    const after = code.slice((m.index ?? 0) + m[0].length);
+    if (/^\s*\(/.test(after)) continue;                         // a function call
+    const ref = m[2] ? { alias: m[1], field: m[2] } : { alias: null, field: m[1] };
+    if (!m[2] && NOT_FIELDS.has(m[1].toUpperCase())) continue;
+    const key = `${ref.alias ?? ""}.${ref.field}`;
+    if (seen.has(key)) continue;
+    seen.add(key); out.push(ref);
+  }
+  return out;
+}
+
+// ODM stores formulas with `{{ref path="alias" field="x"}}` tags; analysts see `alias.x`.
+export function renderOwoxRefs(formula: string): string {
+  return formula.replace(/\{\{\s*ref\b([^}]*)\}\}/g, (_, attrs: string) => {
+    const field = /field="([^"]*)"/.exec(attrs)?.[1] ?? "";
+    const path = /path="([^"]*)"/.exec(attrs)?.[1] ?? "";
+    return path ? `${path}.${field}` : field;
+  });
+}
+
+// OWOX join aliases are SQL identifiers: alphanumeric + underscore, no leading digit.
+// A hyphenated alias makes OWOX reject the relationship with a generic 400.
+export function defaultJoinAlias(title: string, fallback: string): string {
+  const s = (title || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  const safe = /^[0-9]/.test(s) ? `t_${s}` : s;
+  return safe || fallback;
+}
+
+export interface FormulaContext {
+  /** Every field name of the mart, calculated ones included (formulas may reference them). */
+  own: string[];
+  /** Marts this mart joins to, under the alias formulas use for them. */
+  joined: { alias: string; title: string; fields: string[] }[];
+}
+
+export function formulaWarnings(formula: string, ctx: FormulaContext, selfName: string): string[] {
+  const out: string[] = [];
+  for (const r of formulaReferences(formula)) {
+    if (r.alias === null) {
+      if (r.field === selfName) out.push("A calculated field cannot reference itself");
+      else if (!ctx.own.includes(r.field)) out.push(`Unknown field "${r.field}"`);
+      continue;
+    }
+    const j = ctx.joined.find(x => x.alias === r.alias);
+    if (!j) out.push(`Unknown relationship alias "${r.alias}"`);
+    else if (!j.fields.includes(r.field)) out.push(`"${r.alias}" has no field "${r.field}"`);
+  }
+  return [...new Set(out)];
+}
