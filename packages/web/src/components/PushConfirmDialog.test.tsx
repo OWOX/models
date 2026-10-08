@@ -19,6 +19,14 @@ describe("PushConfirmDialog", () => {
     expect(screen.getByText(/3 marts and 2 relationships will be pushed/i)).toBeTruthy();
   });
 
+  it("shows the calculated-field count only when there are some", () => {
+    const { unmount } = render(<PushConfirmDialog {...base} counts={{ ...base.counts, calculatedFields: 2 }} {...noop} />);
+    expect(screen.getByText(/2 calculated fields/i)).toBeTruthy();
+    unmount();
+    render(<PushConfirmDialog {...base} counts={{ ...base.counts, calculatedFields: 0 }} {...noop} />);
+    expect(screen.queryByText(/calculated field/i)).toBeNull();
+  });
+
   it("wires Push, Change project and Cancel", () => {
     const onConfirm = vi.fn(), onChangeProject = vi.fn(), onClose = vi.fn();
     render(<PushConfirmDialog {...base} onConfirm={onConfirm} onForcePush={() => {}} onChangeProject={onChangeProject} onClose={onClose} />);

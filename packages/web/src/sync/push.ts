@@ -1,6 +1,6 @@
 import type { ModelStore } from "../state/model";
 import { api as defaultApi } from "../lib/api";
-import { type ModelNode, type ModelGraph, normalizeFieldType, defaultJoinAlias } from "@mc/okf";
+import { type ModelNode, type ModelGraph, type SchemaField, normalizeFieldType, defaultJoinAlias, isCalculated } from "@mc/okf";
 import { joinFieldType, alignedJoinTypes } from "./joinFieldType";
 
 type Api = typeof defaultApi;
@@ -20,6 +20,8 @@ export interface PushResult {
   /** Links created as "Join not configured" in OWOX because the canvas edge has no
    *  join keys yet. Counted separately: they were created, but need finishing. */
   relationshipsWithoutKeys: number;
+  /** Marts whose calculated fields OWOX refused; their base schema still landed. */
+  calculatedFailed: number;
   /** The push stopped because the OWOX session was gone and could not be renewed.
    *  Nothing here is a modelling error — the remaining marts were never tried. */
   authExpired?: boolean;
@@ -44,7 +46,7 @@ const SESSION_EXPIRED =
 // Deliberately local and synchronous: it cannot know that a mart was deleted in
 // OWOX (pushModel finds that out with a listing and re-creates it), so its counts
 // are a floor, not a promise. The dialog's wording accounts for that.
-export function pushPreview(graph: ModelGraph, storageId: string | null): { marts: number; relationships: number; alreadyPushed: number } {
+export function pushPreview(graph: ModelGraph, storageId: string | null): { marts: number; relationships: number; alreadyPushed: number; calculatedFields: number } {
   const liveHere = (n: ModelNode) => n.status === "created" && n.owoxStorageId === storageId;
   const skipped = new Set(graph.nodes.filter(liveHere).map(n => n.key));
   const marts = graph.nodes.filter(n => !skipped.has(n.key)).length;
@@ -53,7 +55,10 @@ export function pushPreview(graph: ModelGraph, storageId: string | null): { mart
     if (e.existing && skipped.has(e.from) && skipped.has(e.to)) continue;
     relationships++;
   }
-  return { marts, relationships, alreadyPushed: skipped.size };
+  const calculatedFields = graph.nodes
+    .filter(n => !skipped.has(n.key))
+    .reduce((sum, n) => sum + n.schema.filter(isCalculated).length, 0);
+  return { marts, relationships, alreadyPushed: skipped.size, calculatedFields };
 }
 
 // OWOX validates the output schema with a discriminator keyed on the storage
@@ -68,6 +73,20 @@ function schemaDiscriminator(storageType: string): string {
     .replace(/^AWS_/, "")
     .toLowerCase();
   return `${base}-data-mart-schema`;
+}
+
+// One field envelope for both schema PUTs. OWOX derives a calculated field's level
+// from its formula, so none is sent; a formula column is never a primary key.
+function fieldBody(f: SchemaField) {
+  return {
+    // Normalise the type here too, not only on import: models saved before
+    // normalisation existed (or hand-edited) can still carry a spelling OWOX's
+    // case-sensitive enum rejects, and one bad field costs the mart its whole schema.
+    name: f.name, type: normalizeFieldType(f.type), mode: "NULLABLE",
+    status: "CONNECTED", description: f.description ?? "", isPrimaryKey: isCalculated(f) ? false : f.pk,
+    ...(f.alias ? { alias: f.alias } : {}),
+    ...(isCalculated(f) ? { calculated: { formula: f.formula ?? "" } } : {}),
+  };
 }
 
 export interface PushOptions {
@@ -109,7 +128,7 @@ async function reconcileWithOwox(
 }
 
 export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
-  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [] };
+  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, calculatedFailed: 0, errors: [] };
 
   const storageId = store.get().storageId;
   if (!storageId) {
@@ -183,6 +202,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   // (and so are its relationships, since the edge skip below keys off this set).
   // Ghosts — created here, but no longer in OWOX — are likewise NOT skipped.
   const skippedKeys = new Set<string>();
+  const pushedHere = new Map<string, string>();
   for (const n of store.get().nodes) {
     if (blockedKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
     if (!opts.force && n.status === "created" && n.owoxStorageId === storageId && !ghostKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
@@ -206,7 +226,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       }
       // Push the output schema (fields + types + PK). Best-effort: a schema error
       // doesn't fail the mart itself, but it's surfaced in the result.
-      const fields = n.schema.filter(f => f.name.trim());
+      const fields = n.schema.filter(f => f.name.trim() && !isCalculated(f));
       if (fields.length && storageType) {
         try {
           await api(`/api/data-marts/${out.id}/schema`, {
@@ -214,15 +234,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
             body: JSON.stringify({
               schema: {
                 type: schemaDiscriminator(storageType),
-                // Normalise the type here too, not only on import: models saved
-                // before normalisation existed (or hand-edited) can still carry a
-                // spelling OWOX's case-sensitive enum rejects, and one bad field
-                // costs the mart its whole schema.
-                fields: fields.map(f => ({
-                  name: f.name, type: normalizeFieldType(f.type), mode: "NULLABLE",
-                  status: "CONNECTED", description: f.description ?? "", isPrimaryKey: f.pk,
-                  ...(f.alias ? { alias: f.alias } : {}),
-                })),
+                fields: fields.map(fieldBody),
               },
             }),
           });
@@ -230,6 +242,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           res.errors.push(`Schema for "${n.title}": ${(e as Error).message}`);
         }
       }
+      pushedHere.set(n.key, out.id);
       store.updateNode(n.key, { status: "created", owoxId: out.id, owoxStorageId: storageId, createdAt: new Date().toISOString() });
       res.created++;
       // Counted only once it actually landed, so a failed re-create isn't reported
@@ -260,11 +273,13 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     // storage/project), the relationship doesn't exist yet and must be pushed.
     if (e.existing && skippedKeys.has(e.from) && skippedKeys.has(e.to)) continue;
     const keys = e.keys.filter(k => k.left && k.right);
-    const directions: Array<[string, string, { left: string; right: string }[]]> = e.bidirectional
-      ? [[e.from, e.to, keys], [e.to, e.from, keys.map(k => ({ left: k.right, right: k.left }))]]
-      : [[e.from, e.to, keys]];
+    const fwdAlias = e.alias?.trim() || defaultJoinAlias(titleByKey.get(e.to) || e.to, e.to);
+    const revAlias = e.reverseAlias?.trim() || defaultJoinAlias(titleByKey.get(e.from) || e.from, e.from);
+    const directions: Array<[string, string, { left: string; right: string }[], string]> = e.bidirectional
+      ? [[e.from, e.to, keys, fwdAlias], [e.to, e.from, keys.map(k => ({ left: k.right, right: k.left })), revAlias]]
+      : [[e.from, e.to, keys, fwdAlias]];
 
-    for (const [fromKey, toKey, ks] of directions) {
+    for (const [fromKey, toKey, ks, alias] of directions) {
       const fromId = owoxIdByKey.get(fromKey);
       const toId = owoxIdByKey.get(toKey);
       if (!fromId || !toId) {
@@ -285,7 +300,7 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           // 400s on a missing joinConditions ("must be an array").
           body: JSON.stringify({
             targetDataMartId: toId,
-            targetAlias: defaultJoinAlias(titleByKey.get(toKey) || toKey, toKey),
+            targetAlias: alias,
             joinConditions: ks.map(k => ({ sourceFieldName: k.left, targetFieldName: k.right })),
           }),
         });
@@ -294,6 +309,27 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       } catch (e) {
         res.relationshipsFailed++;
         res.errors.push(`Link ${titleByKey.get(fromKey)} → ${titleByKey.get(toKey)}: ${(e as Error).message}`);
+      }
+    }
+  }
+
+  // ── 4. Calculated fields — after relationships, since formulas read <alias>.<field> ──
+  // A separate PUT on purpose: OWOX dry-runs every formula on schema save, and one
+  // refused formula fails the whole request. Step 2 already landed the real columns.
+  if (storageType) {
+    for (const [key, owoxId] of pushedHere) {
+      const n = store.get().nodes.find(x => x.key === key);
+      const named = n?.schema.filter(f => f.name.trim()) ?? [];
+      if (!n || !named.some(isCalculated)) continue;
+      try {
+        await api(`/api/data-marts/${owoxId}/schema`, {
+          method: "PUT",
+          body: JSON.stringify({ schema: { type: schemaDiscriminator(storageType), fields: named.map(fieldBody) } }),
+        });
+      } catch (e) {
+        if (isAuthError(e)) { res.authExpired = true; res.errors.push(SESSION_EXPIRED); break; }
+        res.calculatedFailed++;
+        res.errors.push(`Calculated fields for "${n.title}": ${(e as Error).message}`);
       }
     }
   }

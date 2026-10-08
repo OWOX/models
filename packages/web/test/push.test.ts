@@ -48,6 +48,16 @@ describe("pushPreview", () => {
     expect(pushPreview(g, "st_1").alreadyPushed).toBe(2);
     expect(pushPreview(g, "st_1").marts).toBe(2); // n3 + n4
   });
+
+  it("counts calculated fields of marts that will be pushed", () => {
+    const g = mk({ nodes: [
+      { key: "n1", title: "A", inputSource: "SQL", position: { x: 0, y: 0 }, status: "pending",
+        schema: [{ name: "a", type: "STRING", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(a)" }] },
+      { key: "n2", title: "B", inputSource: "SQL", position: { x: 0, y: 0 }, status: "created", owoxId: "b", owoxStorageId: "st_1",
+        schema: [{ name: "m", type: "NUMERIC", pk: false, formula: "SUM(a)" }] },
+    ] });
+    expect(pushPreview(g, "st_1").calculatedFields).toBe(1);
+  });
 });
 
 describe("pushModel", () => {
@@ -616,5 +626,98 @@ describe("pushModel with an expired session", () => {
     const res = await pushModel(s, apiMock as any);
     expect(res.authExpired).toBeFalsy();
     expect(res.failed).toBe(2);
+  });
+});
+
+describe("pushModel calculated fields", () => {
+  const calls = () => {
+    const log: { path: string; body: any }[] = [];
+    const api = vi.fn(async (path: string, init?: any) => {
+      log.push({ path, body: init?.body ? JSON.parse(init.body) : undefined });
+      if (path === "/api/data-marts" && !init) return [];
+      if (path === "/api/data-marts") return { id: `owox_${log.filter(c => c.path === "/api/data-marts" && c.body).length}` };
+      return {};
+    });
+    return { api, log };
+  };
+  const storeWith = (schema: any[]) => {
+    const s = createModelStore({ storageId: "st_1" });
+    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", schema });
+    return s;
+  };
+  const joinedStore = (patch: Partial<ModelEdge>) => {
+    const s = createModelStore({ storageId: "st_1" });
+    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", schema: [{ name: "customer_id", type: "INTEGER", pk: false }] });
+    const b = s.addNode({ x: 300, y: 0 }); s.updateNode(b.key, { title: "Customers", schema: [{ name: "id", type: "INTEGER", pk: true }] });
+    const e = s.addEdge(a.key, b.key)!;
+    s.updateEdge(e.id, { keys: [{ left: "customer_id", right: "id" }], ...patch });
+    return s;
+  };
+  const aliasesSent = (log: { path: string; body: any }[]) =>
+    log.filter(c => c.path.endsWith("/relationships")).map(c => c.body.targetAlias);
+  const schemaPuts = (log: { path: string; body: any }[]) => log.filter(c => c.path.endsWith("/schema"));
+
+  it("sends the base schema without calculated fields, then a second PUT with them", async () => {
+    const s = storeWith([
+      { name: "clicks", type: "INTEGER", pk: false },
+      { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" },
+    ]);
+    const { api, log } = calls();
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    const [base, full] = schemaPuts(log);
+    expect(base.body.schema.fields.map((f: any) => f.name)).toEqual(["clicks"]);
+    expect(full.body.schema.fields.find((f: any) => f.name === "ctr")).toMatchObject({ calculated: { formula: "SUM(clicks)" }, isPrimaryKey: false });
+    expect(full.body.schema.fields.find((f: any) => f.name === "ctr").calculated.level).toBeUndefined();
+    expect(res.calculatedFailed).toBe(0);
+  });
+
+  it("pushes a mart with only calculated fields in the calculated step alone", async () => {
+    const s = storeWith([{ name: "total", type: "NUMERIC", pk: false, formula: "SUM(x)" }]);
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(schemaPuts(log)).toHaveLength(1);
+    expect(schemaPuts(log)[0].body.schema.fields[0].calculated).toEqual({ formula: "SUM(x)" });
+  });
+
+  it("keeps the base schema and reports a failed calculated step", async () => {
+    const s = storeWith([{ name: "c", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(c) + c" }]);
+    let puts = 0;
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path === "/api/data-marts" && !init) return [];
+      if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/schema") && ++puts === 2) throw new Error("Level mixing in m");
+      return {};
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.calculatedFailed).toBe(1);
+    expect(res.errors).toContain('Calculated fields for "Orders": Level mixing in m');
+    expect(s.get().nodes[0].status).toBe("created");
+  });
+
+  it("stops on an expired session in the calculated step", async () => {
+    const s = storeWith([{ name: "m", type: "NUMERIC", pk: false, formula: "SUM(x)" }]);
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path === "/api/data-marts" && !init) return [];
+      if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/schema")) throw Object.assign(new Error("401"), { status: 401 });
+      return {};
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.authExpired).toBe(true);
+    expect(res.calculatedFailed).toBe(0);
+  });
+
+  it("uses the edge alias and reverse alias as targetAlias", async () => {
+    const s = joinedStore({ bidirectional: true, alias: "cust", reverseAlias: "ord" });
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(aliasesSent(log)).toEqual(["cust", "ord"]);
+  });
+
+  it("falls back to the title-derived alias for graphs saved before aliases existed", async () => {
+    const s = joinedStore({ bidirectional: true });
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(aliasesSent(log)).toEqual(["customers", "orders"]);
   });
 });

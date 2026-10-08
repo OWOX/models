@@ -5,7 +5,7 @@ import type { PushResult } from "../sync/push";
 
 const result = (over: Partial<PushResult> = {}): PushResult => ({
   created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0,
-  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [], ...over,
+  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, calculatedFailed: 0, errors: [], ...over,
 });
 
 describe("PushToast", () => {

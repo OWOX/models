@@ -1,7 +1,7 @@
 interface PushConfirmDialogProps {
   projectTitle?: string;
   storage?: { title: string; type: string } | null;
-  counts: { marts: number; relationships: number; alreadyPushed: number };
+  counts: { marts: number; relationships: number; alreadyPushed: number; calculatedFields?: number };
   onConfirm: () => void;        // proceed with the push
   onForcePush: () => void;      // push again, re-creating marts already in OWOX
   onChangeProject: () => void;  // sign out (detaches from OWOX) + open sign-in
@@ -44,6 +44,9 @@ export function PushConfirmDialog({ projectTitle, storage, counts, onConfirm, on
 
         <p className="text-[13px] font-medium text-slate-700">
           {counts.marts} {counts.marts === 1 ? "mart" : "marts"} and {counts.relationships} {counts.relationships === 1 ? "relationship" : "relationships"} will be pushed.
+          {(counts.calculatedFields ?? 0) > 0 && (
+            <> · {counts.calculatedFields} calculated {counts.calculatedFields === 1 ? "field" : "fields"}</>
+          )}
         </p>
 
         {counts.alreadyPushed > 0 && (
