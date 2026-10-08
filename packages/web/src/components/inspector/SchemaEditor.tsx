@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { GripVertical } from "lucide-react";
-import { type SchemaField, EDITOR_FIELD_TYPES } from "@mc/okf";
+import { type SchemaField, type FormulaContext, EDITOR_FIELD_TYPES, isCalculated, formulaLevel, formulaWarnings } from "@mc/okf";
 import { InfoTip } from "./InfoTip";
 
 // One source of truth for types — see @mc/okf/fieldType. Every entry is a member of
@@ -11,9 +11,10 @@ const FIELD_TYPES: string[] = [...EDITOR_FIELD_TYPES];
 interface SchemaEditorProps {
   schema: SchemaField[];
   onChange: (schema: SchemaField[]) => void;
+  formulaContext?: FormulaContext;
 }
 
-export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
+export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorProps) {
   // Row being dragged and the row it's hovering over — for reordering fields.
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
@@ -28,6 +29,10 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
 
   function addField() {
     onChange([...schema, { name: "", type: "STRING", pk: false }]);
+  }
+
+  function addCalculatedField() {
+    onChange([...schema, { name: "", type: "NUMERIC", pk: false, formula: "" }]);
   }
 
   // Move a field from one position to another, preserving the order of the rest.
@@ -64,8 +69,8 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
 
           {/* Rows — drag the grip handle to reorder */}
           {schema.map((field, i) => (
+            <Fragment key={i}>
             <div
-              key={i}
               onDragOver={e => { if (dragIdx === null) return; e.preventDefault(); if (overIdx !== i) setOverIdx(i); }}
               onDrop={e => { e.preventDefault(); if (dragIdx !== null) moveField(dragIdx, i); setDragIdx(null); setOverIdx(null); }}
               className={`grid px-[10px] py-[6px] border-b border-[#eef1f5] last:border-b-0 items-center gap-[6px] transition-colors ${dragIdx === i ? "opacity-40" : ""} ${overIdx === i && dragIdx !== null && dragIdx !== i ? "bg-[#e6f1fb]" : ""}`}
@@ -101,7 +106,8 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
               </select>
               <input
                 type="checkbox"
-                checked={field.pk}
+                checked={field.pk && !isCalculated(field)}
+                disabled={isCalculated(field)}
                 onChange={e => updateField(i, { pk: e.target.checked })}
                 title="Primary key"
                 className="w-4 h-4 mx-auto block cursor-pointer accent-[#1e88e5]"
@@ -128,17 +134,54 @@ export function SchemaEditor({ schema, onChange }: SchemaEditorProps) {
                 ×
               </button>
             </div>
+            {isCalculated(field) && (
+              <div className="px-[10px] pb-[8px] pl-[32px] border-b border-[#eef1f5]">
+                <div className="flex items-center gap-[6px] mb-[4px]">
+                  <span className="text-[10.5px] font-semibold uppercase tracking-[0.3px] text-slate-500">Formula</span>
+                  <span className="text-[10.5px] font-semibold rounded-md px-[6px] py-[1px] bg-[#f4f1ff] text-[#6d4aff]">
+                    {formulaLevel(field.formula ?? "") === "metric" ? "Metric" : "Column"}
+                  </span>
+                </div>
+                <textarea
+                  value={field.formula ?? ""}
+                  onChange={e => updateField(i, { formula: e.target.value })}
+                  placeholder="SUM(clicks) / NULLIF(SUM(impressions), 0)"
+                  rows={2}
+                  spellCheck={false}
+                  className={`${inputCls} font-mono resize-y`}
+                />
+                {formulaContext && (
+                  <p className="mt-[4px] text-[11px] text-slate-500">
+                    Fields: {formulaContext.own.filter(n => n && n !== field.name).join(", ") || "—"}
+                    {formulaContext.joined.length > 0 && <> · Joined: {formulaContext.joined.map(j => `${j.alias}.*`).join(", ")}</>}
+                  </p>
+                )}
+                {formulaContext && formulaWarnings(field.formula ?? "", formulaContext, field.name).map(w => (
+                  <p key={w} className="mt-[2px] text-[11px] text-amber-700">{w}</p>
+                ))}
+              </div>
+            )}
+            </Fragment>
           ))}
         </div>
       </div>
 
-      {/* Add field */}
-      <button
-        onClick={addField}
-        className="w-full border-none bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors border-t border-[#eef1f5]"
-      >
-        + Add field
-      </button>
+      {/* Add field / add calculated field */}
+      <div className="flex border-t border-[#eef1f5]">
+        <button
+          onClick={addField}
+          className="flex-1 border-none bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors"
+        >
+          + Add field
+        </button>
+        <button
+          onClick={addCalculatedField}
+          className="flex-1 border-none border-l border-[#eef1f5] bg-white px-2 py-[8px] text-[12.5px] font-semibold text-[#1e88e5] cursor-pointer hover:bg-[#f8fafc] transition-colors"
+          style={{ borderLeft: "1px solid #eef1f5" }}
+        >
+          + Add calculated field
+        </button>
+      </div>
     </div>
   );
 }
