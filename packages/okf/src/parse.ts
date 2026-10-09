@@ -30,7 +30,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     const fileSlug = path.split("/").pop()!.replace(/\.md$/, "");
     const key = owox.key || fileSlug;
     slugToKey.set(fileSlug, key);
-    const schema = parseSchema(body);
+    const schema = [...parseSchema(body), ...parseCalculated(body)];
     pkByKey.set(key, schema.find(f => f.pk)?.name);
     const inputSource = (owox.inputSource || ov.definitionType || inferSource(data.tags) || sourceFromType(data.type) || "SQL") as InputSource;
     const owoxId = owox.id ?? (ov.id && ov.id !== "—" ? ov.id : null);
@@ -42,7 +42,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     });
   }
 
-  const raw: { from: string; to: string; keys: { left: string; right: string }[]; cardinality?: Cardinality }[] = [];
+  const raw: { from: string; to: string; keys: { left: string; right: string }[]; cardinality?: Cardinality; alias?: string }[] = [];
   for (const [path, text] of docs) {
     const { data, body } = parseFrontmatter(text);
     const fromSlug = path.split("/").pop()!.replace(/\.md$/, "");
@@ -51,8 +51,11 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     for (const ln of body.split("\n")) {
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
       if (!m) continue;
+      const am = m[2].match(/^as\s+`([^`]+)`\s*(?:—|--)?\s*/);
+      const alias = am ? am[1].trim() : undefined;
+      const rest = am ? m[2].slice(am[0].length) : m[2];
       const toKey = slugToKey.get(basename(m[1])); if (!toKey) continue;
-      let keys = [...m[2].matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
+      let keys = [...rest.matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
       if (keys.length === 0) {
         // Faithful-OWOX join: recover from a `FK to [Target]` note + target PK.
         const targetTitle = nodes.find(n => n.key === toKey)?.title ?? "";
@@ -60,9 +63,9 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
         const rightPk = pkByKey.get(toKey);
         if (fkCol && rightPk) keys = [{ left: fkCol.name, right: rightPk }];
       }
-      const cm = m[2].match(/\[(1:1|1:N|N:1|N:N)\]/);
+      const cm = rest.match(/\[(1:1|1:N|N:1|N:N)\]/);
       const cardinality = cm ? (cm[1] as Cardinality) : undefined;
-      raw.push({ from: fromKey, to: toKey, keys, cardinality });
+      raw.push({ from: fromKey, to: toKey, keys, cardinality, alias });
     }
   }
 
@@ -111,6 +114,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     const ex = seen.get(pairKey);
     if (ex) {
       ex.bidirectional = true;
+      if (ex.from !== r.from && r.alias) ex.reverseAlias = r.alias;
       if (!ex.cardinality && r.cardinality) {
         ex.cardinality = ex.from === r.from ? r.cardinality : FLIP_CARDINALITY[r.cardinality];
       }
@@ -118,6 +122,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     }
     const e: ModelEdge = { id: `e${edges.length + 1}`, from: r.from, to: r.to, keys: r.keys, bidirectional: false };
     if (r.cardinality) e.cardinality = r.cardinality;
+    if (r.alias) e.alias = r.alias;
     seen.set(pairKey, e); edges.push(e);
   }
   const storageId = (docs[0] && (parseFrontmatter(docs[0][1]).data.owox || {}).storageId) || null;
@@ -179,6 +184,40 @@ function cellText(s: string): string {
 // Underscores are always left alone, being valid in names (`events_`).
 function fieldName(s: string): string {
   return s.replace(/\*/g, "").trim();
+}
+
+// `## Calculated fields`: one `### \`name\` · TYPE · Level` block per field, an
+// optional `- **Alias:**` line, description paragraphs, then one fenced SQL block.
+// The level is informational — it is re-derived from the formula.
+function parseCalculated(body: string): SchemaField[] {
+  const out: SchemaField[] = [];
+  let inSection = false;
+  let cur: SchemaField | null = null;
+  let desc: string[] = [];
+  let fence: string[] | null = null;
+  const flush = () => {
+    if (cur) { const d = desc.join("\n").trim(); if (d) cur.description = d; out.push(cur); }
+    cur = null; desc = []; fence = null;
+  };
+  for (const ln of body.split("\n")) {
+    if (fence) {
+      if (/^```\s*$/.test(ln)) { cur!.formula = fence.join("\n").trim(); fence = null; }
+      else fence.push(ln);
+      continue;
+    }
+    if (/^##\s+Calculated fields\s*$/i.test(ln)) { inSection = true; continue; }
+    if (!inSection) continue;
+    if (/^#{1,2}\s/.test(ln)) { flush(); inSection = false; continue; }
+    const h = ln.match(/^###\s+`([^`]+)`(?:\s*·\s*([^·]+?))?(?:\s*·\s*\w+)?\s*$/);
+    if (h) { flush(); cur = { name: h[1].trim(), type: normalizeFieldType(h[2] ?? "NUMERIC"), pk: false, formula: "" }; continue; }
+    if (!cur || cur.formula) continue;                 // text after the fence is ignored
+    if (/^```/.test(ln)) { fence = []; continue; }
+    const a = ln.match(/^- \*\*Alias:\*\*\s*(.+)$/);
+    if (a) { cur.alias = a[1].trim(); continue; }
+    desc.push(/^\\+(#|- \*\*Alias:\*\*)/.test(ln) ? ln.slice(1) : ln);   // undo the serializer's escape
+  }
+  flush();
+  return out;
 }
 
 function parseSchema(body: string): SchemaField[] {

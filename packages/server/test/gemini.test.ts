@@ -24,6 +24,15 @@ describe("buildPrompt", () => {
     expect(p).toContain("Customers");
     expect(p).toContain("customer_id");
   });
+
+  it("prints a calculated field's formula in the prompt", () => {
+    const prompt = buildPrompt({
+      ...INPUT,
+      focus: { ...INPUT.focus, marts: [{ title: "Ads", role: "selected" as const,
+        fields: [{ name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(c)/SUM(i)" }] }] },
+    });
+    expect(prompt).toContain("ctr:NUMERIC [calculated: SUM(c)/SUM(i)]");
+  });
 });
 
 describe("generateQuestions", () => {

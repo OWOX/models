@@ -5,6 +5,7 @@ import { ObjectInspector } from "./ObjectInspector";
 import { RelationshipInspector } from "./RelationshipInspector";
 import { QuestionsPanel } from "./QuestionsPanel";
 import type { BusinessGoal } from "../../state/goal";
+import { buildFormulaContext } from "../../lib/formulaContext";
 import { joinFieldType } from "../../sync/joinFieldType";
 
 type Selection =
@@ -134,6 +135,7 @@ export function Inspector({
       <ObjectInspector
         node={selectedNode}
         onUpdate={patch => onUpdateNode(selectedNode.key, patch)}
+        formulaContext={buildFormulaContext(selectedNode, nodes, edges)}
       />
       {questionsEnabled && (
         <QuestionsPanel

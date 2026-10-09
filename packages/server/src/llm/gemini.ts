@@ -6,7 +6,7 @@ export interface InsightQuestion {
 export interface FocusMart {
   title: string;
   description?: string;
-  fields: { name: string; type: string; pk: boolean; alias?: string; description?: string }[];
+  fields: { name: string; type: string; pk: boolean; alias?: string; description?: string; formula?: string }[];
   role: "selected" | "neighbour";
 }
 
@@ -35,7 +35,8 @@ export function buildPrompt(input: GenerateInput): string {
         .map(f => {
           const label = f.alias && f.alias !== f.name ? ` "${f.alias}"` : "";
           const note = f.description ? ` — ${f.description}` : "";
-          return `${f.name}:${f.type}${f.pk ? " (PK)" : ""}${label}${note}`;
+          const calc = f.formula ? ` [calculated: ${f.formula}]` : "";
+          return `${f.name}:${f.type}${f.pk ? " (PK)" : ""}${calc}${label}${note}`;
         })
         .join("\n    ");
       return `- ${m.title}${m.role === "selected" ? " [SELECTED]" : ""}${m.description ? ` — ${m.description}` : ""}\n  fields:\n    ${fields || "(none)"}`;

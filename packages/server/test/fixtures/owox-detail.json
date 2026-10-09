@@ -38,6 +38,16 @@
         "description": "Unique identifier for the anonymous visitor or browser.",
         "isPrimaryKey": false,
         "mode": "NULLABLE"
+      },
+      {
+        "name": "unique_visitors",
+        "type": "INTEGER",
+        "isPrimaryKey": false,
+        "mode": "NULLABLE",
+        "calculated": {
+          "formula": "COUNT(DISTINCT {{ref field=\"visitor_id\"}})",
+          "level": "metric"
+        }
       }
     ]
   }

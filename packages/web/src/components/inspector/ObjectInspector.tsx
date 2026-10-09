@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
-import type { ModelNode, InputSource, SchemaField } from "@mc/okf";
+import type { ModelNode, InputSource, SchemaField, FormulaContext } from "@mc/okf";
 import { SchemaEditor } from "./SchemaEditor";
 import { InfoTip } from "./InfoTip";
 import { InputSourceIcon, OutputSchemaIcon } from "../../lib/icons";
@@ -25,9 +25,10 @@ function usDate(iso: string | null | undefined): string {
 interface ObjectInspectorProps {
   node: ModelNode;
   onUpdate: (patch: Partial<ModelNode>) => void;
+  formulaContext?: FormulaContext;
 }
 
-export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
+export function ObjectInspector({ node, onUpdate, formulaContext }: ObjectInspectorProps) {
   const isCreated = node.status === "created";
   const [defOpen, setDefOpen] = useState(false);
   // Input source / definition / output schema live under a collapsed "Advanced"
@@ -146,6 +147,7 @@ export function ObjectInspector({ node, onUpdate }: ObjectInspectorProps) {
               </label>
               <SchemaEditor
                 schema={node.schema}
+                formulaContext={formulaContext}
                 onChange={schema => onUpdate({ schema: schema as SchemaField[] })}
               />
             </div>

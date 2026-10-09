@@ -73,8 +73,18 @@ tags: ["owox", "sql"]
 | \`order_date\` | DATE | Date the order was placed |
 | \`total\` | NUMERIC | Order total, gross |
 
+## Calculated fields
+
+### \`aov\` · NUMERIC · Metric
+
+Average order value.
+
+\`\`\`sql
+SUM(total) / NULLIF(COUNT(DISTINCT id), 0)
+\`\`\`
+
 ## Joins
-- [Customers](./customers.md) — \`customer_id = id\` [N:1]
+- [Customers](./customers.md) as \`customers\` — \`customer_id = id\` [N:1]
 
 <!-- shop/order-items.md -->
 ---
@@ -126,5 +136,14 @@ describe("okf authoring guide — worked example imports", () => {
     expect(orders.schema.find(f => f.name === "id")?.pk).toBe(true);
     const oiToOrders = graph.edges.find(e => e.from === "order-items" && e.to === "orders")!;
     expect(oiToOrders.cardinality).toBe("N:1");
+  });
+
+  it("parses the calculated field and the join alias", () => {
+    const orders = graph.nodes.find(n => n.key === "orders")!;
+    const aov = orders.schema.find(f => f.name === "aov")!;
+    expect(aov.formula).toBe("SUM(total) / NULLIF(COUNT(DISTINCT id), 0)");
+    expect(aov.pk).toBe(false);
+    const toCustomers = graph.edges.find(e => e.from === "orders" && e.to === "customers")!;
+    expect(toCustomers.alias).toBe("customers");
   });
 });

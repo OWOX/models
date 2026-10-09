@@ -2,7 +2,15 @@ export type InputSource = "SQL" | "CONNECTOR" | "VIEW" | "TABLE";
 export type NodeStatus = "pending" | "creating" | "created" | "error";
 export type Cardinality = "1:1" | "1:N" | "N:1" | "N:N";
 
-export interface SchemaField { name: string; type: string; pk: boolean; alias?: string; description?: string; }
+export interface SchemaField {
+  name: string;
+  type: string;
+  pk: boolean;
+  alias?: string;
+  description?: string;
+  /** Present ⇒ an OWOX calculated field: plain warehouse SQL, `<alias>.<field>` for joined marts. */
+  formula?: string;
+}
 export interface JoinKey { left: string; right: string; }
 
 export interface ModelNode {
@@ -30,6 +38,10 @@ export interface ModelEdge {
   keys: JoinKey[];
   bidirectional: boolean;
   cardinality?: Cardinality;
+  /** OWOX join alias for from → to (formulas write `<alias>.<field>`). Unset ⇒ defaultJoinAlias(target title). */
+  alias?: string;
+  /** Join alias for to → from of a bidirectional edge. */
+  reverseAlias?: string;
   // Canvas-only hints for which ports the edge attaches to (not encoded in OKF).
   sourceHandle?: string | null;
   targetHandle?: string | null;

@@ -74,6 +74,15 @@ describe("field rows", () => {
     expect(orderFields(schema, ["d"]).map(x => x.name)).toEqual(["b", "d", "a", "c"]);
   });
 
+  it("orders keys, then regular fields, then calculated fields", () => {
+    const schema = [
+      { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(c)/SUM(i)" },
+      { name: "c", type: "INTEGER", pk: false },
+      { name: "id", type: "STRING", pk: true },
+    ];
+    expect(orderFields(schema).map(x => x.name)).toEqual(["id", "c", "ctr"]);
+  });
+
   it("keeps every key visible when collapsed, even past the cap", () => {
     const schema = Array.from({ length: 8 }, (_, i) => f(`k${i}`, { pk: i < 6 }));
     expect(collapsedRowCount(schema)).toBe(6);

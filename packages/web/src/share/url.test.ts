@@ -29,6 +29,12 @@ describe("share url", () => {
     expect(back.nodes[0].schema).toEqual(graph.nodes[0].schema);
   });
 
+  it("keeps join aliases through encode/decode", () => {
+    const g: ModelGraph = { ...graph, edges: [{ ...graph.edges[0], alias: "cust", reverseAlias: "ord" }] };
+    const back = decodeModel(encodeModel(g))!;
+    expect(back.edges[0]).toMatchObject({ alias: "cust", reverseAlias: "ord" });
+  });
+
   it("strips OWOX-specific ids so a public link can't leak them", () => {
     const back = decodeModel(encodeModel(graph))!;
     expect(back.storageId).toBeNull();

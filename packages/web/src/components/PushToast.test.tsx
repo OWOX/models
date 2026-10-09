@@ -5,7 +5,7 @@ import type { PushResult } from "../sync/push";
 
 const result = (over: Partial<PushResult> = {}): PushResult => ({
   created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0,
-  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, errors: [], ...over,
+  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, published: 0, calculatedFailed: 0, incomplete: 0, errors: [], ...over,
 });
 
 describe("PushToast", () => {
@@ -13,6 +13,11 @@ describe("PushToast", () => {
     render(<PushToast result={result({ created: 8, relationshipsCreated: 8 })} onClose={() => {}} />);
     expect(screen.getByText("Push complete")).toBeTruthy();
     expect(screen.getByText(/8 marts created, 8 links created/)).toBeTruthy();
+  });
+
+  it("adds a published count", () => {
+    render(<PushToast result={result({ created: 3, published: 2, relationshipsCreated: 1 })} onClose={() => {}} />);
+    expect(screen.getByText(/3 marts created, 2 published, 1 link created/)).toBeTruthy();
   });
 
   it("says nothing was pushed when every mart is still in OWOX", () => {
@@ -32,6 +37,15 @@ describe("PushToast", () => {
   it("lists the per-mart errors", () => {
     render(<PushToast result={result({ blocked: 1, errors: ['"Orders" still exists in OWOX (PUBLISHED) — delete it there first'] })} onClose={() => {}} />);
     expect(screen.getByText(/"Orders" still exists in OWOX \(PUBLISHED\)/)).toBeTruthy();
+  });
+
+  it("does not show the success tone when only the calculated step failed", () => {
+    const { container } = render(<PushToast result={result({ created: 1, calculatedFailed: 1, errors: ['Calculated fields for "Orders": bad'] })} onClose={() => {}} />);
+    expect(screen.queryByText("Push complete")).toBeNull();
+    expect(screen.getByText(/push completed with errors/i)).toBeTruthy();
+    expect(screen.getByText(/1 mart's calculated fields refused/)).toBeTruthy();
+    expect(container.querySelector(".bg-red-500")).toBeTruthy();
+    expect(container.querySelector(".bg-emerald-500")).toBeNull();
   });
 
   it("still flags real failures", () => {
@@ -67,5 +81,13 @@ describe("PushToast on an expired session", () => {
     expect(screen.getByText("OWOX session expired")).toBeTruthy();
     expect(screen.queryByText("Push completed with errors")).toBeNull();
     expect(screen.getByText(/connect to owox again/i)).toBeTruthy();
+  });
+
+  it("is not green when a mart is left incomplete and nothing else failed", () => {
+    const { container } = render(<PushToast result={result({ created: 1, incomplete: 1 })} onClose={() => {}} />);
+    expect(screen.queryByText("Push complete")).toBeNull();
+    expect(screen.getByText("Push completed with errors")).toBeTruthy();
+    expect(screen.getByText(/1 mart needs attention/)).toBeTruthy();
+    expect(container.innerHTML).not.toContain("emerald");
   });
 });

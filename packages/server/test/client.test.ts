@@ -129,6 +129,7 @@ describe("OwoxClient read methods", () => {
     expect(out[0]).toEqual({
       sourceId: "b4f59656-d52e-4ae3-847e-c34c025956bf",
       targetId: "61b3c045-b334-440d-9913-bf52bc622af4",
+      targetAlias: "traffic_sources_e_commerce",
       joinConditions: [{ sourceFieldName: "traffic_source_id", targetFieldName: "traffic_source_id" }],
     });
   });
@@ -153,5 +154,107 @@ describe("OwoxClient error status", () => {
     const err = await c.createDataMart({ title: "T", storageId: "st" } as any).catch(e => e);
     expect(err.owoxStatus).toBe(401);
     expect(err.message).toContain("401 Authentication failed");
+  });
+});
+
+describe("OwoxClient import mapping", () => {
+  it("maps a calculated field to plain SQL and keeps the relationship alias", async () => {
+    const detail = { id: "m1", title: "Orders", definitionType: "TABLE", definition: { fullyQualifiedName: "p.d.t" },
+      schema: { fields: [
+        { name: "amount", type: "NUMERIC", isPrimaryKey: false },
+        { name: "rpc", type: "NUMERIC", isPrimaryKey: false, calculated: { formula: 'SUM({{ref field="amount"}}) / COUNT({{ref path="cust" field="id"}})', level: "metric" } },
+      ] } };
+    const graph = { nodes: [{ isCycleStub: false, relationship: { id: "r1", sourceDataMart: { id: "m1" }, targetDataMart: { id: "m2" }, targetAlias: "cust", joinConditions: [] } }] };
+    const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(url.includes("/relationships/graph") ? graph : detail), { status: 200 }));
+    const c = new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock as any);
+    const mart = await c.getImportMart("m1");
+    expect(mart.schema[1]).toEqual({ name: "rpc", type: "NUMERIC", pk: false, formula: "SUM(amount) / COUNT(cust.id)" });
+    expect(mart.schema[0].formula).toBeUndefined();
+    expect((await c.getRelationshipGraph("m1"))[0].targetAlias).toBe("cust");
+  });
+
+  it("renders the calculated field of the recorded detail fixture", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(detail), { status: 200 }));
+    const c = new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock as any);
+    const m = await c.getImportMart(detail.id);
+    expect(m.schema.find(f => f.name === "unique_visitors")?.formula).toBe("COUNT(DISTINCT visitor_id)");
+  });
+});
+
+// Live probe body (2026-10-09): the reason is only in errorDetails.errors[].message.
+const CALC_400 = JSON.stringify({
+  statusCode: 400,
+  message: "Calculated field validation failed",
+  errorDetails: { errors: [
+    { code: "FORMULA_UNKNOWN_REFERENCE", field: "ctr", subject: "clicks", message: "Formula references no field \"clicks\" — it no longer exists" },
+    { code: "FORMULA_AGGREGATE_WITHOUT_FIELD", field: "ctr", subject: "SUM", message: "Aggregate SUM has no field" },
+  ] },
+});
+
+describe("owoxErrorDetail — calculated field errors", () => {
+  it("appends each error's message to the headline", () => {
+    const d = owoxErrorDetail(CALC_400);
+    expect(d.startsWith("Calculated field validation failed: ")).toBe(true);
+    expect(d).toContain("references no field");
+    expect(d).toContain("Aggregate SUM has no field");
+    expect(d).toContain("; ");
+  });
+});
+
+describe("OwoxClient empty bodies, publish and actualize", () => {
+  const mk = (fetchMock: any) => new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock);
+
+  it("resolves an empty 200 body (DELETE) instead of throwing", async () => {
+    const fetchMock = vi.fn(async () => new Response("", { status: 200 }));
+    await expect(mk(fetchMock).deleteDataMart("m1")).resolves.toBeUndefined();
+  });
+
+  it("publishDataMart PUTs /publish", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 200 }));
+    await mk(fetchMock).publishDataMart("m1");
+    expect(fetchMock.mock.calls[0][0]).toBe("https://app.owox.com/api/data-marts/m1/publish");
+    expect((fetchMock.mock.calls[0][1] as any).method).toBe("PUT");
+  });
+
+  const triggerFetch = (statuses: string[], result: unknown) => vi.fn(async (url: string, init: any) => {
+    if (init.method === "POST") return new Response(JSON.stringify({ triggerId: "t1" }), { status: 200 });
+    if (url.endsWith("/status")) return new Response(JSON.stringify({ status: statuses.length > 1 ? statuses.shift() : statuses[0] }), { status: 200 });
+    return new Response(JSON.stringify(result), { status: 200 });
+  });
+
+  it("polls READY → PROCESSING → SUCCESS, then reads the result", async () => {
+    const f = triggerFetch(["READY", "PROCESSING", "SUCCESS"], { success: true });
+    const sleep = vi.fn(async () => {});
+    await expect(mk(f).actualizeSchema("m1", { sleep })).resolves.toEqual({ success: true });
+    expect(sleep).toHaveBeenCalledTimes(2);
+    expect(sleep).toHaveBeenCalledWith(1000);
+    const urls = f.mock.calls.map(c => `${(c[1] as any).method} ${c[0]}`);
+    expect(urls[0]).toBe("POST https://app.owox.com/api/data-marts/m1/schema-actualize-triggers");
+    expect(urls.at(-1)).toBe("GET https://app.owox.com/api/data-marts/m1/schema-actualize-triggers/t1");
+  });
+
+  it("reports the trigger's error on ERROR, or a default", async () => {
+    expect(await mk(triggerFetch(["ERROR"], { success: false, error: "Table not found" })).actualizeSchema("m1", { sleep: async () => {} }))
+      .toEqual({ success: false, error: "Table not found" });
+    expect(await mk(triggerFetch(["ERROR"], { success: false })).actualizeSchema("m1", { sleep: async () => {} }))
+      .toEqual({ success: false, error: "Schema actualization failed" });
+  });
+
+  it("stops on any terminal status, e.g. CANCELLED", async () => {
+    const out = await mk(triggerFetch(["PROCESSING", "CANCELLED"], { success: false })).actualizeSchema("m1", { sleep: async () => {} });
+    expect(out).toEqual({ success: false, error: "Schema actualization CANCELLED" });
+  });
+
+  it("times out when the trigger never finishes", async () => {
+    const f = triggerFetch(["PROCESSING"], { success: true });
+    const out = await mk(f).actualizeSchema("m1", { sleep: async () => {}, intervalMs: 1000, timeoutMs: 3000 });
+    expect(out).toEqual({ success: false, error: "Schema check timed out" });
+  });
+});
+
+describe("owoxErrorDetail — errorDetails without a top-level message", () => {
+  it("returns just the joined reasons", () => {
+    const body = JSON.stringify({ statusCode: 400, errorDetails: { errors: [{ message: "a is bad" }, { message: "b is bad" }] } });
+    expect(owoxErrorDetail(body)).toBe("a is bad; b is bad");
   });
 });

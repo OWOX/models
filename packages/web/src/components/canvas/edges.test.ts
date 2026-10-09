@@ -53,6 +53,16 @@ describe("buildRfEdges", () => {
     expect(out[0].targetHandle).toBe("left");
   });
 
+  it("erd: a calculated field is never a handle, the edge anchors to the card", () => {
+    const calcNodes = [
+      { ...node("a", ["id"]), schema: [field("id"), { name: "total", type: "NUMERIC", pk: false, formula: "SUM(x)" }] },
+      node("b", ["a_id"]),
+    ];
+    const out = buildRfEdges([edge([{ left: "total", right: "a_id" }])], calcNodes, "erd");
+    expect(out[0].sourceHandle).toBe("right");
+    expect(out[0].targetHandle).toBe("fl:a_id");
+  });
+
   it("erd: an edge with no usable keys yields a single node-level fallback edge", () => {
     const out = buildRfEdges([edge([{ left: "", right: "" }])], nodes, "erd");
     expect(out).toHaveLength(1);

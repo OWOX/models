@@ -53,5 +53,7 @@ export async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
     err.status = res.status; // callers can branch on this (e.g. 429 → AI limit)
     throw err;
   }
-  return res.status === 204 ? (undefined as T) : await res.json();
+  if (res.status === 204) return undefined as T;
+  const t = await res.text();
+  return (t ? JSON.parse(t) : undefined) as T;
 }

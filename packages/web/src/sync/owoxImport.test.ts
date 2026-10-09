@@ -114,3 +114,24 @@ describe("mergeGraphs", () => {
     expect([newEdge.from, newEdge.to].sort()).toEqual(["n1", c.key].sort());
   });
 });
+
+describe("payloadToGraph formulas and aliases", () => {
+  it("keeps formulas and maps aliases, incl. the reverse alias of a collapsed pair", () => {
+    const payload = {
+      storageId: "st", total: 2, truncated: false,
+      marts: [
+        { id: "a", title: "Orders", inputSource: "TABLE" as const, definition: null,
+          schema: [{ name: "id", type: "INTEGER", pk: true }, { name: "aov", type: "NUMERIC", pk: false, formula: "SUM(x)" }] },
+        { id: "b", title: "Customers", inputSource: "TABLE" as const, definition: null, schema: [{ name: "id", type: "INTEGER", pk: true }] },
+      ],
+      relationships: [
+        { sourceId: "a", targetId: "b", targetAlias: "cust", joinConditions: [{ sourceFieldName: "id", targetFieldName: "id" }] },
+        { sourceId: "b", targetId: "a", targetAlias: "ord", joinConditions: [{ sourceFieldName: "id", targetFieldName: "id" }] },
+      ],
+    };
+    const g = payloadToGraph(payload, "all");
+    expect(g.nodes[0].schema[1]).toEqual({ name: "aov", type: "NUMERIC", pk: false, formula: "SUM(x)" });
+    expect(g.edges).toHaveLength(1);
+    expect(g.edges[0]).toMatchObject({ bidirectional: true, alias: "cust", reverseAlias: "ord" });
+  });
+});

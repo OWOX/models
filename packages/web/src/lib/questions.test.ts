@@ -22,6 +22,12 @@ describe("buildFocus", () => {
     expect(focus.joins).toHaveLength(1);
     expect(focus.joins[0].on).toEqual([{ left: "customer_id", right: "id" }]);
   });
+
+  it("passes calculated field formulas into the focus", () => {
+    const n = { key: "a", title: "A", inputSource: "SQL", position: { x: 0, y: 0 }, status: "pending",
+      schema: [{ name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(c)/SUM(i)" }] } as any;
+    expect(buildFocus([n], [], "a").marts[0].fields[0].formula).toBe("SUM(c)/SUM(i)");
+  });
 });
 
 describe("focusCacheKey", () => {

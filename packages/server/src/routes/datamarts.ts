@@ -14,8 +14,10 @@ export async function dataMartRoutes(app: FastifyInstance) {
     if (field === "description") return c.updateDescription(id, b.description);
     if (field === "schema") return c.updateSchema(id, b);
     if (field === "definition") return c.updateDefinition(id, b);
+    if (field === "publish") { await c.publishDataMart(id); return { ok: true }; }
     return reply.code(404).send({ error: "unknown field" });
   });
+  app.post<{ Params: { id: string } }>("/api/data-marts/:id/actualize-schema", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).actualizeSchema(req.params.id); });
   app.post<{ Params: { id: string } }>("/api/data-marts/:id/relationships", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).createRelationship(req.params.id, req.body as any); });
   app.delete<{ Params: { id: string } }>("/api/data-marts/:id", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).deleteDataMart(req.params.id); });
   app.get<{ Querystring: { storageId?: string } }>("/api/owox-import", async (req, reply) => {

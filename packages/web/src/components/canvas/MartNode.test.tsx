@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { CALC_GLYPH } from "./calcGlyph";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { MartNode } from "./MartNode";
@@ -142,5 +143,42 @@ describe("MartNode object-labels", () => {
     expect(screen.getByText("View")).toBeTruthy();
     expect(screen.getByText("2 fields")).toBeTruthy();
     expect(screen.getByText("Draft")).toBeTruthy();
+  });
+});
+
+describe("calculated fields", () => {
+  const schema = [
+    { name: "id", type: "INT64", pk: true },
+    { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks) / SUM(impressions)" },
+    { name: "user_key", type: "STRING", pk: false, formula: "CONCAT(a, b)" },
+  ];
+  it("marks metric and column rows with their glyph and the formula tooltip", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    const metric = container.querySelector('[data-field="ctr"]')!;
+    expect(metric.getAttribute("data-calculated")).toBe("metric");
+    expect(metric.textContent).toContain("Σ");
+    expect(metric.getAttribute("title")).toContain("SUM(clicks) / SUM(impressions)");
+    expect(container.querySelector('[data-field="user_key"]')!.getAttribute("data-calculated")).toBe("column");
+    expect(container.querySelector('[data-field="user_key"]')!.textContent).toContain("fx");
+  });
+  it("explains the glyph on hover, winning over the row's formula tooltip", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    expect(container.querySelector('[data-field="ctr"] [aria-label="Metric"]')!.getAttribute("title")).toBe(CALC_GLYPH.metric.tip);
+    expect(container.querySelector('[data-field="user_key"] [aria-label="Calculated column"]')!.getAttribute("title")).toBe(CALC_GLYPH.column.tip);
+  });
+  it("gives calculated rows no edge anchors", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    expect(container.querySelector('[data-handleid="fl:ctr"]')).toBeNull();
+    expect(container.querySelector('[data-handleid="fl:id"]')).not.toBeNull();
+  });
+  it("separates regular and calculated rows with exactly one dashed border", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    const prev = container.querySelector('[data-field="id"]')!;
+    expect(prev.hasAttribute("data-calc-divider")).toBe(true);
+    expect(prev.className).toContain("border-dashed");
+    expect(prev.className).not.toContain("border-[#e5e5e5]");
+    const first = container.querySelector('[data-field="ctr"]')!;
+    expect(first.className).not.toMatch(/border-t|border-dashed/);
+    expect(container.querySelectorAll("[data-calc-divider]")).toHaveLength(1);
   });
 });
