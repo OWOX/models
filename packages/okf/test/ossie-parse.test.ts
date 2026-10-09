@@ -52,3 +52,36 @@ describe("parseOssie — shapes and edge cases", () => {
     expect(() => parseOssie("datasets: [")).toThrow(/Couldn't read this Ossie file/);
   });
 });
+
+describe("parseOssie — malformed but parseable input", () => {
+  const ok = (o: unknown) => parseOssie(JSON.stringify(o));
+  const ds = { name: "t", source: "x" };
+  it("skips non-object and unnamed entries", () => {
+    expect(ok({ datasets: [null, ds, { source: "y" }] }).graph.nodes.map(n => n.key)).toEqual(["t"]);
+    expect(ok({ datasets: [null, { source: "y" }] }).notImported).toContain("dataset without a name");
+    expect(ok({ datasets: [{ ...ds, fields: [null, { expression: 5 }] }] }).graph.nodes[0].schema).toEqual([]);
+    expect(ok({ datasets: [ds], metrics: [null, { expression: {} }] }).notImported).toContain("metric without a name");
+    expect(ok({ datasets: [ds], relationships: [null, { from: "t" }] }).notImported).toContain("relationship without a name");
+    expect(() => ok({ semantic_model: [null] })).toThrow("This file isn't an Ossie model");
+  });
+  it("treats non-array collections as empty", () => {
+    const r = ok({ datasets: [{ ...ds, fields: { a: 1 }, unique_keys: "k", custom_extensions: "foo" }], relationships: { a: 1 }, metrics: "m", custom_extensions: 3 });
+    expect(r.graph.nodes[0].schema).toEqual([]);
+    expect(r.graph.edges).toEqual([]);
+  });
+  it("ignores non-string expressions and bad ai_context", () => {
+    const f = { name: "a", expression: { dialects: [{ dialect: "X", expression: 5 }] }, ai_context: { synonyms: "foo", instructions: 3 }, description: "d" };
+    const r = ok({ datasets: [{ ...ds, fields: [f] }] });
+    expect(r.graph.nodes[0].schema[0]).toMatchObject({ name: "a", description: "d" });
+    expect(r.graph.nodes[0].schema[0].formula).toBeUndefined();
+    expect(r.notImported).toContain('field "t.a": no expression');
+  });
+  it("does not split a string primary_key into characters", () => {
+    const r = ok({ datasets: [{ ...ds, primary_key: "id" }] });
+    expect(r.graph.nodes[0].schema).toEqual([]);
+  });
+  it("drops the extra key of unequal relationship columns", () => {
+    const r = ok({ datasets: [ds, { name: "u", source: "y" }], relationships: [{ name: "r", from: "t", to: "u", from_columns: ["a", "b"], to_columns: ["c"] }] });
+    expect(r.graph.edges[0].keys).toEqual([{ left: "a", right: "c" }]);
+  });
+});

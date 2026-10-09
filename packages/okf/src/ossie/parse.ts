@@ -4,7 +4,7 @@ import { normalizeFieldType } from "../fieldType";
 import { formulaReferences, joinAlias, rewriteReferences } from "../formula";
 import {
   OWOX_VENDOR, aiContextText, ossieToCanvasType, pickExpression, readOwoxExt,
-  type OssieDataset, type OssieDoc, type OssieExt, type OssieMetric,
+  type OssieDataset, type OssieDoc, type OssieRelationship, type OssieExt, type OssieMetric,
 } from "./types";
 
 export interface OssieImport {
@@ -16,6 +16,9 @@ export interface OssieImport {
   warnings: string[];
 }
 
+const arr = (v: unknown): any[] => (Array.isArray(v) ? v : []);
+const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === "object" && !Array.isArray(v);
+const strArr = (v: unknown): string[] => arr(v).filter((x): x is string => typeof x === "string");
 const joinText = (...parts: (string | undefined)[]) => parts.filter(Boolean).join("\n\n") || undefined;
 const oneLine = (s: string) => s.replace(/\s*\n+\s*/g, "; ");
 const uniqueKey = (base: string, taken: Set<string>) => {
@@ -26,6 +29,14 @@ const uniqueKey = (base: string, taken: Set<string>) => {
 };
 
 export function parseOssie(text: string): OssieImport {
+  try { return convert(text); }
+  catch (e) {
+    if (e instanceof TypeError) throw new Error(`Couldn't read this Ossie file: ${e.message}`);
+    throw e;
+  }
+}
+
+function convert(text: string): OssieImport {
   let raw: unknown;
   try { raw = YAML.parse(text); }
   catch (e) { throw new Error(`Couldn't read this Ossie file: ${(e as Error).message}`); }
@@ -35,8 +46,9 @@ export function parseOssie(text: string): OssieImport {
   const obj = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let doc: OssieDoc;
   if (Array.isArray(obj.semantic_model) && obj.semantic_model.length) {
-    const models = obj.semantic_model as OssieDoc[];
-    doc = models[0];
+    const models = obj.semantic_model as unknown[];
+    if (!isObj(models[0])) throw new Error("This file isn't an Ossie model");
+    doc = models[0] as unknown as OssieDoc;
     const extra = models.length - 1;
     if (extra > 0) notImported.push(extra === 1 ? "1 more model in this file wasn't imported" : `${extra} more models in this file weren't imported`);
   } else if (Array.isArray(obj.datasets)) {
@@ -46,8 +58,8 @@ export function parseOssie(text: string): OssieImport {
   }
 
   const vendors: string[] = [];
-  const seeExts = (exts?: OssieExt[]) => {
-    for (const e of exts ?? []) if (e?.vendor_name && e.vendor_name !== OWOX_VENDOR && !vendors.includes(e.vendor_name)) vendors.push(e.vendor_name);
+  const seeExts = (exts?: unknown) => {
+    for (const e of arr(exts) as OssieExt[]) if (e && typeof e.vendor_name === "string" && e.vendor_name && e.vendor_name !== OWOX_VENDOR && !vendors.includes(e.vendor_name)) vendors.push(e.vendor_name);
   };
   seeExts(doc.custom_extensions);
   if (doc.description || doc.ai_context) notImported.push("model description / AI context");
@@ -56,17 +68,21 @@ export function parseOssie(text: string): OssieImport {
   const taken = new Set<string>();
   const nodes: ModelNode[] = [];
   const keyOf = new Map<string, string>();
-  for (const ds of doc.datasets ?? []) {
+  for (const ds of arr(doc.datasets) as OssieDataset[]) {
+    if (!isObj(ds)) continue;
+    if (typeof ds.name !== "string") { notImported.push("dataset without a name"); continue; }
     seeExts(ds.custom_extensions);
     const ext = readOwoxExt<{ title: string; inputSource: InputSource; x: number; y: number }>(ds.custom_extensions);
     const key = uniqueKey(ds.name, taken);
     if (!keyOf.has(ds.name)) keyOf.set(ds.name, key);
-    const pk = ds.primary_key ?? [];
-    for (const uk of ds.unique_keys ?? []) {
+    const pk = strArr(ds.primary_key);
+    for (const uk of arr(ds.unique_keys)) {
       if (JSON.stringify(uk) !== JSON.stringify(pk)) notImported.push(`dataset "${ds.name}": unique keys ${JSON.stringify(uk)}`);
     }
     const schema: SchemaField[] = [];
-    for (const f of ds.fields ?? []) {
+    for (const f of arr(ds.fields)) {
+      if (!isObj(f)) continue;
+      if (typeof f.name !== "string") { notImported.push(`field without a name in dataset "${ds.name}"`); continue; }
       seeExts(f.custom_extensions);
       const fx = readOwoxExt<{ type: string; alias: string }>(f.custom_extensions);
       const expr = pickExpression(f.expression);
@@ -78,7 +94,7 @@ export function parseOssie(text: string): OssieImport {
         pk: pk.includes(f.name) && !calculated,
       };
       if (fx.alias) field.alias = fx.alias;
-      const d = joinText(f.description, aiContextText(f.ai_context) || undefined);
+      const d = joinText(typeof f.description === "string" ? f.description : undefined, aiContextText(f.ai_context) || undefined);
       if (d) field.description = d;
       if (calculated) field.formula = expr;
       schema.push(field);
@@ -90,9 +106,9 @@ export function parseOssie(text: string): OssieImport {
     nodes.push({
       key,
       title: ext.title ?? ds.name,
-      inputSource: ext.inputSource ?? (/^\s*(select|with)\b/i.test(ds.source ?? "") ? "SQL" : "TABLE"),
-      definition: ds.source,
-      description: joinText(ds.description, aiContextText(ds.ai_context) || undefined),
+      inputSource: ext.inputSource ?? (/^\s*(select|with)\b/i.test(typeof ds.source === "string" ? ds.source : "") ? "SQL" : "TABLE"),
+      definition: typeof ds.source === "string" ? ds.source : null,
+      description: joinText(typeof ds.description === "string" ? ds.description : undefined, aiContextText(ds.ai_context) || undefined),
       schema,
       position: typeof ext.x === "number" && typeof ext.y === "number" ? { x: ext.x, y: ext.y } : { x: 0, y: 0 },
       status: "pending",
@@ -104,12 +120,14 @@ export function parseOssie(text: string): OssieImport {
 
   // Relationships → edges
   const edges: ModelEdge[] = [];
-  for (const r of doc.relationships ?? []) {
+  for (const r of arr(doc.relationships) as OssieRelationship[]) {
+    if (!isObj(r)) continue;
+    if (typeof r.name !== "string") { notImported.push("relationship without a name"); continue; }
     seeExts(r.custom_extensions);
     const from = keyOf.get(r.from), to = keyOf.get(r.to);
     if (!from || !to) { notImported.push(`relationship "${r.name}": unknown dataset`); continue; }
     const ext = readOwoxExt<{ alias: string; reverseAlias: string; bidirectional: boolean; cardinality: Cardinality }>(r.custom_extensions);
-    const left = r.from_columns ?? [], right = r.to_columns ?? [];
+    const left = strArr(r.from_columns), right = strArr(r.to_columns);
     const e: ModelEdge = {
       id: `e${edges.length + 1}`,
       from, to,
@@ -125,7 +143,9 @@ export function parseOssie(text: string): OssieImport {
   }
 
   // Metrics → calculated fields on a home dataset
-  for (const m of doc.metrics ?? []) {
+  for (const m of arr(doc.metrics) as OssieMetric[]) {
+    if (!isObj(m)) continue;
+    if (typeof m.name !== "string") { notImported.push("metric without a name"); continue; }
     seeExts(m.custom_extensions);
     importMetric(m);
   }
@@ -169,7 +189,7 @@ export function parseOssie(text: string): OssieImport {
       pk: false,
       formula,
     };
-    const d = joinText(m.description, aiContextText(m.ai_context) || undefined);
+    const d = joinText(typeof m.description === "string" ? m.description : undefined, aiContextText(m.ai_context) || undefined);
     if (d) field.description = d;
     if (ext.alias) field.alias = ext.alias;
     nodeOf(home).schema.push(field);

@@ -13,26 +13,31 @@ const TO_OSSIE: Record<string, string> = { STRING: "String", INTEGER: "Integer",
 export const ossieToCanvasType = (dt?: string) => (dt && TO_CANVAS[dt]) || "STRING";
 export const canvasToOssieType = (t: string) => TO_OSSIE[t] ?? "Opaque";
 
-export function readOwoxExt<T extends object = Record<string, unknown>>(exts?: OssieExt[]): Partial<T> {
-  const e = exts?.find(x => x?.vendor_name === OWOX_VENDOR);
-  if (!e) return {};
-  try { const v = JSON.parse(e.data); return v && typeof v === "object" ? v : {}; } catch { return {}; }
+export function readOwoxExt<T extends object = Record<string, unknown>>(exts?: unknown): Partial<T> {
+  if (!Array.isArray(exts)) return {};
+  const e = exts.find(x => x && typeof x === "object" && x.vendor_name === OWOX_VENDOR);
+  if (!e || typeof e.data !== "string") return {};
+  try { const v = JSON.parse(e.data); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; } catch { return {}; }
 }
 export function owoxExt(data: Record<string, unknown>): OssieExt[] | undefined {
   const clean = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined && v !== null && v !== ""));
   return Object.keys(clean).length ? [{ vendor_name: OWOX_VENDOR, data: JSON.stringify(clean) }] : undefined;
 }
 export function pickExpression(e?: OssieExpression): string {
-  const d = e?.dialects ?? [];
+  const raw = (e as { dialects?: unknown } | null | undefined)?.dialects;
+  const d = (Array.isArray(raw) ? raw : []).filter(x => x && typeof x === "object" && typeof x.expression === "string");
   return ((d.find(x => x.dialect === "BIGQUERY") ?? d[0])?.expression ?? "").trim();
 }
+const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 export function aiContextText(ai: unknown): string {
   if (!ai) return "";
   if (typeof ai === "string") return `AI context: ${ai}`;
-  const o = ai as { instructions?: string; synonyms?: string[]; examples?: string[] };
+  if (typeof ai !== "object") return "";
+  const o = ai as { instructions?: unknown; synonyms?: unknown; examples?: unknown };
+  const syn = strings(o.synonyms), ex = strings(o.examples);
   return [
-    o.instructions ? `AI instructions: ${o.instructions}` : "",
-    o.synonyms?.length ? `Synonyms: ${o.synonyms.join(", ")}` : "",
-    o.examples?.length ? `Example questions: ${o.examples.join("; ")}` : "",
+    typeof o.instructions === "string" && o.instructions ? `AI instructions: ${o.instructions}` : "",
+    syn.length ? `Synonyms: ${syn.join(", ")}` : "",
+    ex.length ? `Example questions: ${ex.join("; ")}` : "",
   ].filter(Boolean).join("\n");
 }

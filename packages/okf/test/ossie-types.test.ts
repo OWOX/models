@@ -28,3 +28,18 @@ describe("ossie types", () => {
     expect(aiContextText(undefined)).toBe("");
   });
 });
+
+import { readOwoxExt as _r, pickExpression as _p, aiContextText as _a } from "../src/index";
+describe("Ossie guards against malformed values", () => {
+  it("readOwoxExt ignores non-arrays and JSON arrays", () => {
+    expect(_r("foo" as never)).toEqual({});
+    expect(_r([{ vendor_name: "OWOX", data: "[1]" }])).toEqual({});
+    expect(_r([null, { vendor_name: "OWOX", data: '{"a":1}' }] as never)).toEqual({ a: 1 });
+  });
+  it("pickExpression ignores non-string expressions", () => {
+    expect(_p({ dialects: [{ dialect: "X", expression: 5 }, { dialect: "Y", expression: " a " }] } as never)).toBe("a");
+  });
+  it("aiContextText keeps only strings", () => {
+    expect(_a({ synonyms: "foo", examples: ["q", 1], instructions: 2 })).toBe("Example questions: q");
+  });
+});
