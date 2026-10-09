@@ -75,4 +75,26 @@ describe("SchemaEditor calculated fields", () => {
     fireEvent.mouseDown(document.body);
     expect(screen.queryByRole("dialog")).toBeNull();
   });
+  it("closes on window scroll and resize, but not when the textarea scrolls", () => {
+    render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    fireEvent.scroll(screen.getByPlaceholderText(PH));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    fireEvent.scroll(window);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    fireEvent.resize(window);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("does not reopen on another field after the schema changes under it", () => {
+    const a = calc("SUM(clicks)", "a");
+    const { rerender } = render(<SchemaEditor schema={[a]} onChange={() => {}} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    rerender(<SchemaEditor schema={[]} onChange={() => {}} formulaContext={ctx} />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    rerender(<SchemaEditor schema={[calc("", "b")]} onChange={() => {}} formulaContext={ctx} />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
 });

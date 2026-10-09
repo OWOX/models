@@ -27,6 +27,8 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const popRef = useRef<HTMLDivElement | null>(null);
   const skipFocusOpen = useRef(false);
+  // Identity of the field the popover was opened for (name + schema length), to detect schema swaps.
+  const openFor = useRef<{ name: string; len: number } | null>(null);
 
   // Runs once when the popover textarea mounts: caret goes to the end of the formula.
   const caretToEnd = useCallback((el: HTMLTextAreaElement | null) => {
@@ -40,6 +42,7 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const vw = window.innerWidth || 1024;
     const width = Math.min(Math.max(r.width, 420), vw - 16);
     setAnchor({ left: Math.max(8, Math.min(r.left, vw - width - 8)), top: r.bottom + 4, width });
+    openFor.current = { name: schema[i].name, len: schema.length };
     setOpenIdx(i);
   }
 
@@ -57,9 +60,30 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
       if (popRef.current?.contains(t) || inputRefs.current[openIdx!]?.contains(t)) return;
       setOpenIdx(null);
     }
+    // The popover is positioned once on open, so scrolling or resizing closes it
+    // (the formula is already saved through onChange). The textarea may scroll itself.
+    function onScroll(e: Event) {
+      if (e.target instanceof Node && popRef.current?.contains(e.target)) return;
+      setOpenIdx(null);
+    }
+    function onResize() { setOpenIdx(null); }
     document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
+    };
   }, [openIdx]);
+
+  // Close the popover when the schema changes under it (field removed, editor reused for another mart).
+  useEffect(() => {
+    if (openIdx === null) return;
+    const f = schema[openIdx];
+    const o = openFor.current;
+    if (!f || !isCalculated(f) || !o || f.name !== o.name || schema.length !== o.len) setOpenIdx(null);
+  }, [schema, openIdx]);
 
   function updateField(i: number, patch: Partial<SchemaField>) {
     onChange(schema.map((f, idx) => idx === i ? { ...f, ...patch } : f));
