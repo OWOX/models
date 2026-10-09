@@ -834,6 +834,41 @@ describe("pushModel calculated fields", () => {
     expect(puts3[1].body.schema.fields.map((f: any) => f.name)).toEqual(["c"]);
   });
 
+  it("sends no final PUT when the mart has no fields to send", async () => {
+    const s = storeWith([]);
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(schemaPuts(log)).toHaveLength(0);
+    expect(log.some(c => c.path.endsWith("/publish"))).toBe(true);
+  });
+
+  it("does not retry an identical payload when a mart without calculated fields fails its final PUT", async () => {
+    const s = storeWith([{ name: "c", type: "INTEGER", pk: false }]);
+    const { api: inner, log } = calls();
+    let puts = 0;
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith("/schema") && ++puts === 2) throw new Error("nope");
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(puts).toBe(2);
+    expect(res.calculatedFailed).toBe(0);
+    expect(res.errors).toContain('Schema for "Orders": nope');
+  });
+
+  it.each(["/actualize-schema", "/publish"])("stops the push on a 401 from %s", async (suffix) => {
+    const s = storeWith([{ name: "c", type: "INTEGER", pk: false }]);
+    const { api: inner } = calls();
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith(suffix)) throw Object.assign(new Error("401"), { status: 401 });
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.authExpired).toBe(true);
+    expect(res.errors).toContain("Your OWOX session expired and could not be renewed — nothing else was pushed. Connect to OWOX again, then push.");
+    expect(api.mock.calls.some(c => String(c[0]).endsWith("/relationships"))).toBe(false);
+  });
+
   it("orders calls: actualize → publish → relationships → final schema", async () => {
     const s = createModelStore({ storageId: "st_1" });
     const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", inputSource: "VIEW", definition: "p.d.o", schema: [{ name: "customer_id", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(customer_id)" }] });

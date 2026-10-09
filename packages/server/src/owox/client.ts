@@ -130,15 +130,17 @@ export class OwoxClient {
     const { triggerId } = await this.json<{ triggerId: string }>("POST", base);
     const tp = `${base}/${encodeURIComponent(triggerId)}`;
     let done = false;
+    let last = "";
     for (let waited = 0; waited <= timeout; waited += interval) {
       const { status } = await this.json<{ status: string }>("GET", `${tp}/status`);
-      if (status === "SUCCESS" || status === "ERROR") { done = true; break; }
+      if (status && !["IDLE", "READY", "PROCESSING"].includes(status)) { last = status; done = true; break; }
       await sleep(interval);
     }
     if (!done) return { success: false, error: "Schema check timed out" };
     const r = await this.json<{ success?: boolean; error?: string }>("GET", tp);
-    if (r?.success) return { success: true };
-    return { success: false, error: r?.error || "Schema actualization failed" };
+    if (last === "SUCCESS" && r?.success) return { success: true };
+    if (r?.error) return { success: false, error: r.error };
+    return { success: false, error: last === "ERROR" || last === "SUCCESS" ? "Schema actualization failed" : `Schema actualization ${last}` };
   }
   deleteDataMart(id: string) { return this.json("DELETE", `/api/data-marts/${id}`); }
   listStorages() { return this.json<any[]>("GET", "/api/data-storages"); }

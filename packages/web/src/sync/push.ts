@@ -390,6 +390,8 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
         method: "PUT",
         body: JSON.stringify({ schema: { type: schemaDiscriminator(storageType), fields: fields.map(fieldBody) } }),
       });
+      // Nothing to send: an empty field list would wipe the actualized warehouse schema.
+      if (all.length === 0) continue;
       try {
         await put(all);
       } catch (e) {
@@ -397,11 +399,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
         if (hasCalc) {
           res.calculatedFailed++;
           res.errors.push(`Calculated fields for "${n.title}": ${(e as Error).message}`);
+          // Best effort: put the real columns back so actualize's extras don't linger.
+          await put(base).catch(() => {});
         } else {
+          // Same payload as the base fields, so a retry would fail identically.
           res.errors.push(`Schema for "${n.title}": ${(e as Error).message}`);
         }
-        // Best effort: put the real columns back so actualize's extras don't linger.
-        await put(base).catch(() => {});
       }
     }
   }

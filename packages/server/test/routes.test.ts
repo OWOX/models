@@ -120,4 +120,14 @@ describe("publish and actualize routes", () => {
     expect(act).toHaveBeenCalledWith("m1");
     pub.mockRestore(); act.mockRestore();
   });
+
+  it("answers an empty-body OWOX publish with a JSON body", async () => {
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 200 })));
+    const r = await app.inject({ method: "PUT", url: "/api/data-marts/m1/publish", cookies: { mc_sid: sid } });
+    expect(r.json()).toEqual({ ok: true });
+    vi.unstubAllGlobals();
+  });
 });

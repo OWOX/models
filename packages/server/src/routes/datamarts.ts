@@ -14,7 +14,7 @@ export async function dataMartRoutes(app: FastifyInstance) {
     if (field === "description") return c.updateDescription(id, b.description);
     if (field === "schema") return c.updateSchema(id, b);
     if (field === "definition") return c.updateDefinition(id, b);
-    if (field === "publish") return c.publishDataMart(id);
+    if (field === "publish") { await c.publishDataMart(id); return { ok: true }; }
     return reply.code(404).send({ error: "unknown field" });
   });
   app.post<{ Params: { id: string } }>("/api/data-marts/:id/actualize-schema", async (req, reply) => { const s = need(req, reply); if (!s) return; return clientFor(s).actualizeSchema(req.params.id); });

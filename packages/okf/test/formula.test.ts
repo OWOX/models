@@ -113,6 +113,17 @@ describe("toStoredFormula", () => {
     expect(toStoredFormula("foo + clicks", ctx, "x")).toBe('foo + {{ref field="clicks"}}');
     expect(toStoredFormula("SUM(orders.nope)", ctx, "x")).toBe("SUM(orders.nope)");
   });
+  it("tags own fields named like SQL words, but not types or date parts", () => {
+    expect(toStoredFormula("MAX(date)", { own: ["date"], joined: [] }, "x")).toBe('MAX({{ref field="date"}})');
+    expect(toStoredFormula("CAST(x AS DATE)", { own: ["x", "date"], joined: [] }, "y")).toBe('CAST({{ref field="x"}} AS DATE)');
+    expect(toStoredFormula("EXTRACT(YEAR FROM d)", { own: ["d", "year"], joined: [] }, "y")).toBe('EXTRACT(YEAR FROM {{ref field="d"}})');
+    expect(toStoredFormula("DATE_ADD(d, INTERVAL 1 DAY)", { own: ["d", "day"], joined: [] }, "y")).toBe('DATE_ADD({{ref field="d"}}, INTERVAL 1 DAY)');
+    expect(toStoredFormula("MAX(Date)", { own: ["date"], joined: [] }, "x")).toBe("MAX(Date)");
+    for (const f of ["MAX(date)", "CAST(x AS DATE)", "EXTRACT(YEAR FROM d)"]) {
+      const c = { own: ["x", "date", "d", "year"], joined: [] };
+      expect(renderOwoxRefs(toStoredFormula(f, c, "y"))).toBe(f);
+    }
+  });
   it("round-trips through renderOwoxRefs", () => {
     for (const [f, n] of [
       ["SUM(quantity)", "x"], ["SUM(orders.amount) / NULLIF(COUNT(DISTINCT order_id), 0)", "x"],

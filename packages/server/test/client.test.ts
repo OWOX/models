@@ -218,7 +218,7 @@ describe("OwoxClient empty bodies, publish and actualize", () => {
 
   const triggerFetch = (statuses: string[], result: unknown) => vi.fn(async (url: string, init: any) => {
     if (init.method === "POST") return new Response(JSON.stringify({ triggerId: "t1" }), { status: 200 });
-    if (url.endsWith("/status")) return new Response(JSON.stringify({ status: statuses.shift() ?? statuses[0] }), { status: 200 });
+    if (url.endsWith("/status")) return new Response(JSON.stringify({ status: statuses.length > 1 ? statuses.shift() : statuses[0] }), { status: 200 });
     return new Response(JSON.stringify(result), { status: 200 });
   });
 
@@ -238,6 +238,11 @@ describe("OwoxClient empty bodies, publish and actualize", () => {
       .toEqual({ success: false, error: "Table not found" });
     expect(await mk(triggerFetch(["ERROR"], { success: false })).actualizeSchema("m1", { sleep: async () => {} }))
       .toEqual({ success: false, error: "Schema actualization failed" });
+  });
+
+  it("stops on any terminal status, e.g. CANCELLED", async () => {
+    const out = await mk(triggerFetch(["PROCESSING", "CANCELLED"], { success: false })).actualizeSchema("m1", { sleep: async () => {} });
+    expect(out).toEqual({ success: false, error: "Schema actualization CANCELLED" });
   });
 
   it("times out when the trigger never finishes", async () => {

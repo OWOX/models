@@ -41,19 +41,29 @@ export function formulaLevel(formula: string): FormulaLevel {
   return AGGREGATE_CALL.test(codeOnly(formula)) ? "metric" : "column";
 }
 
-interface ScannedRef { alias: string | null; field: string; start: number; end: number }
+interface ScannedRef { alias: string | null; field: string; start: number; end: number; keyword?: boolean }
 
 // One scan for every identifier that reads as a field: `field` or `alias.field`, in
 // code only (strings and comments blanked), skipping function calls and SQL words.
 // Offsets point into the original formula.
-function scanReferences(formula: string): ScannedRef[] {
+function scanReferences(formula: string, withKeywords = false): ScannedRef[] {
   const out: ScannedRef[] = [];
   const code = codeOnly(formula);
   for (const m of code.matchAll(/(?<![\w.])([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?(?!\w)/g)) {
     const start = m.index ?? 0;
     const end = start + m[0].length;
     if (/^\s*\(/.test(code.slice(end))) continue;                // a function call
-    if (!m[2] && NOT_FIELDS.has(m[1].toUpperCase())) continue;
+    if (!m[2] && NOT_FIELDS.has(m[1].toUpperCase())) {
+      // A keyword hit is reported only on request, and only where it can be a column:
+      // not a type (AS DATE), a date part (YEAR FROM d) or an INTERVAL unit.
+      if (!withKeywords) continue;
+      const before = code.slice(0, start);
+      const typeOrUnit = /\bAS\s+$/i.test(before) || /^\s*FROM\b/i.test(code.slice(end))
+        || /(?:\d|\bINTERVAL)\s+$/i.test(before) || /\bINTERVAL\s+\S+\s+$/i.test(before);
+      if (typeOrUnit) continue;
+      out.push({ alias: null, field: m[1], start, end, keyword: true });
+      continue;
+    }
     out.push(m[2] ? { alias: m[1], field: m[2], start, end } : { alias: null, field: m[1], start, end });
   }
   return out;
@@ -116,7 +126,7 @@ export function formulaWarnings(formula: string, ctx: FormulaContext, selfName: 
 export function toStoredFormula(formula: string, ctx: FormulaContext, selfName: string): string {
   const own = new Set(ctx.own);
   let out = formula;
-  const refs = scanReferences(formula);
+  const refs = scanReferences(formula, true);
   for (let i = refs.length - 1; i >= 0; i--) {
     const r = refs[i];
     if (r.field.includes('"') || (r.alias ?? "").includes('"')) continue;
