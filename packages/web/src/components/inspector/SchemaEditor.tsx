@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GripVertical } from "lucide-react";
 import { type SchemaField, type FormulaContext, EDITOR_FIELD_TYPES, isCalculated, formulaLevel, formulaWarnings } from "@mc/okf";
@@ -9,6 +9,9 @@ import { CALC_COLOR } from "../canvas/nodeStyle";
 // OWOX's BigQuery enum (confirmed live), so a pick here can never fail the schema
 // push: DATETIME is offered, Snowflake's VARIANT is gone (it normalises to JSON).
 const FIELD_TYPES: string[] = [...EDITOR_FIELD_TYPES];
+
+const CHIP_LIMIT = 8;
+const POP_GAP = 4;
 
 interface SchemaEditorProps {
   schema: SchemaField[];
@@ -23,7 +26,13 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
 
   // Calculated field whose formula popover is open (index into `schema`) and where to anchor it.
   const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const [anchor, setAnchor] = useState<{ left: number; top: number; width: number } | null>(null);
+  const [anchor, setAnchor] = useState<{ left: number; width: number; inTop: number; inBottom: number } | null>(null);
+  // Vertical placement computed after render from the popover's real height.
+  const [place, setPlace] = useState<{ top: number; maxHeight: number } | null>(null);
+  // Chip groups expanded to show every field ("" = own fields, otherwise the join alias).
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
+  const pendingCaret = useRef<number | null>(null);
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const popRef = useRef<HTMLDivElement | null>(null);
   const skipFocusOpen = useRef(false);
@@ -32,6 +41,7 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
 
   // Runs once when the popover textarea mounts: caret goes to the end of the formula.
   const caretToEnd = useCallback((el: HTMLTextAreaElement | null) => {
+    taRef.current = el;
     if (el) el.setSelectionRange(el.value.length, el.value.length);
   }, []);
 
@@ -41,7 +51,9 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const r = el.getBoundingClientRect();
     const vw = window.innerWidth || 1024;
     const width = Math.min(Math.max(r.width, 420), vw - 16);
-    setAnchor({ left: Math.max(8, Math.min(r.left, vw - width - 8)), top: r.bottom + 4, width });
+    setAnchor({ left: Math.max(8, Math.min(r.left, vw - width - 8)), width, inTop: r.top, inBottom: r.bottom });
+    setPlace(null);
+    setExpanded(new Set());
     openFor.current = { name: schema[i].name, len: schema.length };
     setOpenIdx(i);
   }
@@ -84,6 +96,66 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const o = openFor.current;
     if (!f || !isCalculated(f) || !o || f.name !== o.name || schema.length !== o.len) setOpenIdx(null);
   }, [schema, openIdx]);
+
+  // Pick the side of the input with room for the popover and cap its height to that side.
+  useLayoutEffect(() => {
+    const pop = popRef.current;
+    if (openIdx === null || !anchor || !pop) return;
+    const vh = window.innerHeight || 768;
+    const below = vh - anchor.inBottom - POP_GAP - 8;
+    const above = anchor.inTop - POP_GAP - 8;
+    const cap = Math.min(560, vh - 16);
+    const natural = Math.min(pop.scrollHeight, cap);
+    const goBelow = natural <= below || (natural > above && below >= above);
+    const maxHeight = Math.max(80, Math.min(cap, goBelow ? below : above));
+    const h = Math.min(natural, maxHeight);
+    const top = goBelow ? anchor.inBottom + POP_GAP : Math.max(8, anchor.inTop - POP_GAP - h);
+    setPlace(prev => prev && prev.top === top && prev.maxHeight === maxHeight ? prev : { top, maxHeight });
+  }, [openIdx, anchor, expanded, schema]);
+
+  // Put the caret right after text inserted by a chip, once React has written the new value.
+  useLayoutEffect(() => {
+    if (pendingCaret.current === null) return;
+    const el = taRef.current;
+    if (el) { el.focus(); el.setSelectionRange(pendingCaret.current, pendingCaret.current); }
+    pendingCaret.current = null;
+  });
+
+  function insertAtCaret(text: string) {
+    const el = taRef.current;
+    if (openIdx === null || !el) return;
+    const cur = schema[openIdx].formula ?? "";
+    const start = el.selectionStart ?? cur.length;
+    const end = el.selectionEnd ?? cur.length;
+    pendingCaret.current = start + text.length;
+    updateField(openIdx, { formula: cur.slice(0, start) + text + cur.slice(end) });
+    el.focus();
+    el.setSelectionRange(start + text.length, start + text.length);
+  }
+
+  function toggleExpanded(key: string) {
+    setExpanded(prev => { const n = new Set(prev); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  }
+
+  function chipRow(key: string, names: string[], prefix: string) {
+    const open = expanded.has(key);
+    const shown = open ? names : names.slice(0, CHIP_LIMIT);
+    const chipCls = "max-w-[160px] truncate rounded-full bg-[#f1f4f8] hover:bg-[#e3e9f2] px-[8px] py-[1px] font-mono text-[11px] text-slate-700 cursor-pointer";
+    return (
+      <>
+        {shown.map(n => (
+          <button key={n} type="button" title={prefix + n} className={chipCls}
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => insertAtCaret(prefix + n)}>{n}</button>
+        ))}
+        {names.length > CHIP_LIMIT && (
+          <button type="button" className="rounded-full px-[8px] py-[1px] text-[11px] text-[#6d4aff] hover:bg-[#f4f1ff] cursor-pointer"
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => toggleExpanded(key)}>{open ? "Show less" : `+${names.length - CHIP_LIMIT} more`}</button>
+        )}
+      </>
+    );
+  }
 
   function updateField(i: number, patch: Partial<SchemaField>) {
     onChange(schema.map((f, idx) => idx === i ? { ...f, ...patch } : f));
@@ -188,6 +260,15 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
   };
 
   const openField = openIdx !== null ? schema[openIdx] : undefined;
+  const insertGroups: { key: string; label?: string; title?: string; prefix: string; names: string[] }[] = [];
+  if (formulaContext && openField) {
+    const own = formulaContext.own.filter(n => n.trim() && n !== openField.name);
+    if (own.length) insertGroups.push({ key: "", prefix: "", names: own });
+    for (const j of formulaContext.joined) {
+      const names = j.fields.filter(n => n.trim());
+      if (names.length) insertGroups.push({ key: j.alias, label: `${j.alias} ›`, title: j.title, prefix: `${j.alias}.`, names });
+    }
+  }
 
   return (
     <div className="border border-[#d8dee8] rounded-[10px] overflow-hidden">
@@ -327,8 +408,12 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
             setOpenIdx(null);
           }}
           onKeyDown={e => { if (e.key === "Escape") { e.stopPropagation(); closePopover(true); } }}
-          className="bg-white border border-[#d8dee8] rounded-[10px] shadow-xl p-[10px] outline-none"
-          style={{ position: "fixed", left: anchor.left, top: anchor.top, width: anchor.width, zIndex: 1000 }}
+          className="bg-white border border-[#d8dee8] rounded-[10px] shadow-xl p-[10px] outline-none overflow-y-auto"
+          style={{
+            position: "fixed", left: anchor.left, width: anchor.width, zIndex: 1000,
+            top: place?.top ?? anchor.inBottom + POP_GAP,
+            ...(place ? { maxHeight: place.maxHeight } : { visibility: "hidden" as const }),
+          }}
         >
           <div className="flex items-center gap-[6px] mb-[6px]">
             {glyph(openField.formula ?? "")}
@@ -347,11 +432,18 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
             spellCheck={false}
             className={`${inputCls} font-mono resize-y`}
           />
-          {formulaContext && (
-            <p className="mt-[6px] text-[11px] text-slate-500">
-              Fields: {formulaContext.own.filter(n => n && n !== openField.name).join(", ") || "—"}
-              {formulaContext.joined.length > 0 && <> · Joined: {formulaContext.joined.map(j => `${j.alias}.*`).join(", ")}</>}
-            </p>
+          {insertGroups.length > 0 && (
+            <div className="mt-[8px]">
+              <div className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[4px]">Insert field</div>
+              <div className="flex flex-col gap-[4px]">
+                {insertGroups.map(g => (
+                  <div key={g.key} className="flex flex-wrap items-center gap-[4px]">
+                    {g.label && <span title={g.title} className="text-[11px] text-slate-500 mr-[2px]">{g.label}</span>}
+                    {chipRow(g.key, g.names, g.prefix)}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
           {warningsOf(openField).map(w => (
             <p key={w} className="mt-[2px] text-[11px] text-amber-700">{w}</p>

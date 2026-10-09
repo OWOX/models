@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { SchemaEditor } from "./SchemaEditor";
 
 const ctx = { own: ["clicks", "ctr"], joined: [{ alias: "orders", title: "Orders", fields: ["amount"] }] };
-const HINT = /Joined: orders\.\*/;
 const PH = "SUM(clicks) / NULLIF(SUM(impressions), 0)";
 const calc = (formula: string, name = "ctr") => ({ name, type: "NUMERIC", pk: false, formula });
 
@@ -30,11 +29,87 @@ describe("SchemaEditor calculated fields", () => {
     fireEvent.click(screen.getByText("+ Add calculated field"));
     expect(onChange).toHaveBeenCalledWith([{ name: "", type: "NUMERIC", pk: false, formula: "" }]);
   });
-  it("shows the reference hint only in the popover, once", () => {
-    render(<SchemaEditor schema={[calc("SUM(clicks)", "a"), calc("SUM(clicks)", "b")]} onChange={() => {}} formulaContext={ctx} />);
-    expect(screen.queryByText(HINT)).toBeNull();
-    fireEvent.focus(screen.getAllByPlaceholderText("formula")[0]);
-    expect(screen.getAllByText(HINT)).toHaveLength(1);
+  it("never renders the old Fields: hint", () => {
+    render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(screen.queryByText(/Fields:/)).toBeNull();
+    expect(screen.queryByText(/Joined:/)).toBeNull();
+  });
+  it("shows INSERT FIELD chips: own (minus the edited field) and a joined group", () => {
+    render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);
+    expect(screen.queryByText("Insert field")).toBeNull();
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    const dlg = within(screen.getByRole("dialog"));
+    expect(dlg.getByText("Insert field")).toBeTruthy();
+    expect(dlg.getByRole("button", { name: "clicks" })).toBeTruthy();
+    expect(dlg.queryByRole("button", { name: "ctr" })).toBeNull();
+    expect(dlg.getByText("orders ›").getAttribute("title")).toBe("Orders");
+    expect(dlg.getByRole("button", { name: "amount" })).toBeTruthy();
+  });
+  it("has no INSERT FIELD block without fields or context", () => {
+    const { unmount } = render(<SchemaEditor schema={[calc("x")]} onChange={() => {}} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(screen.queryByText("Insert field")).toBeNull();
+    unmount();
+    render(<SchemaEditor schema={[calc("x")]} onChange={() => {}} formulaContext={{ own: ["ctr", " "], joined: [] }} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(screen.queryByText("Insert field")).toBeNull();
+  });
+  it("inserts an own chip at the caret end, replaces a selection, and stays open", () => {
+    const onChange = vi.fn();
+    render(<SchemaEditor schema={[calc("SUM(")]} onChange={onChange} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    const dlg = within(screen.getByRole("dialog"));
+    fireEvent.click(dlg.getByRole("button", { name: "clicks" }));
+    expect(onChange).toHaveBeenLastCalledWith([calc("SUM(clicks")]);
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    const ta = screen.getByPlaceholderText(PH) as HTMLTextAreaElement;
+    ta.setSelectionRange(0, 3);
+    fireEvent.click(dlg.getByRole("button", { name: "clicks" }));
+    expect(onChange).toHaveBeenLastCalledWith([calc("clicks(")]);
+  });
+  it("inserts a joined chip as alias.field and keeps focus on the textarea", () => {
+    const onChange = vi.fn();
+    render(<SchemaEditor schema={[calc("1+")]} onChange={onChange} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "amount" }));
+    expect(onChange).toHaveBeenLastCalledWith([calc("1+orders.amount")]);
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByPlaceholderText(PH));
+  });
+  it("collapses long chip lists to 8 with a +N more toggle", () => {
+    const own = Array.from({ length: 12 }, (_, i) => `f${i}`);
+    render(<SchemaEditor schema={[calc("x")]} onChange={() => {}} formulaContext={{ own, joined: [] }} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    const dlg = within(screen.getByRole("dialog"));
+    expect(dlg.queryByRole("button", { name: "f8" })).toBeNull();
+    fireEvent.click(dlg.getByRole("button", { name: "+4 more" }));
+    expect(dlg.getByRole("button", { name: "f11" })).toBeTruthy();
+    fireEvent.click(dlg.getByRole("button", { name: "Show less" }));
+    expect(dlg.queryByRole("button", { name: "f8" })).toBeNull();
+  });
+  describe("placement", () => {
+    const rect = (top: number, bottom: number) => ({ top, bottom, left: 100, right: 600, width: 500, height: bottom - top, x: 100, y: top, toJSON() {} }) as DOMRect;
+    const open = (top: number, bottom: number) => {
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(rect(top, bottom));
+      vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(300);
+      Object.defineProperty(window, "innerHeight", { configurable: true, value: 600 });
+      render(<SchemaEditor schema={[calc("x")]} onChange={() => {}} formulaContext={ctx} />);
+      fireEvent.focus(screen.getByPlaceholderText("formula"));
+      return screen.getByRole("dialog");
+    };
+    afterEach(() => vi.restoreAllMocks());
+    it("flips above near the bottom and caps maxHeight", () => {
+      const dlg = open(540, 560);
+      expect(parseFloat(dlg.style.top)).toBeLessThan(540);
+      expect(dlg.style.maxHeight).not.toBe("");
+      expect(dlg.className).toContain("overflow-y-auto");
+    });
+    it("opens below near the top", () => {
+      const dlg = open(20, 40);
+      expect(parseFloat(dlg.style.top)).toBeGreaterThan(40);
+      expect(dlg.style.maxHeight).not.toBe("");
+    });
   });
   it("collapses whitespace in the row input but keeps newlines in the popover", () => {
     const onChange = vi.fn();
