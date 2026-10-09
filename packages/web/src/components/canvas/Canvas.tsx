@@ -27,10 +27,11 @@ import { loadPersistedGraph, persistGraph } from "../../state/persist";
 import { loadViewMode, persistViewMode, type ViewMode } from "../../state/viewMode";
 import { loadRelLabelMode, persistRelLabelMode, type RelLabelMode } from "../../state/relLabels";
 import { loadObjHidden, persistObjHidden, type ObjHidden } from "../../state/objLabels";
+import { persistExportFormat, type ExportFormat } from "../../state/exportFormat";
 import { loadModelName, persistModelName, DEFAULT_MODEL_NAME, templateModelName } from "../../state/modelName";
 import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 
-import { graphToBundleFiles, downloadBundle } from "../../okf/io";
+import { graphToBundleFiles, downloadBundle, downloadOssie } from "../../okf/io";
 import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl } from "../../share/url";
 import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
 import { readOkfImportUrl, clearOkfFromUrl, readOssieImportUrl, clearOssieFromUrl } from "../../share/okfLink";
@@ -582,11 +583,20 @@ function CanvasInner() {
   }, [screenToFlowPosition]);
 
   // ── Import / Export / Push handlers ───────────────────────────────────────
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback((format: ExportFormat) => {
+    const graph = store.get();
+    // An empty Ossie document is schema-invalid; the top bar already blocks this.
+    if (graph.nodes.length === 0) return;
+    persistExportFormat(format);
+    if (format === "ossie") {
+      const warnings = downloadOssie(graph, modelName);
+      if (warnings.length > 0) setShareToast("Exported as Apache Ossie. Not included: " + warnings.join("; "));
+      return;
+    }
     const title = me?.projectTitle ?? "model-okf";
-    const files = graphToBundleFiles(store.get(), title);
+    const files = graphToBundleFiles(graph, title);
     downloadBundle(files, title);
-  }, [me]);
+  }, [me, modelName]);
 
   // Clear the canvas: permanently wipe every node + edge (keep the selected
   // storage). No undo — the dialog warns and offers an OKF export first.
@@ -599,8 +609,8 @@ function CanvasInner() {
     setSavedSnapshot(null); // no saved baseline for a fresh canvas
   }, []);
 
-  const handleExportAndClear = useCallback(() => {
-    handleExport();
+  const handleExportAndClear = useCallback((format: ExportFormat) => {
+    handleExport(format);
     clearCanvas();
   }, [handleExport, clearCanvas]);
 
@@ -817,7 +827,7 @@ function CanvasInner() {
 
   // Confirmed start-new: wipe to a fresh model (clearCanvas resets id + name).
   const startNewModel = useCallback(() => { clearCanvas(); setShowNewModel(false); }, [clearCanvas]);
-  const exportAndStartNewModel = useCallback(() => { handleExport(); startNewModel(); }, [handleExport, startNewModel]);
+  const exportAndStartNewModel = useCallback((format: ExportFormat) => { handleExport(format); startNewModel(); }, [handleExport, startNewModel]);
 
   const handleUseTemplate = useCallback((g: ModelGraph, name: string) => {
     // Remember the matching niche so the Business Goal dialog can pre-pick it.
@@ -826,7 +836,7 @@ function CanvasInner() {
     // Merge first (mirrors the OKF/OWOX import dialogs) so existing work isn't
     // silently wiped.
     if (store.get().nodes.length === 0) {
-      setModelName(templateModelName(name)); // "My {template} OKF with OWOX"
+      setModelName(templateModelName(name)); // "My {template} data model with OWOX"
       setSavedModelId(null); // a fresh model from a template, not the open saved one
       applyTemplate(g, "replace");
       setShowLibrary(false);

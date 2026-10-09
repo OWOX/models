@@ -47,7 +47,7 @@ describe("WelcomeDialog", () => {
     await screen.findByText(/verified templates gallery/i);
     fireEvent.click(screen.getByText("Start blank"));
     expect(p.onStartBlank).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByText("Import OKF"));
+    fireEvent.click(screen.getByText("Import a model (OKF / Ossie)"));
     expect(p.onImport).toHaveBeenCalledTimes(1);
   });
 

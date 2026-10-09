@@ -68,7 +68,7 @@ export function ObjectInspector({ node, onUpdate, formulaContext }: ObjectInspec
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
           Description
-          <InfoTip text="Plain-language summary of what this mart represents. Shown in OKF export and used by the AI to suggest questions." />
+          <InfoTip text="Plain-language summary of what this mart represents. Included in exports (OKF / Ossie) and used by the AI to suggest questions." />
         </label>
         <textarea
           value={node.description ?? ""}

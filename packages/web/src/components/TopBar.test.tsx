@@ -53,13 +53,25 @@ describe("TopBar", () => {
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
-  it("lists OKF plus all three image formats in the Export menu", () => {
+  it("lists OKF, Ossie plus all three image formats in the Export menu", () => {
     render(<TopBar signedIn={false} />);
     fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
-    expect(screen.getByRole("menuitem", { name: /OKF \(Markdown\)/ })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "OKF bundle (.zip)" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Apache Ossie (.yaml)" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "PNG image" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "SVG · vector" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "SVG · exact snapshot" })).toBeTruthy();
+  });
+
+  it("reports the chosen export format", () => {
+    const onExport = vi.fn();
+    render(<TopBar signedIn={false} onExport={onExport} />);
+    fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Apache Ossie (.yaml)" }));
+    expect(onExport).toHaveBeenLastCalledWith("ossie");
+    fireEvent.click(screen.getByRole("button", { name: /^export$/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "OKF bundle (.zip)" }));
+    expect(onExport).toHaveBeenLastCalledWith("okf");
   });
 
   it("reports the chosen image format, then closes the menu", () => {

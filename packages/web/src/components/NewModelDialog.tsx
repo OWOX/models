@@ -1,19 +1,24 @@
+import { useState } from "react";
 import { X } from "lucide-react";
+import { loadExportFormat, type ExportFormat } from "../state/exportFormat";
+import { ExportFormatToggle } from "./ExportFormatToggle";
 
 // Shown when starting a new model from the rail while the canvas has *unsaved*
 // work (a never-saved model, or edits since the last Save). When the open model
 // is already saved and unchanged we skip this entirely and start fresh — there's
 // nothing to lose. Unlike Clear canvas, this is a calm "start fresh", not a red
-// destructive warning, and it always offers an OKF export first.
+// destructive warning, and it always offers an export (OKF or Ossie) first.
 export function NewModelDialog({
-  counts, savedModel, onStart, onExportAndStart, onClose,
+  counts, savedModel, onStart, onExportAndStart, initialFormat, onClose,
 }: {
   counts: { marts: number; relationships: number };
   savedModel: boolean; // saved before, but with edits since (vs never saved)
   onStart: () => void;
-  onExportAndStart: () => void;
+  onExportAndStart: (format: ExportFormat) => void;
+  initialFormat?: ExportFormat; // defaults to the remembered format
   onClose: () => void;
 }) {
+  const [format, setFormat] = useState<ExportFormat>(() => initialFormat ?? loadExportFormat());
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
       <div className="w-[460px] rounded-2xl bg-white p-7 shadow-xl" onClick={e => e.stopPropagation()}>
@@ -25,13 +30,14 @@ export function NewModelDialog({
         <p className="mt-3 text-[13.5px] leading-relaxed text-slate-600">
           This clears the canvas — {counts.marts} object{counts.marts === 1 ? "" : "s"} and {counts.relationships} relationship{counts.relationships === 1 ? "" : "s"} — so you can start fresh.{" "}
           {savedModel
-            ? "Your saved model keeps its last saved version, but changes since then will be lost. Export an OKF bundle to keep them."
-            : "Your current model isn't saved yet — export an OKF bundle first if you want to keep a copy."}
+            ? "Your saved model keeps its last saved version, but changes since then will be lost. Export the model to keep them."
+            : "Your current model isn't saved yet — export the model first if you want to keep a copy."}
         </p>
 
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onClose} className="rounded-lg px-4 py-2 text-[13px] font-[550] text-slate-600 hover:bg-slate-100 cursor-pointer">Cancel</button>
-          <button onClick={onExportAndStart} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export OKF &amp; start</button>
+          <ExportFormatToggle value={format} onChange={setFormat} />
+          <button onClick={() => onExportAndStart(format)} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export &amp; start</button>
           <button onClick={onStart} className="rounded-lg bg-[#1e88e5] px-4 py-2 text-[13px] font-[600] text-white hover:bg-[#1976d2] cursor-pointer">Start new model</button>
         </div>
       </div>

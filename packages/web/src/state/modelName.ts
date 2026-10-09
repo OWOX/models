@@ -3,11 +3,11 @@
 // how the model itself and the business goal are persisted.
 const KEY = "mc.modelName.v1";
 
-export const DEFAULT_MODEL_NAME = "My first OKF with OWOX";
+export const DEFAULT_MODEL_NAME = "My first data model with OWOX";
 
-/** Default name for a model started from a template, e.g. "My SaaS / Subscription OKF with OWOX". */
+/** Default name for a model started from a template, e.g. "My SaaS / Subscription data model with OWOX". */
 export function templateModelName(templateName: string): string {
-  return `My ${templateName} OKF with OWOX`;
+  return `My ${templateName} data model with OWOX`;
 }
 
 export function loadModelName(): string {
