@@ -59,6 +59,15 @@ describe("pushPreview", () => {
     expect(pushPreview(g, "st_1").calculatedFields).toBe(1);
   });
 
+  it("counts marts that will be published (those with an input source to send)", () => {
+    const g = mk({ nodes: [
+      { key: "n1", title: "A", inputSource: "VIEW", definition: "p.d.v", position: { x: 0, y: 0 }, status: "pending", schema: [] },
+      { key: "n2", title: "B", inputSource: "SQL", position: { x: 0, y: 0 }, status: "pending", schema: [] },
+      { key: "n3", title: "C", inputSource: "VIEW", definition: "p.d.w", position: { x: 0, y: 0 }, status: "created", owoxId: "c", owoxStorageId: "st_1", schema: [] },
+    ] });
+    expect(pushPreview(g, "st_1").published).toBe(1);
+  });
+
   it("does not count calculated fields with a blank name or formula", () => {
     const g = mk({ nodes: [
       { key: "n1", title: "A", inputSource: "SQL", position: { x: 0, y: 0 }, status: "pending",
@@ -648,13 +657,14 @@ describe("pushModel calculated fields", () => {
       log.push({ path, body: init?.body ? JSON.parse(init.body) : undefined });
       if (path === "/api/data-marts" && !init) return [];
       if (path === "/api/data-marts") return { id: `owox_${log.filter(c => c.path === "/api/data-marts" && c.body).length}` };
+      if (path.endsWith("/actualize-schema")) return { success: true };
       return {};
     });
     return { api, log };
   };
-  const storeWith = (schema: any[]) => {
+  const storeWith = (schema: any[], withDef = true) => {
     const s = createModelStore({ storageId: "st_1" });
-    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", schema });
+    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", schema, ...(withDef ? { inputSource: "VIEW", definition: "p.d.v" } : {}) });
     return s;
   };
   const joinedStore = (patch: Partial<ModelEdge>) => {
@@ -678,7 +688,7 @@ describe("pushModel calculated fields", () => {
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
     const [base, full] = schemaPuts(log);
     expect(base.body.schema.fields.map((f: any) => f.name)).toEqual(["clicks"]);
-    expect(full.body.schema.fields.find((f: any) => f.name === "ctr")).toMatchObject({ calculated: { formula: "SUM(clicks)" }, isPrimaryKey: false });
+    expect(full.body.schema.fields.find((f: any) => f.name === "ctr")).toMatchObject({ calculated: { formula: 'SUM({{ref field="clicks"}})' }, isPrimaryKey: false });
     expect(full.body.schema.fields.find((f: any) => f.name === "ctr").calculated.level).toBeUndefined();
     expect(res.calculatedFailed).toBe(0);
   });
@@ -697,6 +707,7 @@ describe("pushModel calculated fields", () => {
     const api = vi.fn(async (path: string, init?: any) => {
       if (path === "/api/data-marts" && !init) return [];
       if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/actualize-schema")) return { success: true };
       if (path.endsWith("/schema") && ++puts === 2) throw new Error("Level mixing in m");
       return {};
     });
@@ -711,6 +722,7 @@ describe("pushModel calculated fields", () => {
     const api = vi.fn(async (path: string, init?: any) => {
       if (path === "/api/data-marts" && !init) return [];
       if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/actualize-schema")) return { success: true };
       if (path.endsWith("/schema")) throw Object.assign(new Error("401"), { status: 401 });
       return {};
     });
@@ -736,11 +748,109 @@ describe("pushModel calculated fields", () => {
     expect(res.calculatedFailed).toBe(0);
   });
 
-  it("sends no calculated PUT when every calculated field is unpushable", async () => {
-    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "draft", type: "NUMERIC", pk: false, formula: "" }]);
+  it("sends no second PUT for a mart without input source when every calculated field is unpushable", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "draft", type: "NUMERIC", pk: false, formula: "" }], false);
     const { api, log } = calls();
     await pushModel(s, api as any, "GOOGLE_BIGQUERY");
     expect(schemaPuts(log)).toHaveLength(1);
+    expect(log.some(c => c.path.endsWith("/actualize-schema") || c.path.endsWith("/publish"))).toBe(false);
+  });
+
+  it("restores the canvas field list after actualize even without calculated fields", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }]);
+    const { api, log } = calls();
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(schemaPuts(log)).toHaveLength(2);
+    expect(schemaPuts(log)[1].body.schema.fields.map((f: any) => f.name)).toEqual(["clicks"]);
+    expect(res.published).toBe(1);
+  });
+
+  it("sends formulas in OWOX's stored {{ref}} form", async () => {
+    const s = joinedStore({});
+    const a = s.get().nodes.find(n => n.title === "Orders")!;
+    s.updateNode(a.key, {
+      inputSource: "VIEW", definition: "p.d.o",
+      schema: [...a.schema, { name: "total", type: "NUMERIC", pk: false, formula: "SUM(customer_id) / COUNT(customers.id)" }],
+    });
+    const { api, log } = calls();
+    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    const final = schemaPuts(log).at(-1)!;
+    expect(final.body.schema.fields.find((f: any) => f.name === "total").calculated.formula)
+      .toBe('SUM({{ref field="customer_id"}}) / COUNT({{ref path="customers" field="id"}})');
+  });
+
+  it("skips calculated fields of a mart without input source, with a clear message", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" }], false);
+    const { api, log } = calls();
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Calculated fields of "Orders" need an input source (table, view or SQL) — skipped.');
+    expect(log.some(c => c.path.endsWith("/actualize-schema") || c.path.endsWith("/publish"))).toBe(false);
+    expect(schemaPuts(log)).toHaveLength(1);
+    expect(res.published).toBe(0);
+    expect(res.calculatedFailed).toBe(0);
+  });
+
+  it("on an actualize failure: error line, no publish, no final schema", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" }]);
+    const { api: inner, log } = calls();
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith("/actualize-schema")) { log.push({ path, body: undefined }); return { success: false, error: "Table not found" }; }
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: Table not found');
+    expect(log.some(c => c.path.endsWith("/publish"))).toBe(false);
+    expect(schemaPuts(log)).toHaveLength(1);
+    expect(res.published).toBe(0);
+  });
+
+  it("on a publish failure: error line, final schema still runs", async () => {
+    const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" }]);
+    const { api: inner, log } = calls();
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith("/publish")) throw new Error("no definition");
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Couldn\'t publish "Orders": no definition');
+    expect(res.published).toBe(0);
+    expect(schemaPuts(log)).toHaveLength(2);
+  });
+
+  it("when the final PUT fails with calculated fields: counts it and re-PUTs the base fields", async () => {
+    const s = storeWith([{ name: "c", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(c)" }]);
+    const { api: inner, log } = calls();
+    let puts = 0;
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith("/schema") && ++puts === 2) throw new Error("FORMULA_UNKNOWN_REFERENCE");
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.calculatedFailed).toBe(1);
+    expect(res.errors).toContain('Calculated fields for "Orders": FORMULA_UNKNOWN_REFERENCE');
+    const puts3 = schemaPuts(log);
+    expect(puts).toBe(3);   // base, refused final, base-only retry
+    expect(puts3).toHaveLength(2);   // the refused PUT never reached the mock's log
+    expect(puts3[1].body.schema.fields.map((f: any) => f.name)).toEqual(["c"]);
+  });
+
+  it("orders calls: actualize → publish → relationships → final schema", async () => {
+    const s = createModelStore({ storageId: "st_1" });
+    const a = s.addNode({ x: 0, y: 0 }); s.updateNode(a.key, { title: "Orders", inputSource: "VIEW", definition: "p.d.o", schema: [{ name: "customer_id", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(customer_id)" }] });
+    const b = s.addNode({ x: 300, y: 0 }); s.updateNode(b.key, { title: "Customers", inputSource: "VIEW", definition: "p.d.c", schema: [{ name: "id", type: "INTEGER", pk: true }] });
+    const e = s.addEdge(a.key, b.key)!;
+    s.updateEdge(e.id, { keys: [{ left: "customer_id", right: "id" }] });
+    const { api, log } = calls();
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    const at = (suffix: string) => log.map((c, i) => (c.path.endsWith(suffix) ? i : -1)).filter(i => i >= 0);
+    const firstActualize = at("/actualize-schema")[0];
+    const lastPublish = at("/publish").at(-1)!;
+    const firstRel = at("/relationships")[0];
+    const finals = at("/schema").filter(i => i > firstRel);
+    expect(firstActualize).toBeLessThan(at("/publish")[0]);
+    expect(lastPublish).toBeLessThan(firstRel);
+    expect(finals).toHaveLength(2);   // one final PUT per actualized mart, after the links
+    expect(res.published).toBe(2);
   });
 
   it("skips the calculated step for a mart whose base schema PUT failed", async () => {
@@ -749,6 +859,7 @@ describe("pushModel calculated fields", () => {
     const api = vi.fn(async (path: string, init?: any) => {
       if (path === "/api/data-marts" && !init) return [];
       if (path === "/api/data-marts") return { id: "owox_1" };
+      if (path.endsWith("/actualize-schema")) return { success: true };
       if (path.endsWith("/schema")) { puts++; throw new Error("bad base column"); }
       return {};
     });

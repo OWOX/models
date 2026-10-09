@@ -5,7 +5,7 @@ import type { PushResult } from "../sync/push";
 
 const result = (over: Partial<PushResult> = {}): PushResult => ({
   created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0,
-  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, calculatedFailed: 0, errors: [], ...over,
+  relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, published: 0, calculatedFailed: 0, errors: [], ...over,
 });
 
 describe("PushToast", () => {
@@ -13,6 +13,11 @@ describe("PushToast", () => {
     render(<PushToast result={result({ created: 8, relationshipsCreated: 8 })} onClose={() => {}} />);
     expect(screen.getByText("Push complete")).toBeTruthy();
     expect(screen.getByText(/8 marts created, 8 links created/)).toBeTruthy();
+  });
+
+  it("adds a published count", () => {
+    render(<PushToast result={result({ created: 3, published: 2, relationshipsCreated: 1 })} onClose={() => {}} />);
+    expect(screen.getByText(/3 marts created, 2 published, 1 link created/)).toBeTruthy();
   });
 
   it("says nothing was pushed when every mart is still in OWOX", () => {

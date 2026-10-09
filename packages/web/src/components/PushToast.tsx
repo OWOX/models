@@ -28,6 +28,7 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   const parts: string[] = [];
   if (expired) parts.push("the push stopped where it was");
   else if (result.created > 0 || blocked === 0) parts.push(`${result.created} mart${result.created === 1 ? "" : "s"} created`);
+  if (!expired && result.published) parts.push(`${result.published} published`);
   if (!expired && result.relationshipsCreated) parts.push(`${result.relationshipsCreated} link${result.relationshipsCreated === 1 ? "" : "s"} created`);
   // Marts and links are counted apart: a bare "14 failed" next to "10 marts
   // created" reads as if marts had failed, when it was only the links.
