@@ -295,8 +295,8 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
           </div>
 
           {/* Regular rows — drag the grip handle to reorder */}
-          {regular.map(({ field, i }) => (
-            <div key={i} {...rowProps(i, "")} style={{ gridTemplateColumns: cols }}>
+          {regular.map(({ field, i }, idx) => (
+            <div key={i} {...rowProps(i, idx === regular.length - 1 ? "!border-b-0" : "")} style={{ gridTemplateColumns: cols }}>
               {grip(i)}
               <input
                 type="text"

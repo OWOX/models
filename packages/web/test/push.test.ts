@@ -693,12 +693,13 @@ describe("pushModel calculated fields", () => {
     expect(res.calculatedFailed).toBe(0);
   });
 
-  it("pushes a mart with only calculated fields in the calculated step alone", async () => {
+  it("does not send a final PUT for a mart with a definition but only calculated fields", async () => {
     const s = storeWith([{ name: "total", type: "NUMERIC", pk: false, formula: "SUM(x)" }]);
     const { api, log } = calls();
-    await pushModel(s, api as any, "GOOGLE_BIGQUERY");
-    expect(schemaPuts(log)).toHaveLength(1);
-    expect(schemaPuts(log)[0].body.schema.fields[0].calculated).toEqual({ formula: "SUM(x)" });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(schemaPuts(log)).toHaveLength(0);
+    expect(res.errors).toContain('Calculated fields of "Orders" weren\'t pushed: the mart has no regular fields on the canvas to compute them from. Add its columns, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
   });
 
   it("keeps the base schema and reports a failed calculated step", async () => {
@@ -718,12 +719,13 @@ describe("pushModel calculated fields", () => {
   });
 
   it("stops on an expired session in the calculated step", async () => {
-    const s = storeWith([{ name: "m", type: "NUMERIC", pk: false, formula: "SUM(x)" }]);
+    let schemaCalls = 0;
+    const s = storeWith([{ name: "x", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(x)" }]);
     const api = vi.fn(async (path: string, init?: any) => {
       if (path === "/api/data-marts" && !init) return [];
       if (path === "/api/data-marts") return { id: "owox_1" };
       if (path.endsWith("/actualize-schema")) return { success: true };
-      if (path.endsWith("/schema")) throw Object.assign(new Error("401"), { status: 401 });
+      if (path.endsWith("/schema") && ++schemaCalls === 2) throw Object.assign(new Error("401"), { status: 401 });
       return {};
     });
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
@@ -783,7 +785,8 @@ describe("pushModel calculated fields", () => {
     const s = storeWith([{ name: "clicks", type: "INTEGER", pk: false }, { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(clicks)" }], false);
     const { api, log } = calls();
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
-    expect(res.errors).toContain('Calculated fields of "Orders" need an input source (table, view or SQL) — skipped.');
+    expect(res.errors).toContain('Calculated fields of "Orders" need an input source (table, view or SQL) — its 1 calculated fields weren\'t pushed. Set the input source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
     expect(log.some(c => c.path.endsWith("/actualize-schema") || c.path.endsWith("/publish"))).toBe(false);
     expect(schemaPuts(log)).toHaveLength(1);
     expect(res.published).toBe(0);
@@ -798,7 +801,8 @@ describe("pushModel calculated fields", () => {
       return inner(path, init);
     });
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
-    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: Table not found');
+    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: Table not found — it stays a draft; its 1 calculated fields weren\'t pushed. Fix the source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
     expect(log.some(c => c.path.endsWith("/publish"))).toBe(false);
     expect(schemaPuts(log)).toHaveLength(1);
     expect(res.published).toBe(0);
@@ -832,20 +836,6 @@ describe("pushModel calculated fields", () => {
     expect(puts).toBe(3);   // base, refused final, base-only retry
     expect(puts3).toHaveLength(2);   // the refused PUT never reached the mock's log
     expect(puts3[1].body.schema.fields.map((f: any) => f.name)).toEqual(["c"]);
-  });
-
-  it("does not re-PUT an empty base list when a calculated-only mart fails its final PUT", async () => {
-    const s = storeWith([{ name: "m", type: "NUMERIC", pk: false, formula: "SUM(c)" }]);
-    const { api: inner, log } = calls();
-    let puts = 0;
-    const api = vi.fn(async (path: string, init?: any) => {
-      if (path.endsWith("/schema")) { puts++; throw new Error("FORMULA_UNKNOWN_REFERENCE"); }
-      return inner(path, init);
-    });
-    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
-    expect(res.calculatedFailed).toBe(1);
-    expect(puts).toBe(1);   // the refused final PUT only, no wiping retry
-    expect(schemaPuts(log)).toHaveLength(0);
   });
 
   it("sends no final PUT when the mart has no fields to send", async () => {
@@ -915,7 +905,7 @@ describe("pushModel calculated fields", () => {
     const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
     expect(puts).toBe(1);
     expect(res.calculatedFailed).toBe(0);
-    expect(res.errors).toEqual(['Schema for "Orders": bad base column']);
+    expect(res.errors).toEqual(['Schema for "Orders": bad base column', 'Its 1 calculated fields weren\'t pushed. Delete "Orders" in OWOX, then use Force push.']);
   });
 
   it("never retypes a calculated field used as a join key", async () => {
@@ -941,5 +931,70 @@ describe("pushModel calculated fields", () => {
     const { api, log } = calls();
     await pushModel(s, api as any, "GOOGLE_BIGQUERY");
     expect(aliasesSent(log)).toEqual(["customers", "orders"]);
+  });
+});
+
+describe("pushModel incomplete marts", () => {
+  const mkStore = (schema: any[], withDef = true, title = "Orders") => {
+    const s = createModelStore({ storageId: "st_1" });
+    const a = s.addNode({ x: 0, y: 0 });
+    s.updateNode(a.key, { title, schema, ...(withDef ? { inputSource: "VIEW", definition: "p.d.v" } : {}) });
+    return s;
+  };
+  const schema = [{ name: "c", type: "INTEGER", pk: false }, { name: "m", type: "NUMERIC", pk: false, formula: "SUM(c)" }];
+  const apiWith = (over: (path: string, init?: any) => any) => vi.fn(async (path: string, init?: any) => {
+    const o = over(path, init);
+    if (o !== undefined) return o;
+    if (path === "/api/data-marts" && !init) return [];
+    if (path === "/api/data-marts") return { id: "owox_1" };
+    if (path.endsWith("/actualize-schema")) return { success: true };
+    return {};
+  });
+
+  it("actualize failure: says what was left undone and counts the mart once", async () => {
+    const res = await pushModel(mkStore(schema), apiWith(p => p.endsWith("/actualize-schema") ? { success: false, error: "Table not found" } : undefined) as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: Table not found — it stays a draft; its 1 calculated fields weren\'t pushed. Fix the source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("actualize failure thrown: same line", async () => {
+    const res = await pushModel(mkStore(schema), apiWith(p => { if (p.endsWith("/actualize-schema")) throw new Error("boom"); }) as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: boom — it stays a draft; its 1 calculated fields weren\'t pushed. Fix the source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("omits the calculated-fields clause when there are none", async () => {
+    const res = await pushModel(mkStore([{ name: "c", type: "INTEGER", pk: false }]), apiWith(p => p.endsWith("/actualize-schema") ? { success: false, error: "gone" } : undefined) as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Couldn\'t read "Orders" from the warehouse: gone — it stays a draft. Fix the source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("base schema PUT failure with calculated fields: extra recovery line", async () => {
+    const res = await pushModel(mkStore(schema), apiWith(p => { if (p.endsWith("/schema")) throw new Error("bad type"); }) as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Schema for "Orders": bad type');
+    expect(res.errors).toContain('Its 1 calculated fields weren\'t pushed. Delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("base schema PUT failure without calculated fields is not incomplete", async () => {
+    const res = await pushModel(mkStore([{ name: "c", type: "INTEGER", pk: false }]), apiWith(p => { if (p.endsWith("/schema")) throw new Error("bad type"); }) as any, "GOOGLE_BIGQUERY");
+    expect(res.incomplete).toBe(0);
+    expect(res.errors.some(e => e.startsWith("Its "))).toBe(false);
+  });
+
+  it("no input source: new wording, incomplete", async () => {
+    const res = await pushModel(mkStore(schema, false), apiWith(() => undefined) as any, "GOOGLE_BIGQUERY");
+    expect(res.errors).toContain('Calculated fields of "Orders" need an input source (table, view or SQL) — its 1 calculated fields weren\'t pushed. Set the input source, delete "Orders" in OWOX, then use Force push.');
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("a mart hitting two cases counts once (base PUT failed and no input source)", async () => {
+    const res = await pushModel(mkStore(schema, false), apiWith(p => { if (p.endsWith("/schema")) throw new Error("bad type"); }) as any, "GOOGLE_BIGQUERY");
+    expect(res.incomplete).toBe(1);
+  });
+
+  it("a clean push has incomplete 0", async () => {
+    const res = await pushModel(mkStore(schema), apiWith(() => undefined) as any, "GOOGLE_BIGQUERY");
+    expect(res.incomplete).toBe(0);
   });
 });

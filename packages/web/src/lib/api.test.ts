@@ -63,3 +63,10 @@ describe("api() silent re-connect", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("api() empty bodies", () => {
+  it("resolves undefined for an empty 200 body", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 200 })));
+    expect(await api("/api/data-marts/m1/publish", { method: "PUT" })).toBeUndefined();
+  });
+});

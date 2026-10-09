@@ -251,3 +251,10 @@ describe("OwoxClient empty bodies, publish and actualize", () => {
     expect(out).toEqual({ success: false, error: "Schema check timed out" });
   });
 });
+
+describe("owoxErrorDetail — errorDetails without a top-level message", () => {
+  it("returns just the joined reasons", () => {
+    const body = JSON.stringify({ statusCode: 400, errorDetails: { errors: [{ message: "a is bad" }, { message: "b is bad" }] } });
+    expect(owoxErrorDetail(body)).toBe("a is bad; b is bad");
+  });
+});

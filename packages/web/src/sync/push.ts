@@ -25,6 +25,10 @@ export interface PushResult {
   published: number;
   /** Marts whose calculated fields OWOX refused; their base schema still landed. */
   calculatedFailed: number;
+  /** Marts created in this push but not finished (actualize failed, base schema PUT
+   *  failed with calculated fields, or calculated fields could not be sent). A later
+   *  normal push skips them, so the user must delete them in OWOX and Force push. */
+  incomplete: number;
   /** The push stopped because the OWOX session was gone and could not be renewed.
    *  Nothing here is a modelling error — the remaining marts were never tried. */
   authExpired?: boolean;
@@ -139,7 +143,7 @@ async function reconcileWithOwox(
 }
 
 export async function pushModel(store: ModelStore, api: Api = defaultApi, storageType?: string, opts: PushOptions = {}): Promise<PushResult> {
-  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, published: 0, calculatedFailed: 0, errors: [] };
+  const res: PushResult = { created: 0, updated: 0, failed: 0, blocked: 0, recreated: 0, relationshipsCreated: 0, relationshipsFailed: 0, relationshipsWithoutKeys: 0, published: 0, calculatedFailed: 0, incomplete: 0, errors: [] };
 
   const storageId = store.get().storageId;
   if (!storageId) {
@@ -218,6 +222,12 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   const skippedKeys = new Set<string>();
   const pushedHere = new Map<string, string>();
   const baseFailed = new Set<string>();   // marts whose base schema PUT was refused
+  // Marts created here but left unfinished; a later normal push skips them, so each
+  // is reported once with the way out (delete in OWOX, Force push).
+  const incompleteKeys = new Set<string>();
+  const markIncomplete = (key: string) => { if (!incompleteKeys.has(key)) { incompleteKeys.add(key); res.incomplete++; } };
+  const calcCount = (n: ModelNode) => n.schema.filter(isPushableCalculated).length;
+  const calcClause = (n: ModelNode) => { const c = calcCount(n); return c ? `its ${c} calculated fields weren't pushed. ` : ""; };
   for (const n of store.get().nodes) {
     if (blockedKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
     if (!opts.force && n.status === "created" && n.owoxStorageId === storageId && !ghostKeys.has(n.key)) { skippedKeys.add(n.key); continue; }
@@ -256,6 +266,10 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
         } catch (e) {
           baseFailed.add(n.key);
           res.errors.push(`Schema for "${n.title}": ${(e as Error).message}`);
+          if (calcCount(n)) {
+            res.errors.push(`Its ${calcCount(n)} calculated fields weren't pushed. Delete "${n.title}" in OWOX, then use Force push.`);
+            markIncomplete(n.key);
+          }
         }
       }
       pushedHere.set(n.key, out.id);
@@ -287,15 +301,19 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   for (const [key, owoxId] of pushedHere) {
     const n = store.get().nodes.find(x => x.key === key);
     if (!n || baseFailed.has(key) || !definitionBody(n)) continue;
+    const actualizeFailed = (m: ModelNode, err: string) =>
+      `Couldn't read "${m.title}" from the warehouse: ${err} — it stays a draft${calcCount(m) ? `; its ${calcCount(m)} calculated fields weren't pushed.` : "."} Fix the source, delete "${m.title}" in OWOX, then use Force push.`;
     try {
       const r = await api<{ success?: boolean; error?: string }>(`/api/data-marts/${owoxId}/actualize-schema`, { method: "POST", body: "{}" });
       if (!r?.success) {
-        res.errors.push(`Couldn't read "${n.title}" from the warehouse: ${r?.error || "Schema actualization failed"}`);
+        res.errors.push(actualizeFailed(n, r?.error || "Schema actualization failed"));
+        markIncomplete(key);
         continue;
       }
     } catch (e) {
       if (isAuthError(e)) { res.authExpired = true; res.errors.push(SESSION_EXPIRED); return res; }
-      res.errors.push(`Couldn't read "${n.title}" from the warehouse: ${(e as Error).message}`);
+      res.errors.push(actualizeFailed(n, (e as Error).message));
+      markIncomplete(key);
       continue;
     }
     actualized.add(key);
@@ -378,7 +396,10 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       }
       const hasCalc = n.schema.some(isPushableCalculated);
       if (!actualized.has(key)) {
-        if (hasCalc && !baseFailed.has(key) && !definitionBody(n)) res.errors.push(`Calculated fields of "${n.title}" need an input source (table, view or SQL) — skipped.`);
+        if (hasCalc && !baseFailed.has(key) && !definitionBody(n)) {
+          res.errors.push(`Calculated fields of "${n.title}" need an input source (table, view or SQL) — its ${calcCount(n)} calculated fields weren't pushed. Set the input source, delete "${n.title}" in OWOX, then use Force push.`);
+          markIncomplete(key);
+        }
         continue;
       }
       const ctx = buildFormulaContext(n, g4.nodes, g4.edges);
@@ -392,6 +413,13 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
       });
       // Nothing to send: an empty field list would wipe the actualized warehouse schema.
       if (all.length === 0) continue;
+      // Only calculated fields: the PUT would replace the actualized warehouse columns
+      // with just the formulas.
+      if (hasCalc && base.length === 0) {
+        res.errors.push(`Calculated fields of "${n.title}" weren't pushed: the mart has no regular fields on the canvas to compute them from. Add its columns, delete "${n.title}" in OWOX, then use Force push.`);
+        markIncomplete(key);
+        continue;
+      }
       try {
         await put(all);
       } catch (e) {

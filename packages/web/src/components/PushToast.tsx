@@ -12,17 +12,18 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   const recreated = result.recreated ?? 0;
   const calcFailed = result.calculatedFailed ?? 0;
   const failed = result.failed + result.relationshipsFailed + calcFailed;
+  const incomplete = result.incomplete ?? 0;
   const pushedNothing = result.created === 0 && result.relationshipsCreated === 0;
 
   // An expired session is not the model's fault and not something the counts can
   // explain — it gets its own headline pointing at the one fix (re-connect).
   const expired = !!result.authExpired;
 
-  const tone = failed > 0 || expired ? "error" : blocked > 0 ? "warn" : "ok";
+  const tone = failed > 0 || expired ? "error" : blocked > 0 || incomplete > 0 ? "warn" : "ok";
   const title =
     expired ? "OWOX session expired"
     : blocked > 0 && pushedNothing ? "Nothing pushed"
-    : failed > 0 || blocked > 0 ? "Push completed with errors"
+    : failed > 0 || blocked > 0 || incomplete > 0 ? "Push completed with errors"
     : "Push complete";
 
   const parts: string[] = [];
@@ -36,6 +37,8 @@ export function PushToast({ result, onClose }: { result: PushResult; onClose: ()
   if (!expired && result.relationshipsFailed) parts.push(`${result.relationshipsFailed} link${result.relationshipsFailed === 1 ? "" : "s"} failed`);
 
   if (!expired && calcFailed) parts.push(`${calcFailed} ${calcFailed === 1 ? "mart's" : "marts'"} calculated fields refused`);
+
+  if (!expired && incomplete) parts.push(`${incomplete} mart${incomplete === 1 ? "" : "s"} need${incomplete === 1 ? "s" : ""} attention`);
 
   const dot = tone === "error" ? "bg-red-500" : tone === "warn" ? "bg-amber-500" : "bg-emerald-500";
   const border = tone === "error" ? "border-red-300" : tone === "warn" ? "border-amber-300" : "border-emerald-300";

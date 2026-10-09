@@ -99,6 +99,22 @@ describe("SchemaEditor calculated fields", () => {
     fireEvent.click(dlg.getByRole("button", { name: "Show less" }));
     expect(dlg.queryByRole("button", { name: "f8" })).toBeNull();
   });
+  it("hides the unplaced popover with opacity and pointer-events, never visibility", () => {
+    // The placement layout effect reads scrollHeight before it sets the position, so
+    // the style seen there is the unplaced one (focus must still be possible).
+    const seen: string[] = [];
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockImplementation(function (this: HTMLElement) {
+      if (this.getAttribute("role") === "dialog") seen.push(this.getAttribute("style") ?? "");
+      return 100;
+    });
+    render(<SchemaEditor schema={[calc("x")]} onChange={() => {}} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    vi.restoreAllMocks();
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen[0]).toContain("opacity: 0");
+    expect(seen[0]).toContain("pointer-events: none");
+    expect(seen[0]).not.toContain("visibility");
+  });
   describe("placement", () => {
     const rect = (top: number, bottom: number) => ({ top, bottom, left: 100, right: 600, width: 500, height: bottom - top, x: 100, y: top, toJSON() {} }) as DOMRect;
     const open = (top: number, bottom: number) => {

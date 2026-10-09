@@ -69,7 +69,7 @@ export function owoxErrorDetail(body: string): string {
     const errs = j.errorDetails?.errors;
     if (Array.isArray(errs)) {
       const reasons = errs.map(e => (e as { message?: unknown })?.message).filter((m): m is string => typeof m === "string" && !!m);
-      if (reasons.length) detail = `${typeof msg === "string" && msg ? msg : detail}: ${reasons.join("; ")}`;
+      if (reasons.length) detail = typeof msg === "string" && msg ? `${msg}: ${reasons.join("; ")}` : reasons.join("; ");
     }
   } catch { /* not JSON — keep the raw body */ }
   detail = detail.replace(/\s+/g, " ").trim();
