@@ -126,12 +126,16 @@ function convert(text: string): OssieImport {
     seeExts(r.custom_extensions);
     const from = keyOf.get(r.from), to = keyOf.get(r.to);
     if (!from || !to) { notImported.push(`relationship "${r.name}": unknown dataset`); continue; }
-    const ext = readOwoxExt<{ alias: string; reverseAlias: string; bidirectional: boolean; cardinality: Cardinality }>(r.custom_extensions);
+    const ext = readOwoxExt<{ alias: string; reverseAlias: string; bidirectional: boolean; cardinality: Cardinality; swapped: boolean }>(r.custom_extensions);
     const left = strArr(r.from_columns), right = strArr(r.to_columns);
+    const pairs = left.map((l, i) => ({ left: l, right: right[i] })).filter(k => k.right !== undefined);
+    // The exporter turns a 1:N edge around (Ossie relationships run many → one); undo that.
+    const swapped = ext.swapped === true;
     const e: ModelEdge = {
       id: `e${edges.length + 1}`,
-      from, to,
-      keys: left.map((l, i) => ({ left: l, right: right[i] })).filter(k => k.right !== undefined),
+      from: swapped ? to : from,
+      to: swapped ? from : to,
+      keys: swapped ? pairs.map(k => ({ left: k.right, right: k.left })) : pairs,
       bidirectional: ext.bidirectional ?? false,
       cardinality: ext.cardinality ?? "N:1",
     };
