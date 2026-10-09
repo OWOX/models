@@ -41,18 +41,31 @@ export function formulaLevel(formula: string): FormulaLevel {
   return AGGREGATE_CALL.test(codeOnly(formula)) ? "metric" : "column";
 }
 
+interface ScannedRef { alias: string | null; field: string; start: number; end: number }
+
+// One scan for every identifier that reads as a field: `field` or `alias.field`, in
+// code only (strings and comments blanked), skipping function calls and SQL words.
+// Offsets point into the original formula.
+function scanReferences(formula: string): ScannedRef[] {
+  const out: ScannedRef[] = [];
+  const code = codeOnly(formula);
+  for (const m of code.matchAll(/(?<![\w.])([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?(?!\w)/g)) {
+    const start = m.index ?? 0;
+    const end = start + m[0].length;
+    if (/^\s*\(/.test(code.slice(end))) continue;                // a function call
+    if (!m[2] && NOT_FIELDS.has(m[1].toUpperCase())) continue;
+    out.push(m[2] ? { alias: m[1], field: m[2], start, end } : { alias: null, field: m[1], start, end });
+  }
+  return out;
+}
+
 export function formulaReferences(formula: string): { alias: string | null; field: string }[] {
   const out: { alias: string | null; field: string }[] = [];
   const seen = new Set<string>();
-  const code = codeOnly(formula);
-  for (const m of code.matchAll(/(?<![\w.])([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?(?!\w)/g)) {
-    const after = code.slice((m.index ?? 0) + m[0].length);
-    if (/^\s*\(/.test(after)) continue;                         // a function call
-    const ref = m[2] ? { alias: m[1], field: m[2] } : { alias: null, field: m[1] };
-    if (!m[2] && NOT_FIELDS.has(m[1].toUpperCase())) continue;
-    const key = `${ref.alias ?? ""}.${ref.field}`;
+  for (const r of scanReferences(formula)) {
+    const key = `${r.alias ?? ""}.${r.field}`;
     if (seen.has(key)) continue;
-    seen.add(key); out.push(ref);
+    seen.add(key); out.push({ alias: r.alias, field: r.field });
   }
   return out;
 }
@@ -95,4 +108,26 @@ export function formulaWarnings(formula: string, ctx: FormulaContext, selfName: 
     else if (!j.fields.includes(r.field)) out.push(`"${r.alias}" has no field "${r.field}"`);
   }
   return [...new Set(out)];
+}
+
+// The inverse of renderOwoxRefs: OWOX validates formulas only in the stored form, where
+// every resolvable reference is a `{{ref}}` tag. Unresolved identifiers stay as written
+// so OWOX reports them. Replaced right to left to keep earlier offsets valid.
+export function toStoredFormula(formula: string, ctx: FormulaContext, selfName: string): string {
+  const own = new Set(ctx.own);
+  let out = formula;
+  const refs = scanReferences(formula);
+  for (let i = refs.length - 1; i >= 0; i--) {
+    const r = refs[i];
+    if (r.field.includes('"') || (r.alias ?? "").includes('"')) continue;
+    let tag: string | null = null;
+    if (r.alias === null) {
+      if (r.field !== selfName && own.has(r.field)) tag = `{{ref field="${r.field}"}}`;
+    } else {
+      const j = ctx.joined.find(x => x.alias === r.alias);
+      if (j && j.fields.includes(r.field)) tag = `{{ref path="${r.alias}" field="${r.field}"}}`;
+    }
+    if (tag) out = out.slice(0, r.start) + tag + out.slice(r.end);
+  }
+  return out;
 }

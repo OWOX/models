@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isCalculated, formulaLevel, formulaReferences, renderOwoxRefs, defaultJoinAlias, formulaWarnings } from "../src/index";
+import { isCalculated, formulaLevel, formulaReferences, renderOwoxRefs, defaultJoinAlias, formulaWarnings, toStoredFormula } from "../src/index";
 
 describe("isCalculated", () => {
   it("is true for any formula, even an empty draft", () => {
@@ -88,5 +88,35 @@ describe("formulaWarnings", () => {
   });
   it("does not treat date parts as fields", () => {
     expect(formulaWarnings("EXTRACT(DAYOFWEEK FROM d)", { own: ["d"], joined: [] }, "x")).toEqual([]);
+  });
+});
+
+describe("toStoredFormula", () => {
+  const ctx = {
+    own: ["quantity", "order_id", "ctr", "clicks"],
+    joined: [{ alias: "orders", title: "Orders", fields: ["amount"] }],
+  };
+  it("tags own fields", () => {
+    expect(toStoredFormula("SUM(quantity)", ctx, "x")).toBe('SUM({{ref field="quantity"}})');
+  });
+  it("tags own and joined fields", () => {
+    const f = "SUM(orders.amount) / NULLIF(COUNT(DISTINCT order_id), 0)";
+    expect(toStoredFormula(f, ctx, "x")).toBe(
+      'SUM({{ref path="orders" field="amount"}}) / NULLIF(COUNT(DISTINCT {{ref field="order_id"}}), 0)',
+    );
+  });
+  it("never touches string literals", () => {
+    expect(toStoredFormula("CONCAT(order_id, '-order_id')", ctx, "x")).toBe('CONCAT({{ref field="order_id"}}, \'-order_id\')');
+  });
+  it("leaves self references and unknown identifiers as written", () => {
+    expect(toStoredFormula("ctr * 2", ctx, "ctr")).toBe("ctr * 2");
+    expect(toStoredFormula("foo + clicks", ctx, "x")).toBe('foo + {{ref field="clicks"}}');
+    expect(toStoredFormula("SUM(orders.nope)", ctx, "x")).toBe("SUM(orders.nope)");
+  });
+  it("round-trips through renderOwoxRefs", () => {
+    for (const [f, n] of [
+      ["SUM(quantity)", "x"], ["SUM(orders.amount) / NULLIF(COUNT(DISTINCT order_id), 0)", "x"],
+      ["CONCAT(order_id, '-order_id')", "x"], ["ctr * 2", "ctr"], ["foo + 1", "x"],
+    ]) expect(renderOwoxRefs(toStoredFormula(f, ctx, n))).toBe(f);
   });
 });
