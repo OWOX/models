@@ -38,3 +38,27 @@ export function buildOkfDeeplink(bundleUrl: string): string {
   const readable = bundleUrl.replace(/#/g, "%23").replace(/&/g, "%26");
   return `${location.origin}/?${PARAM}=${readable}`;
 }
+
+// `?ossie=<github-url>` — same rules as `?okf=`, for an Apache Ossie model file
+// (or any other allowed public GitHub URL). Kept as a separate param so existing
+// `?okf=` links stay untouched.
+const OSSIE_PARAM = "ossie";
+
+export function readOssieImportUrl(): string | null {
+  const raw = new URLSearchParams(location.search).get(OSSIE_PARAM);
+  if (!raw) return null;
+  return isAllowedGithubHost(raw) ? raw : null;
+}
+
+export function clearOssieFromUrl(): void {
+  const params = new URLSearchParams(location.search);
+  if (!params.has(OSSIE_PARAM)) return;
+  params.delete(OSSIE_PARAM);
+  const qs = params.toString();
+  history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : "") + location.hash);
+}
+
+export function buildOssieDeeplink(url: string): string {
+  const readable = url.replace(/#/g, "%23").replace(/&/g, "%26");
+  return `${location.origin}/?${OSSIE_PARAM}=${readable}`;
+}

@@ -33,7 +33,8 @@ import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
 import { graphToBundleFiles, downloadBundle } from "../../okf/io";
 import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl } from "../../share/url";
 import { readTemplateModel, clearTemplateFromUrl } from "../../lib/templateLink";
-import { readOkfImportUrl, clearOkfFromUrl } from "../../share/okfLink";
+import { readOkfImportUrl, clearOkfFromUrl, readOssieImportUrl, clearOssieFromUrl } from "../../share/okfLink";
+import { hasStoredPositions } from "./importLayout";
 import { exportCanvasPng, exportCanvasSvg, exportCanvasVectorSvg } from "../../share/exportImage";
 import { pushModel, pushPreview, type PushResult, type PushOptions } from "../../sync/push";
 import { detachFromOwox } from "../../sync/detach";
@@ -122,6 +123,8 @@ const isFirstVisit = !templateInitial && !sharedGraph && persistedGraph === unde
 // (marketing CTA for individual models). Captured at module load; the actual
 // fetch is async, so CanvasInner opens the dialog on mount and clears the param.
 const okfImportUrl = readOkfImportUrl();
+const ossieImportUrl = readOssieImportUrl();
+const deeplinkImportUrl = okfImportUrl ?? ossieImportUrl;
 
 // Map a loaded template (by its display name) to the closest Insight-Questions
 // niche, so opening the Business Goal dialog after a template can pre-pick it.
@@ -282,10 +285,11 @@ function CanvasInner() {
   // Deeplink: open Import pre-filled for a `?okf=` bundle URL, once, on mount.
   const [okfInitialUrl, setOkfInitialUrl] = useState<string | null>(null);
   useEffect(() => {
-    if (okfImportUrl) {
-      setOkfInitialUrl(okfImportUrl);
+    if (deeplinkImportUrl) {
+      setOkfInitialUrl(deeplinkImportUrl);
       setShowImport(true);
-      clearOkfFromUrl();
+      if (okfImportUrl) clearOkfFromUrl();
+      if (ossieImportUrl) clearOssieFromUrl();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -295,7 +299,7 @@ function CanvasInner() {
   // held until the user confirms Replace vs Merge in the TemplateApplyDialog.
   const [pendingTemplate, setPendingTemplate] = useState<{ graph: ModelGraph; name: string } | null>(null);
   // First-screen chooser — shown once to brand-new visitors (no persisted model).
-  const [showWelcome, setShowWelcome] = useState(isFirstVisit && !okfImportUrl);
+  const [showWelcome, setShowWelcome] = useState(isFirstVisit && !deeplinkImportUrl);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
   const [shareToast, setShareToast] = useState<string | null>(null);
@@ -661,7 +665,7 @@ function CanvasInner() {
       // Keep the currently-selected storage. The OKF bundle format doesn't carry a
       // storageId (parse returns null), so taking the imported value would blank the
       // selection. Fall back to the imported id only when none is selected yet.
-      store.set({ ...withLayout(g), storageId: store.get().storageId ?? g.storageId });
+      store.set({ ...(hasStoredPositions(g) ? g : withLayout(g)), storageId: store.get().storageId ?? g.storageId });
     }
     setShowImport(false);
     setOkfInitialUrl(null);
