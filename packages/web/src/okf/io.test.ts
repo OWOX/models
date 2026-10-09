@@ -28,3 +28,21 @@ describe("graphToBundleFiles", () => {
     expect(files[martKey]).not.toContain("Generated with"); // per-mart docs stay clean
   });
 });
+
+import { loadModelFiles, loadModelText } from "./io";
+const OSSIE = "version: 0.2.0.dev0\nname: shop\ndatasets:\n  - name: orders\n    source: p.d.o\n";
+describe("loadModel*", () => {
+  it("routes Ossie files and text to the Ossie parser", () => {
+    expect(loadModelFiles({ "m.yaml": OSSIE })).toMatchObject({ format: "ossie", name: "shop" });
+    expect(loadModelText(OSSIE).format).toBe("ossie");
+  });
+  it("loads OKF files with the index title as name", () => {
+    const r = loadModelFiles({ "index.md": "---\ntitle: Shop\n---\n# Shop", "a.md": "---\ntitle: A\n---\n# A" });
+    expect(r).toMatchObject({ format: "okf", name: "Shop", notImported: [], warnings: [] });
+    expect(loadModelText("---\ntitle: A\n---\n# A").format).toBe("okf");
+  });
+  it("refuses mixed formats and several Ossie files", () => {
+    expect(() => loadModelFiles({ "m.yaml": OSSIE, "a.md": "---\ntitle: A\n---" })).toThrow("Import one format at a time");
+    expect(() => loadModelFiles({ "a.yaml": OSSIE, "b.yml": OSSIE })).toThrow("Import one Ossie file at a time");
+  });
+});

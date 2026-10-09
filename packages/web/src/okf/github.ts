@@ -38,7 +38,7 @@ export function parseGithubBundleUrl(input: string): GithubBundleRef {
   // (b) would lose encoding of reserved chars (e.g. "%23" -> "#") before we
   // rejoin them into a raw URL, corrupting the fetch path.
   const segs = u.pathname.split("/").filter(Boolean);
-  const kindOf = (path: string): "dir" | "file" => (path.toLowerCase().endsWith(".md") ? "file" : "dir");
+  const kindOf = (path: string): "dir" | "file" => (/\.(md|ya?ml|json)$/i.test(path) ? "file" : "dir");
 
   if (u.host === "raw.githubusercontent.com") {
     // /{owner}/{repo}/{ref}/{...path}  (ref may be "refs/heads/{branch}")
@@ -76,7 +76,7 @@ export function rawFileUrl(ref: GithubBundleRef): string {
 
 export const MAX_BUNDLE_FILES = 100;
 
-const NOT_FOUND = "Couldn't fetch. Make sure the repo is public and the URL points to an OKF bundle folder.";
+const NOT_FOUND = "Couldn't fetch. Make sure the repo is public and the URL points to an OKF bundle folder or an Ossie file.";
 
 /** Extract relative `.md` targets from a markdown body (the bundle index). Skips
  *  external (http/https) links, self-links to index.md, and anchors; strips a
@@ -177,3 +177,6 @@ export async function fetchOkfBundleFromUrl(
   relPaths.forEach((p, i) => { files[p] = contents[i]; });
   return files;
 }
+
+/** Loads either an OKF bundle folder or a single OKF / Ossie file. */
+export const fetchModelFromUrl = fetchOkfBundleFromUrl;

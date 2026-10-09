@@ -177,3 +177,10 @@ describe("fetchOkfBundleFromUrl", () => {
     expect(files).toEqual({ "orders.md": "# orders" });
   });
 });
+
+describe("ossie links", () => {
+  it("treats a .yaml / .json link as a single file", () => {
+    expect(parseGithubBundleUrl("https://github.com/apache/ossie/blob/main/examples/tpcds_semantic_model.yaml").kind).toBe("file");
+    expect(parseGithubBundleUrl("https://raw.githubusercontent.com/o/r/main/m.json").kind).toBe("file");
+  });
+});

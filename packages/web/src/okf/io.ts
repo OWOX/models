@@ -1,4 +1,4 @@
-import { serializeBundle, parseBundle, isBundleIndex, type ModelGraph } from "@mc/okf";
+import { serializeBundle, parseBundle, isBundleIndex, parseOssie, serializeOssie, detectModelFormat, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 // Branded footer appended to the bundle index — every exported model carries an
@@ -65,4 +65,59 @@ export function parsePastedMarkdown(text: string): Record<string, string> {
   const files: Record<string, string> = {};
   for (let i = 0; i < parts.length; i += 2) files[parts[i]] = parts[i + 1] || "";
   return files;
+}
+
+export type ModelFormat = "okf" | "ossie";
+
+export interface LoadedModel {
+  format: ModelFormat;
+  graph: ModelGraph;
+  name: string | null;
+  notImported: string[];
+  warnings: string[];
+}
+
+// Model name from the bundle's index frontmatter title, when present.
+function okfModelName(files: Record<string, string>): string | null {
+  const idx = Object.entries(files).find(([p]) => isBundleIndex(p));
+  if (!idx) return null;
+  try {
+    const t = parseFrontmatter(idx[1]).data.title;
+    return typeof t === "string" && t.trim() ? t.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function loadOssieText(text: string): LoadedModel {
+  const r = parseOssie(text);
+  return { format: "ossie", graph: r.graph, name: r.name ?? null, notImported: r.notImported, warnings: r.warnings };
+}
+
+function loadOkfFiles(files: Record<string, string>): LoadedModel {
+  return { format: "okf", graph: filesToGraph(files), name: okfModelName(files), notImported: [], warnings: [] };
+}
+
+export function loadModelFiles(files: Record<string, string>): LoadedModel {
+  const names = Object.keys(files);
+  const ossie = names.filter(n => /\.(ya?ml|json)$/i.test(n));
+  if (ossie.length === 0) return loadOkfFiles(files);
+  if (ossie.length < names.length) throw new Error("Import one format at a time");
+  if (ossie.length > 1) throw new Error("Import one Ossie file at a time");
+  return loadOssieText(files[ossie[0]]);
+}
+
+export function loadModelText(text: string): LoadedModel {
+  if (detectModelFormat({ text }) === "ossie") return loadOssieText(text);
+  return loadOkfFiles(parsePastedMarkdown(text));
+}
+
+export function downloadOssie(graph: ModelGraph, modelName: string): string[] {
+  const { yaml, warnings } = serializeOssie(graph, modelName);
+  const blob = new Blob([yaml], { type: "application/yaml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${slugify(modelName, "model")}.ossie.yaml`;
+  a.click();
+  return warnings;
 }
