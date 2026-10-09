@@ -28,7 +28,8 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [anchor, setAnchor] = useState<{ left: number; width: number; inTop: number; inBottom: number } | null>(null);
   // Vertical placement computed after render from the popover's real height.
-  const [place, setPlace] = useState<{ top: number; maxHeight: number } | null>(null);
+  const [place, setPlace] = useState<{ above: boolean; pos: number; maxHeight: number } | null>(null);
+  const placedOnce = useRef(false);
   // Chip groups expanded to show every field ("" = own fields, otherwise the join alias).
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const taRef = useRef<HTMLTextAreaElement | null>(null);
@@ -53,6 +54,7 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const width = Math.min(Math.max(r.width, 420), vw - 16);
     setAnchor({ left: Math.max(8, Math.min(r.left, vw - width - 8)), width, inTop: r.top, inBottom: r.bottom });
     setPlace(null);
+    placedOnce.current = false;
     setExpanded(new Set());
     openFor.current = { name: schema[i].name, len: schema.length };
     setOpenIdx(i);
@@ -105,12 +107,17 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const below = vh - anchor.inBottom - POP_GAP - 8;
     const above = anchor.inTop - POP_GAP - 8;
     const cap = Math.min(560, vh - 16);
-    const natural = Math.min(pop.scrollHeight, cap);
+    const natural = Math.min(pop.scrollHeight + (pop.offsetHeight - pop.clientHeight), cap);
     const goBelow = natural <= below || (natural > above && below >= above);
     const maxHeight = Math.max(80, Math.min(cap, goBelow ? below : above));
-    const h = Math.min(natural, maxHeight);
-    const top = goBelow ? anchor.inBottom + POP_GAP : Math.max(8, anchor.inTop - POP_GAP - h);
-    setPlace(prev => prev && prev.top === top && prev.maxHeight === maxHeight ? prev : { top, maxHeight });
+    const pos = goBelow ? anchor.inBottom + POP_GAP : vh - anchor.inTop + POP_GAP;
+    setPlace(prev => prev && prev.above === !goBelow && prev.pos === pos && prev.maxHeight === maxHeight ? prev : { above: !goBelow, pos, maxHeight });
+    // The popover is invisible (not hidden) until placed, so focus is allowed; take it now.
+    if (!placedOnce.current) {
+      placedOnce.current = true;
+      const ta = taRef.current;
+      if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+    }
   }, [openIdx, anchor, expanded, schema]);
 
   // Put the caret right after text inserted by a chip, once React has written the new value.
@@ -143,8 +150,8 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
     const chipCls = "max-w-[160px] truncate rounded-full bg-[#f1f4f8] hover:bg-[#e3e9f2] px-[8px] py-[1px] font-mono text-[11px] text-slate-700 cursor-pointer";
     return (
       <>
-        {shown.map(n => (
-          <button key={n} type="button" title={prefix + n} className={chipCls}
+        {shown.map((n, i) => (
+          <button key={`${i}-${n}`} type="button" title={prefix + n} className={chipCls}
             onMouseDown={e => e.preventDefault()}
             onClick={() => insertAtCaret(prefix + n)}>{n}</button>
         ))}
@@ -411,8 +418,8 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
           className="bg-white border border-[#d8dee8] rounded-[10px] shadow-xl p-[10px] outline-none overflow-y-auto"
           style={{
             position: "fixed", left: anchor.left, width: anchor.width, zIndex: 1000,
-            top: place?.top ?? anchor.inBottom + POP_GAP,
-            ...(place ? { maxHeight: place.maxHeight } : { visibility: "hidden" as const }),
+            ...(place?.above ? { bottom: place.pos } : { top: place?.pos ?? anchor.inBottom + POP_GAP }),
+            ...(place ? { maxHeight: place.maxHeight } : { opacity: 0, pointerEvents: "none" as const }),
           }}
         >
           <div className="flex items-center gap-[6px] mb-[6px]">

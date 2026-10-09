@@ -29,6 +29,11 @@ describe("SchemaEditor calculated fields", () => {
     fireEvent.click(screen.getByText("+ Add calculated field"));
     expect(onChange).toHaveBeenCalledWith([{ name: "", type: "NUMERIC", pk: false, formula: "" }]);
   });
+  it("focuses the textarea right after opening", () => {
+    render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);
+    fireEvent.focus(screen.getByPlaceholderText("formula"));
+    expect(document.activeElement).toBe(screen.getByPlaceholderText(PH));
+  });
   it("never renders the old Fields: hint", () => {
     render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);
     fireEvent.focus(screen.getByPlaceholderText("formula"));
@@ -101,7 +106,8 @@ describe("SchemaEditor calculated fields", () => {
     afterEach(() => vi.restoreAllMocks());
     it("flips above near the bottom and caps maxHeight", () => {
       const dlg = open(540, 560);
-      expect(parseFloat(dlg.style.top)).toBeLessThan(540);
+      expect(dlg.style.top).toBe("");
+      expect(parseFloat(dlg.style.bottom)).toBe(600 - 540 + 4);
       expect(dlg.style.maxHeight).not.toBe("");
       expect(dlg.className).toContain("overflow-y-auto");
     });
