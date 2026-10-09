@@ -1,3 +1,5 @@
+import YAML from "yaml";
+
 export type ModelFormat = "okf" | "ossie";
 
 const OSSIE_EXT = /\.(ya?ml|json)$/i;
@@ -17,6 +19,22 @@ export function detectModelFormat(input: { fileName?: string; text: string }): M
   while (i < lines.length && (lines[i].trim() === "" || lines[i].trimStart().startsWith("#"))) i++;
   if (i < lines.length && lines[i].trim() === "---") i++;
   const first = (lines[i] ?? "").trimStart();
-  if (first.startsWith("{") || OSSIE_KEY.test(first)) return "ossie";
-  return "okf";
+  const looksOssie = first.startsWith("{") || OSSIE_KEY.test(first);
+  // Frontmatter in OKF docs can also start with `name:` / `version:`, so also
+  // require a top-level `datasets` / `semantic_model` key.
+  const hasModelKey = /^(datasets|semantic_model)\s*:/m.test(lines.join("\n")) || /"(datasets|semantic_model)"\s*:/.test(text);
+  return looksOssie && hasModelKey ? "ossie" : "okf";
+}
+
+/** True when the text parses (YAML or JSON) to an object with an array
+ *  `datasets` or `semantic_model` — i.e. it is really an Ossie model. */
+export function isOssieModelText(text: string): boolean {
+  try {
+    const raw = YAML.parse(text) as unknown;
+    if (!raw || typeof raw !== "object") return false;
+    const o = raw as Record<string, unknown>;
+    return Array.isArray(o.datasets) || Array.isArray(o.semantic_model);
+  } catch {
+    return false;
+  }
 }

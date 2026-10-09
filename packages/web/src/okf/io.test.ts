@@ -45,4 +45,12 @@ describe("loadModel*", () => {
     expect(() => loadModelFiles({ "m.yaml": OSSIE, "a.md": "---\ntitle: A\n---" })).toThrow("Import one format at a time");
     expect(() => loadModelFiles({ "a.yaml": OSSIE, "b.yml": OSSIE })).toThrow("Import one Ossie file at a time");
   });
+  it("ignores stray data files next to OKF docs", () => {
+    const r = loadModelFiles({ "a.md": "---\ntitle: A\n---\n# A", "package.json": '{"name":"x"}', "c.yml": "a: 1" });
+    expect(r.format).toBe("okf");
+  });
+  it("refuses .md docs next to a real Ossie model, and non-Ossie lone json", () => {
+    expect(() => loadModelFiles({ "m.yaml": OSSIE, "a.md": "---\ntitle: A\n---" })).toThrow("Import one format at a time");
+    expect(() => loadModelFiles({ "a.json": '{"a":1}' })).toThrow("This file isn't an Ossie model");
+  });
 });

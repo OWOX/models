@@ -7,4 +7,4 @@ export { isCalculated, formulaLevel, formulaReferences, renderOwoxRefs, toStored
 export * from "./ossie/types";
 export { parseOssie, type OssieImport } from "./ossie/parse";
 export { serializeOssie } from "./ossie/serialize";
-export { detectModelFormat, type ModelFormat } from "./ossie/detect";
+export { detectModelFormat, isOssieModelText, type ModelFormat } from "./ossie/detect";

@@ -1,4 +1,4 @@
-import { serializeBundle, parseBundle, isBundleIndex, parseOssie, serializeOssie, detectModelFormat, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
+import { serializeBundle, parseBundle, isBundleIndex, parseOssie, serializeOssie, detectModelFormat, isOssieModelText, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 // Branded footer appended to the bundle index — every exported model carries an
@@ -100,11 +100,18 @@ function loadOkfFiles(files: Record<string, string>): LoadedModel {
 
 export function loadModelFiles(files: Record<string, string>): LoadedModel {
   const names = Object.keys(files);
-  const ossie = names.filter(n => /\.(ya?ml|json)$/i.test(n));
-  if (ossie.length === 0) return loadOkfFiles(files);
-  if (ossie.length < names.length) throw new Error("Import one format at a time");
+  const dataNames = names.filter(n => /\.(ya?ml|json)$/i.test(n));
+  const ossie = dataNames.filter(n => isOssieModelText(files[n]));
+  const hasDocs = names.some(n => !dataNames.includes(n));
   if (ossie.length > 1) throw new Error("Import one Ossie file at a time");
-  return loadOssieText(files[ossie[0]]);
+  if (ossie.length === 1) {
+    if (hasDocs) throw new Error("Import one format at a time");
+    return loadOssieText(files[ossie[0]]);
+  }
+  // A lone data file that isn't an Ossie model: let the Ossie parser explain.
+  if (dataNames.length > 0 && !hasDocs) return loadOssieText(files[dataNames[0]]);
+  // Otherwise OKF; stray data files (package.json, configs) are ignored by parseBundle.
+  return loadOkfFiles(files);
 }
 
 export function loadModelText(text: string): LoadedModel {
