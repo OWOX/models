@@ -28,9 +28,10 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
   const datasets: OssieDataset[] = [];
   for (const n of graph.nodes) {
     const definition = n.definition?.trim();
-    if (!definition) warnings.push(`"${n.title}" has no table/view/SQL source — exported with its title as source`);
+    if (!definition) warnings.push(`"${n.title || n.key}" has no table/view/SQL source — exported with its title as source`);
     const fields: OssieField[] = [];
     for (const f of n.schema) {
+      if (isCalculated(f) && !f.formula!.trim()) { warnings.push(`calculated field "${n.title || n.key}.${f.name}" has no formula — not exported`); continue; }
       if (isCalculated(f) && formulaLevel(f.formula!) === "metric") continue;
       const field: OssieField = {
         name: f.name,
@@ -43,7 +44,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
       fields.push(field);
     }
     const pk = n.schema.filter(f => f.pk && !isCalculated(f)).map(f => f.name);
-    const ds: OssieDataset = { name: dsName.get(n.key)!, source: definition || n.title };
+    const ds: OssieDataset = { name: dsName.get(n.key)!, source: definition || n.title || n.key };
     if (pk.length) ds.primary_key = pk;
     if (n.description) ds.description = n.description;
     ds.fields = fields;
@@ -86,12 +87,13 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
     const ds = dsName.get(n.key)!;
     const own = new Set(n.schema.map(f => f.name));
     const aliasToDataset = new Map<string, string>();
+    const setAlias = (a: string, d: string) => { if (!aliasToDataset.has(a)) aliasToDataset.set(a, d); };
     for (const e of graph.edges) {
-      if (e.from === n.key && nodeByKey.has(e.to)) aliasToDataset.set(joinAlias(e.alias, nodeByKey.get(e.to)!), dsName.get(e.to)!);
-      if (e.to === n.key && e.bidirectional && nodeByKey.has(e.from)) aliasToDataset.set(joinAlias(e.reverseAlias, nodeByKey.get(e.from)!), dsName.get(e.from)!);
+      if (e.from === n.key && nodeByKey.has(e.to)) setAlias(joinAlias(e.alias, nodeByKey.get(e.to)!), dsName.get(e.to)!);
+      if (e.to === n.key && e.bidirectional && nodeByKey.has(e.from)) setAlias(joinAlias(e.reverseAlias, nodeByKey.get(e.from)!), dsName.get(e.from)!);
     }
     for (const f of n.schema) {
-      if (!isCalculated(f) || formulaLevel(f.formula!) !== "metric") continue;
+      if (!isCalculated(f) || !f.formula!.trim() || formulaLevel(f.formula!) !== "metric") continue;
       const rewritten = rewriteReferences(f.formula!, r =>
         r.alias === null
           ? (own.has(r.field) ? `${ds}.${r.field}` : null)

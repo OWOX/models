@@ -61,3 +61,78 @@ describe("serializeOssie", () => {
     expect(back.nodes.find(n => n.key === e3.from)!.title).toBe("customers");
   });
 });
+
+describe("serializeOssie fixes", () => {
+  const validate = new Ajv2020({ strict: false, allErrors: true }).compile(schema);
+  const g2: ModelGraph = {
+    storageId: null,
+    nodes: [
+      node("orders", "Orders", [{ name: "order_id", type: "STRING", pk: true }, { name: "amount", type: "NUMERIC", pk: false }]),
+      node("customers", "Customers", [
+        { name: "id", type: "INTEGER", pk: true },
+        { name: "rev", type: "NUMERIC", pk: false, formula: "SUM(ord.amount) / COUNT(id)" },
+        { name: "n", type: "INTEGER", pk: false, formula: "COUNT(*)" },
+        { name: "empty", type: "STRING", pk: false, formula: "" },
+      ]),
+      node("blank", "", [{ name: "x", type: "STRING", pk: false }], { definition: null }),
+    ],
+    edges: [{ id: "e1", from: "orders", to: "customers", keys: [{ left: "order_id", right: "id" }], bidirectional: true, cardinality: "N:1", reverseAlias: "ord" }],
+  };
+  const out = serializeOssie(g2, "m");
+  const d2 = YAML.parse(out.yaml);
+  it("round-trips a reverse-alias metric without a false warning", () => {
+    const back = parseOssie(out.yaml);
+    expect(back.graph.nodes.find(n => n.title === "Customers")!.schema.find(f => f.name === "rev")!.formula).toBe("SUM(ord.amount) / COUNT(id)");
+    expect(back.warnings).toEqual([]);
+  });
+  it("round-trips a metric with no column references onto its mart", () => {
+    const back = parseOssie(out.yaml);
+    expect(back.graph.nodes.find(n => n.title === "Customers")!.schema.find(f => f.name === "n")!.formula).toBe("COUNT(*)");
+  });
+  it("uses the key as source for an untitled, sourceless mart", () => {
+    expect(validate(d2), JSON.stringify(validate.errors)).toBe(true);
+    expect(d2.datasets.find((x: any) => x.source === "blank")).toBeTruthy();
+    expect(out.warnings).toContain('"blank" has no table/view/SQL source — exported with its title as source');
+  });
+  it("skips a calculated field with an empty formula", () => {
+    expect(out.warnings).toContain('calculated field "Customers.empty" has no formula — not exported');
+    expect(d2.datasets[1].fields.map((f: any) => f.name)).toEqual(["id"]);
+  });
+  it("keeps the first of duplicate aliases", () => {
+    const g: ModelGraph = {
+      storageId: null,
+      nodes: [
+        node("a", "A", [{ name: "id", type: "INTEGER", pk: true }, { name: "m", type: "INTEGER", pk: false, formula: "SUM(x.v)" }]),
+        node("b", "B", [{ name: "v", type: "INTEGER", pk: false }]),
+        node("c", "C", [{ name: "v", type: "INTEGER", pk: false }]),
+      ],
+      edges: [
+        { id: "1", from: "a", to: "b", keys: [], bidirectional: false, alias: "x" },
+        { id: "2", from: "a", to: "c", keys: [], bidirectional: false, alias: "x" },
+      ],
+    };
+    const d = YAML.parse(serializeOssie(g, "m").yaml);
+    expect(d.metrics[0].expression.dialects[0].expression).toBe("SUM(b.v)");
+  });
+  it("restores 1:N key sides and warns about N:N", () => {
+    const g: ModelGraph = {
+      storageId: null,
+      nodes: [node("p", "P", [{ name: "id", type: "INTEGER", pk: true }]), node("q", "Q", [{ name: "pid", type: "INTEGER", pk: false }])],
+      edges: [
+        { id: "1", from: "p", to: "q", keys: [{ left: "id", right: "pid" }], bidirectional: false, cardinality: "1:N" },
+        { id: "2", from: "p", to: "q", keys: [{ left: "id", right: "pid" }], bidirectional: false, cardinality: "N:N" },
+      ],
+    };
+    const r = serializeOssie(g, "m");
+    expect(r.warnings).toContain("relationship p → q is many-to-many — not exported");
+    const e = parseOssie(r.yaml).graph.edges[0];
+    expect(e).toMatchObject({ cardinality: "1:N", keys: [{ left: "id", right: "pid" }] });
+    expect(parseOssie(r.yaml).graph.nodes.find(n => n.key === e.from)!.title).toBe("P");
+  });
+  it("omits empty relationships and metrics and still validates", () => {
+    const d = YAML.parse(serializeOssie({ storageId: null, nodes: [node("p", "P", [{ name: "id", type: "INTEGER", pk: true }])], edges: [] }, "m").yaml);
+    expect(d.relationships).toBeUndefined();
+    expect(d.metrics).toBeUndefined();
+    expect(validate(d), JSON.stringify(validate.errors)).toBe(true);
+  });
+});

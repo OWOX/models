@@ -161,7 +161,7 @@ function convert(text: string): OssieImport {
     for (const r of formulaReferences(expr)) {
       if (r.alias && keyOf.has(r.alias) && !used.includes(r.alias)) used.push(r.alias);
     }
-    if (!used.length) { notImported.push(`metric "${m.name}": reads no dataset`); return; }
+    if (!used.length && !(ext.home && keyOf.has(ext.home))) { notImported.push(`metric "${m.name}": reads no dataset`); return; }
     const usedSet = new Set(used);
     const usedKeys = new Set(used.map(u => keyOf.get(u)!));
     let home: string;
@@ -170,19 +170,26 @@ function convert(text: string): OssieImport {
       home = used[0];
       let best = -1;
       for (const u of used) {
-        const count = edges.filter(e => e.from === keyOf.get(u) && e.to !== e.from && usedKeys.has(e.to)).length;
+        const count = edges.filter(e => e.to !== e.from && ((e.from === keyOf.get(u) && usedKeys.has(e.to)) || (e.bidirectional && e.to === keyOf.get(u) && usedKeys.has(e.from)))).length;
         if (count > best) { best = count; home = u; }
       }
     }
-    const edgeAlias = (other: string) => edges.find(e => e.from === keyOf.get(home) && e.to === keyOf.get(other))?.alias;
+    // A join from home to `other`: a forward edge, or the far end of a bidirectional one.
+    const link = (other: string): { alias?: string } | undefined => {
+      const h = keyOf.get(home), o = keyOf.get(other);
+      const fwd = edges.find(e => e.from === h && e.to === o);
+      if (fwd) return { alias: fwd.alias };
+      const back = edges.find(e => e.bidirectional && e.to === h && e.from === o);
+      return back ? { alias: back.reverseAlias } : undefined;
+    };
     const formula = rewriteReferences(expr, r => {
       if (r.alias === home) return r.field;
-      if (r.alias && usedSet.has(r.alias)) return `${joinAlias(edgeAlias(r.alias), nodeOf(r.alias))}.${r.field}`;
+      if (r.alias && usedSet.has(r.alias)) return `${joinAlias(link(r.alias)?.alias, nodeOf(r.alias))}.${r.field}`;
       return null;
     });
     for (const u of used) {
       if (u === home) continue;
-      if (!edges.some(e => e.from === keyOf.get(home) && e.to === keyOf.get(u))) {
+      if (!link(u)) {
         warnings.push(`"${m.name}" reads ${u} without a direct relationship from ${home}`);
       }
     }
