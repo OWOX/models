@@ -1,11 +1,8 @@
-import { defaultJoinAlias, isCalculated, type FormulaContext, type ModelEdge, type ModelNode } from "@mc/okf";
+import { joinAlias, isCalculated, type FormulaContext, type ModelEdge, type ModelNode } from "@mc/okf";
 
-// The alias OWOX knows a join by: the one set on the edge, else one derived from the
-// target's title. Push step 3 and formula contexts both call this, so a formula's
-// `alias.field` always matches the targetAlias that was actually pushed.
-export function joinAlias(explicit: string | undefined, target: { title: string; key: string }): string {
-  return explicit?.trim() || defaultJoinAlias(target.title || target.key, target.key);
-}
+// joinAlias lives in @mc/okf (the Ossie code needs it too); re-exported so push.ts and
+// other importers keep working. Push step 3 and formula contexts both use it.
+export { joinAlias };
 
 // What a formula on `node` may reference: its own fields, and the real columns of
 // every mart it joins to, under the alias OWOX gives that join. A joined mart's
