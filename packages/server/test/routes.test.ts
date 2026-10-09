@@ -104,3 +104,20 @@ describe("expired OWOX token", () => {
     expect(res.json().code).toBe("owox_auth");
   });
 });
+
+describe("publish and actualize routes", () => {
+  it("routes PUT /publish and POST /actualize-schema to the client", async () => {
+    const app = buildApp();
+    const connect = await app.inject({ method: "POST", url: "/api/auth/connect", payload: { apiKey: KEY } });
+    const sid = connect.cookies[0].value;
+    const pub = vi.spyOn(client.OwoxClient.prototype, "publishDataMart").mockResolvedValue({} as any);
+    const act = vi.spyOn(client.OwoxClient.prototype, "actualizeSchema").mockResolvedValue({ success: true });
+    const r1 = await app.inject({ method: "PUT", url: "/api/data-marts/m1/publish", cookies: { mc_sid: sid } });
+    expect(r1.statusCode).toBe(200);
+    expect(pub).toHaveBeenCalledWith("m1");
+    const r2 = await app.inject({ method: "POST", url: "/api/data-marts/m1/actualize-schema", cookies: { mc_sid: sid } });
+    expect(r2.json()).toEqual({ success: true });
+    expect(act).toHaveBeenCalledWith("m1");
+    pub.mockRestore(); act.mockRestore();
+  });
+});
