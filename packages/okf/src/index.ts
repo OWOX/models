@@ -5,3 +5,4 @@ export { parseBundle, isBundleIndex } from "./parse";
 export { FIELD_TYPES, EDITOR_FIELD_TYPES, DEFAULT_FIELD_TYPE, normalizeFieldType } from "./fieldType";
 export { isCalculated, formulaLevel, formulaReferences, renderOwoxRefs, toStoredFormula, defaultJoinAlias, joinAlias, rewriteReferences, formulaWarnings, type FormulaLevel, type FormulaContext } from "./formula";
 export * from "./ossie/types";
+export { parseOssie, type OssieImport } from "./ossie/parse";
