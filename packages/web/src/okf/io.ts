@@ -98,7 +98,12 @@ function loadOkfFiles(files: Record<string, string>): LoadedModel {
   return { format: "okf", graph: filesToGraph(files), name: okfModelName(files), notImported: [], warnings: [] };
 }
 
+export const MAX_MODEL_BYTES = 5 * 1024 * 1024;
+export const TOO_LARGE = "This file is too large (max 5 MB).";
+const tooLarge = (texts: string[]) => texts.reduce((n, t) => n + t.length, 0) > MAX_MODEL_BYTES;
+
 export function loadModelFiles(files: Record<string, string>): LoadedModel {
+  if (tooLarge(Object.values(files))) throw new Error(TOO_LARGE);
   const names = Object.keys(files);
   const dataNames = names.filter(n => /\.(ya?ml|json)$/i.test(n));
   const ossie = dataNames.filter(n => isOssieModelText(files[n]));
@@ -115,6 +120,7 @@ export function loadModelFiles(files: Record<string, string>): LoadedModel {
 }
 
 export function loadModelText(text: string): LoadedModel {
+  if (tooLarge([text])) throw new Error(TOO_LARGE);
   if (detectModelFormat({ text }) === "ossie") return loadOssieText(text);
   return loadOkfFiles(parsePastedMarkdown(text));
 }

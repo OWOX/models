@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
-import { loadModelFiles, loadModelText, zipToFiles, type LoadedModel } from "../okf/io";
+import { loadModelFiles, loadModelText, zipToFiles, MAX_MODEL_BYTES, TOO_LARGE, type LoadedModel } from "../okf/io";
 import { fetchModelFromUrl, isAllowedGithubHost } from "../okf/github";
 import { buildOkfDeeplink, buildOssieDeeplink } from "../share/okfLink";
 import type { ModelGraph } from "@mc/okf";
@@ -8,7 +8,7 @@ import type { ModelGraph } from "@mc/okf";
 type TabId = "upload" | "paste" | "github";
 const TABS: { id: TabId; label: string }[] = [
   { id: "upload", label: "Upload files" },
-  { id: "paste", label: "Paste markdown" },
+  { id: "paste", label: "Paste" },
   { id: "github", label: "From GitHub" },
 ];
 
@@ -70,6 +70,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         const uploaded = fileInputRef.current?.files;
         if (uploaded && uploaded.length > 0) {
           for (const file of Array.from(uploaded)) {
+            if (file.size > MAX_MODEL_BYTES) throw new Error(TOO_LARGE);
             if (file.name.endsWith(".zip")) {
               Object.assign(files, zipToFiles(new Uint8Array(await file.arrayBuffer())));
             } else {
@@ -119,7 +120,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     void refresh(tab);
   }
 
-  // Fetch a public OKF bundle from a GitHub URL into the GitHub tab's preview.
+  // Fetch a public OKF bundle or Ossie file from a GitHub URL into the GitHub tab's preview.
   // Auto-triggered on paste / blur / Enter / deeplink — there is no Fetch button.
   // Skips re-fetching a URL that already loaded; a failed URL can be retried.
   async function fetchFromUrl(target: string) {
@@ -316,7 +317,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         {preview && (
           <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
             <div className="flex items-center gap-2">
-              <span data-testid="import-format" className="rounded-md bg-[#eef4fd] px-1.5 py-[2px] text-[11px] font-[550] text-[#1e88e5]">
+              <span data-testid="import-format" className="rounded-md bg-[#eef4fd] px-1.5 py-[2px] text-[11px] font-[550] text-[#1565c0]">
                 {loaded!.format === "ossie" ? "Apache Ossie" : "OKF"}
               </span>
               {modelName && (
@@ -347,12 +348,19 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
                 ))}
               </>
             )}
-            {loaded!.notImported.length + loaded!.warnings.length > 0 && (
+            {loaded!.notImported.length > 0 && (
               <details className="text-[12px] text-slate-500">
-                <summary className="cursor-pointer">Not imported ({loaded!.notImported.length + loaded!.warnings.length})</summary>
+                <summary className="cursor-pointer">Not imported ({loaded!.notImported.length})</summary>
                 <ul className="mt-1 max-h-28 list-disc overflow-y-auto pl-5">
                   {loaded!.notImported.map((t, i) => <li key={"n" + i}>{t}</li>)}
-                  {loaded!.warnings.map((t, i) => <li key={"w" + i} className="text-amber-600">{t}</li>)}
+                </ul>
+              </details>
+            )}
+            {loaded!.warnings.length > 0 && (
+              <details className="text-[12px] text-amber-800">
+                <summary className="cursor-pointer">Warnings ({loaded!.warnings.length})</summary>
+                <ul className="mt-1 max-h-28 list-none overflow-y-auto pl-1">
+                  {loaded!.warnings.map((t, i) => <li key={"w" + i}><span aria-hidden="true">⚠ </span>{t}</li>)}
                 </ul>
               </details>
             )}

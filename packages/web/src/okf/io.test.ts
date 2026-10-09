@@ -54,3 +54,11 @@ describe("loadModel*", () => {
     expect(() => loadModelFiles({ "a.json": '{"a":1}' })).toThrow("This file isn't an Ossie model");
   });
 });
+
+describe("size cap", () => {
+  const big = "a".repeat(5 * 1024 * 1024 + 1);
+  it("rejects oversized pasted text and files before parsing", () => {
+    expect(() => loadModelText(big)).toThrow("This file is too large (max 5 MB).");
+    expect(() => loadModelFiles({ "m.yaml": big })).toThrow("This file is too large (max 5 MB).");
+  });
+});

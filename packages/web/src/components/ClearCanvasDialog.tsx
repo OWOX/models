@@ -5,7 +5,7 @@ import { ExportFormatToggle } from "./ExportFormatToggle";
 interface ClearCanvasDialogProps {
   counts: { marts: number; relationships: number };
   onDelete: () => void;           // wipe the canvas, no export
-  onExportAndDelete: (format: ExportFormat) => void;  // download an export, then wipe
+  onExportAndDelete: (format: ExportFormat) => string[] | void;  // download an export; returns what it could not hold. Empty → the caller wipes
   initialFormat?: ExportFormat;   // defaults to the remembered format
   onClose: () => void;            // cancel
 }
@@ -16,6 +16,7 @@ interface ClearCanvasDialogProps {
 // delete) plus Cancel.
 export function ClearCanvasDialog({ counts, onDelete, onExportAndDelete, initialFormat, onClose }: ClearCanvasDialogProps) {
   const [format, setFormat] = useState<ExportFormat>(() => initialFormat ?? loadExportFormat());
+  const [warnings, setWarnings] = useState<string[]>([]);
   const empty = counts.marts === 0 && counts.relationships === 0;
   return (
     <div
@@ -40,6 +41,13 @@ export function ClearCanvasDialog({ counts, onDelete, onExportAndDelete, initial
           We recommend exporting the model (OKF or Ossie) to your computer first so you can re-import it later.
         </p>
 
+        {warnings.length > 0 && (
+          <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] leading-relaxed text-amber-900">
+            The Ossie file was downloaded, but it can&apos;t hold everything:
+            <ul className="mt-1 list-disc pl-5">{warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-2">
           <button
             onClick={onClose}
@@ -48,18 +56,29 @@ export function ClearCanvasDialog({ counts, onDelete, onExportAndDelete, initial
             Cancel
           </button>
           <div className="flex items-center gap-2">
-            <ExportFormatToggle value={format} onChange={setFormat} />
-            <button
-              onClick={() => onExportAndDelete(format)}
-              className="text-[13px] font-[550] border border-[#dc2626] bg-white text-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#fdf2f2]"
-            >
-              Export &amp; delete
-            </button>
+            {warnings.length > 0 ? (
+              <button
+                onClick={() => onExportAndDelete("okf")}
+                className="text-[13px] font-[550] border border-[#dc2626] bg-white text-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#fdf2f2]"
+              >
+                Export OKF instead
+              </button>
+            ) : (
+              <>
+                <ExportFormatToggle value={format} onChange={setFormat} />
+                <button
+                  onClick={() => { const w = onExportAndDelete(format); if (w && w.length > 0) setWarnings(w); }}
+                  className="text-[13px] font-[550] border border-[#dc2626] bg-white text-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#fdf2f2]"
+                >
+                  Export &amp; delete
+                </button>
+              </>
+            )}
             <button
               onClick={onDelete}
               className="text-[13px] font-[550] bg-[#dc2626] text-white border border-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#b91c1c]"
             >
-              Delete
+              {warnings.length > 0 ? "Delete anyway" : "Delete"}
             </button>
           </div>
         </div>

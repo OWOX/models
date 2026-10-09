@@ -303,7 +303,7 @@ function CanvasInner() {
   const [showWelcome, setShowWelcome] = useState(isFirstVisit && !deeplinkImportUrl);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState<PushResult | null>(null);
-  const [shareToast, setShareToast] = useState<string | null>(null);
+  const [shareToast, setShareToast] = useState<string | { message: string; sticky: true } | null>(null);
   const [storages, setStorages] = useState<StorageOption[]>([]);
   const [signIn, setSignIn] = useState<{ mode: "connect" | "push" } | null>(null);
   const [showPushConfirm, setShowPushConfirm] = useState(false);
@@ -583,19 +583,20 @@ function CanvasInner() {
   }, [screenToFlowPosition]);
 
   // ── Import / Export / Push handlers ───────────────────────────────────────
-  const handleExport = useCallback((format: ExportFormat) => {
+  const handleExport = useCallback((format: ExportFormat): string[] => {
     const graph = store.get();
     // An empty Ossie document is schema-invalid; the top bar already blocks this.
-    if (graph.nodes.length === 0) return;
+    if (graph.nodes.length === 0) return [];
     persistExportFormat(format);
     if (format === "ossie") {
       const warnings = downloadOssie(graph, modelName);
-      if (warnings.length > 0) setShareToast("Exported as Apache Ossie. Not included: " + warnings.join("; "));
-      return;
+      if (warnings.length > 0) setShareToast({ message: "Exported as Apache Ossie with warnings: " + warnings.join("; "), sticky: true });
+      return warnings;
     }
     const title = me?.projectTitle ?? "model-okf";
     const files = graphToBundleFiles(graph, title);
     downloadBundle(files, title);
+    return [];
   }, [me, modelName]);
 
   // Clear the canvas: permanently wipe every node + edge (keep the selected
@@ -609,9 +610,11 @@ function CanvasInner() {
     setSavedSnapshot(null); // no saved baseline for a fresh canvas
   }, []);
 
-  const handleExportAndClear = useCallback((format: ExportFormat) => {
-    handleExport(format);
-    clearCanvas();
+  // With Ossie warnings the dialog stays open and decides (Delete anyway / Export OKF instead).
+  const handleExportAndClear = useCallback((format: ExportFormat): string[] => {
+    const warnings = handleExport(format);
+    if (warnings.length === 0) clearCanvas();
+    return warnings;
   }, [handleExport, clearCanvas]);
 
   // Export the canvas as an image (whole model, OWOX watermark). Uses the live
@@ -827,7 +830,11 @@ function CanvasInner() {
 
   // Confirmed start-new: wipe to a fresh model (clearCanvas resets id + name).
   const startNewModel = useCallback(() => { clearCanvas(); setShowNewModel(false); }, [clearCanvas]);
-  const exportAndStartNewModel = useCallback((format: ExportFormat) => { handleExport(format); startNewModel(); }, [handleExport, startNewModel]);
+  const exportAndStartNewModel = useCallback((format: ExportFormat): string[] => {
+    const warnings = handleExport(format);
+    if (warnings.length === 0) startNewModel();
+    return warnings;
+  }, [handleExport, startNewModel]);
 
   const handleUseTemplate = useCallback((g: ModelGraph, name: string) => {
     // Remember the matching niche so the Business Goal dialog can pre-pick it.
@@ -944,7 +951,7 @@ function CanvasInner() {
         accountEmail={account?.email ?? null}
         onEnable={handleEnable}
       />
-      {shareToast && <ShareToast message={shareToast} onClose={() => setShareToast(null)} />}
+      {shareToast && <ShareToast message={typeof shareToast === "string" ? shareToast : shareToast.message} sticky={typeof shareToast !== "string"} onClose={() => setShareToast(null)} />}
       {pushing && (
         <div className="fixed bottom-4 right-4 z-50 bg-slate-900 text-white text-[13px] px-4 py-2 rounded-lg shadow-lg">
           Pushing to OWOX…
@@ -1214,11 +1221,21 @@ function CanvasInner() {
 }
 
 // ── Share confirmation toast (auto-dismisses) ─────────────────────────────────
-function ShareToast({ message, onClose }: { message: string; onClose: () => void }) {
+function ShareToast({ message, sticky, onClose }: { message: string; sticky?: boolean; onClose: () => void }) {
   useEffect(() => {
+    if (sticky) return;
     const t = setTimeout(onClose, 3500);
     return () => clearTimeout(t);
-  }, [onClose]);
+  }, [onClose, sticky]);
+  if (sticky) {
+    return (
+      <div role="status" className="fixed bottom-4 right-4 z-50 flex max-w-[420px] items-start gap-2 rounded-xl border border-amber-300 bg-white px-4 py-3 text-[13px] shadow-2xl">
+        <span className="mt-[5px] h-2 w-2 rounded-full bg-amber-500 flex-shrink-0" />
+        <span className="text-slate-800">{message}</span>
+        <button onClick={onClose} aria-label="Dismiss warning" className="ml-1 text-slate-400 hover:text-slate-700 leading-none cursor-pointer">✕</button>
+      </div>
+    );
+  }
   return (
     <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-emerald-300 bg-white px-4 py-3 text-[13px] shadow-2xl">
       <span className="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0" />

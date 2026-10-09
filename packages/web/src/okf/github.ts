@@ -108,7 +108,9 @@ async function fetchText(url: string, signal?: AbortSignal): Promise<string> {
     throw err;
   }
   if (!res.ok) throw new OkfFetchError(`GitHub returned ${res.status}. Try again.`);
-  return res.text();
+  const text = await res.text();
+  if (text.length > 5 * 1024 * 1024) throw new OkfFetchError("This file is too large (max 5 MB).");
+  return text;
 }
 
 // Fallback for bundles without an index.md: list the folder via the Contents API

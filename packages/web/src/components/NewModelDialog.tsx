@@ -14,11 +14,12 @@ export function NewModelDialog({
   counts: { marts: number; relationships: number };
   savedModel: boolean; // saved before, but with edits since (vs never saved)
   onStart: () => void;
-  onExportAndStart: (format: ExportFormat) => void;
+  onExportAndStart: (format: ExportFormat) => string[] | void; // returns what the export could not hold; empty → the caller starts fresh
   initialFormat?: ExportFormat; // defaults to the remembered format
   onClose: () => void;
 }) {
   const [format, setFormat] = useState<ExportFormat>(() => initialFormat ?? loadExportFormat());
+  const [warnings, setWarnings] = useState<string[]>([]);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
       <div className="w-[460px] rounded-2xl bg-white p-7 shadow-xl" onClick={e => e.stopPropagation()}>
@@ -34,11 +35,24 @@ export function NewModelDialog({
             : "Your current model isn't saved yet — export the model first if you want to keep a copy."}
         </p>
 
+        {warnings.length > 0 && (
+          <div role="alert" className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] leading-relaxed text-amber-900">
+            The Ossie file was downloaded, but it can&apos;t hold everything:
+            <ul className="mt-1 list-disc pl-5">{warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
+          </div>
+        )}
+
         <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onClose} className="rounded-lg px-4 py-2 text-[13px] font-[550] text-slate-600 hover:bg-slate-100 cursor-pointer">Cancel</button>
-          <ExportFormatToggle value={format} onChange={setFormat} />
-          <button onClick={() => onExportAndStart(format)} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export &amp; start</button>
-          <button onClick={onStart} className="rounded-lg bg-[#1e88e5] px-4 py-2 text-[13px] font-[600] text-white hover:bg-[#1976d2] cursor-pointer">Start new model</button>
+          {warnings.length > 0 ? (
+            <button onClick={() => onExportAndStart("okf")} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export OKF instead</button>
+          ) : (
+            <>
+              <ExportFormatToggle value={format} onChange={setFormat} />
+              <button onClick={() => { const w = onExportAndStart(format); if (w && w.length > 0) setWarnings(w); }} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export &amp; start</button>
+            </>
+          )}
+          <button onClick={onStart} className="rounded-lg bg-[#1e88e5] px-4 py-2 text-[13px] font-[600] text-white hover:bg-[#1976d2] cursor-pointer">{warnings.length > 0 ? "Start anyway" : "Start new model"}</button>
         </div>
       </div>
     </div>

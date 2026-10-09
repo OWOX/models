@@ -43,8 +43,8 @@ describe("ImportDialog UI", () => {
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} hasExistingModel />);
     // No preview/counts before any input.
     expect(screen.queryByText(/Will import/i)).toBeNull();
-    // The paste textarea lives on the "Paste markdown" tab.
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    // The paste textarea lives on the "Paste" tab.
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByText(/Will import 1 marts, 0 relationships/i)).toBeTruthy());
     fireEvent.click(screen.getByText(/Merge into the canvas/i));
@@ -60,7 +60,7 @@ describe("ImportDialog UI", () => {
     const onConfirm = vi.fn();
     // Default hasExistingModel=false → empty canvas, no apply-mode question.
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
     // The apply-mode block is absent.
@@ -258,10 +258,20 @@ describe("ImportDialog Apache Ossie", () => {
 
   it("pasting Ossie text shows the badge and a Not imported list", async () => {
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: OSSIE_YAML } });
     await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("Apache Ossie"));
     expect(screen.getByText(/Not imported \(1\)/)).toBeTruthy();
+  });
+
+  it("lists warnings separately from Not imported, with a text marker", async () => {
+    const y = "version: 0.2.0.dev0\nname: m\ndatasets:\n  - name: o\n    source: x\n    fields:\n      - name: a\n        expression: { dialects: [{ dialect: ANSI_SQL, expression: a }] }\n      - name: c\n        expression: { dialects: [{ dialect: ANSI_SQL, expression: \"a + ghost\" }] }\n";
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
+    fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: y } });
+    await waitFor(() => expect(screen.getByText(/Warnings \(1\)/)).toBeTruthy());
+    expect(screen.queryByText(/Not imported/)).toBeNull();
+    expect(screen.getByText(/push will refuse it/).parentElement!.textContent).toContain("⚠");
   });
 
   it("rejects .md + .yaml together", async () => {
@@ -272,7 +282,7 @@ describe("ImportDialog Apache Ossie", () => {
 
   it("OKF paste shows the OKF badge and no Not imported list", async () => {
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("OKF"));
     expect(screen.queryByText(/Not imported/)).toBeNull();
