@@ -4,6 +4,7 @@ import { GripVertical } from "lucide-react";
 import { type SchemaField, type FormulaContext, EDITOR_FIELD_TYPES, isCalculated, formulaLevel, formulaWarnings } from "@mc/okf";
 import { InfoTip } from "./InfoTip";
 import { CALC_COLOR } from "../canvas/nodeStyle";
+import { CALC_GLYPH } from "../canvas/calcGlyph";
 
 // One source of truth for types — see @mc/okf/fieldType. Every entry is a member of
 // OWOX's BigQuery enum (confirmed live), so a pick here can never fail the schema
@@ -254,14 +255,15 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
   );
 
   const glyph = (formula: string) => {
-    const metric = formulaLevel(formula) === "metric";
+    const g = CALC_GLYPH[formulaLevel(formula)];
     return (
       <span
-        aria-label={metric ? "Metric" : "Calculated column"}
+        aria-label={g.label}
+        title={g.tip}
         className="text-[12px] font-semibold text-center leading-none"
         style={{ color: CALC_COLOR }}
       >
-        {metric ? "Σ" : "fx"}
+        {g.symbol}
       </span>
     );
   };

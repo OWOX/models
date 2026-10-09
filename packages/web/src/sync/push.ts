@@ -400,7 +400,8 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
           res.calculatedFailed++;
           res.errors.push(`Calculated fields for "${n.title}": ${(e as Error).message}`);
           // Best effort: put the real columns back so actualize's extras don't linger.
-          await put(base).catch(() => {});
+          // A calculated-only mart has no base fields; an empty PUT would wipe the schema.
+          if (base.length) await put(base).catch(() => {});
         } else {
           // Same payload as the base fields, so a retry would fail identically.
           res.errors.push(`Schema for "${n.title}": ${(e as Error).message}`);

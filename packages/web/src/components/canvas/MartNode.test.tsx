@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { CALC_GLYPH } from "./calcGlyph";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { MartNode } from "./MartNode";
@@ -159,6 +160,11 @@ describe("calculated fields", () => {
     expect(metric.getAttribute("title")).toContain("SUM(clicks) / SUM(impressions)");
     expect(container.querySelector('[data-field="user_key"]')!.getAttribute("data-calculated")).toBe("column");
     expect(container.querySelector('[data-field="user_key"]')!.textContent).toContain("fx");
+  });
+  it("explains the glyph on hover, winning over the row's formula tooltip", () => {
+    const { container } = renderNode("erd", {}, { schema });
+    expect(container.querySelector('[data-field="ctr"] [aria-label="Metric"]')!.getAttribute("title")).toBe(CALC_GLYPH.metric.tip);
+    expect(container.querySelector('[data-field="user_key"] [aria-label="Calculated column"]')!.getAttribute("title")).toBe(CALC_GLYPH.column.tip);
   });
   it("gives calculated rows no edge anchors", () => {
     const { container } = renderNode("erd", {}, { schema });

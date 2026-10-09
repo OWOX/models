@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { SchemaEditor } from "./SchemaEditor";
+import { CALC_GLYPH } from "../canvas/calcGlyph";
 
 const ctx = { own: ["clicks", "ctr"], joined: [{ alias: "orders", title: "Orders", fields: ["amount"] }] };
 const PH = "SUM(clicks) / NULLIF(SUM(impressions), 0)";
@@ -18,6 +19,11 @@ describe("SchemaEditor calculated fields", () => {
     expect(screen.getByLabelText("Metric").textContent).toBe("Σ");
     expect(screen.getByLabelText("Calculated column").textContent).toBe("fx");
     expect(screen.getByText("Calculated fields")).toBeTruthy();
+  });
+  it("explains the glyph on hover for both levels", () => {
+    render(<SchemaEditor schema={[calc("SUM(clicks)", "total"), calc("clicks * 2", "double")]} onChange={() => {}} formulaContext={ctx} />);
+    expect(screen.getByLabelText("Metric").getAttribute("title")).toBe(CALC_GLYPH.metric.tip);
+    expect(screen.getByLabelText("Calculated column").getAttribute("title")).toBe(CALC_GLYPH.column.tip);
   });
   it("has no PK column in the calculated section", () => {
     render(<SchemaEditor schema={[calc("SUM(clicks)")]} onChange={() => {}} formulaContext={ctx} />);

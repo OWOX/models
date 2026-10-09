@@ -834,6 +834,20 @@ describe("pushModel calculated fields", () => {
     expect(puts3[1].body.schema.fields.map((f: any) => f.name)).toEqual(["c"]);
   });
 
+  it("does not re-PUT an empty base list when a calculated-only mart fails its final PUT", async () => {
+    const s = storeWith([{ name: "m", type: "NUMERIC", pk: false, formula: "SUM(c)" }]);
+    const { api: inner, log } = calls();
+    let puts = 0;
+    const api = vi.fn(async (path: string, init?: any) => {
+      if (path.endsWith("/schema")) { puts++; throw new Error("FORMULA_UNKNOWN_REFERENCE"); }
+      return inner(path, init);
+    });
+    const res = await pushModel(s, api as any, "GOOGLE_BIGQUERY");
+    expect(res.calculatedFailed).toBe(1);
+    expect(puts).toBe(1);   // the refused final PUT only, no wiping retry
+    expect(schemaPuts(log)).toHaveLength(0);
+  });
+
   it("sends no final PUT when the mart has no fields to send", async () => {
     const s = storeWith([]);
     const { api, log } = calls();

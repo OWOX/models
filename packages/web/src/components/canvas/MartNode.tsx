@@ -34,6 +34,7 @@ import {
   packBadges,
   type CardBadge,
 } from "./layoutSize";
+import { CALC_GLYPH } from "./calcGlyph";
 import { CALC_COLOR, CALC_DIVIDER, EDGE_NEUTRAL, statusBadge } from "./nodeStyle";
 import type { CardRelationship } from "./relationships";
 
@@ -193,7 +194,7 @@ function FieldRow({ f, hidden, anchors, beforeCalculated }: { f: SchemaField; hi
       {anchors && !level && <FieldAnchors name={f.name} />}
       <div className="flex items-center gap-2">
         {level
-          ? <span className="w-3 flex-shrink-0 text-center text-[10px] font-bold leading-none" style={{ color: CALC_COLOR }} aria-label={level === "metric" ? "Metric" : "Calculated column"}>{level === "metric" ? "Σ" : "fx"}</span>
+          ? <span className="w-3 flex-shrink-0 text-center text-[10px] font-bold leading-none" style={{ color: CALC_COLOR }} aria-label={CALC_GLYPH[level].label} title={CALC_GLYPH[level].tip}>{CALC_GLYPH[level].symbol}</span>
           : f.pk
           ? <KeyRound size={12} className="flex-shrink-0 text-[#F5C344]" aria-label="Primary key" />
           : <span className="w-3 flex-shrink-0" />}
