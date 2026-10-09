@@ -17,6 +17,9 @@ const NOT_FIELDS = new Set([
   "ASC", "DESC", "LIMIT", "SAFE", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR", "HOUR", "MINUTE", "SECOND",
   "STRING", "INT64", "INTEGER", "INT", "FLOAT64", "FLOAT", "NUMERIC", "BIGNUMERIC", "DECIMAL", "BOOL", "BOOLEAN",
   "DATE", "DATETIME", "TIME", "TIMESTAMP", "BYTES", "JSON", "VARCHAR",
+  "ROWS", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "CURRENT", "ROW", "WITHIN", "GROUP", "FILTER", "NULLS",
+  "FIRST", "LAST", "IGNORE", "RESPECT", "DAYOFWEEK", "DAYOFYEAR", "ISOWEEK", "ISOYEAR", "MILLISECOND", "MICROSECOND",
+  "STRUCT", "ARRAY",
 ]);
 
 export function isCalculated(f: Pick<SchemaField, "formula">): boolean {
@@ -80,6 +83,7 @@ export interface FormulaContext {
 
 export function formulaWarnings(formula: string, ctx: FormulaContext, selfName: string): string[] {
   const out: string[] = [];
+  if (/\bOVER\s*\(/i.test(codeOnly(formula))) out.push("Window functions (OVER …) aren't supported in OWOX calculated fields");
   for (const r of formulaReferences(formula)) {
     if (r.alias === null) {
       if (r.field === selfName) out.push("A calculated field cannot reference itself");

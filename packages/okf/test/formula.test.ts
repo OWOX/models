@@ -74,4 +74,19 @@ describe("formulaWarnings", () => {
     expect(formulaWarnings("SUM(orders.total)", ctx, "ctr")).toEqual(['"orders" has no field "total"']);
     expect(formulaWarnings("ctr * 2", ctx, "ctr")).toEqual(["A calculated field cannot reference itself"]);
   });
+  it("flags window functions once and ignores frame keywords", () => {
+    const wctx = { own: ["ss_ext_sales_price"], joined: [{ alias: "date_dim", title: "Date", fields: ["d_date"] }] };
+    expect(formulaWarnings(
+      "SUM(SUM(ss_ext_sales_price)) OVER (ORDER BY date_dim.d_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
+      wctx, "cumulative_sales",
+    )).toEqual(["Window functions (OVER …) aren't supported in OWOX calculated fields"]);
+  });
+  it("still checks references inside OVER", () => {
+    expect(formulaWarnings("SUM(clicks) OVER (PARTITION BY nope)", ctx, "ctr")).toEqual([
+      "Window functions (OVER …) aren't supported in OWOX calculated fields", 'Unknown field "nope"',
+    ]);
+  });
+  it("does not treat date parts as fields", () => {
+    expect(formulaWarnings("EXTRACT(DAYOFWEEK FROM d)", { own: ["d"], joined: [] }, "x")).toEqual([]);
+  });
 });
