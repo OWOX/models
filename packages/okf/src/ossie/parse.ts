@@ -1,7 +1,7 @@
 import YAML from "yaml";
 import type { Cardinality, InputSource, ModelEdge, ModelGraph, ModelNode, SchemaField } from "../types";
 import { normalizeFieldType } from "../fieldType";
-import { formulaReferences, joinAlias, rewriteReferences } from "../formula";
+import { formulaReferences, formulaWarnings, joinAlias, rewriteReferences } from "../formula";
 import {
   OWOX_VENDOR, aiContextText, ossieToCanvasType, pickExpression, readOwoxExt,
   type OssieDataset, type OssieDoc, type OssieRelationship, type OssieExt, type OssieMetric,
@@ -19,6 +19,12 @@ export interface OssieImport {
 const arr = (v: unknown): any[] => (Array.isArray(v) ? v : []);
 const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === "object" && !Array.isArray(v);
 const strArr = (v: unknown): string[] => arr(v).filter((x): x is string => typeof x === "string");
+const str = (v: unknown): string | undefined => (typeof v === "string" && v.trim() ? v : undefined);
+const num = (v: unknown): number | undefined => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
+const oneOf = <T extends string>(v: unknown, list: readonly T[]): T | undefined => (list.includes(v as T) ? (v as T) : undefined);
+const typeOf = (v: unknown): string | undefined => { const s = str(v); return s ? normalizeFieldType(s) : undefined; };
+const INPUT_SOURCES = ["SQL", "TABLE", "VIEW", "CONNECTOR"] as const;
+const CARDINALITIES = ["1:1", "1:N", "N:1", "N:N"] as const;
 const joinText = (...parts: (string | undefined)[]) => parts.filter(Boolean).join("\n\n") || undefined;
 const oneLine = (s: string) => s.replace(/\s*\n+\s*/g, "; ");
 const uniqueKey = (base: string, taken: Set<string>) => {
@@ -38,7 +44,7 @@ export function parseOssie(text: string): OssieImport {
 
 function convert(text: string): OssieImport {
   let raw: unknown;
-  try { raw = YAML.parse(text); }
+  try { raw = YAML.parse(text, { maxAliasCount: 100 }); }
   catch (e) { throw new Error(`Couldn't read this Ossie file: ${(e as Error).message}`); }
 
   const notImported: string[] = [];
@@ -72,7 +78,8 @@ function convert(text: string): OssieImport {
     if (!isObj(ds)) continue;
     if (typeof ds.name !== "string") { notImported.push("dataset without a name"); continue; }
     seeExts(ds.custom_extensions);
-    const ext = readOwoxExt<{ title: string; inputSource: InputSource; x: number; y: number }>(ds.custom_extensions);
+    const ext = readOwoxExt<Record<string, unknown>>(ds.custom_extensions);
+    const extX = num(ext.x), extY = num(ext.y);
     const key = uniqueKey(ds.name, taken);
     if (!keyOf.has(ds.name)) keyOf.set(ds.name, key);
     const pk = strArr(ds.primary_key);
@@ -84,16 +91,17 @@ function convert(text: string): OssieImport {
       if (!isObj(f)) continue;
       if (typeof f.name !== "string") { notImported.push(`field without a name in dataset "${ds.name}"`); continue; }
       seeExts(f.custom_extensions);
-      const fx = readOwoxExt<{ type: string; alias: string }>(f.custom_extensions);
+      const fx = readOwoxExt<Record<string, unknown>>(f.custom_extensions);
       const expr = pickExpression(f.expression);
       if (expr === "") notImported.push(`field "${ds.name}.${f.name}": no expression`);
       const calculated = !(expr === "" || expr === f.name);
       const field: SchemaField = {
         name: f.name,
-        type: fx.type ?? normalizeFieldType(ossieToCanvasType(f.datatype)),
+        type: typeOf(fx.type) ?? normalizeFieldType(ossieToCanvasType(f.datatype)),
         pk: pk.includes(f.name) && !calculated,
       };
-      if (fx.alias) field.alias = fx.alias;
+      const fxAlias = str(fx.alias);
+      if (fxAlias) field.alias = fxAlias;
       const d = joinText(typeof f.description === "string" ? f.description : undefined, aiContextText(f.ai_context) || undefined);
       if (d) field.description = d;
       if (calculated) field.formula = expr;
@@ -103,14 +111,20 @@ function convert(text: string): OssieImport {
     for (const col of pk) {
       if (!schema.some(f => f.name === col)) schema.push({ name: col, type: normalizeFieldType(ossieToCanvasType()), pk: true });
     }
+    const own = schema.map(f => f.name);
+    for (const f of schema) {
+      if (f.formula && formulaWarnings(f.formula, { own, joined: [] }, f.name).some(w => w.startsWith("Unknown field"))) {
+        warnings.push(`field "${ds.name}.${f.name}": expression references unknown column(s) — push will refuse it`);
+      }
+    }
     nodes.push({
       key,
-      title: ext.title ?? ds.name,
-      inputSource: ext.inputSource ?? (/^\s*(select|with)\b/i.test(typeof ds.source === "string" ? ds.source : "") ? "SQL" : "TABLE"),
+      title: str(ext.title) ?? ds.name,
+      inputSource: oneOf<InputSource>(ext.inputSource, INPUT_SOURCES) ?? (/^\s*(select|with)\b/i.test(typeof ds.source === "string" ? ds.source : "") ? "SQL" : "TABLE"),
       definition: typeof ds.source === "string" ? ds.source : null,
       description: joinText(typeof ds.description === "string" ? ds.description : undefined, aiContextText(ds.ai_context) || undefined),
       schema,
-      position: typeof ext.x === "number" && typeof ext.y === "number" ? { x: ext.x, y: ext.y } : { x: 0, y: 0 },
+      position: extX !== undefined && extY !== undefined ? { x: extX, y: extY } : { x: 0, y: 0 },
       status: "pending",
       owoxId: null,
     });
@@ -126,7 +140,7 @@ function convert(text: string): OssieImport {
     seeExts(r.custom_extensions);
     const from = keyOf.get(r.from), to = keyOf.get(r.to);
     if (!from || !to) { notImported.push(`relationship "${r.name}": unknown dataset`); continue; }
-    const ext = readOwoxExt<{ alias: string; reverseAlias: string; bidirectional: boolean; cardinality: Cardinality; swapped: boolean }>(r.custom_extensions);
+    const ext = readOwoxExt<Record<string, unknown>>(r.custom_extensions);
     const left = strArr(r.from_columns), right = strArr(r.to_columns);
     const pairs = left.map((l, i) => ({ left: l, right: right[i] })).filter(k => k.right !== undefined);
     // The exporter turns a 1:N edge around (Ossie relationships run many → one); undo that.
@@ -136,11 +150,12 @@ function convert(text: string): OssieImport {
       from: swapped ? to : from,
       to: swapped ? from : to,
       keys: swapped ? pairs.map(k => ({ left: k.right, right: k.left })) : pairs,
-      bidirectional: ext.bidirectional ?? false,
-      cardinality: ext.cardinality ?? "N:1",
+      bidirectional: ext.bidirectional === true,
+      cardinality: oneOf<Cardinality>(ext.cardinality, CARDINALITIES) ?? "N:1",
     };
-    if (ext.alias) e.alias = ext.alias;
-    if (ext.reverseAlias) e.reverseAlias = ext.reverseAlias;
+    const eAlias = str(ext.alias), eRev = str(ext.reverseAlias);
+    if (eAlias) e.alias = eAlias;
+    if (eRev) e.reverseAlias = eRev;
     edges.push(e);
     const ai = aiContextText(r.ai_context);
     if (ai) notImported.push(`relationship "${r.name}": ai_context (${oneLine(ai)})`);
@@ -155,17 +170,18 @@ function convert(text: string): OssieImport {
   }
 
   function importMetric(m: OssieMetric) {
-    const ext = readOwoxExt<{ type: string; alias: string; home: string }>(m.custom_extensions);
+    const ext = readOwoxExt<Record<string, unknown>>(m.custom_extensions);
+    const extHome = str(ext.home);
     const expr = pickExpression(m.expression);
     const used: string[] = [];
     for (const r of formulaReferences(expr)) {
       if (r.alias && keyOf.has(r.alias) && !used.includes(r.alias)) used.push(r.alias);
     }
-    if (!used.length && !(ext.home && keyOf.has(ext.home))) { notImported.push(`metric "${m.name}": reads no dataset`); return; }
+    if (!used.length && !(extHome && keyOf.has(extHome))) { notImported.push(`metric "${m.name}": reads no dataset`); return; }
     const usedSet = new Set(used);
     const usedKeys = new Set(used.map(u => keyOf.get(u)!));
     let home: string;
-    if (ext.home && keyOf.has(ext.home)) home = ext.home;
+    if (extHome && keyOf.has(extHome)) home = extHome;
     else {
       home = used[0];
       let best = -1;
@@ -194,19 +210,27 @@ function convert(text: string): OssieImport {
       }
     }
     if (/\bOVER\s*\(/i.test(expr)) warnings.push(`"${m.name}": window functions aren't supported by OWOX — it will be refused on push`);
+    const homeNode = nodeOf(home);
+    let name = m.name;
+    if (homeNode.schema.some(f => f.name === name)) {
+      const taken = new Set(homeNode.schema.map(f => f.name));
+      name = uniqueKey(`${m.name}_metric`, taken);
+      warnings.push(`metric "${m.name}" renamed to "${name}" — the dataset already has a field with that name`);
+    }
     const field: SchemaField = {
-      name: m.name,
-      type: ext.type ?? normalizeFieldType(ossieToCanvasType(m.datatype ?? "Decimal")),
+      name,
+      type: typeOf(ext.type) ?? normalizeFieldType(ossieToCanvasType(m.datatype ?? "Decimal")),
       pk: false,
       formula,
     };
     const d = joinText(typeof m.description === "string" ? m.description : undefined, aiContextText(m.ai_context) || undefined);
     if (d) field.description = d;
-    if (ext.alias) field.alias = ext.alias;
-    nodeOf(home).schema.push(field);
+    const mAlias = str(ext.alias);
+    if (mAlias) field.alias = mAlias;
+    homeNode.schema.push(field);
   }
 
   if (vendors.length) notImported.push(`custom extensions: ${vendors.join(", ")}`);
-  const modelExt = readOwoxExt<{ name: string }>(doc.custom_extensions);
-  return { graph: { storageId: null, nodes, edges }, name: modelExt.name ?? doc.name, notImported, warnings };
+  const modelExt = readOwoxExt<Record<string, unknown>>(doc.custom_extensions);
+  return { graph: { storageId: null, nodes, edges }, name: str(modelExt.name) ?? str(doc.name), notImported, warnings };
 }

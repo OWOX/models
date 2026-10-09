@@ -30,7 +30,7 @@ export function detectModelFormat(input: { fileName?: string; text: string }): M
  *  `datasets` or `semantic_model` — i.e. it is really an Ossie model. */
 export function isOssieModelText(text: string): boolean {
   try {
-    const raw = YAML.parse(text) as unknown;
+    const raw = YAML.parse(text, { maxAliasCount: 100 }) as unknown;
     if (!raw || typeof raw !== "object") return false;
     const o = raw as Record<string, unknown>;
     return Array.isArray(o.datasets) || Array.isArray(o.semantic_model);

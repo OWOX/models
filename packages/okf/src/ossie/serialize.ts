@@ -31,6 +31,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
     if (!definition) warnings.push(`"${n.title || n.key}" has no table/view/SQL source — exported with its title as source`);
     const fields: OssieField[] = [];
     for (const f of n.schema) {
+      if (!f.name.trim()) { warnings.push(`field without a name in "${n.title || n.key}" — not exported`); continue; }
       if (isCalculated(f) && !f.formula!.trim()) { warnings.push(`calculated field "${n.title || n.key}.${f.name}" has no formula — not exported`); continue; }
       if (isCalculated(f) && formulaLevel(f.formula!) === "metric") continue;
       const field: OssieField = {
@@ -43,7 +44,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
       if (ext) field.custom_extensions = ext;
       fields.push(field);
     }
-    const pk = n.schema.filter(f => f.pk && !isCalculated(f)).map(f => f.name);
+    const pk = n.schema.filter(f => f.pk && !isCalculated(f) && f.name.trim()).map(f => f.name);
     const ds: OssieDataset = { name: dsName.get(n.key)!, source: definition || n.title || n.key };
     if (pk.length) ds.primary_key = pk;
     if (n.description) ds.description = n.description;
@@ -93,6 +94,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
       if (e.to === n.key && e.bidirectional && nodeByKey.has(e.from)) setAlias(joinAlias(e.reverseAlias, nodeByKey.get(e.from)!), dsName.get(e.from)!);
     }
     for (const f of n.schema) {
+      if (!f.name.trim()) continue;
       if (!isCalculated(f) || !f.formula!.trim() || formulaLevel(f.formula!) !== "metric") continue;
       const rewritten = rewriteReferences(f.formula!, r =>
         r.alias === null
