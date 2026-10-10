@@ -60,11 +60,11 @@ describe("ClearCanvasDialog — export warnings", () => {
   afterEach(() => localStorage.clear());
   const warn = ["relationship A → B is many-to-many — not exported"];
 
-  it("stays open, shows the list, and Delete anyway wipes", () => {
-    const onDelete = vi.fn(), onExportAndDelete = vi.fn(() => warn);
+  it("stays open, shows the list, and Delete anyway wipes", async () => {
+    const onDelete = vi.fn(), onExportAndDelete = vi.fn(async () => warn); // the Ossie writer loads on demand
     render(<ClearCanvasDialog {...base} initialFormat="ossie" onDelete={onDelete} onExportAndDelete={onExportAndDelete} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: /^export & delete$/i }));
-    const alert = screen.getByRole("alert");
+    const alert = await screen.findByRole("alert");
     expect(alert.textContent).toContain("The Ossie file was downloaded, but it can't hold everything:");
     expect(alert.textContent).toContain(warn[0]);
     expect(onDelete).not.toHaveBeenCalled();
@@ -72,18 +72,20 @@ describe("ClearCanvasDialog — export warnings", () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  it("Export OKF instead exports okf", () => {
+  it("Export OKF instead exports okf", async () => {
     const onExportAndDelete = vi.fn((f: string) => (f === "ossie" ? warn : []));
     render(<ClearCanvasDialog {...base} initialFormat="ossie" onDelete={() => {}} onExportAndDelete={onExportAndDelete} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: /^export & delete$/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Export OKF instead" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Export OKF instead" }));
     expect(onExportAndDelete).toHaveBeenLastCalledWith("okf");
   });
 
-  it("shows no alert when there are no warnings", () => {
+  it("shows no alert when there are no warnings", async () => {
     render(<ClearCanvasDialog {...base} onDelete={() => {}} onExportAndDelete={() => []} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: /^export & delete$/i }));
+    await Promise.resolve();
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByRole("button", { name: "Delete" })).toBeTruthy();
   });
 });
+

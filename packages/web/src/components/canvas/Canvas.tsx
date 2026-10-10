@@ -585,13 +585,21 @@ function CanvasInner() {
   }, [screenToFlowPosition]);
 
   // ── Import / Export / Push handlers ───────────────────────────────────────
-  const handleExport = useCallback((format: ExportFormat): string[] => {
+  // Resolves to what the export could not hold, or null when it failed (the
+  // Ossie writer is loaded on demand and can fail to load) — a toast says so.
+  const handleExport = useCallback(async (format: ExportFormat): Promise<string[] | null> => {
     const graph = store.get();
     // An empty Ossie document is schema-invalid; the top bar already blocks this.
     if (graph.nodes.length === 0) return [];
     persistExportFormat(format);
     if (format === "ossie") {
-      const warnings = downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME);
+      let warnings: string[];
+      try {
+        warnings = await downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME);
+      } catch (e) {
+        setShareToast({ message: (e as Error).message, sticky: true });
+        return null;
+      }
       if (warnings.length > 0) setShareToast({ message: "Exported as Apache Ossie with warnings: " + warnings.join("; "), sticky: true });
       return warnings;
     }
@@ -613,8 +621,10 @@ function CanvasInner() {
   }, []);
 
   // With Ossie warnings the dialog stays open and decides (Delete anyway / Export OKF instead).
-  const handleExportAndClear = useCallback((format: ExportFormat): string[] => {
-    const warnings = handleExport(format);
+  // A failed export (null) keeps the canvas and the dialog open.
+  const handleExportAndClear = useCallback(async (format: ExportFormat): Promise<string[]> => {
+    const warnings = await handleExport(format);
+    if (warnings === null) return [];
     if (warnings.length === 0) clearCanvas();
     return warnings;
   }, [handleExport, clearCanvas]);
@@ -841,8 +851,9 @@ function CanvasInner() {
 
   // Confirmed start-new: wipe to a fresh model (clearCanvas resets id + name).
   const startNewModel = useCallback(() => { clearCanvas(); setShowNewModel(false); }, [clearCanvas]);
-  const exportAndStartNewModel = useCallback((format: ExportFormat): string[] => {
-    const warnings = handleExport(format);
+  const exportAndStartNewModel = useCallback(async (format: ExportFormat): Promise<string[]> => {
+    const warnings = await handleExport(format);
+    if (warnings === null) return [];
     if (warnings.length === 0) startNewModel();
     return warnings;
   }, [handleExport, startNewModel]);

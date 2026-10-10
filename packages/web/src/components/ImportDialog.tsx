@@ -42,6 +42,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
   // Last URL that fetched successfully — so a blur/paste re-trigger for the same
   // already-loaded link is a no-op (but a failed URL can still be retried).
   const lastFetchedRef = useRef<string | null>(null);
+  const refreshSeq = useRef(0);
 
   // Copy the AI authoring guide to the clipboard so the user can paste it into
   // Claude/ChatGPT to generate an importable OKF model. Falls back to opening
@@ -63,7 +64,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     let model: LoadedModel;
     if (tab === "paste") {
       if (!paste.trim()) return null;
-      model = loadModelText(paste.trim());
+      model = await loadModelText(paste.trim());
     } else {
       let files: Record<string, string> = {};
       if (tab === "upload") {
@@ -82,7 +83,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         files = fetched ?? {};
       }
       if (Object.keys(files).length === 0) return null;
-      model = loadModelFiles(files);
+      model = await loadModelFiles(files);
     }
     const graph = { ...model.graph, nodes: model.graph.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
     return { ...model, graph };
@@ -94,8 +95,12 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
   async function refresh(tab: TabId, opts?: { paste?: string; fetched?: Record<string, string> | null }) {
     const paste = opts?.paste ?? pasteText;
     const fetched = opts?.fetched ?? fetchedFiles;
+    // Loading can await (file reads, the lazily loaded Ossie reader), so an
+    // older refresh may finish after a newer one: only the latest may apply.
+    const seq = ++refreshSeq.current;
     try {
       const model = await loadForTab(tab, paste, fetched);
+      if (seq !== refreshSeq.current) return;
       if (!model) { setLoaded(null); return; }
       // Content provided but no marts parsed out (e.g. a folder whose index.md
       // lists sub-bundles). Nothing to import.
@@ -107,6 +112,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
       setLoaded(model);
       setError(null);
     } catch (e) {
+      if (seq !== refreshSeq.current) return;
       setLoaded(null);
       setError((e as Error).message ?? "Failed to parse the model.");
     }

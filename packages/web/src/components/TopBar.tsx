@@ -21,7 +21,7 @@ export interface TopBarProps {
   onRefreshStorages?: () => Promise<StorageOption[]>;
   onImport?: () => void;
   onImportFromOwox?: () => void;
-  onExport?: (format: "okf" | "ossie") => void;
+  onExport?: (format: "okf" | "ossie") => void | Promise<unknown>;
   onExportImage?: (format: ImageFormat) => void;
   exportDisabled?: boolean;
   onShare?: () => void;

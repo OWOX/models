@@ -1,6 +1,7 @@
 import YAML from "yaml";
 import { describe, it, expect } from "vitest";
-import { serializeBundle, parseBundle, serializeOssie, parseOssie } from "../src/index";
+import { serializeBundle, parseBundle } from "../src/index";
+import { serializeOssie, parseOssie } from "../src/ossie";
 import type { ModelGraph } from "../src/types";
 
 const graph: ModelGraph = {

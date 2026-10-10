@@ -1,4 +1,4 @@
-import { serializeBundle, parseBundle, isBundleIndex, parseOssie, serializeOssie, detectModelFormat, isOssieModelText, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
+import { serializeBundle, parseBundle, isBundleIndex, detectModelFormat, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 // Branded footer appended to the bundle index — every exported model carries an
@@ -89,7 +89,21 @@ function okfModelName(files: Record<string, string>): string | null {
   }
 }
 
-function loadOssieText(text: string): LoadedModel {
+// The Ossie reader/writer (and the `yaml` parser behind it) is a separate chunk,
+// fetched the first time a user imports or exports Ossie — not on page load.
+type OssieModule = typeof import("@mc/okf/ossie");
+let ossieModule: Promise<OssieModule> | null = null;
+export const OSSIE_LOAD_FAILED = "Couldn't load the Apache Ossie support. Check your connection, reload the page and try again.";
+export function loadOssieModule(): Promise<OssieModule> {
+  ossieModule ??= import("@mc/okf/ossie").catch(() => {
+    ossieModule = null; // let the next attempt retry (offline, or a stale chunk after a deploy)
+    throw new Error(OSSIE_LOAD_FAILED);
+  });
+  return ossieModule;
+}
+
+async function loadOssieText(text: string): Promise<LoadedModel> {
+  const { parseOssie } = await loadOssieModule();
   const r = parseOssie(text);
   return { format: "ossie", graph: r.graph, name: r.name ?? null, notImported: r.notImported, warnings: r.warnings };
 }
@@ -118,10 +132,12 @@ export const MAX_MODEL_BYTES = 5 * 1024 * 1024;
 export const TOO_LARGE = "This file is too large (max 5 MB).";
 const tooLarge = (texts: string[]) => texts.reduce((n, t) => n + t.length, 0) > MAX_MODEL_BYTES;
 
-export function loadModelFiles(files: Record<string, string>): LoadedModel {
+export async function loadModelFiles(files: Record<string, string>): Promise<LoadedModel> {
   if (tooLarge(Object.values(files))) throw new Error(TOO_LARGE);
   const names = Object.keys(files);
   const dataNames = names.filter(n => /\.(ya?ml|json)$/i.test(n));
+  // A pure OKF upload never loads the Ossie chunk.
+  const isOssieModelText = dataNames.length > 0 ? (await loadOssieModule()).isOssieModelText : () => false;
   const ossie = dataNames.filter(n => isOssieModelText(files[n]));
   const hasDocs = names.some(n => !dataNames.includes(n));
   if (ossie.length > 1) throw new Error("Import one Ossie file at a time");
@@ -135,13 +151,14 @@ export function loadModelFiles(files: Record<string, string>): LoadedModel {
   return loadOkfFiles(files);
 }
 
-export function loadModelText(text: string): LoadedModel {
+export async function loadModelText(text: string): Promise<LoadedModel> {
   if (tooLarge([text])) throw new Error(TOO_LARGE);
   if (detectModelFormat({ text }) === "ossie") return loadOssieText(text);
   return loadOkfFiles(parsePastedMarkdown(text));
 }
 
-export function downloadOssie(graph: ModelGraph, modelName: string): string[] {
+export async function downloadOssie(graph: ModelGraph, modelName: string): Promise<string[]> {
+  const { serializeOssie } = await loadOssieModule();
   const { yaml, warnings } = serializeOssie(graph, modelName);
   const blob = new Blob([yaml], { type: "application/yaml" });
   const a = document.createElement("a");

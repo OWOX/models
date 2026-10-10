@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { parseOssie, formulaLevel } from "@mc/okf";
+import { formulaLevel } from "@mc/okf";
+import { parseOssie } from "@mc/okf/ossie";
 
 // The worked example from public/ossie-format.md. If the parser or the page
 // drift apart, this fails.

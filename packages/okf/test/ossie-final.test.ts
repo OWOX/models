@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import YAML from "yaml";
 import Ajv2020 from "ajv/dist/2020";
-import { parseOssie, serializeOssie } from "../src/index";
+import { parseOssie, serializeOssie } from "../src/ossie";
 import type { ModelGraph } from "../src/types";
 const schema = JSON.parse(readFileSync(new URL("./fixtures/ossie/ossie-schema.json", import.meta.url), "utf8"));
 const ext = (o: unknown) => [{ vendor_name: "OWOX", data: JSON.stringify(o) }];

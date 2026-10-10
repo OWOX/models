@@ -67,6 +67,6 @@ describe("Replace and OKF export use the model name", () => {
     expect(h.downloads).toHaveLength(1);
     expect(h.downloads[0].name).toBe("Shop model");
     expect(Object.keys(h.downloads[0].files).every(p => p.startsWith("shop-model/"))).toBe(true);
-    expect(loadModelFiles(h.downloads[0].files).name).toBe("Shop model");
+    expect((await loadModelFiles(h.downloads[0].files)).name).toBe("Shop model");
   });
 });
