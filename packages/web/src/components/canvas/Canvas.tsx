@@ -1088,7 +1088,7 @@ function CanvasInner() {
         >
           {/* Tool dock — anchored to the canvas (not the outer row) so it sits
               just inside the canvas edge and slides over as the rail opens. */}
-          <ModelTitleBlock name={modelName.trim() || DEFAULT_MODEL_NAME} description={graph.description} onOpen={() => { panel.open("model"); setVisualRailId(null); }} />
+          <ModelTitleBlock name={modelName.trim() || DEFAULT_MODEL_NAME} onOpen={() => { panel.open("model"); setVisualRailId(null); }} />
           <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} relLabelMode={relLabelMode} onRelLabelModeChange={handleRelLabelModeChange} objHidden={objHidden} onObjHiddenChange={handleObjHiddenChange} />
           <ReactFlow
             nodes={rfNodes}

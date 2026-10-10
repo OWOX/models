@@ -3,22 +3,17 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { ModelTitleBlock } from "./ModelTitleBlock";
 
 describe("ModelTitleBlock", () => {
-  it("shows the name and the first line of the description", () => {
-    render(<ModelTitleBlock name="Acme" description={"Line one\nLine two"} onOpen={() => {}} />);
+  it("shows only the model name", () => {
+    render(<ModelTitleBlock name="Acme" onOpen={() => {}} />);
     const btn = screen.getByRole("button", { name: /Edit model name and description/ });
-    expect(btn.textContent).toContain("Acme");
-    expect(btn.textContent).toContain("Line one");
-    expect(btn.textContent).not.toContain("Line two");
+    expect(btn.textContent).toBe("Acme");
     expect(screen.getByText("Acme").getAttribute("title")).toBe("Acme");
   });
-  it("shows a muted hint when the description is empty", () => {
-    render(<ModelTitleBlock name="Acme" description="" onOpen={() => {}} />);
-    expect(screen.getByText("Add a description")).toBeTruthy();
-  });
-  it("has a fixed 280px width and sits top-left", () => {
+  it("fits the name up to a 220px cap and sits top-left", () => {
     render(<ModelTitleBlock name="Acme" onOpen={() => {}} />);
     const cls = screen.getByRole("button").className;
-    expect(cls).toContain("w-[280px]");
+    expect(cls).toContain("w-fit");
+    expect(cls).toContain("max-w-[min(220px,calc(100%-30px))]");
     expect(cls).toContain("top-[14px]");
     expect(cls).toContain("left-[15px]");
   });
@@ -26,7 +21,6 @@ describe("ModelTitleBlock", () => {
     render(<ModelTitleBlock name="Acme" onOpen={() => {}} />);
     const btn = screen.getByRole("button", { name: "Acme. Edit model name and description" });
     expect(btn.className).toContain("z-[14]");
-    expect(btn.className).toContain("max-w-[calc(100%-30px)]");
   });
   it("calls onOpen on click", () => {
     const onOpen = vi.fn();
