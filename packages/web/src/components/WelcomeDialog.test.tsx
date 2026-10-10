@@ -51,6 +51,18 @@ describe("WelcomeDialog", () => {
     expect(p.onImport).toHaveBeenCalledTimes(1);
   });
 
+  // Googlebot renders the page as a first-time visitor, so this dialog is the
+  // rendered page's only text: it must name the product and its category.
+  it("names the product and category in the page's single H1", async () => {
+    render(<WelcomeDialog {...props()} />);
+    await screen.findByText(/verified templates gallery/i);
+    const h1s = screen.getAllByRole("heading", { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0]).toHaveTextContent(/OWOX Model Canvas/);
+    expect(h1s[0]).toHaveTextContent(/free data modeling canvas/i);
+    expect(screen.getByText(/Open Knowledge Format \(OKF\)/)).toHaveTextContent(/Apache Ossie/);
+  });
+
   it("links to an import guide", async () => {
     render(<WelcomeDialog {...props()} />);
     await screen.findByText(/verified templates gallery/i);

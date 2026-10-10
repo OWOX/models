@@ -45,7 +45,9 @@ export function buildApp() {
         defaultSrc: ["'self'"],
         baseUri: ["'self'"],
         scriptSrc: ["'self'", POSTHOG_PROXY],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        // fonts.googleapis.com serves the JetBrains Mono stylesheet linked from
+        // index.html; fonts.gstatic.com serves the font files it points to.
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         // Verified-bundle index images are raw <img> tags pointing at
         // github.com/user-attachments/..., which 302-redirect to a short-lived
         // signed asset URL on GitHub's S3 bucket. img-src is enforced on the
@@ -53,7 +55,7 @@ export function buildApp() {
         // initial request and *.s3.amazonaws.com for the redirect. img-src can't
         // execute code, so the S3 wildcard is a low-risk image-only allowance.
         imgSrc: ["'self'", "data:", "blob:", "https://github.com", "https://*.s3.amazonaws.com"],
-        fontSrc: ["'self'", "data:"],
+        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
         // raw.githubusercontent.com: client-side OKF-bundle import fetches the
         // markdown files directly; api.github.com: fallback folder listing when a
         // bundle has no index.md. Both are static/public read endpoints — no SSRF
