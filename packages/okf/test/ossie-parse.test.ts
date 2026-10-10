@@ -12,6 +12,10 @@ describe("parseOssie — TPC-DS", () => {
     expect(r.graph.edges).toHaveLength(4);
     expect(r.graph.edges[0]).toMatchObject({ from: "store_sales", to: "date_dim", keys: [{ left: "ss_sold_date_sk", right: "d_date_sk" }], cardinality: "N:1" });
   });
+  it("imports relationship ai_context as the edge description", () => {
+    expect(r.graph.edges).toHaveLength(4);
+    for (const e of r.graph.edges) expect(e.description).toMatch(/^Synonyms:/);
+  });
   it("turns the computed field into a calculated column", () => {
     expect(node("customer").schema.find(f => f.name === "customer_full_name")).toMatchObject({ formula: expect.stringContaining("c_first_name"), pk: false });
   });
@@ -25,8 +29,8 @@ describe("parseOssie — TPC-DS", () => {
     expect(r.notImported).toEqual(expect.arrayContaining([
       "model description / AI context",
       "custom extensions: SALESFORCE, DBT",
-      expect.stringMatching(/^relationship "store_sales_to_date": ai_context/),
     ]));
+    expect(r.notImported.filter(x => x.startsWith("relationship"))).toEqual([]);
     expect(r.warnings.filter(w => w.includes("window functions"))).toHaveLength(3);
     expect(r.name).toBe("tpcds_retail_model");
   });

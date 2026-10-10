@@ -169,3 +169,36 @@ descRt("cardinality round-trip", () => {
     });
   }
 });
+
+describe("okf join description", () => {
+  const g = (bidirectional: boolean): ModelGraph => ({
+    ...graph,
+    edges: [{ id: "e1", from: "fb", to: "camp", keys: [{ left: "campaign_id", right: "id" }], bidirectional, cardinality: "N:1",
+      description: "Each ad belongs to\none campaign" }],
+  });
+  it("round-trips a description on the forward line only", () => {
+    const files = serializeBundle(g(true), "Demo").files;
+    expect(files["demo/facebook-ads.md"]).toContain("\n  - Description: Each ad belongs to one campaign\n");
+    expect(files["demo/campaigns.md"]).not.toContain("Description:");
+    const back = parseBundle(files);
+    expect(back.edges).toHaveLength(1);
+    expect(back.edges[0].description).toBe("Each ad belongs to one campaign");
+    expect(back.edges[0].bidirectional).toBe(true);
+  });
+  it("takes the first non-empty description when the reverse line has one too", () => {
+    const files = { ...serializeBundle(g(true), "Demo").files };
+    files["demo/campaigns.md"] = files["demo/campaigns.md"].replace(/(- \[Facebook Ads\].*)/, "$1\n  - Description: from reverse");
+    expect(parseBundle(files).edges[0].description).toBe("Each ad belongs to one campaign");
+    const f2 = { ...serializeBundle({ ...g(true), edges: [{ ...g(true).edges[0], description: undefined }] }, "Demo").files };
+    f2["demo/campaigns.md"] = f2["demo/campaigns.md"].replace(/(- \[Facebook Ads\].*)/, "$1\n  - Description: from reverse");
+    expect(parseBundle(f2).edges[0].description).toBe("from reverse");
+  });
+  it("parses an old bundle without sub-bullets unchanged and ignores stray Description lines", () => {
+    const files = { ...serializeBundle(g(false), "Demo").files };
+    const plain = serializeBundle({ ...g(false), edges: [{ ...g(false).edges[0], description: undefined }] }, "Demo").files;
+    expect(parseBundle(plain).edges[0].description).toBeUndefined();
+    plain["demo/facebook-ads.md"] += "\n## Notes\n\n  - Description: stray\n";
+    expect(parseBundle(plain).edges[0].description).toBeUndefined();
+    expect(parseBundle(files).edges[0].description).toBeDefined();
+  });
+});

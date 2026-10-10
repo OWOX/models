@@ -42,6 +42,8 @@ export interface ModelEdge {
   alias?: string;
   /** Join alias for to → from of a bidirectional edge. */
   reverseAlias?: string;
+  /** Business meaning of the join, shared with AI assistants (OWOX relationship description). */
+  description?: string;
   // Canvas-only hints for which ports the edge attaches to (not encoded in OKF).
   sourceHandle?: string | null;
   targetHandle?: string | null;

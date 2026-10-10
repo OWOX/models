@@ -136,3 +136,16 @@ describe("serializeOssie fixes", () => {
     expect(validate(d), JSON.stringify(validate.errors)).toBe(true);
   });
 });
+
+describe("ossie relationship description", () => {
+  it("exports ai_context + ext description, validates, and round-trips exactly", () => {
+    const g: ModelGraph = { storageId: null, nodes: graph.nodes.slice(0, 2),
+      edges: [{ id: "e1", from: "orders", to: "customers", keys: [{ left: "customer_id", right: "id" }], bidirectional: false, cardinality: "N:1", description: "Each order belongs to one customer" }] };
+    const { yaml } = serializeOssie(g, "m");
+    const doc = YAML.parse(yaml);
+    expect(doc.relationships[0].ai_context).toBe("Each order belongs to one customer");
+    expect(JSON.parse(doc.relationships[0].custom_extensions[0].data).description).toBe("Each order belongs to one customer");
+    const v = new Ajv2020({ strict: false }); expect(v.validate(schema, doc)).toBe(true);
+    expect(parseOssie(yaml).graph.edges[0].description).toBe("Each order belongs to one customer");
+  });
+});

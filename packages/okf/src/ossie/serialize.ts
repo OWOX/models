@@ -75,9 +75,10 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
     };
     const ext = owoxExt({
       alias: e.alias, reverseAlias: e.reverseAlias, bidirectional: e.bidirectional || undefined,
-      cardinality: e.cardinality, swapped: swapped || undefined,
+      cardinality: e.cardinality, swapped: swapped || undefined, description: e.description?.trim() ? e.description : undefined,
     });
     if (ext) rel.custom_extensions = ext;
+    if (e.description?.trim()) rel.ai_context = e.description;
     relationships.push(rel);
   }
 
