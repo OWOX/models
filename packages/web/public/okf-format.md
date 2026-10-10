@@ -60,7 +60,7 @@ tags: ["owox", "sql"]
 The user pastes the whole thing into **Import**.
 
 ### B — ZIP bundle
-A folder with an `index.md` plus one `<slug>.md` per mart, zipped. This is exactly what **Export OKF** downloads, so anything the canvas exports round-trips back in.
+A folder with an `index.md` plus one `<slug>.md` per mart, zipped. The `description` in the frontmatter of `index.md` is the model description (edited in the Model sheet on the canvas); the stock text "Index of exported OWOX data marts." is ignored on import. This is exactly what **Export OKF** downloads, so anything the canvas exports round-trips back in.
 
 ---
 

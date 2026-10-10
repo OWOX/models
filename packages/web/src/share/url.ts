@@ -1,5 +1,6 @@
 import { gzipSync, gunzipSync, strToU8, strFromU8 } from "fflate";
 import type { ModelGraph, ModelNode, ModelEdge } from "@mc/okf";
+import { migrateModelName } from "../state/modelName";
 
 // Shareable model links. The whole model is gzip-compressed and packed into the
 // URL hash (#m=…) — no backend, fully anonymous, and the hash never leaves the
@@ -15,6 +16,7 @@ const NAME_KEY = "n";
 function sanitize(g: ModelGraph): ModelGraph {
   return {
     storageId: null,
+    ...(typeof g.description === "string" && g.description ? { description: g.description } : {}),
     nodes: g.nodes.map((n): ModelNode => ({
       key: n.key,
       title: n.title,
@@ -89,7 +91,7 @@ export function readSharedModel(): ModelGraph | null {
 export function readSharedName(): string | null {
   const match = new RegExp(`[#&]${NAME_KEY}=([^&]+)`).exec(location.hash);
   if (!match) return null;
-  try { return decodeURIComponent(match[1]); } catch { return null; }
+  try { return migrateModelName(decodeURIComponent(match[1])); } catch { return null; }
 }
 
 /** Strip the shared-model payload from the address bar (after we've loaded it),

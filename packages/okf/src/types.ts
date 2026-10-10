@@ -54,4 +54,6 @@ export interface ModelGraph {
   storageId: string | null;
   nodes: ModelNode[];
   edges: ModelEdge[];
+  /** What the model is for; shared with AI tools (OKF index description, Ossie model description). */
+  description?: string;
 }

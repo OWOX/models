@@ -203,7 +203,7 @@ function FieldRow({ f, hidden, anchors, beforeCalculated }: { f: SchemaField; hi
       </div>
       {/* Single-line (truncated) so the row height stays predictable for the layout. */}
       {description && (
-        <div data-field-description="" className="truncate pl-5 text-[10.5px] italic text-[#65676f]/80" title={description}>
+        <div data-field-description="" className="truncate pl-5 text-[10.5px] italic text-[#65676f]" title={description}>
           {description}
         </div>
       )}
@@ -290,12 +290,12 @@ function RelationshipsSection({ title, relationships }: { title: string; relatio
                 </div>
               ))
             ) : (
-              <div data-rel-join="" data-rel-unset="" className="pl-5 text-[10.5px] italic leading-[14px] text-[#65676f]/80">
+              <div data-rel-join="" data-rel-unset="" className="pl-5 text-[10.5px] italic leading-[14px] text-[#65676f]">
                 Join fields not set
               </div>
             )}
             {rel.description && (
-              <div data-rel-description="" className="truncate pl-5 text-[10.5px] leading-[14px] text-[#65676f]/80">
+              <div data-rel-description="" className="truncate pl-5 text-[10.5px] leading-[14px] text-[#65676f]">
                 {rel.description}
               </div>
             )}

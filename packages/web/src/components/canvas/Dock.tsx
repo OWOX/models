@@ -395,7 +395,7 @@ export function Dock({ activeTool, onToolChange, viewMode, onToggleView, onClear
   return (
     <div
       data-dock
-      className="absolute left-[14px] top-[calc(50%-34px)] -translate-y-1/2 bg-white border border-[#d8dee8] rounded-xl p-[6px] flex flex-col gap-1 z-20 shadow-[0_4px_16px_rgba(15,23,42,0.06)]"
+      className="absolute left-[14px] top-[calc(50%-34px)] -translate-y-1/2 bg-white border border-[#d8dee8] rounded-xl p-[6px] flex flex-col gap-1 z-[14] shadow-[0_4px_16px_rgba(15,23,42,0.06)]"
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif" }}
     >
       <ToolButton

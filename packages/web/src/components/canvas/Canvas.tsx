@@ -69,6 +69,8 @@ import { relationshipsByNode, type CardRelationship } from "./relationships";
 import { Inspector } from "../inspector/Inspector";
 import { RightRail } from "../rail/RightRail";
 import { ModelSheet } from "../rail/ModelSheet";
+import { ModelPanel } from "../rail/ModelPanel";
+import { ModelTitleBlock } from "./ModelTitleBlock";
 import { useRightPanel, gatedPanelId, type RightPanelId } from "../rail/useRightPanel";
 import { EnablePanel } from "../rail/EnablePanel";
 import { AccountPanel } from "../rail/AccountPanel";
@@ -234,7 +236,7 @@ type Selection =
 // Titles shown in the right Sheet header per active panel.
 const SHEET_TITLES: Record<NonNullable<ReturnType<typeof useRightPanel>["active"]>, string> = {
   inspect: "Inspect", models: "My Models", history: "Version history",
-  share: "Share model", enable: "Enable Model Canvas", account: "Account",
+  share: "Share model", enable: "Enable Model Canvas", account: "Account", model: "Model",
 };
 
 // ── Inner canvas (needs ReactFlowProvider context) ────────────────────────────
@@ -575,7 +577,7 @@ function CanvasInner() {
     // Only fire when clicking the pane (not on a node card or edge)
     const target = e.target as HTMLElement;
     if (target.closest(".react-flow__node") || target.closest(".react-flow__edge")) return;
-    if (target.closest("[data-dock]")) return; // double-clicking the toolbar shouldn't drop a node
+    if (target.closest("[data-dock]") || target.closest("[data-canvas-overlay]")) return; // double-clicking the toolbar shouldn't drop a node
     const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
     const n = store.addNode({ x: position.x - NODE_W / 2, y: position.y - NODE_H / 2 });
     setSelection({ type: "node", id: n.key });
@@ -589,11 +591,11 @@ function CanvasInner() {
     if (graph.nodes.length === 0) return [];
     persistExportFormat(format);
     if (format === "ossie") {
-      const warnings = downloadOssie(graph, modelName);
+      const warnings = downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME);
       if (warnings.length > 0) setShareToast({ message: "Exported as Apache Ossie with warnings: " + warnings.join("; "), sticky: true });
       return warnings;
     }
-    const title = me?.projectTitle ?? "model-okf";
+    const title = modelName.trim() || DEFAULT_MODEL_NAME;
     const files = graphToBundleFiles(graph, title);
     downloadBundle(files, title);
     return [];
@@ -639,7 +641,7 @@ function CanvasInner() {
   // Copy a shareable link that reopens this exact model. Falls back to a prompt
   // if the clipboard API is blocked (insecure context / permissions).
   const handleShare = useCallback(async () => {
-    const url = buildShareUrl(store.get(), modelName);
+    const url = buildShareUrl(store.get(), modelName.trim() || DEFAULT_MODEL_NAME);
     // The whole model rides in the link's #hash, so it works on whatever origin
     // serves the app. On localhost that's only this machine — flag it so a local
     // dev doesn't think the link is broken; on model.owox.com it just works.
@@ -671,7 +673,7 @@ function CanvasInner() {
     store.set({ ...graph, nodes: graph.nodes.map(n => newKeys.has(n.key) ? { ...n, position: positions.get(n.key) ?? n.position } : n) });
   }, [viewMode, objHidden]);
 
-  const handleImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
+  const handleImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge", name: string | null) => {
     if (mode === "merge") {
       applyMergeWithLayout(g);
     } else {
@@ -679,6 +681,10 @@ function CanvasInner() {
       // storageId (parse returns null), so taking the imported value would blank the
       // selection. Fall back to the imported id only when none is selected yet.
       store.set({ ...(hasStoredPositions(g) ? g : withLayout(g)), storageId: store.get().storageId ?? g.storageId });
+      // Replace swaps in the file's model name too (its description rides in the graph).
+      setModelName(name?.trim() || DEFAULT_MODEL_NAME);
+      setSavedModelId(null); // a Replace is a new model — the next Save creates a row
+      setSavedSnapshot(null);
     }
     setShowImport(false);
     setOkfInitialUrl(null);
@@ -686,9 +692,14 @@ function CanvasInner() {
 
   const handleOwoxImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
     if (mode === "merge") applyMergeWithLayout(g);
-    else store.set({ ...withLayout(g), storageId: g.storageId });
+    else {
+      store.set({ ...withLayout(g), storageId: g.storageId });
+      setModelName(me?.projectTitle?.trim() || DEFAULT_MODEL_NAME);
+      setSavedModelId(null);
+      setSavedSnapshot(null);
+    }
     setShowOwoxImport(false);
-  }, [withLayout, applyMergeWithLayout]);
+  }, [withLayout, applyMergeWithLayout, me?.projectTitle]);
 
   const applyTemplate = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
     // Keep the model on the currently selected storage; auto-layout the template.
@@ -1077,6 +1088,7 @@ function CanvasInner() {
         >
           {/* Tool dock — anchored to the canvas (not the outer row) so it sits
               just inside the canvas edge and slides over as the rail opens. */}
+          <ModelTitleBlock name={modelName.trim() || DEFAULT_MODEL_NAME} onOpen={() => { panel.open("model"); setVisualRailId(null); }} />
           <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} relLabelMode={relLabelMode} onRelLabelModeChange={handleRelLabelModeChange} objHidden={objHidden} onObjHiddenChange={handleObjHiddenChange} />
           <ReactFlow
             nodes={rfNodes}
@@ -1158,8 +1170,15 @@ function CanvasInner() {
           active={panel.active}
           modal={panel.active !== "inspect"}
           title={SHEET_TITLES[panel.active ?? "inspect"]}
-          onClose={() => { const wasInspect = panel.active === "inspect"; panel.close(); if (wasInspect) setSelection(null); setVisualRailId(null); }}
+          onClose={() => { const wasInspect = panel.active === "inspect"; if (panel.active === "model" && !modelName.trim()) setModelName(DEFAULT_MODEL_NAME); panel.close(); if (wasInspect) setSelection(null); setVisualRailId(null); }}
         >
+          {panel.active === "model" && (
+            <ModelPanel
+              name={modelName} onNameChange={setModelName}
+              description={graph.description ?? ""} onDescriptionChange={t => store.setDescription(t)}
+              martCount={graph.nodes.length} relCount={graph.edges.length}
+            />
+          )}
           {panel.active === "inspect" && (
             <Inspector
               selection={selection}

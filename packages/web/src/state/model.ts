@@ -34,6 +34,7 @@ export function createModelStore(initial?: Partial<ModelGraph>) {
       g = { ...g, edges: [...g.edges, e] }; emit(); return e;
     },
     updateEdge(id: string, patch: Partial<ModelEdge>) { g = { ...g, edges: g.edges.map(e => e.id === id ? { ...e, ...patch } : e) }; emit(); },
+    setDescription(text: string) { const { description: _d, ...rest } = g; g = text ? { ...rest, description: text } : rest; emit(); },
     removeEdge(id: string) { g = { ...g, edges: g.edges.filter(e => e.id !== id) }; emit(); },
   };
 }

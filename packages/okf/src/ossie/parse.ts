@@ -68,7 +68,6 @@ function convert(text: string): OssieImport {
     for (const e of arr(exts) as OssieExt[]) if (e && typeof e.vendor_name === "string" && e.vendor_name && e.vendor_name !== OWOX_VENDOR && !vendors.includes(e.vendor_name)) vendors.push(e.vendor_name);
   };
   seeExts(doc.custom_extensions);
-  if (doc.description || doc.ai_context) notImported.push("model description / AI context");
 
   // Datasets → nodes
   const taken = new Set<string>();
@@ -156,7 +155,7 @@ function convert(text: string): OssieImport {
     const eAlias = str(ext.alias), eRev = str(ext.reverseAlias);
     if (eAlias) e.alias = eAlias;
     if (eRev) e.reverseAlias = eRev;
-    const desc = str(ext.description) ?? (aiContextText(r.ai_context) || undefined);
+    const desc = str(ext.description) ?? ((typeof r.ai_context === "string" ? r.ai_context.trim() : aiContextText(r.ai_context)) || undefined);
     if (desc) e.description = desc;
     edges.push(e);
   }
@@ -232,5 +231,9 @@ function convert(text: string): OssieImport {
 
   if (vendors.length) notImported.push(`custom extensions: ${vendors.join(", ")}`);
   const modelExt = readOwoxExt<Record<string, unknown>>(doc.custom_extensions);
-  return { graph: { storageId: null, nodes, edges }, name: str(modelExt.name) ?? str(doc.name), notImported, warnings };
+  const description = str(modelExt.description)
+    ?? joinText(typeof doc.description === "string" ? doc.description : undefined, aiContextText(doc.ai_context) || undefined);
+  const graph: ModelGraph = { storageId: null, nodes, edges };
+  if (description) graph.description = description;
+  return { graph, name: str(modelExt.name) ?? str(doc.name), notImported, warnings };
 }

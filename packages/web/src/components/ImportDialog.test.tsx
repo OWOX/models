@@ -228,7 +228,7 @@ describe("ImportDialog GitHub URL import", () => {
   });
 });
 
-const OSSIE_YAML = "version: 0.2.0.dev0\nname: shop\ndescription: Shop model\ndatasets:\n  - name: orders\n    source: p.d.orders\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\n  - name: users\n    source: p.d.users\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\nrelationships:\n  - name: o_u\n    from: orders\n    to: users\n    from_columns: [id]\n    to_columns: [id]\n    ai_context:\n      synonyms: [x]\n";
+const OSSIE_YAML = "version: 0.2.0.dev0\nname: shop\ndescription: Shop model\ndatasets:\n  - name: orders\n    source: p.d.orders\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\n  - name: users\n    source: p.d.users\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\nrelationships:\n  - name: o_u\n    from: orders\n    to: users\n    from_columns: [id]\n    to_columns: [id]\n    ai_context:\n      synonyms: [x]\ncustom_extensions:\n  - vendor_name: DBT\n    data: '{}'\n";
 
 function upload(files: File[]) {
   const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -254,6 +254,16 @@ describe("ImportDialog Apache Ossie", () => {
     upload([mkFile("m.yaml", OSSIE_YAML)]);
     await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("Apache Ossie"));
     expect(screen.getByText(/Will import 2 marts, 1 relationships/i)).toBeTruthy();
+  });
+
+  it("confirms with the model name from the file", async () => {
+    const onConfirm = vi.fn();
+    render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
+    upload([mkFile("m.yaml", OSSIE_YAML)]);
+    await waitFor(() => expect(screen.getByText(/Will import 2 marts/i)).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: /^import$/i }));
+    expect(onConfirm.mock.calls[0][2]).toBe("shop");
+    expect(onConfirm.mock.calls[0][0].description).toBe("Shop model");
   });
 
   it("pasting Ossie text shows the badge and a Not imported list", async () => {

@@ -52,7 +52,7 @@ describe("share url", () => {
     expect(url).toContain("&n=");
     // Load the hash as if the recipient opened the link.
     history.replaceState(null, "", url.slice(url.indexOf("#")));
-    expect(readSharedName()).toBe("My SaaS / Subscription OKF with OWOX");
+    expect(readSharedName()).toBe("My SaaS / Subscription data model with OWOX"); // old wording is migrated
   });
 
   it("omits the name param when no name is given, and reads null", () => {
@@ -67,5 +67,12 @@ describe("share url relationship description", () => {
   it("keeps the edge description through encode/decode", () => {
     const g = { ...graph, edges: [{ ...graph.edges[0], description: "Each order belongs to one customer" }] };
     expect(decodeModel(encodeModel(g))!.edges[0].description).toBe("Each order belongs to one customer");
+  });
+});
+
+describe("share url model description", () => {
+  it("keeps the model description through encode/decode", () => {
+    expect(decodeModel(encodeModel({ ...graph, description: "Retail model" }))!.description).toBe("Retail model");
+    expect(decodeModel(encodeModel(graph))!.description).toBeUndefined();
   });
 });

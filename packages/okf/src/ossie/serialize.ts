@@ -114,7 +114,9 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
   const doc: OssieDoc = { version: OSSIE_VERSION, name: defaultJoinAlias(modelName, "model"), datasets };
   if (relationships.length) doc.relationships = relationships;
   if (metrics.length) doc.metrics = metrics;
-  const ext = owoxExt({ generator: "model.owox.com", name: modelName });
+  const description = graph.description?.trim() ? graph.description : undefined;
+  if (description) doc.description = description;
+  const ext = owoxExt({ generator: "model.owox.com", name: modelName, description });
   if (ext) doc.custom_extensions = ext;
   return { yaml: YAML.stringify(doc, { lineWidth: 0 }), warnings };
 }

@@ -22,7 +22,7 @@ export function serializeBundle(graph: ModelGraph, projectTitle = "Data Marts"):
   const rows = graph.nodes.map(n =>
     `| [${n.title}](./${slugByKey.get(n.key)}.md) | ${n.inputSource} | ${graph.storageId ?? "—"} |`).join("\n");
   files[`${folder}/index.md`] =
-    `---\n${renderFrontmatter({ type: "index", title: projectTitle, description: "Index of exported OWOX data marts.", tags: ["owox", "index"] })}\n---\n\n# ${projectTitle}\n\n| Data Mart | Type | Storage |\n|-----------|------|---------|\n${rows}\n`;
+    `---\n${renderFrontmatter({ type: "index", title: projectTitle, description: graph.description?.trim() ? graph.description : "Index of exported OWOX data marts.", tags: ["owox", "index"] })}\n---\n\n# ${projectTitle}\n\n| Data Mart | Type | Storage |\n|-----------|------|---------|\n${rows}\n`;
   return { files };
 }
 

@@ -84,6 +84,10 @@ describe("MartNode badges open lists", () => {
     expect(list.textContent).toContain("Join fields not set");
     expect(screen.getByLabelText("Joins")).toBeTruthy();
     expect(screen.getByLabelText("Joined by")).toBeTruthy();
+    for (const el of [list.querySelector("[data-rel-description]")!, list.querySelector("[data-rel-unset]")!]) {
+      expect(el.className).toContain("text-[#65676f]");
+      expect(el.className).not.toContain("text-[#65676f]/");
+    }
   });
 
   it("opens one list at a time", () => {

@@ -149,3 +149,19 @@ describe("ossie relationship description", () => {
     expect(parseOssie(yaml).graph.edges[0].description).toBe("Each order belongs to one customer");
   });
 });
+
+describe("ossie model description", () => {
+  it("exports the description, validates, and round-trips exactly", () => {
+    const desc = "Retail model.\n\nUse for sales questions.";
+    const g: ModelGraph = { ...graph, description: desc };
+    const { yaml } = serializeOssie(g, "m");
+    const doc = YAML.parse(yaml);
+    expect(doc.description).toBe(desc);
+    expect(JSON.parse(doc.custom_extensions[0].data).description).toBe(desc);
+    const v = new Ajv2020({ strict: false }); expect(v.validate(schema, doc), JSON.stringify(v.errors)).toBe(true);
+    expect(parseOssie(yaml).graph.description).toBe(desc);
+  });
+  it("omits description when unset", () => {
+    expect(YAML.parse(serializeOssie(graph, "m").yaml).description).toBeUndefined();
+  });
+});

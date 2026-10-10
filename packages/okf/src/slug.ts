@@ -25,7 +25,8 @@ function scalar(v: unknown): string {
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   return `"${String(v).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
-export function parseFrontmatter(text: string): { data: Record<string, any>; body: string } {
+export function parseFrontmatter(raw: string): { data: Record<string, any>; body: string } {
+  const text = raw.replace(/\r\n?/g, "\n");
   const m = text.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!m) return { data: {}, body: text };
   return { data: parseYaml(m[1]), body: m[2] };
