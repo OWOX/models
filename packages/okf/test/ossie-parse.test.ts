@@ -25,9 +25,13 @@ describe("parseOssie — TPC-DS", () => {
     expect(calc.find(f => f.name === "customer_lifetime_value")!.formula).toBe("SUM(ss_ext_sales_price) / COUNT(DISTINCT customer.c_customer_sk)");
     expect(calc.find(f => f.name === "total_sales")!.description).toContain("Synonyms: total revenue");
   });
+  it("imports the model description and AI context as the graph description", () => {
+    expect(r.graph.description).toMatch(/^TPC-DS retail semantic model/);
+    expect(r.graph.description).toContain("AI instructions:");
+    expect(r.notImported.some(x => x.includes("model description"))).toBe(false);
+  });
   it("lists what it could not import and warns about window functions", () => {
     expect(r.notImported).toEqual(expect.arrayContaining([
-      "model description / AI context",
       "custom extensions: SALESFORCE, DBT",
     ]));
     expect(r.notImported.filter(x => x.startsWith("relationship"))).toEqual([]);

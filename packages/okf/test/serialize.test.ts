@@ -89,3 +89,10 @@ describeCard("serialize cardinality suffix", () => {
     expectCard(tx).not.toContain("— `block_hash = hash` [");
   });
 });
+
+describe("serializeBundle model description", () => {
+  it("writes graph.description into the index frontmatter, else the default text", () => {
+    expect(serializeBundle({ ...graph, description: "Our retail model" }, "Demo").files["demo/index.md"]).toContain('description: "Our retail model"');
+    expect(serializeBundle(graph, "Demo").files["demo/index.md"]).toContain("Index of exported OWOX data marts.");
+  });
+});
