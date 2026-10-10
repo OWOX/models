@@ -271,6 +271,7 @@ function RelationshipsSection({ title, relationships }: { title: string; relatio
           <li
             key={`${rel.id}:${rel.direction}`}
             data-rel-row={rel.direction}
+            title={rel.description}
             className="border-b border-[#e5e5e5]/50 px-3.5 py-1.5 text-[11.5px] leading-[14px] last:border-b-0"
           >
             <div className="flex items-center gap-2" title={`${label} ${rel.otherTitle}`}>
@@ -291,6 +292,11 @@ function RelationshipsSection({ title, relationships }: { title: string; relatio
             ) : (
               <div data-rel-join="" data-rel-unset="" className="pl-5 text-[10.5px] italic leading-[14px] text-[#65676f]/80">
                 Join fields not set
+              </div>
+            )}
+            {rel.description && (
+              <div data-rel-description="" className="truncate pl-5 text-[10.5px] leading-[14px] text-[#65676f]/80">
+                {rel.description}
               </div>
             )}
           </li>

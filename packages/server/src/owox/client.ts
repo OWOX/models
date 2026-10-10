@@ -146,7 +146,7 @@ export class OwoxClient {
   listStorages() { return this.json<any[]>("GET", "/api/data-storages"); }
   // Joinable relationship (confirmed live): POST .../{sourceId}/relationships,
   // body { targetDataMartId, targetAlias (required), joinConditions:[{sourceFieldName,targetFieldName}] }.
-  createRelationship(sourceId: string, body: { targetDataMartId: string; targetAlias: string; joinConditions: { sourceFieldName: string; targetFieldName: string }[] }) {
+  createRelationship(sourceId: string, body: { targetDataMartId: string; targetAlias: string; description?: string; joinConditions: { sourceFieldName: string; targetFieldName: string }[] }) {
     return this.json<{ id: string }>("POST", `/api/data-marts/${encodeURIComponent(sourceId)}/relationships`, body);
   }
   // A storage's marts, matched by storage title + type (list items carry
@@ -199,6 +199,7 @@ export class OwoxClient {
         sourceId: r.sourceDataMart.id,
         targetId: r.targetDataMart.id,
         ...(r.targetAlias ? { targetAlias: r.targetAlias } : {}),
+        ...(typeof r.description === "string" && r.description ? { description: r.description } : {}),
         joinConditions: (r.joinConditions ?? []).map((j: any) => ({
           sourceFieldName: j.sourceFieldName, targetFieldName: j.targetFieldName,
         })),

@@ -16,7 +16,7 @@ const node = {
 };
 
 const relationships: CardRelationship[] = [
-  { id: "e1", direction: "outgoing", otherTitle: "Orders", joinFields: [{ field: "id", otherField: "user_id" }] },
+  { id: "e1", direction: "outgoing", otherTitle: "Orders", joinFields: [{ field: "id", otherField: "user_id" }], description: "Each order has one user" },
   { id: "e2", direction: "incoming", otherTitle: "Sessions", joinFields: [] },
 ];
 
@@ -77,6 +77,9 @@ describe("MartNode badges open lists", () => {
     const list = screen.getByRole("list", { name: "Relationships of Users" });
     expect(list.textContent).toContain("Orders");
     expect(list.textContent).toContain("id = user_id");
+    expect(screen.getByText("Each order has one user")).toBeTruthy();
+    expect(list.querySelectorAll("[data-rel-description]")).toHaveLength(1);
+    expect(list.querySelector("[data-rel-row]")!.getAttribute("title")).toBe("Each order has one user");
     expect(list.textContent).toContain("Sessions");
     expect(list.textContent).toContain("Join fields not set");
     expect(screen.getByLabelText("Joins")).toBeTruthy();

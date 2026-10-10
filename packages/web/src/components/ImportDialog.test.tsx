@@ -228,7 +228,7 @@ describe("ImportDialog GitHub URL import", () => {
   });
 });
 
-const OSSIE_YAML = "version: 0.2.0.dev0\nname: shop\ndatasets:\n  - name: orders\n    source: p.d.orders\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\n  - name: users\n    source: p.d.users\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\nrelationships:\n  - name: o_u\n    from: orders\n    to: users\n    from_columns: [id]\n    to_columns: [id]\n    ai_context:\n      synonyms: [x]\n";
+const OSSIE_YAML = "version: 0.2.0.dev0\nname: shop\ndescription: Shop model\ndatasets:\n  - name: orders\n    source: p.d.orders\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\n  - name: users\n    source: p.d.users\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\nrelationships:\n  - name: o_u\n    from: orders\n    to: users\n    from_columns: [id]\n    to_columns: [id]\n    ai_context:\n      synonyms: [x]\n";
 
 function upload(files: File[]) {
   const input = document.querySelector('input[type="file"]') as HTMLInputElement;

@@ -21,6 +21,16 @@ describe("selectMartIds", () => {
     expect(selectMartIds(base, "with-relationships")).toEqual(new Set(["a", "b"])));
 });
 
+describe("payloadToGraph description", () => {
+  it("takes the first relationship's description, falling back to the reverse one", () => {
+    const rel = (s: string, t: string, description?: string) => ({ sourceId: s, targetId: t, joinConditions: [{ sourceFieldName: "x", targetFieldName: "y" }], ...(description ? { description } : {}) });
+    const p = (rels: ImportPayload["relationships"]): ImportPayload => ({ ...base, relationships: rels });
+    expect(payloadToGraph(p([rel("a", "b", "first"), rel("b", "a", "second")]), "all").edges[0].description).toBe("first");
+    expect(payloadToGraph(p([rel("a", "b"), rel("b", "a", "second")]), "all").edges[0].description).toBe("second");
+    expect(payloadToGraph(p([rel("a", "b")]), "all").edges[0].description).toBeUndefined();
+  });
+});
+
 describe("payloadToGraph", () => {
   it("marts become created nodes with owoxId + owoxStorageId", () => {
     const g = payloadToGraph(base, "all");

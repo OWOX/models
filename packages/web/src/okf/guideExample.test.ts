@@ -85,6 +85,7 @@ SUM(total) / NULLIF(COUNT(DISTINCT id), 0)
 
 ## Joins
 - [Customers](./customers.md) as \`customers\` — \`customer_id = id\` [N:1]
+  - Description: Each order belongs to one customer
 
 <!-- shop/order-items.md -->
 ---
@@ -145,5 +146,6 @@ describe("okf authoring guide — worked example imports", () => {
     expect(aov.pk).toBe(false);
     const toCustomers = graph.edges.find(e => e.from === "orders" && e.to === "customers")!;
     expect(toCustomers.alias).toBe("customers");
+    expect(toCustomers.description).toBe("Each order belongs to one customer");
   });
 });

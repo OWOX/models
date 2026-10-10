@@ -28,6 +28,7 @@ The canvas reads the flat `0.2.x` document and the legacy `semantic_model: [ ...
 | `field.datatype` | Field type: String = STRING, Integer = INTEGER, Decimal = NUMERIC, Float = FLOAT, Boolean = BOOLEAN, Date = DATE, Time = TIME, DateTime = DATETIME, DateTimeTz = TIMESTAMP. Opaque or missing = STRING. |
 | `field.description`, `field.ai_context` | Field description. |
 | `relationship` | A join (edge) from `from` to `to`. `from_columns` and `to_columns` are zipped into join keys. Cardinality is N:1. |
+| `relationship.ai_context` | The join description (business meaning, shared with AI assistants in OWOX). A plain string is kept as written; an object becomes text like a dataset's `ai_context`. On export the description is written as a plain-string `ai_context`. |
 | `metric` | A metric (calculated field) on a "home" dataset. See below. |
 | `ai_context` | Added to the description as text: `AI instructions: ...`, `Synonyms: a, b`, `Example questions: q1; q2`. A plain string becomes `AI context: ...`. |
 
@@ -56,7 +57,6 @@ The canvas has no place for these. The import dialog lists them:
 
 - `unique_keys` that differ from the primary key
 - Model-level `description` and `ai_context`
-- `ai_context` on a relationship
 - `custom_extensions` of vendors other than OWOX
 - Extra models in a legacy `semantic_model` list (after the first)
 - Datasets, fields or relationships without a name, relationships that point to an unknown dataset, fields without an expression, and metrics that read no dataset

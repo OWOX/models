@@ -8,7 +8,7 @@ export interface ImportMart {
   inputSource: InputSource; definition: string | null;
 }
 export interface ImportRelationship {
-  sourceId: string; targetId: string; targetAlias?: string;
+  sourceId: string; targetId: string; targetAlias?: string; description?: string;
   joinConditions: { sourceFieldName: string; targetFieldName: string }[];
 }
 export interface ImportPayload {
@@ -64,10 +64,11 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
     if (existing) {
       existing.bidirectional = true;
       if (r.targetAlias && existing.from !== from) existing.reverseAlias = r.targetAlias;
+      if (r.description && !existing.description) existing.description = r.description;
       continue;
     }
     const keys = r.joinConditions.map(j => ({ left: j.sourceFieldName, right: j.targetFieldName }));
-    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true, ...(r.targetAlias ? { alias: r.targetAlias } : {}) };
+    const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true, ...(r.targetAlias ? { alias: r.targetAlias } : {}), ...(r.description ? { description: r.description } : {}) };
     edges.push(e); seen.set(pair, e);
   }
   return { storageId: payload.storageId, nodes, edges };

@@ -173,6 +173,18 @@ describe("OwoxClient import mapping", () => {
     expect((await c.getRelationshipGraph("m1"))[0].targetAlias).toBe("cust");
   });
 
+  it("maps the relationship description", async () => {
+    const graph = { nodes: [
+      { isCycleStub: false, relationship: { id: "r1", sourceDataMart: { id: "m1" }, targetDataMart: { id: "m2" }, description: "Each order has one customer", joinConditions: [] } },
+      { isCycleStub: false, relationship: { id: "r2", sourceDataMart: { id: "m1" }, targetDataMart: { id: "m3" }, description: 5, joinConditions: [] } },
+    ] };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(graph), { status: 200 }));
+    const c = new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock as any);
+    const rels = await c.getRelationshipGraph("m1");
+    expect(rels[0].description).toBe("Each order has one customer");
+    expect(rels[1].description).toBeUndefined();
+  });
+
   it("renders the calculated field of the recorded detail fixture", async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify(detail), { status: 200 }));
     const c = new OwoxClient("https://app.owox.com", "tok", "kid", fetchMock as any);

@@ -11,6 +11,8 @@ export type CardRelationship = {
   otherTitle: string;
   /** `field` belongs to this object, `otherField` to the other one. */
   joinFields: { field: string; otherField: string }[];
+  /** Business meaning of the join (OWOX relationship description). */
+  description?: string;
 };
 
 /**
@@ -32,6 +34,7 @@ export function relationshipsByNode(nodes: readonly ModelNode[], edges: readonly
       direction: e.bidirectional ? "both" : "outgoing",
       otherTitle: titles.get(e.to) ?? e.to,
       joinFields: keys.map(k => ({ field: k.left || "?", otherField: k.right || "?" })),
+      ...(e.description ? { description: e.description } : {}),
     });
     if (e.to === e.from) continue;
     add(e.to, {
@@ -39,6 +42,7 @@ export function relationshipsByNode(nodes: readonly ModelNode[], edges: readonly
       direction: e.bidirectional ? "both" : "incoming",
       otherTitle: titles.get(e.from) ?? e.from,
       joinFields: keys.map(k => ({ field: k.right || "?", otherField: k.left || "?" })),
+      ...(e.description ? { description: e.description } : {}),
     });
   }
   return byNode;
