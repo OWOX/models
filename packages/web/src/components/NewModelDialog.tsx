@@ -14,7 +14,7 @@ export function NewModelDialog({
   counts: { marts: number; relationships: number };
   savedModel: boolean; // saved before, but with edits since (vs never saved)
   onStart: () => void;
-  onExportAndStart: (format: ExportFormat) => string[] | void; // returns what the export could not hold; empty → the caller starts fresh
+  onExportAndStart: (format: ExportFormat) => string[] | void | Promise<string[] | void>; // returns what the export could not hold; empty → the caller starts fresh
   initialFormat?: ExportFormat; // defaults to the remembered format
   onClose: () => void;
 }) {
@@ -45,11 +45,11 @@ export function NewModelDialog({
         <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onClose} className="rounded-lg px-4 py-2 text-[13px] font-[550] text-slate-600 hover:bg-slate-100 cursor-pointer">Cancel</button>
           {warnings.length > 0 ? (
-            <button onClick={() => onExportAndStart("okf")} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export OKF instead</button>
+            <button onClick={() => void onExportAndStart("okf")} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export OKF instead</button>
           ) : (
             <>
               <ExportFormatToggle value={format} onChange={setFormat} />
-              <button onClick={() => { const w = onExportAndStart(format); if (w && w.length > 0) setWarnings(w); }} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export &amp; start</button>
+              <button onClick={async () => { const w = await onExportAndStart(format); if (w && w.length > 0) setWarnings(w); }} className="rounded-lg border border-[#d8dee8] px-4 py-2 text-[13px] font-[550] text-slate-700 hover:border-[#1e88e5] hover:text-[#1e88e5] cursor-pointer">Export &amp; start</button>
             </>
           )}
           <button onClick={onStart} className="rounded-lg bg-[#1e88e5] px-4 py-2 text-[13px] font-[600] text-white hover:bg-[#1976d2] cursor-pointer">{warnings.length > 0 ? "Start anyway" : "Start new model"}</button>

@@ -5,7 +5,7 @@ import { ExportFormatToggle } from "./ExportFormatToggle";
 interface ClearCanvasDialogProps {
   counts: { marts: number; relationships: number };
   onDelete: () => void;           // wipe the canvas, no export
-  onExportAndDelete: (format: ExportFormat) => string[] | void;  // download an export; returns what it could not hold. Empty → the caller wipes
+  onExportAndDelete: (format: ExportFormat) => string[] | void | Promise<string[] | void>;  // download an export; returns what it could not hold. Empty → the caller wipes
   initialFormat?: ExportFormat;   // defaults to the remembered format
   onClose: () => void;            // cancel
 }
@@ -58,7 +58,7 @@ export function ClearCanvasDialog({ counts, onDelete, onExportAndDelete, initial
           <div className="flex items-center gap-2">
             {warnings.length > 0 ? (
               <button
-                onClick={() => onExportAndDelete("okf")}
+                onClick={() => void onExportAndDelete("okf")}
                 className="text-[13px] font-[550] border border-[#dc2626] bg-white text-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#fdf2f2]"
               >
                 Export OKF instead
@@ -67,7 +67,7 @@ export function ClearCanvasDialog({ counts, onDelete, onExportAndDelete, initial
               <>
                 <ExportFormatToggle value={format} onChange={setFormat} />
                 <button
-                  onClick={() => { const w = onExportAndDelete(format); if (w && w.length > 0) setWarnings(w); }}
+                  onClick={async () => { const w = await onExportAndDelete(format); if (w && w.length > 0) setWarnings(w); }}
                   className="text-[13px] font-[550] border border-[#dc2626] bg-white text-[#dc2626] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#fdf2f2]"
                 >
                   Export &amp; delete

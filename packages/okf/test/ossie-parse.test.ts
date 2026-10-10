@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { parseOssie } from "../src/index";
+import { parseOssie } from "../src/ossie";
 const tpcds = readFileSync(new URL("./fixtures/ossie/tpcds_semantic_model.yaml", import.meta.url), "utf8");
 
 describe("parseOssie — TPC-DS", () => {

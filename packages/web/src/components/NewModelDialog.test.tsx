@@ -37,27 +37,28 @@ describe("NewModelDialog — export warnings", () => {
   afterEach(() => localStorage.clear());
   const warn = ["relationship A → B is many-to-many — not exported"];
 
-  it("stays open with the list; Start anyway starts", () => {
-    const onStart = vi.fn(), onExportAndStart = vi.fn(() => warn);
+  it("stays open with the list; Start anyway starts", async () => {
+    const onStart = vi.fn(), onExportAndStart = vi.fn(async () => warn); // the Ossie writer loads on demand
     render(<NewModelDialog {...base} initialFormat="ossie" onStart={onStart} onExportAndStart={onExportAndStart} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Export & start" }));
-    expect(screen.getByRole("alert").textContent).toContain("can't hold everything");
+    expect((await screen.findByRole("alert")).textContent).toContain("can't hold everything");
     expect(onStart).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Start anyway" }));
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
-  it("Export OKF instead exports okf", () => {
+  it("Export OKF instead exports okf", async () => {
     const onExportAndStart = vi.fn((f: string) => (f === "ossie" ? warn : []));
     render(<NewModelDialog {...base} initialFormat="ossie" onStart={() => {}} onExportAndStart={onExportAndStart} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Export & start" }));
-    fireEvent.click(screen.getByRole("button", { name: "Export OKF instead" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Export OKF instead" }));
     expect(onExportAndStart).toHaveBeenLastCalledWith("okf");
   });
 
-  it("no warnings: no alert", () => {
+  it("no warnings: no alert", async () => {
     render(<NewModelDialog {...base} onStart={() => {}} onExportAndStart={() => []} onClose={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Export & start" }));
+    await Promise.resolve();
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });

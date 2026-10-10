@@ -5,6 +5,6 @@ export { parseBundle, isBundleIndex } from "./parse";
 export { FIELD_TYPES, EDITOR_FIELD_TYPES, DEFAULT_FIELD_TYPE, normalizeFieldType } from "./fieldType";
 export { isCalculated, formulaLevel, formulaReferences, renderOwoxRefs, toStoredFormula, defaultJoinAlias, joinAlias, rewriteReferences, formulaWarnings, type FormulaLevel, type FormulaContext } from "./formula";
 export * from "./ossie/types";
-export { parseOssie, type OssieImport } from "./ossie/parse";
-export { serializeOssie } from "./ossie/serialize";
-export { detectModelFormat, isOssieModelText, type ModelFormat } from "./ossie/detect";
+export { detectModelFormat, type ModelFormat } from "./ossie/detect";
+// parseOssie / serializeOssie / isOssieModelText live in `@mc/okf/ossie` — they
+// pull in `yaml`, which the web app loads lazily.
