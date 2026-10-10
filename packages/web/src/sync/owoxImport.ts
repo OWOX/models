@@ -116,5 +116,5 @@ export function mergeGraphs(current: ModelGraph, incoming: ModelGraph): { graph:
     edges.push({ ...inc, id: `e${++ec}`, from, to });
   }
 
-  return { graph: { storageId: current.storageId ?? incoming.storageId, nodes, edges }, newKeys };
+  return { graph: { storageId: current.storageId ?? incoming.storageId, nodes, edges, ...(current.description ? { description: current.description } : {}) }, newKeys };
 }

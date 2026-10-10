@@ -21,6 +21,7 @@ The canvas reads the flat `0.2.x` document and the legacy `semantic_model: [ ...
 
 | Ossie | Canvas |
 |-------|--------|
+| model `description`, `ai_context` | The model description (set in the Model sheet on the canvas), joined by a blank line, with `ai_context` as text like a dataset's. An OWOX `custom_extensions` entry with an exact `description` wins. On export the model description is written as `description`. |
 | `dataset` | A data mart (node). `name` is the title and key. `source` is the definition; a `source` that starts with `SELECT` or `WITH` becomes a SQL mart, anything else a table. `description` and `ai_context` become the description. |
 | `dataset.primary_key` | Primary key flag on those fields. A key column that is not declared as a field is added as a STRING field. |
 | `field` with `expression` equal to the name | A regular field. |
@@ -56,7 +57,6 @@ Expressions: the canvas takes the `BIGQUERY` dialect entry when there is one, ot
 The canvas has no place for these. The import dialog lists them:
 
 - `unique_keys` that differ from the primary key
-- Model-level `description` and `ai_context`
 - `custom_extensions` of vendors other than OWOX
 - Extra models in a legacy `semantic_model` list (after the first)
 - Datasets, fields or relationships without a name, relationships that point to an unknown dataset, fields without an expression, and metrics that read no dataset

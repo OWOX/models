@@ -94,8 +94,24 @@ function loadOssieText(text: string): LoadedModel {
   return { format: "ossie", graph: r.graph, name: r.name ?? null, notImported: r.notImported, warnings: r.warnings };
 }
 
+// The exporter's stock index description — not something the user wrote.
+const DEFAULT_INDEX_DESCRIPTION = "Index of exported OWOX data marts.";
+
+function okfModelDescription(files: Record<string, string>): string | null {
+  const idx = Object.entries(files).find(([p]) => isBundleIndex(p));
+  if (!idx) return null;
+  try {
+    const d = parseFrontmatter(idx[1]).data.description;
+    return typeof d === "string" && d.trim() && d.trim() !== DEFAULT_INDEX_DESCRIPTION ? d.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 function loadOkfFiles(files: Record<string, string>): LoadedModel {
-  return { format: "okf", graph: filesToGraph(files), name: okfModelName(files), notImported: [], warnings: [] };
+  const graph = filesToGraph(files);
+  const description = okfModelDescription(files);
+  return { format: "okf", graph: description ? { ...graph, description } : graph, name: okfModelName(files), notImported: [], warnings: [] };
 }
 
 export const MAX_MODEL_BYTES = 5 * 1024 * 1024;

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-export type RightPanelId = "inspect" | "models" | "history" | "share" | "enable" | "account";
+export type RightPanelId = "inspect" | "models" | "history" | "share" | "enable" | "account" | "model";
 
 /**
  * Pure gating function: models/history require a signed-in account.

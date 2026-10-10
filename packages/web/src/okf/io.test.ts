@@ -62,3 +62,15 @@ describe("size cap", () => {
     expect(() => loadModelFiles({ "m.yaml": big })).toThrow("This file is too large (max 5 MB).");
   });
 });
+
+describe("OKF index description", () => {
+  const idx = (d: string) => `---\ntitle: Shop\ndescription: ${d}\n---\n# Shop`;
+  it("reads the index description into the graph", () => {
+    const r = loadModelFiles({ "index.md": idx("Our retail model"), "a.md": "---\ntitle: A\n---\n# A" });
+    expect(r.graph.description).toBe("Our retail model");
+  });
+  it("ignores the exporter's default description text", () => {
+    const r = loadModelFiles({ "index.md": idx("Index of exported OWOX data marts."), "a.md": "---\ntitle: A\n---\n# A" });
+    expect(r.graph.description).toBeUndefined();
+  });
+});

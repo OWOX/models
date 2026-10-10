@@ -13,7 +13,7 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 interface ImportDialogProps {
-  onConfirm: (graph: ModelGraph, mode: "replace" | "merge") => void;
+  onConfirm: (graph: ModelGraph, mode: "replace" | "merge", name: string | null) => void;
   onClose: () => void;
   /** When set (from a `?okf=` deeplink), open the GitHub tab, prefill the URL,
    *  and auto-fetch on mount so the preview is ready. */
@@ -378,7 +378,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
             Cancel
           </button>
           <button
-            onClick={() => preview && onConfirm(preview, mode)}
+            onClick={() => preview && onConfirm(preview, mode, modelName)}
             disabled={!preview}
             className="text-[13px] font-[550] bg-[#1e88e5] text-white border border-[#1e88e5] rounded-lg px-4 py-[7px] cursor-pointer hover:bg-[#1976d2] disabled:opacity-50"
           >

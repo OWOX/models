@@ -69,6 +69,8 @@ import { relationshipsByNode, type CardRelationship } from "./relationships";
 import { Inspector } from "../inspector/Inspector";
 import { RightRail } from "../rail/RightRail";
 import { ModelSheet } from "../rail/ModelSheet";
+import { ModelPanel } from "../rail/ModelPanel";
+import { ModelTitleBlock } from "./ModelTitleBlock";
 import { useRightPanel, gatedPanelId, type RightPanelId } from "../rail/useRightPanel";
 import { EnablePanel } from "../rail/EnablePanel";
 import { AccountPanel } from "../rail/AccountPanel";
@@ -234,7 +236,7 @@ type Selection =
 // Titles shown in the right Sheet header per active panel.
 const SHEET_TITLES: Record<NonNullable<ReturnType<typeof useRightPanel>["active"]>, string> = {
   inspect: "Inspect", models: "My Models", history: "Version history",
-  share: "Share model", enable: "Enable Model Canvas", account: "Account",
+  share: "Share model", enable: "Enable Model Canvas", account: "Account", model: "Model",
 };
 
 // ── Inner canvas (needs ReactFlowProvider context) ────────────────────────────
@@ -589,7 +591,7 @@ function CanvasInner() {
     if (graph.nodes.length === 0) return [];
     persistExportFormat(format);
     if (format === "ossie") {
-      const warnings = downloadOssie(graph, modelName);
+      const warnings = downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME);
       if (warnings.length > 0) setShareToast({ message: "Exported as Apache Ossie with warnings: " + warnings.join("; "), sticky: true });
       return warnings;
     }
@@ -602,7 +604,7 @@ function CanvasInner() {
   // Clear the canvas: permanently wipe every node + edge (keep the selected
   // storage). No undo — the dialog warns and offers an OKF export first.
   const clearCanvas = useCallback(() => {
-    store.set({ storageId: store.get().storageId, nodes: [], edges: [] });
+    store.set({ storageId: store.get().storageId, nodes: [], edges: [] }); // a fresh model starts without a description
     setSelection(null);
     setShowClear(false);
     setSavedModelId(null); // a cleared canvas is a fresh model — next Save creates a new row
@@ -639,7 +641,7 @@ function CanvasInner() {
   // Copy a shareable link that reopens this exact model. Falls back to a prompt
   // if the clipboard API is blocked (insecure context / permissions).
   const handleShare = useCallback(async () => {
-    const url = buildShareUrl(store.get(), modelName);
+    const url = buildShareUrl(store.get(), modelName.trim() || DEFAULT_MODEL_NAME);
     // The whole model rides in the link's #hash, so it works on whatever origin
     // serves the app. On localhost that's only this machine — flag it so a local
     // dev doesn't think the link is broken; on model.owox.com it just works.
@@ -671,7 +673,7 @@ function CanvasInner() {
     store.set({ ...graph, nodes: graph.nodes.map(n => newKeys.has(n.key) ? { ...n, position: positions.get(n.key) ?? n.position } : n) });
   }, [viewMode, objHidden]);
 
-  const handleImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
+  const handleImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge", name: string | null) => {
     if (mode === "merge") {
       applyMergeWithLayout(g);
     } else {
@@ -679,6 +681,8 @@ function CanvasInner() {
       // storageId (parse returns null), so taking the imported value would blank the
       // selection. Fall back to the imported id only when none is selected yet.
       store.set({ ...(hasStoredPositions(g) ? g : withLayout(g)), storageId: store.get().storageId ?? g.storageId });
+      // Replace swaps in the file's model name too (its description rides in the graph).
+      if (name && name.trim()) setModelName(name.trim());
     }
     setShowImport(false);
     setOkfInitialUrl(null);
@@ -1077,6 +1081,7 @@ function CanvasInner() {
         >
           {/* Tool dock — anchored to the canvas (not the outer row) so it sits
               just inside the canvas edge and slides over as the rail opens. */}
+          <ModelTitleBlock name={modelName.trim() || DEFAULT_MODEL_NAME} description={graph.description} onOpen={() => { panel.open("model"); setVisualRailId(null); }} />
           <Dock activeTool={tool} onToolChange={handleToolChange} viewMode={viewMode} onToggleView={handleToggleView} onClear={() => setShowClear(true)} clearDisabled={graph.nodes.length === 0} relLabelMode={relLabelMode} onRelLabelModeChange={handleRelLabelModeChange} objHidden={objHidden} onObjHiddenChange={handleObjHiddenChange} />
           <ReactFlow
             nodes={rfNodes}
@@ -1158,8 +1163,15 @@ function CanvasInner() {
           active={panel.active}
           modal={panel.active !== "inspect"}
           title={SHEET_TITLES[panel.active ?? "inspect"]}
-          onClose={() => { const wasInspect = panel.active === "inspect"; panel.close(); if (wasInspect) setSelection(null); setVisualRailId(null); }}
+          onClose={() => { const wasInspect = panel.active === "inspect"; if (panel.active === "model" && !modelName.trim()) setModelName(DEFAULT_MODEL_NAME); panel.close(); if (wasInspect) setSelection(null); setVisualRailId(null); }}
         >
+          {panel.active === "model" && (
+            <ModelPanel
+              name={modelName} onNameChange={setModelName}
+              description={graph.description ?? ""} onDescriptionChange={t => store.setDescription(t)}
+              martCount={graph.nodes.length} relCount={graph.edges.length}
+            />
+          )}
           {panel.active === "inspect" && (
             <Inspector
               selection={selection}

@@ -156,3 +156,11 @@ describe("mergeGraphs description", () => {
     expect(mergeGraphs(mk("mine"), incoming).graph.edges[0].description).toBe("mine");
   });
 });
+
+describe("mergeGraphs model description", () => {
+  it("keeps the current model description", () => {
+    const cur: ModelGraph = { storageId: "s", nodes: [], edges: [], description: "mine" };
+    const inc: ModelGraph = { storageId: "s", nodes: [], edges: [], description: "theirs" };
+    expect(mergeGraphs(cur, inc).graph.description).toBe("mine");
+  });
+});
