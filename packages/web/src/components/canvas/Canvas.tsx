@@ -604,7 +604,7 @@ function CanvasInner() {
   // Clear the canvas: permanently wipe every node + edge (keep the selected
   // storage). No undo — the dialog warns and offers an OKF export first.
   const clearCanvas = useCallback(() => {
-    store.set({ storageId: store.get().storageId, nodes: [], edges: [] }); // a fresh model starts without a description
+    store.set({ storageId: store.get().storageId, nodes: [], edges: [] });
     setSelection(null);
     setShowClear(false);
     setSavedModelId(null); // a cleared canvas is a fresh model — next Save creates a new row
@@ -682,7 +682,7 @@ function CanvasInner() {
       // selection. Fall back to the imported id only when none is selected yet.
       store.set({ ...(hasStoredPositions(g) ? g : withLayout(g)), storageId: store.get().storageId ?? g.storageId });
       // Replace swaps in the file's model name too (its description rides in the graph).
-      if (name && name.trim()) setModelName(name.trim());
+      setModelName(name?.trim() || DEFAULT_MODEL_NAME);
     }
     setShowImport(false);
     setOkfInitialUrl(null);
@@ -690,9 +690,12 @@ function CanvasInner() {
 
   const handleOwoxImportConfirm = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
     if (mode === "merge") applyMergeWithLayout(g);
-    else store.set({ ...withLayout(g), storageId: g.storageId });
+    else {
+      store.set({ ...withLayout(g), storageId: g.storageId });
+      setModelName(me?.projectTitle?.trim() || DEFAULT_MODEL_NAME);
+    }
     setShowOwoxImport(false);
-  }, [withLayout, applyMergeWithLayout]);
+  }, [withLayout, applyMergeWithLayout, me?.projectTitle]);
 
   const applyTemplate = useCallback((g: ModelGraph, mode: "replace" | "merge") => {
     // Keep the model on the currently selected storage; auto-layout the template.
