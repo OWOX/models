@@ -131,3 +131,19 @@ describe("toStoredFormula", () => {
     ]) expect(renderOwoxRefs(toStoredFormula(f, ctx, n))).toBe(f);
   });
 });
+
+import { joinAlias, rewriteReferences } from "../src/index";
+describe("joinAlias", () => {
+  it("prefers the explicit alias, else the title, else the key", () => {
+    expect(joinAlias(" cust ", { title: "Customers", key: "c" })).toBe("cust");
+    expect(joinAlias(undefined, { title: "Order Items", key: "oi" })).toBe("order_items");
+    expect(joinAlias("", { title: "", key: "order-items" })).toBe("order_items");
+  });
+});
+describe("rewriteReferences", () => {
+  it("rewrites resolved references only, outside strings, including keyword-named fields", () => {
+    const out = rewriteReferences("SUM(amount) / COUNT(DISTINCT cust.id) + MAX(date) || 'amount'",
+      r => r.alias === null ? (["amount", "date"].includes(r.field) ? `orders.${r.field}` : null) : r.alias === "cust" ? `customers.${r.field}` : null);
+    expect(out).toBe("SUM(orders.amount) / COUNT(DISTINCT customers.id) + MAX(orders.date) || 'amount'");
+  });
+});

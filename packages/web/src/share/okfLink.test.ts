@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { readOkfImportUrl, clearOkfFromUrl, buildOkfDeeplink } from "./okfLink";
+import { readOkfImportUrl, clearOkfFromUrl, buildOkfDeeplink, readOssieImportUrl, clearOssieFromUrl, buildOssieDeeplink } from "./okfLink";
 
 const setUrl = (url: string) => history.replaceState(null, "", url);
 beforeEach(() => setUrl("/"));
@@ -50,5 +50,40 @@ describe("buildOkfDeeplink", () => {
   it("escapes only # and & so the query value can't break", () => {
     const link = buildOkfDeeplink("https://github.com/o/r/tree/main/a&b#c");
     expect(link).toBe(location.origin + "/?okf=https://github.com/o/r/tree/main/a%26b%23c");
+  });
+});
+
+describe("?ossie= deeplink", () => {
+  const target = "https://github.com/OWOX/models/blob/main/m.ossie.yaml";
+  it("reads a valid GitHub URL, raw or encoded", () => {
+    setUrl("/?ossie=" + target);
+    expect(readOssieImportUrl()).toBe(target);
+    setUrl("/?ossie=" + encodeURIComponent(target));
+    expect(readOssieImportUrl()).toBe(target);
+  });
+  it("returns null when absent or for a non-GitHub host", () => {
+    setUrl("/?utm_source=x");
+    expect(readOssieImportUrl()).toBeNull();
+    setUrl("/?ossie=" + encodeURIComponent("https://evil.com/x/y"));
+    expect(readOssieImportUrl()).toBeNull();
+  });
+  it("does not read ?okf= and vice versa", () => {
+    setUrl("/?okf=" + target);
+    expect(readOssieImportUrl()).toBeNull();
+    setUrl("/?ossie=" + target);
+    expect(readOkfImportUrl()).toBeNull();
+  });
+  it("clears only the ossie param", () => {
+    setUrl("/?ossie=" + encodeURIComponent(target) + "&utm_source=news#m=abc");
+    clearOssieFromUrl();
+    expect(location.search).toBe("?utm_source=news");
+    expect(location.hash).toBe("#m=abc");
+  });
+  it("builds a readable link that round-trips and escapes # and &", () => {
+    const link = buildOssieDeeplink(target);
+    expect(link).toBe(location.origin + "/?ossie=" + target);
+    history.replaceState(null, "", link);
+    expect(readOssieImportUrl()).toBe(target);
+    expect(buildOssieDeeplink("https://github.com/o/r/a&b#c")).toBe(location.origin + "/?ossie=https://github.com/o/r/a%26b%23c");
   });
 });

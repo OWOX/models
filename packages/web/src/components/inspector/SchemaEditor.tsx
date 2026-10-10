@@ -290,7 +290,7 @@ export function SchemaEditor({ schema, onChange, formulaContext }: SchemaEditorP
             <span>Type</span>
             <span className="flex items-center gap-[3px]">PK <InfoTip text="Primary key — uniquely identifies a row. Marks the field as a key when pushed to OWOX; used to anchor relationships." /></span>
             <span className="flex items-center gap-[3px]">Alias <InfoTip text="Business-friendly label for the field (e.g. “Net Revenue” for net_revenue). Optional; shown to business users." /></span>
-            <span className="flex items-center gap-[3px]">Description <InfoTip text="What the field means and, for metrics, how it's calculated. Flows to OKF export and the AI question suggestions." /></span>
+            <span className="flex items-center gap-[3px]">Description <InfoTip text="What the field means and, for metrics, how it's calculated. Included in exports (OKF / Ossie) and the AI question suggestions." /></span>
             <span />
           </div>
 

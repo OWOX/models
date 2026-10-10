@@ -51,7 +51,7 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
             onClick={onImport}
             className="flex items-center gap-[7px] text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[8px] cursor-pointer hover:bg-[#f1f3f7]"
           >
-            <Download size={15} /> Import OKF
+            <Download size={15} /> Import a model (OKF / Ossie)
           </button>
           <div className="flex-1" />
           <a

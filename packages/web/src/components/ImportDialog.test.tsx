@@ -43,8 +43,8 @@ describe("ImportDialog UI", () => {
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} hasExistingModel />);
     // No preview/counts before any input.
     expect(screen.queryByText(/Will import/i)).toBeNull();
-    // The paste textarea lives on the "Paste markdown" tab.
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    // The paste textarea lives on the "Paste" tab.
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByText(/Will import 1 marts, 0 relationships/i)).toBeTruthy());
     fireEvent.click(screen.getByText(/Merge into the canvas/i));
@@ -60,7 +60,7 @@ describe("ImportDialog UI", () => {
     const onConfirm = vi.fn();
     // Default hasExistingModel=false → empty canvas, no apply-mode question.
     render(<ImportDialog onConfirm={onConfirm} onClose={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /paste markdown/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
     fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
     await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
     // The apply-mode block is absent.
@@ -74,12 +74,12 @@ describe("ImportDialog UI", () => {
   it("switches tabs via the segmented control", () => {
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
     // Upload tab is the default: the file input is present, URL input is not.
-    expect(screen.getByText(/Upload \.md/i)).toBeTruthy();
+    expect(screen.getByText(/Upload \.zip/i)).toBeTruthy();
     expect(screen.queryByPlaceholderText(/github\.com/i)).toBeNull();
     // Switch to the GitHub tab.
     fireEvent.click(screen.getByRole("button", { name: /from github/i }));
     expect(screen.getByPlaceholderText(/github\.com/i)).toBeTruthy();
-    expect(screen.queryByText(/Upload \.md/i)).toBeNull();
+    expect(screen.queryByText(/Upload \.zip/i)).toBeNull();
   });
 });
 
@@ -192,7 +192,7 @@ describe("ImportDialog GitHub URL import", () => {
     }));
 
     render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl="https://github.com/OWOX/models/tree/main/bundles" />);
-    await waitFor(() => expect(screen.getByText(/no okf marts found/i)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/no data marts found/i)).toBeTruthy());
     expect(screen.queryByText(/Will import/i)).toBeNull();
     expect((screen.getByRole("button", { name: /^import$/i }) as HTMLButtonElement).disabled).toBe(true);
   });
@@ -225,5 +225,77 @@ describe("ImportDialog GitHub URL import", () => {
     // Switching back restores the GitHub tab's own preview.
     fireEvent.click(screen.getByRole("button", { name: /from github/i }));
     await waitFor(() => expect(screen.getByText(/Will import 1 marts/i)).toBeTruthy());
+  });
+});
+
+const OSSIE_YAML = "version: 0.2.0.dev0\nname: shop\ndatasets:\n  - name: orders\n    source: p.d.orders\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\n  - name: users\n    source: p.d.users\n    fields:\n      - name: id\n        expression: { dialects: [{ dialect: BIGQUERY, expression: id }] }\nrelationships:\n  - name: o_u\n    from: orders\n    to: users\n    from_columns: [id]\n    to_columns: [id]\n    ai_context:\n      synonyms: [x]\n";
+
+function upload(files: File[]) {
+  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+  Object.defineProperty(input, "files", { value: files, configurable: true });
+  fireEvent.change(input);
+}
+function mkFile(name: string, text: string): File {
+  const f = new File([text], name);
+  if (!f.text) (f as unknown as { text: () => Promise<string> }).text = async () => text;
+  return f;
+}
+
+describe("ImportDialog Apache Ossie", () => {
+  it("uses the neutral title, subtitle and accept list", () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    expect(screen.getByText("Import model")).toBeTruthy();
+    expect(screen.getByText("OKF bundle (.zip / .md) or Apache Ossie (.yaml / .json)")).toBeTruthy();
+    expect(document.querySelector('input[type="file"]')?.getAttribute("accept")).toBe(".md,.txt,.zip,.yaml,.yml,.json");
+  });
+
+  it("uploads a .yaml Ossie file: badge and mart count", async () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    upload([mkFile("m.yaml", OSSIE_YAML)]);
+    await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("Apache Ossie"));
+    expect(screen.getByText(/Will import 2 marts, 1 relationships/i)).toBeTruthy();
+  });
+
+  it("pasting Ossie text shows the badge and a Not imported list", async () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
+    fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: OSSIE_YAML } });
+    await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("Apache Ossie"));
+    expect(screen.getByText(/Not imported \(1\)/)).toBeTruthy();
+  });
+
+  it("lists warnings separately from Not imported, with a text marker", async () => {
+    const y = "version: 0.2.0.dev0\nname: m\ndatasets:\n  - name: o\n    source: x\n    fields:\n      - name: a\n        expression: { dialects: [{ dialect: ANSI_SQL, expression: a }] }\n      - name: c\n        expression: { dialects: [{ dialect: ANSI_SQL, expression: \"a + ghost\" }] }\n";
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
+    fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: y } });
+    await waitFor(() => expect(screen.getByText(/Warnings \(1\)/)).toBeTruthy());
+    expect(screen.queryByText(/Not imported/)).toBeNull();
+    expect(screen.getByText(/push will refuse it/).parentElement!.textContent).toContain("⚠");
+  });
+
+  it("rejects .md + .yaml together", async () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    upload([mkFile("a.md", "---\ntitle: A\n---\n"), mkFile("m.yaml", OSSIE_YAML)]);
+    await waitFor(() => expect(screen.getByText(/Import one format at a time/)).toBeTruthy());
+  });
+
+  it("OKF paste shows the OKF badge and no Not imported list", async () => {
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^paste$/i }));
+    fireEvent.change(screen.getByPlaceholderText(/path\/to\/file\.md/i), { target: { value: PASTE } });
+    await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("OKF"));
+    expect(screen.queryByText(/Not imported/)).toBeNull();
+  });
+
+  it("Share builds a ?ossie= link for an Ossie URL and ?okf= for OKF", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const url = "https://github.com/OWOX/models/blob/main/m.ossie.yaml";
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, text: async () => OSSIE_YAML }) as Response));
+    render(<ImportDialog onConfirm={() => {}} onClose={() => {}} initialUrl={url} />);
+    await waitFor(() => expect(screen.getByTestId("import-format").textContent).toBe("Apache Ossie"));
+    fireEvent.click(await screen.findByRole("button", { name: /share/i }));
+    expect(writeText).toHaveBeenCalledWith(location.origin + "/?ossie=" + url);
   });
 });

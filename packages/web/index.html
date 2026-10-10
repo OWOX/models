@@ -10,19 +10,19 @@
     <title>OWOX Model Canvas — design data models, free</title>
 
     <!-- SEO + social card. Shared model links render this preview. -->
-    <meta name="description" content="A free, anonymous canvas to design data models — draw marts and joinable relationships, explore templates, and export OKF. No sign-in needed." />
+    <meta name="description" content="A free, anonymous canvas to design data models — draw marts and joinable relationships, explore templates, and export OKF or Apache Ossie. No sign-in needed." />
     <link rel="canonical" href="https://model.owox.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OWOX Model Canvas" />
     <meta property="og:url" content="https://model.owox.com/" />
     <meta property="og:title" content="OWOX Model Canvas — design data models, free" />
-    <meta property="og:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF export. No sign-in needed." />
+    <meta property="og:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF and Apache Ossie export. No sign-in needed." />
     <meta property="og:image" content="https://model.owox.com/og-card.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="OWOX Model Canvas — design data models, free" />
-    <meta name="twitter:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF export." />
+    <meta name="twitter:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF and Apache Ossie export." />
     <meta name="twitter:image" content="https://model.owox.com/og-card.png" />
 
     <!-- Structured data (JSON-LD) for search + AI engines -->
@@ -34,12 +34,12 @@
       "url": "https://model.owox.com/",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any (web browser)",
-      "description": "A free, anonymous canvas to design data models — draw data marts and joinable relationships, explore templates, and export to Open Knowledge Format (OKF). No sign-in needed.",
+      "description": "A free, anonymous canvas to design data models — draw data marts and joinable relationships, explore templates, and export to Open Knowledge Format (OKF) or Apache Ossie. No sign-in needed.",
       "featureList": [
         "Visual canvas for data marts and joinable relationships",
         "Field-level ERD view with primary keys and join keys",
         "Ready-made templates: E-commerce, SaaS, Marketplace, Marketing, Mobile/Gaming, Finance, Healthcare",
-        "Import and export Open Knowledge Format (OKF) bundles",
+        "Import and export Open Knowledge Format (OKF) bundles and Apache Ossie semantic models",
         "AI Insight Questions generated from schema metadata",
         "Generate a model with Claude, ChatGPT or Gemini and import it",
         "Shareable model links — no account needed",
@@ -72,6 +72,11 @@
         },
         {
           "@type": "Question",
+          "name": "What is Apache Ossie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Apache Ossie (formerly Open Semantic Interchange) is a vendor-neutral YAML/JSON standard for semantic models — datasets, fields, relationships and metrics — from the Apache Software Foundation, where it is an incubating project. OWOX Model Canvas imports and exports it so your model can move to and from tools such as dbt, Snowflake, Power BI and Lightdash." }
+        },
+        {
+          "@type": "Question",
           "name": "Can I share a data model?",
           "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Share button copies a link that reopens your exact model — layout included — for anyone who opens it, no sign-in required." }
         }
@@ -101,6 +106,7 @@
           <li>Draw data marts and joinable relationships on a Miro-like canvas, with a field-level ERD view (columns, primary keys, join keys).</li>
           <li>Start from templates for real domains: E-commerce, SaaS, Marketplace, Marketing / Lead-gen, Mobile / Gaming, Finance, Healthcare, plus public datasets (Bitcoin, Stack Overflow).</li>
           <li>Import and export <strong>Open Knowledge Format (OKF)</strong> — a vendor-neutral Markdown bundle for data models, so your model stays portable and never locked in.</li>
+          <li>Import and export <strong>Apache Ossie</strong> semantic models (<code>.yaml</code> / <code>.json</code>) to exchange a model with other tools.</li>
           <li>Generate a model with AI: copy a short brief into Claude, ChatGPT or Gemini and import what it returns. See the <a href="/ai-instructions.html">AI build guide</a>.</li>
           <li>Get <strong>Insight Questions</strong>: the business questions a model can answer, generated from schema metadata only — no row-level data leaves your browser.</li>
           <li>Share a model via a link that reopens your exact diagram, and push it into OWOX Data Marts as drafts.</li>
@@ -109,6 +115,7 @@
         <h2 style="font-size:20px;margin:32px 0 8px;">Frequently asked</h2>
         <p style="color:#334155;"><strong>Is it free?</strong> Yes — the whole canvas is free and works without signing in. An OWOX API key is only needed to push a model into OWOX Data Marts.</p>
         <p style="color:#334155;"><strong>What is OKF?</strong> Open Knowledge Format is a vendor-neutral Markdown format for data models (a folder of <code>.md</code> files with YAML frontmatter). OWOX Model Canvas imports and exports OKF bundles so your model is portable across tools and git.</p>
+        <p style="color:#334155;"><strong>What is Apache Ossie?</strong> Apache Ossie (formerly Open Semantic Interchange) is a vendor-neutral YAML/JSON standard for semantic models — datasets, fields, relationships and metrics — from the Apache Software Foundation (incubating). OWOX Model Canvas imports and exports it. See the <a href="/ossie-format.md">Ossie format guide</a>.</p>
         <p style="color:#334155;"><strong>Do I need an account?</strong> No. You can design models, use templates, get AI question suggestions, and share a link anonymously.</p>
 
         <p style="margin-top:32px;"><a href="https://www.owox.com/app-signup" style="color:#1e88e5;font-weight:600;">Get started free with OWOX Data Marts →</a></p>

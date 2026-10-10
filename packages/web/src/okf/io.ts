@@ -1,4 +1,4 @@
-import { serializeBundle, parseBundle, isBundleIndex, type ModelGraph } from "@mc/okf";
+import { serializeBundle, parseBundle, isBundleIndex, parseOssie, serializeOssie, detectModelFormat, isOssieModelText, parseFrontmatter, slugify, type ModelGraph } from "@mc/okf";
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 
 // Branded footer appended to the bundle index — every exported model carries an
@@ -65,4 +65,72 @@ export function parsePastedMarkdown(text: string): Record<string, string> {
   const files: Record<string, string> = {};
   for (let i = 0; i < parts.length; i += 2) files[parts[i]] = parts[i + 1] || "";
   return files;
+}
+
+export type ModelFormat = "okf" | "ossie";
+
+export interface LoadedModel {
+  format: ModelFormat;
+  graph: ModelGraph;
+  name: string | null;
+  notImported: string[];
+  warnings: string[];
+}
+
+// Model name from the bundle's index frontmatter title, when present.
+function okfModelName(files: Record<string, string>): string | null {
+  const idx = Object.entries(files).find(([p]) => isBundleIndex(p));
+  if (!idx) return null;
+  try {
+    const t = parseFrontmatter(idx[1]).data.title;
+    return typeof t === "string" && t.trim() ? t.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function loadOssieText(text: string): LoadedModel {
+  const r = parseOssie(text);
+  return { format: "ossie", graph: r.graph, name: r.name ?? null, notImported: r.notImported, warnings: r.warnings };
+}
+
+function loadOkfFiles(files: Record<string, string>): LoadedModel {
+  return { format: "okf", graph: filesToGraph(files), name: okfModelName(files), notImported: [], warnings: [] };
+}
+
+export const MAX_MODEL_BYTES = 5 * 1024 * 1024;
+export const TOO_LARGE = "This file is too large (max 5 MB).";
+const tooLarge = (texts: string[]) => texts.reduce((n, t) => n + t.length, 0) > MAX_MODEL_BYTES;
+
+export function loadModelFiles(files: Record<string, string>): LoadedModel {
+  if (tooLarge(Object.values(files))) throw new Error(TOO_LARGE);
+  const names = Object.keys(files);
+  const dataNames = names.filter(n => /\.(ya?ml|json)$/i.test(n));
+  const ossie = dataNames.filter(n => isOssieModelText(files[n]));
+  const hasDocs = names.some(n => !dataNames.includes(n));
+  if (ossie.length > 1) throw new Error("Import one Ossie file at a time");
+  if (ossie.length === 1) {
+    if (hasDocs) throw new Error("Import one format at a time");
+    return loadOssieText(files[ossie[0]]);
+  }
+  // A lone data file that isn't an Ossie model: let the Ossie parser explain.
+  if (dataNames.length > 0 && !hasDocs) return loadOssieText(files[dataNames[0]]);
+  // Otherwise OKF; stray data files (package.json, configs) are ignored by parseBundle.
+  return loadOkfFiles(files);
+}
+
+export function loadModelText(text: string): LoadedModel {
+  if (tooLarge([text])) throw new Error(TOO_LARGE);
+  if (detectModelFormat({ text }) === "ossie") return loadOssieText(text);
+  return loadOkfFiles(parsePastedMarkdown(text));
+}
+
+export function downloadOssie(graph: ModelGraph, modelName: string): string[] {
+  const { yaml, warnings } = serializeOssie(graph, modelName);
+  const blob = new Blob([yaml], { type: "application/yaml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${slugify(modelName, "model")}.ossie.yaml`;
+  a.click();
+  return warnings;
 }

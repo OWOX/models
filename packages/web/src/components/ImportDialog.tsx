@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
-import { filesToGraph, parsePastedMarkdown, zipToFiles } from "../okf/io";
-import { fetchOkfBundleFromUrl, isAllowedGithubHost } from "../okf/github";
-import { buildOkfDeeplink } from "../share/okfLink";
-import { parseFrontmatter, isBundleIndex, type ModelGraph } from "@mc/okf";
+import { loadModelFiles, loadModelText, zipToFiles, MAX_MODEL_BYTES, TOO_LARGE, type LoadedModel } from "../okf/io";
+import { fetchModelFromUrl, isAllowedGithubHost } from "../okf/github";
+import { buildOkfDeeplink, buildOssieDeeplink } from "../share/okfLink";
+import type { ModelGraph } from "@mc/okf";
 
 type TabId = "upload" | "paste" | "github";
 const TABS: { id: TabId; label: string }[] = [
   { id: "upload", label: "Upload files" },
-  { id: "paste", label: "Paste markdown" },
+  { id: "paste", label: "Paste" },
   { id: "github", label: "From GitHub" },
 ];
 
@@ -28,8 +28,9 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
   const [activeTab, setActiveTab] = useState<TabId>(initialUrl ? "github" : "upload");
   const [pasteText, setPasteText] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [preview, setPreview] = useState<ModelGraph | null>(null);
-  const [modelName, setModelName] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<LoadedModel | null>(null);
+  const preview = loaded?.graph ?? null;
+  const modelName = loaded?.name ?? null;
   const [mode, setMode] = useState<"replace" | "merge">("replace");
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,43 +57,35 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     }
   }
 
-  // Collect the files for a single tab only — each tab is an autonomous source,
-  // so the preview reflects just the active tab's input (never a merge).
-  async function filesForTab(tab: TabId, paste: string, fetched: Record<string, string> | null): Promise<Record<string, string>> {
-    if (tab === "upload") {
-      const files: Record<string, string> = {};
-      const uploaded = fileInputRef.current?.files;
-      if (uploaded && uploaded.length > 0) {
-        for (const file of Array.from(uploaded)) {
-          if (file.name.endsWith(".zip")) {
-            Object.assign(files, zipToFiles(new Uint8Array(await file.arrayBuffer())));
-          } else {
-            files[file.name] = await file.text();
+  // Load one tab's source into a LoadedModel (pending nodes, no OWOX identity),
+  // or null when the tab has no input. Each tab is autonomous — never a merge.
+  async function loadForTab(tab: TabId, paste: string, fetched: Record<string, string> | null): Promise<LoadedModel | null> {
+    let model: LoadedModel;
+    if (tab === "paste") {
+      if (!paste.trim()) return null;
+      model = loadModelText(paste.trim());
+    } else {
+      let files: Record<string, string> = {};
+      if (tab === "upload") {
+        const uploaded = fileInputRef.current?.files;
+        if (uploaded && uploaded.length > 0) {
+          for (const file of Array.from(uploaded)) {
+            if (file.size > MAX_MODEL_BYTES) throw new Error(TOO_LARGE);
+            if (file.name.endsWith(".zip")) {
+              Object.assign(files, zipToFiles(new Uint8Array(await file.arrayBuffer())));
+            } else {
+              files[file.name] = await file.text();
+            }
           }
         }
+      } else {
+        files = fetched ?? {};
       }
-      return files;
+      if (Object.keys(files).length === 0) return null;
+      model = loadModelFiles(files);
     }
-    if (tab === "paste") return paste.trim() ? parsePastedMarkdown(paste.trim()) : {};
-    return fetched ?? {}; // github
-  }
-
-  // Parse into a ModelGraph with pending nodes (OKF carries no OWOX identity).
-  function toPendingGraph(files: Record<string, string>): ModelGraph {
-    const graph = filesToGraph(files);
-    return { ...graph, nodes: graph.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
-  }
-
-  // Model name from the bundle's index.md frontmatter title, when present.
-  function modelNameOf(files: Record<string, string>): string | null {
-    const idx = Object.entries(files).find(([p]) => isBundleIndex(p));
-    if (!idx) return null;
-    try {
-      const t = parseFrontmatter(idx[1]).data.title;
-      return typeof t === "string" && t.trim() ? t.trim() : null;
-    } catch {
-      return null;
-    }
+    const graph = { ...model.graph, nodes: model.graph.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
+    return { ...model, graph };
   }
 
   // Re-parse the ACTIVE tab's source to drive the live preview/count. Empty
@@ -102,22 +95,20 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     const paste = opts?.paste ?? pasteText;
     const fetched = opts?.fetched ?? fetchedFiles;
     try {
-      const files = await filesForTab(tab, paste, fetched);
-      if (Object.keys(files).length === 0) { setPreview(null); setModelName(null); return; }
-      const graph = toPendingGraph(files);
-      // Content fetched/provided but no marts parsed out (e.g. a URL to a folder
-      // whose index.md lists sub-bundles, not models). Nothing to import.
-      if (graph.nodes.length === 0) {
-        setPreview(null); setModelName(null);
-        setError("No OKF marts found here — check that this is a valid OKF bundle.");
+      const model = await loadForTab(tab, paste, fetched);
+      if (!model) { setLoaded(null); return; }
+      // Content provided but no marts parsed out (e.g. a folder whose index.md
+      // lists sub-bundles). Nothing to import.
+      if (model.graph.nodes.length === 0) {
+        setLoaded(null);
+        setError("No data marts found — check that this is an OKF bundle or an Ossie model.");
         return;
       }
-      setPreview(graph);
-      setModelName(modelNameOf(files));
+      setLoaded(model);
       setError(null);
     } catch (e) {
-      setPreview(null); setModelName(null);
-      setError((e as Error).message ?? "Failed to parse OKF bundle.");
+      setLoaded(null);
+      setError((e as Error).message ?? "Failed to parse the model.");
     }
   }
 
@@ -129,7 +120,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     void refresh(tab);
   }
 
-  // Fetch a public OKF bundle from a GitHub URL into the GitHub tab's preview.
+  // Fetch a public OKF bundle or Ossie file from a GitHub URL into the GitHub tab's preview.
   // Auto-triggered on paste / blur / Enter / deeplink — there is no Fetch button.
   // Skips re-fetching a URL that already loaded; a failed URL can be retried.
   async function fetchFromUrl(target: string) {
@@ -138,15 +129,15 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     if (trimmed === lastFetchedRef.current && preview) return;
     setFetching(true); setError(null);
     try {
-      const files = await fetchOkfBundleFromUrl(trimmed);
+      const files = await fetchModelFromUrl(trimmed);
       lastFetchedRef.current = trimmed;
       setFetchedFiles(files);
       await refresh("github", { fetched: files });
     } catch (e) {
       lastFetchedRef.current = null;
       setFetchedFiles(null);
-      setPreview(null); setModelName(null);
-      setError((e as Error).message ?? "Failed to fetch bundle.");
+      setLoaded(null);
+      setError((e as Error).message ?? "Failed to fetch the model.");
     } finally {
       setFetching(false);
     }
@@ -162,7 +153,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
   // users and marketing generate valid ?okf= links without hand-crafting them.
   async function copyDeeplink() {
     try {
-      await navigator.clipboard.writeText(buildOkfDeeplink(url.trim()));
+      await navigator.clipboard.writeText((loaded?.format === "ossie" ? buildOssieDeeplink : buildOkfDeeplink)(url.trim()));
       setDeeplinkCopied(true);
       setTimeout(() => setDeeplinkCopied(false), 2500);
     } catch {
@@ -209,7 +200,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     >
       <div className="bg-white rounded-xl shadow-xl w-[480px] max-w-[95vw] p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-slate-900">Import OKF bundle</h2>
+          <h2 className="text-[15px] font-semibold text-slate-900">Import model</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-700 text-xl leading-none px-1"
@@ -217,6 +208,8 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
             ✕
           </button>
         </div>
+
+        <p className="-mt-2 text-[12.5px] text-slate-500">OKF bundle (.zip / .md) or Apache Ossie (.yaml / .json)</p>
 
         {/* Source tabs — segmented control (upload / paste / GitHub). */}
         <div className="flex gap-1 rounded-lg bg-[#f1f3f7] p-1">
@@ -242,12 +235,12 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
             {aiBlock}
             <div>
               <label className="block text-[13px] font-medium text-slate-700 mb-1">
-                Upload .md / .txt / .zip files
+                Upload .zip / .md / .yaml / .json files
               </label>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".md,.txt,.zip"
+                accept=".md,.txt,.zip,.yaml,.yml,.json"
                 multiple
                 onChange={() => void refresh("upload")}
                 className="block w-full text-[13px] text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border file:border-[#d8dee8] file:bg-white file:text-[13px] file:font-medium file:cursor-pointer hover:file:bg-[#f1f3f7]"
@@ -262,7 +255,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
             {aiBlock}
             <div>
               <label className="block text-[13px] font-medium text-slate-700 mb-1">
-                Paste markdown content
+                Paste OKF markdown or an Ossie model
               </label>
               <textarea
                 value={pasteText}
@@ -308,8 +301,8 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
             />
             <p className="mt-1 text-[12px] text-slate-500">
               {fetching
-                ? "Fetching bundle…"
-                : "Paste a link to an OKF bundle folder — it loads automatically. Works with any public GitHub repo in the OKF format (like OWOX/models)."}
+                ? "Fetching model…"
+                : "Paste a link to an OKF bundle folder or an Ossie .yaml / .json file — it loads automatically."}
             </p>
           </div>
         )}
@@ -323,9 +316,14 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         {/* Preview: model name + object list + apply mode + count. */}
         {preview && (
           <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
-            {modelName && (
-              <span className="text-[13px] font-semibold text-slate-900">{modelName}</span>
-            )}
+            <div className="flex items-center gap-2">
+              <span data-testid="import-format" className="rounded-md bg-[#eef4fd] px-1.5 py-[2px] text-[11px] font-[550] text-[#1565c0]">
+                {loaded!.format === "ossie" ? "Apache Ossie" : "OKF"}
+              </span>
+              {modelName && (
+                <span className="text-[13px] font-semibold text-slate-900">{modelName}</span>
+              )}
+            </div>
             {preview.nodes.length > 0 && (
               <div className="max-h-40 overflow-y-auto rounded-lg border border-slate-100 divide-y divide-slate-50">
                 {preview.nodes.map(n => (
@@ -349,6 +347,22 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
                   </label>
                 ))}
               </>
+            )}
+            {loaded!.notImported.length > 0 && (
+              <details className="text-[12px] text-slate-500">
+                <summary className="cursor-pointer">Not imported ({loaded!.notImported.length})</summary>
+                <ul className="mt-1 max-h-28 list-disc overflow-y-auto pl-5">
+                  {loaded!.notImported.map((t, i) => <li key={"n" + i}>{t}</li>)}
+                </ul>
+              </details>
+            )}
+            {loaded!.warnings.length > 0 && (
+              <details className="text-[12px] text-amber-800">
+                <summary className="cursor-pointer">Warnings ({loaded!.warnings.length})</summary>
+                <ul className="mt-1 max-h-28 list-none overflow-y-auto pl-1">
+                  {loaded!.warnings.map((t, i) => <li key={"w" + i}><span aria-hidden="true">⚠ </span>{t}</li>)}
+                </ul>
+              </details>
             )}
             <p className="text-[12px] text-slate-500">
               Will import {preview.nodes.length} marts, {preview.edges.length} relationships.

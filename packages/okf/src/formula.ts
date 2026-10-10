@@ -141,3 +141,22 @@ export function toStoredFormula(formula: string, ctx: FormulaContext, selfName: 
   }
   return out;
 }
+
+export function joinAlias(explicit: string | undefined, target: { title: string; key: string }): string {
+  return explicit?.trim() || defaultJoinAlias(target.title || target.key, target.key);
+}
+
+/** Replace every reference `resolve` maps to a string; others stay. Right to left. */
+export function rewriteReferences(
+  formula: string,
+  resolve: (ref: { alias: string | null; field: string; keyword: boolean }) => string | null,
+): string {
+  let out = formula;
+  const refs = scanReferences(formula, true);
+  for (let i = refs.length - 1; i >= 0; i--) {
+    const r = refs[i];
+    const next = resolve({ alias: r.alias, field: r.field, keyword: !!r.keyword });
+    if (next !== null) out = out.slice(0, r.start) + next + out.slice(r.end);
+  }
+  return out;
+}

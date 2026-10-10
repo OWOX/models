@@ -21,7 +21,7 @@ export interface TopBarProps {
   onRefreshStorages?: () => Promise<StorageOption[]>;
   onImport?: () => void;
   onImportFromOwox?: () => void;
-  onExport?: () => void;
+  onExport?: (format: "okf" | "ossie") => void;
   onExportImage?: (format: ImageFormat) => void;
   exportDisabled?: boolean;
   onShare?: () => void;
@@ -317,8 +317,11 @@ export function TopBar({
           <>
             <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
             <div role="menu" className="absolute top-[calc(100%+6px)] right-0 z-50 w-[248px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1">
-              <button role="menuitem" onClick={() => { setExportMenuOpen(false); onExport?.(); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
-                <FileText size={15} className="text-slate-500" /> OKF (Markdown)
+              <button role="menuitem" onClick={() => { setExportMenuOpen(false); onExport?.("okf"); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
+                <FileText size={15} className="text-slate-500" /> OKF bundle (.zip)
+              </button>
+              <button role="menuitem" onClick={() => { setExportMenuOpen(false); onExport?.("ossie"); }} className="w-full text-left text-[13px] text-slate-900 px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7]">
+                <FileText size={15} className="text-slate-500" /> Apache Ossie (.yaml)
               </button>
               <div className="my-1 border-t border-[#eef1f5]" />
               {IMAGE_FORMATS.map(({ id, icon: Icon, label, tip }) => (
