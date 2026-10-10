@@ -17,6 +17,7 @@ export interface ImportRelationship {
   sourceId: string;
   targetId: string;
   targetAlias?: string;
+  description?: string;
   joinConditions: { sourceFieldName: string; targetFieldName: string }[];
 }
 export interface ImportPayload {

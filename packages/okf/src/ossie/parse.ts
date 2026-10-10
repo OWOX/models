@@ -156,9 +156,9 @@ function convert(text: string): OssieImport {
     const eAlias = str(ext.alias), eRev = str(ext.reverseAlias);
     if (eAlias) e.alias = eAlias;
     if (eRev) e.reverseAlias = eRev;
+    const desc = str(ext.description) ?? (aiContextText(r.ai_context) || undefined);
+    if (desc) e.description = desc;
     edges.push(e);
-    const ai = aiContextText(r.ai_context);
-    if (ai) notImported.push(`relationship "${r.name}": ai_context (${oneLine(ai)})`);
   }
 
   // Metrics → calculated fields on a home dataset

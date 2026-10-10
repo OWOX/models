@@ -34,6 +34,7 @@ function sanitize(g: ModelGraph): ModelGraph {
       cardinality: e.cardinality,
       ...(typeof e.alias === "string" ? { alias: e.alias } : {}),
       ...(typeof e.reverseAlias === "string" ? { reverseAlias: e.reverseAlias } : {}),
+      ...(typeof e.description === "string" && e.description ? { description: e.description } : {}),
     })),
   };
 }

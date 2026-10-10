@@ -367,6 +367,8 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
             targetDataMartId: toId,
             targetAlias: alias,
             joinConditions: ks.map(k => ({ sourceFieldName: k.left, targetFieldName: k.right })),
+            // Same text for both directions of a bidirectional edge.
+            ...(e.description?.trim() ? { description: e.description } : {}),
           }),
         });
         res.relationshipsCreated++;

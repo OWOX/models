@@ -111,7 +111,8 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
         const suffix = card ? ` [${card}]` : "";
         const alias = forward ? e.alias : e.reverseAlias;
         const as = alias ? ` as \`${alias}\`` : "";
-        return `- [${other.title}](./${slugByKey.get(otherKey)}.md)${as} — ${cond}${suffix}`;
+        const desc = forward && e.description?.trim() ? `\n  - Description: ${e.description.replace(/\s*\n\s*/g, " ").trim()}` : "";
+        return `- [${other.title}](./${slugByKey.get(otherKey)}.md)${as} — ${cond}${suffix}${desc}`;
       }).join("\n") + "\n"
     : "";
 

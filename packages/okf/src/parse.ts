@@ -42,13 +42,17 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     });
   }
 
-  const raw: { from: string; to: string; keys: { left: string; right: string }[]; cardinality?: Cardinality; alias?: string }[] = [];
+  const raw: { from: string; to: string; keys: { left: string; right: string }[]; cardinality?: Cardinality; alias?: string; description?: string }[] = [];
   for (const [path, text] of docs) {
     const { data, body } = parseFrontmatter(text);
     const fromSlug = path.split("/").pop()!.replace(/\.md$/, "");
     const fromKey = (data.owox && data.owox.key) || fromSlug;
     const fromSchema = parseSchema(body);
+    let lastJoin: (typeof raw)[number] | null = null;
     for (const ln of body.split("\n")) {
+      const dm = ln.match(/^\s{2,}- Description:\s*(.+)$/);
+      if (dm) { if (lastJoin && !lastJoin.description) lastJoin.description = dm[1].trim(); continue; }
+      lastJoin = null;
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
       if (!m) continue;
       const am = m[2].match(/^as\s+`([^`]+)`\s*(?:—|--)?\s*/);
@@ -65,7 +69,8 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       }
       const cm = rest.match(/\[(1:1|1:N|N:1|N:N)\]/);
       const cardinality = cm ? (cm[1] as Cardinality) : undefined;
-      raw.push({ from: fromKey, to: toKey, keys, cardinality, alias });
+      lastJoin = { from: fromKey, to: toKey, keys, cardinality, alias };
+      raw.push(lastJoin);
     }
   }
 
@@ -115,6 +120,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     if (ex) {
       ex.bidirectional = true;
       if (ex.from !== r.from && r.alias) ex.reverseAlias = r.alias;
+      if (!ex.description && r.description) ex.description = r.description;
       if (!ex.cardinality && r.cardinality) {
         ex.cardinality = ex.from === r.from ? r.cardinality : FLIP_CARDINALITY[r.cardinality];
       }
@@ -123,6 +129,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     const e: ModelEdge = { id: `e${edges.length + 1}`, from: r.from, to: r.to, keys: r.keys, bidirectional: false };
     if (r.cardinality) e.cardinality = r.cardinality;
     if (r.alias) e.alias = r.alias;
+    if (r.description) e.description = r.description;
     seen.set(pairKey, e); edges.push(e);
   }
   const storageId = (docs[0] && (parseFrontmatter(docs[0][1]).data.owox || {}).storageId) || null;

@@ -62,3 +62,10 @@ describe("share url", () => {
     expect(readSharedName()).toBeNull();
   });
 });
+
+describe("share url relationship description", () => {
+  it("keeps the edge description through encode/decode", () => {
+    const g = { ...graph, edges: [{ ...graph.edges[0], description: "Each order belongs to one customer" }] };
+    expect(decodeModel(encodeModel(g))!.edges[0].description).toBe("Each order belongs to one customer");
+  });
+});

@@ -58,6 +58,16 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
       {aliasInput("Join alias", edge.alias, defaultJoinAlias(toTitle, edge.to), "alias")}
       {edge.bidirectional && aliasInput("Reverse join alias", edge.reverseAlias, defaultJoinAlias(fromTitle, edge.from), "reverseAlias")}
 
+      <div>
+        <label htmlFor="rel-description" className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+          Description <InfoTip text="Business meaning of this join, e.g. 'each order belongs to one customer'. Shared with AI assistants in OWOX." />
+        </label>
+        <textarea id="rel-description" aria-label="Description" rows={3} value={edge.description ?? ""}
+          placeholder="What does this relationship mean?"
+          onChange={e => onUpdate({ description: e.target.value || undefined })}
+          className="w-full text-[13px] px-[10px] py-[8px] border border-[#d8dee8] rounded-lg text-slate-900 resize-y focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]" />
+      </div>
+
       {/* Join keys */}
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">

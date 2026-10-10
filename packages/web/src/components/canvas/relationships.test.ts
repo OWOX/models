@@ -8,6 +8,11 @@ const n = (key: string): ModelNode => ({
 const e = (over: Partial<ModelEdge>): ModelEdge => ({ id: "e1", from: "a", to: "b", keys: [], bidirectional: false, ...over });
 
 describe("relationshipsByNode", () => {
+  it("carries the description to both sides", () => {
+    const m = relationshipsByNode([n("a"), n("b")], [e({ description: "meaning" })]);
+    expect(m.get("a")![0].description).toBe("meaning");
+    expect(m.get("b")![0].description).toBe("meaning");
+  });
   it("lists a relationship on both cards, each from its own side", () => {
     const m = relationshipsByNode([n("a"), n("b")], [e({ keys: [{ left: "b_id", right: "id" }] })]);
     expect(m.get("a")).toEqual([{ id: "e1", direction: "outgoing", otherTitle: "B", joinFields: [{ field: "b_id", otherField: "id" }] }]);

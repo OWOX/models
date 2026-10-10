@@ -26,6 +26,21 @@ describe("RelationshipInspector cardinality", () => {
   });
 });
 
+describe("RelationshipInspector description", () => {
+  it("edits the description, untrimmed, and stores undefined when blank", () => {
+    const onUpdate = vi.fn();
+    render(<RelationshipInspector edge={edge} fromNode={from} toNode={to} onUpdate={onUpdate} onEnsureField={() => {}} />);
+    const ta = screen.getByLabelText("Description") as HTMLTextAreaElement;
+    expect(ta.placeholder).toBe("What does this relationship mean?");
+    fireEvent.change(ta, { target: { value: "each tx in one block " } });
+    expect(onUpdate).toHaveBeenCalledWith({ description: "each tx in one block " });
+    cleanup();
+    render(<RelationshipInspector edge={{ ...edge, description: "x" }} fromNode={from} toNode={to} onUpdate={onUpdate} onEnsureField={() => {}} />);
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "" } });
+    expect(onUpdate).toHaveBeenCalledWith({ description: undefined });
+  });
+});
+
 describe("RelationshipInspector aliases and calculated keys", () => {
   it("does not offer calculated fields as join keys and warns when one is typed", () => {
     const f = { ...from, schema: [...from.schema, { name: "ctr", type: "NUMERIC", pk: false, formula: "SUM(x)" }] };

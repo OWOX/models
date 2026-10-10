@@ -161,6 +161,7 @@ A fenced code block; its meaning follows the Definition type:
 - **Multiple keys:** comma-separate the backticked pairs — `` `a = a2`, `b = b2` ``.
 - **Alias (optional):** `` - [Customers](./customers.md) as `customers` — `customer_id = id` [N:1] ``. The alias is a SQL identifier (letters, digits, `_`, no leading digit) that formulas use as `customers.field`. Default = the target title in snake_case (`Order Items` → `order_items`).
 - **Cardinality (optional):** append `[1:1]`, `[1:N]`, `[N:1]` or `[N:N]` after the keys, oriented source → target — e.g. `` — `order_id = id` [N:1] ``. Visual only; ignored by OWOX.
+- **Description (optional):** an indented sub-bullet directly under the join line, on the source mart only: `` - Description: Each order belongs to one customer `` (two leading spaces, one line). It is the business meaning of the join, shared with AI assistants in OWOX.
 - **Bidirectional:** add a matching Joins line in the OTHER document with the key sides swapped. Renders as a double-headed arrow.
 
 ---
@@ -264,6 +265,7 @@ SELECT id, customer_id, order_date, total FROM `project.dataset.orders`
 
 ## Joins
 - [Customers](./customers.md) as `customers` — `customer_id = id` [N:1]
+  - Description: Each order belongs to one customer
 
 <!-- shop/order-items.md -->
 ---
