@@ -145,3 +145,14 @@ describe("payloadToGraph formulas and aliases", () => {
     expect(g.edges[0]).toMatchObject({ bidirectional: true, alias: "cust", reverseAlias: "ord" });
   });
 });
+
+describe("mergeGraphs description", () => {
+  it("fills a missing description on a paired existing edge, never overwrites one", () => {
+    const n = (key: string, id: string) => ({ key, title: id, inputSource: "SQL" as const, schema: [], position: { x: 0, y: 0 }, status: "created" as const, owoxId: id });
+    const mk = (description?: string): ModelGraph => ({ storageId: "st_1", nodes: [n("n1", "a"), n("n2", "b")],
+      edges: [{ id: "e1", from: "n1", to: "n2", keys: [{ left: "x", right: "y" }], bidirectional: false, ...(description ? { description } : {}) }] });
+    const incoming = payloadToGraph({ ...base, relationships: [{ sourceId: "a", targetId: "b", description: "new", joinConditions: [{ sourceFieldName: "x", targetFieldName: "y" }] }] }, "all");
+    expect(mergeGraphs(mk(), incoming).graph.edges[0].description).toBe("new");
+    expect(mergeGraphs(mk("mine"), incoming).graph.edges[0].description).toBe("mine");
+  });
+});

@@ -105,7 +105,13 @@ export function mergeGraphs(current: ModelGraph, incoming: ModelGraph): { graph:
   for (const inc of incoming.edges) {
     const from = keyRemap.get(inc.from)!, to = keyRemap.get(inc.to)!;
     const pair = [from, to].sort().join("|");
-    if (pairs.has(pair)) continue;
+    if (pairs.has(pair)) {
+      if (inc.description) {
+        const i = edges.findIndex(x => [x.from, x.to].sort().join("|") === pair);
+        if (i >= 0 && !edges[i].description) edges[i] = { ...edges[i], description: inc.description };
+      }
+      continue;
+    }
     pairs.add(pair);
     edges.push({ ...inc, id: `e${++ec}`, from, to });
   }
