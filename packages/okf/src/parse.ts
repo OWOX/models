@@ -16,7 +16,9 @@ export function isBundleIndex(path: string): boolean {
   return /\.md$/i.test(path) && basename(path).toLowerCase() === "index";
 }
 
-export function parseBundle(files: Record<string, string>): ModelGraph {
+export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
+  // Normalize CRLF/CR once so every regex below sees LF (`.` does not match `\r`).
+  const files = Object.fromEntries(Object.entries(rawFiles).map(([p, t]) => [p, t.replace(/\r\n?/g, "\n")]));
   const docs = Object.entries(files)
     .filter(([p]) => p.endsWith(".md") && !isBundleIndex(p))
     .filter(([, text]) => isMartDoc(text));

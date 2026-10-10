@@ -31,7 +31,7 @@ The canvas reads the flat `0.2.x` document and the legacy `semantic_model: [ ...
 | `relationship` | A join (edge) from `from` to `to`. `from_columns` and `to_columns` are zipped into join keys. Cardinality is N:1. |
 | `relationship.ai_context` | The join description (business meaning, shared with AI assistants in OWOX). A plain string is kept as written; an object becomes text like a dataset's `ai_context`. On export the description is written as a plain-string `ai_context`. |
 | `metric` | A metric (calculated field) on a "home" dataset. See below. |
-| `ai_context` | Added to the description as text: `AI instructions: ...`, `Synonyms: a, b`, `Example questions: q1; q2`. A plain string becomes `AI context: ...`. |
+| `ai_context` | Added to the description as text: `AI instructions: ...`, `Synonyms: a, b`, `Example questions: q1; q2`. A plain string becomes `AI context: ...` (except on a relationship, where it is kept as written). |
 
 Expressions: the canvas takes the `BIGQUERY` dialect entry when there is one, otherwise the first entry.
 

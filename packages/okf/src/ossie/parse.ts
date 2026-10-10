@@ -155,7 +155,7 @@ function convert(text: string): OssieImport {
     const eAlias = str(ext.alias), eRev = str(ext.reverseAlias);
     if (eAlias) e.alias = eAlias;
     if (eRev) e.reverseAlias = eRev;
-    const desc = str(ext.description) ?? (aiContextText(r.ai_context) || undefined);
+    const desc = str(ext.description) ?? ((typeof r.ai_context === "string" ? r.ai_context.trim() : aiContextText(r.ai_context)) || undefined);
     if (desc) e.description = desc;
     edges.push(e);
   }
