@@ -577,7 +577,7 @@ function CanvasInner() {
     // Only fire when clicking the pane (not on a node card or edge)
     const target = e.target as HTMLElement;
     if (target.closest(".react-flow__node") || target.closest(".react-flow__edge")) return;
-    if (target.closest("[data-dock]")) return; // double-clicking the toolbar shouldn't drop a node
+    if (target.closest("[data-dock]") || target.closest("[data-canvas-overlay]")) return; // double-clicking the toolbar shouldn't drop a node
     const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
     const n = store.addNode({ x: position.x - NODE_W / 2, y: position.y - NODE_H / 2 });
     setSelection({ type: "node", id: n.key });
@@ -595,7 +595,7 @@ function CanvasInner() {
       if (warnings.length > 0) setShareToast({ message: "Exported as Apache Ossie with warnings: " + warnings.join("; "), sticky: true });
       return warnings;
     }
-    const title = me?.projectTitle ?? "model-okf";
+    const title = modelName.trim() || DEFAULT_MODEL_NAME;
     const files = graphToBundleFiles(graph, title);
     downloadBundle(files, title);
     return [];
@@ -683,6 +683,8 @@ function CanvasInner() {
       store.set({ ...(hasStoredPositions(g) ? g : withLayout(g)), storageId: store.get().storageId ?? g.storageId });
       // Replace swaps in the file's model name too (its description rides in the graph).
       setModelName(name?.trim() || DEFAULT_MODEL_NAME);
+      setSavedModelId(null); // a Replace is a new model — the next Save creates a row
+      setSavedSnapshot(null);
     }
     setShowImport(false);
     setOkfInitialUrl(null);
@@ -693,6 +695,8 @@ function CanvasInner() {
     else {
       store.set({ ...withLayout(g), storageId: g.storageId });
       setModelName(me?.projectTitle?.trim() || DEFAULT_MODEL_NAME);
+      setSavedModelId(null);
+      setSavedSnapshot(null);
     }
     setShowOwoxImport(false);
   }, [withLayout, applyMergeWithLayout, me?.projectTitle]);

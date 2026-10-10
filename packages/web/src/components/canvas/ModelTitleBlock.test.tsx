@@ -5,7 +5,7 @@ import { ModelTitleBlock } from "./ModelTitleBlock";
 describe("ModelTitleBlock", () => {
   it("shows the name and the first line of the description", () => {
     render(<ModelTitleBlock name="Acme" description={"Line one\nLine two"} onOpen={() => {}} />);
-    const btn = screen.getByRole("button", { name: "Edit model name and description" });
+    const btn = screen.getByRole("button", { name: /Edit model name and description/ });
     expect(btn.textContent).toContain("Acme");
     expect(btn.textContent).toContain("Line one");
     expect(btn.textContent).not.toContain("Line two");
@@ -21,6 +21,12 @@ describe("ModelTitleBlock", () => {
     expect(cls).toContain("w-[280px]");
     expect(cls).toContain("top-[14px]");
     expect(cls).toContain("left-[15px]");
+  });
+  it("keeps the visible name in the accessible name and stays under modal sheets", () => {
+    render(<ModelTitleBlock name="Acme" onOpen={() => {}} />);
+    const btn = screen.getByRole("button", { name: "Acme. Edit model name and description" });
+    expect(btn.className).toContain("z-[14]");
+    expect(btn.className).toContain("max-w-[calc(100%-30px)]");
   });
   it("calls onOpen on click", () => {
     const onOpen = vi.fn();

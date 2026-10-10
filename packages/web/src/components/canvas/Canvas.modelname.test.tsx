@@ -23,7 +23,7 @@ const seed = () => ({
   nodes: [{ key: "a", title: "A", inputSource: "VIEW" as const, definition: "p.d.a", schema: [{ name: "id", type: "STRING", pk: true }], position: { x: 0, y: 0 }, status: "pending" as const, owoxId: null }],
   edges: [],
 });
-const blockText = async () => (await screen.findByRole("button", { name: "Edit model name and description" })).textContent ?? "";
+const blockText = async () => (await screen.findByRole("button", { name: /Edit model name and description/ })).textContent ?? "";
 
 async function owoxImport(mode: RegExp) {
   fireEvent.click(await screen.findByRole("button", { name: "More OWOX actions" }));

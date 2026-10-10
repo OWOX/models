@@ -179,3 +179,12 @@ describe("Dock ERD toggle", () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("Dock stacking", () => {
+  it("sits below modal sheets (overlay z-15)", () => {
+    const { container } = render(<Dock {...base} relLabelMode="all" onRelLabelModeChange={() => {}} />);
+    const cls = (container.querySelector("[data-dock]") as HTMLElement).className;
+    expect(cls).toContain("z-[14]");
+    expect(cls).not.toContain("z-20");
+  });
+});

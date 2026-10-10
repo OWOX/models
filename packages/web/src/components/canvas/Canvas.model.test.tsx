@@ -32,28 +32,34 @@ describe("Canvas model block and sheet", () => {
 
   it("opens the Model sheet from the block and edits name and description", async () => {
     render(<App />);
-    fireEvent.click(await screen.findByRole("button", { name: "Edit model name and description" }));
+    fireEvent.click(await screen.findByRole("button", { name: /Edit model name and description/ }));
     const dialog = await screen.findByRole("dialog", { name: "Model" });
     expect(dialog).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Renamed" } });
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "Edited text" } });
     expect(store.get().description).toBe("Edited text");
-    expect(screen.getByRole("button", { name: "Edit model name and description" }).textContent).toContain("Renamed");
+    expect(screen.getByRole("button", { name: /Edit model name and description/ }).textContent).toContain("Renamed");
   });
 
   it("Replace import applies the file's name and description", async () => {
     render(<App />);
     await importOssie(/Replace the canvas/i);
     await waitFor(() => expect(store.get().description).toBe("Imported description"));
-    expect(screen.getByRole("button", { name: "Edit model name and description" }).textContent).toContain("imported_name");
+    expect(screen.getByRole("button", { name: /Edit model name and description/ }).textContent).toContain("imported_name");
+  });
+
+  it("double-clicking the model block does not add a mart", async () => {
+    render(<App />);
+    fireEvent.doubleClick(await screen.findByRole("button", { name: /Edit model name and description/ }));
+    expect(store.get().nodes).toHaveLength(1);
   });
 
   it("Merge import keeps the current name and description", async () => {
     render(<App />);
-    const before = (await screen.findByRole("button", { name: "Edit model name and description" })).textContent;
+    const before = (await screen.findByRole("button", { name: /Edit model name and description/ })).textContent;
     await importOssie(/Merge into the canvas/i);
     await waitFor(() => expect(store.get().nodes.length).toBe(2));
     expect(store.get().description).toBe("Current description");
-    expect(screen.getByRole("button", { name: "Edit model name and description" }).textContent).toBe(before);
+    expect(screen.getByRole("button", { name: /Edit model name and description/ }).textContent).toBe(before);
   });
 });

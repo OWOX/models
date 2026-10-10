@@ -44,9 +44,6 @@ describe("detachFromOwox description", () => {
     const withDesc = { ...g, edges: [{ ...g.edges[0], description: "meaning" }] };
     expect(detachFromOwox(withDesc).edges[0].description).toBe("meaning");
   });
-});
-
-describe("detachFromOwox description", () => {
   it("keeps the model description", () => {
     expect(detachFromOwox({ ...g, description: "Retail model" }).description).toBe("Retail model");
   });
