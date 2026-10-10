@@ -7,21 +7,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <title>OWOX Model Canvas — design data models, free</title>
+    <title>OWOX Model Canvas — free data modeling canvas</title>
+
+    <!-- The #root fallback below is for crawlers that read raw HTML and for
+         visitors without JS. JS visitors get the app before it would show, so
+         it stays transparent for 3 s instead of flashing; it is still in the
+         HTML for every bot, and React replaces it on mount. -->
+    <style>
+      #root > main { opacity: 0; animation: mc-fallback-reveal 0s linear 3s forwards; }
+      @keyframes mc-fallback-reveal { to { opacity: 1; } }
+    </style>
 
     <!-- SEO + social card. Shared model links render this preview. -->
-    <meta name="description" content="A free, anonymous canvas to design data models — draw marts and joinable relationships, explore templates, and export OKF or Apache Ossie. No sign-in needed." />
+    <meta name="description" content="Free online data modeling canvas: draw data marts and joins, see the ERD, and import or export Open Knowledge Format (OKF) and Apache Ossie. No sign-in." />
     <link rel="canonical" href="https://model.owox.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OWOX Model Canvas" />
     <meta property="og:url" content="https://model.owox.com/" />
-    <meta property="og:title" content="OWOX Model Canvas — design data models, free" />
+    <meta property="og:title" content="OWOX Model Canvas — free data modeling canvas" />
     <meta property="og:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF and Apache Ossie export. No sign-in needed." />
     <meta property="og:image" content="https://model.owox.com/og-card.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="OWOX Model Canvas — design data models, free" />
+    <meta name="twitter:title" content="OWOX Model Canvas — free data modeling canvas" />
     <meta name="twitter:description" content="Draw your data model on a free, anonymous canvas — marts, joins, templates, OKF and Apache Ossie export." />
     <meta name="twitter:image" content="https://model.owox.com/og-card.png" />
 
@@ -34,7 +43,7 @@
       "url": "https://model.owox.com/",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any (web browser)",
-      "description": "A free, anonymous canvas to design data models — draw data marts and joinable relationships, explore templates, and export to Open Knowledge Format (OKF) or Apache Ossie. No sign-in needed.",
+      "description": "A free online data modeling canvas — draw data marts and joinable relationships, see the field-level ERD, start from templates, and import or export Open Knowledge Format (OKF) or Apache Ossie. No sign-in needed.",
       "featureList": [
         "Visual canvas for data marts and joinable relationships",
         "Field-level ERD view with primary keys and join keys",
@@ -46,6 +55,12 @@
         "One-click push into OWOX Data Marts"
       ],
       "isAccessibleForFree": true,
+      "dateModified": "2026-10-10",
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "sameAs": [
+        "https://github.com/OWOX/models",
+        "https://www.producthunt.com/p/owox-bi/owox-model-canvas"
+      ],
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "publisher": { "@type": "Organization", "name": "OWOX", "url": "https://www.owox.com/" }
     }
@@ -68,7 +83,7 @@
         {
           "@type": "Question",
           "name": "What is OKF (Open Knowledge Format)?",
-          "acceptedAnswer": { "@type": "Answer", "text": "A vendor-neutral markdown format for data models. OWOX Model Canvas can import and export OKF bundles so your model is portable." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Open Knowledge Format (OKF) is an open specification published by Google that describes a data model as a folder of Markdown files with YAML frontmatter. OWOX Model Canvas imports and exports OKF bundles, so your model stays portable. The canvas is an independent OWOX project, not affiliated with Google." }
         },
         {
           "@type": "Question",
@@ -92,33 +107,36 @@
     -->
     <div id="root">
       <main style="max-width:760px;margin:0 auto;padding:64px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;color:#0f172a;line-height:1.6;">
-        <h1 style="font-size:32px;letter-spacing:-0.5px;margin:0 0 12px;">OWOX Model Canvas — design data models on a free canvas</h1>
+        <h1 style="font-size:32px;letter-spacing:-0.5px;margin:0 0 12px;">OWOX Model Canvas — free data modeling canvas</h1>
         <p style="font-size:17px;color:#475569;margin:0 0 8px;">
-          A free, anonymous web canvas for data people. Draw your <strong>data marts</strong> (tables, views, SQL or connector outputs) and
-          <strong>joinable relationships</strong>, start from ready-made templates, see the business questions a model unlocks with AI, share it
-          as a link, and push the whole thing into <a href="https://www.owox.com/">OWOX Data Marts</a> in one click. No sign-in needed — an OWOX
-          API key is only required to push.
+          OWOX Model Canvas is a free online canvas for designing analytics data models. Draw your <strong>data marts</strong>
+          (tables, views, SQL or connector outputs) and the <strong>joins</strong> between them, switch to a field-level ERD view,
+          and import or export the model as <strong>Open Knowledge Format (OKF)</strong> or <strong>Apache Ossie</strong>.
+          It works in the browser with no sign-in. An OWOX API key is only needed to push a model into
+          <a href="https://www.owox.com/">OWOX Data Marts</a>.
         </p>
         <p style="color:#64748b;">Loading the canvas… If it doesn't appear, enable JavaScript or <a href="https://model.owox.com/">reload model.owox.com</a>.</p>
 
         <h2 style="font-size:20px;margin:32px 0 8px;">What you can do</h2>
         <ul style="padding-left:20px;color:#334155;">
           <li>Draw data marts and joinable relationships on a Miro-like canvas, with a field-level ERD view (columns, primary keys, join keys).</li>
-          <li>Start from templates for real domains: E-commerce, SaaS, Marketplace, Marketing / Lead-gen, Mobile / Gaming, Finance, Healthcare, plus public datasets (Bitcoin, Stack Overflow).</li>
-          <li>Import and export <strong>Open Knowledge Format (OKF)</strong> — a vendor-neutral Markdown bundle for data models, so your model stays portable and never locked in.</li>
-          <li>Import and export <strong>Apache Ossie</strong> semantic models (<code>.yaml</code> / <code>.json</code>) to exchange a model with other tools.</li>
+          <li>Start from a template: E-commerce, SaaS, Marketplace, Marketing / Lead-gen, Mobile / Gaming, Finance, Healthcare, and public datasets. The full catalog with descriptions is at <a href="https://www.owox.com/data-models">owox.com/data-models</a>.</li>
+          <li>Import and export <strong>Open Knowledge Format (OKF)</strong> bundles: Markdown files with YAML frontmatter, one per data mart, readable in a pull request.</li>
+          <li>Import and export <strong>Apache Ossie</strong> semantic models (<code>.yaml</code> / <code>.json</code>), including calculated fields, to move a model to and from tools such as dbt, Snowflake and Lightdash.</li>
           <li>Generate a model with AI: copy a short brief into Claude, ChatGPT or Gemini and import what it returns. See the <a href="/ai-instructions.html">AI build guide</a>.</li>
-          <li>Get <strong>Insight Questions</strong>: the business questions a model can answer, generated from schema metadata only — no row-level data leaves your browser.</li>
-          <li>Share a model via a link that reopens your exact diagram, and push it into OWOX Data Marts as drafts.</li>
+          <li>Get <strong>Insight Questions</strong>: the business questions a model can answer, generated from schema metadata only. No row-level data leaves your browser.</li>
+          <li>Share a model as a link that reopens the exact diagram, and push it into OWOX Data Marts as drafts.</li>
         </ul>
 
         <h2 style="font-size:20px;margin:32px 0 8px;">Frequently asked</h2>
-        <p style="color:#334155;"><strong>Is it free?</strong> Yes — the whole canvas is free and works without signing in. An OWOX API key is only needed to push a model into OWOX Data Marts.</p>
-        <p style="color:#334155;"><strong>What is OKF?</strong> Open Knowledge Format is a vendor-neutral Markdown format for data models (a folder of <code>.md</code> files with YAML frontmatter). OWOX Model Canvas imports and exports OKF bundles so your model is portable across tools and git.</p>
-        <p style="color:#334155;"><strong>What is Apache Ossie?</strong> Apache Ossie (formerly Open Semantic Interchange) is a vendor-neutral YAML/JSON standard for semantic models — datasets, fields, relationships and metrics — from the Apache Software Foundation (incubating). OWOX Model Canvas imports and exports it. See the <a href="/ossie-format.md">Ossie format guide</a>.</p>
-        <p style="color:#334155;"><strong>Do I need an account?</strong> No. You can design models, use templates, get AI question suggestions, and share a link anonymously.</p>
+        <p style="color:#334155;"><strong>Is OWOX Model Canvas free?</strong> Yes. The whole canvas is free and works without signing in. An OWOX API key is only needed to push your model into OWOX Data Marts.</p>
+        <p style="color:#334155;"><strong>Do I need an account to use it?</strong> No. You can design models, use templates, get AI question suggestions, and share a link anonymously. Only pushing into OWOX requires an API key.</p>
+        <p style="color:#334155;"><strong>What is OKF (Open Knowledge Format)?</strong> Open Knowledge Format (OKF) is an open specification published by Google that describes a data model as a folder of Markdown files with YAML frontmatter. OWOX Model Canvas imports and exports OKF bundles, so your model stays portable. The canvas is an independent OWOX project, not affiliated with Google. See the <a href="/okf-format.md">OKF format guide</a>.</p>
+        <p style="color:#334155;"><strong>What is Apache Ossie?</strong> Apache Ossie (formerly Open Semantic Interchange) is a vendor-neutral YAML/JSON standard for semantic models — datasets, fields, relationships and metrics — from the Apache Software Foundation, where it is an incubating project. OWOX Model Canvas imports and exports it so your model can move to and from tools such as dbt, Snowflake, Power BI and Lightdash. See the <a href="/ossie-format.md">Ossie format guide</a>.</p>
+        <p style="color:#334155;"><strong>Can I share a data model?</strong> Yes. The Share button copies a link that reopens your exact model — layout included — for anyone who opens it, no sign-in required.</p>
 
         <p style="margin-top:32px;"><a href="https://www.owox.com/app-signup" style="color:#1e88e5;font-weight:600;">Get started free with OWOX Data Marts →</a></p>
+        <p style="color:#94a3b8;font-size:13px;">Updated 2026-10-10 · Open source on <a href="https://github.com/OWOX/models">GitHub</a> (Apache-2.0)</p>
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>

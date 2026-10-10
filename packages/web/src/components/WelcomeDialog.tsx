@@ -25,10 +25,15 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
         {/* Header */}
         <div className="flex items-start gap-3 px-6 pt-5 pb-4 border-b border-[#e6e9f0] flex-shrink-0">
           <div className="flex-1">
-            <h2 className="text-[17px] font-semibold tracking-[-0.2px]">Start your data model</h2>
+            {/* Googlebot renders the page as a first-time visitor, so this is the
+                H1 search engines index for model.owox.com. */}
+            <h1 className="text-[11.5px] font-[550] uppercase tracking-[0.06em] text-slate-400">
+              OWOX Model Canvas · free data modeling canvas
+            </h1>
+            <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.2px]">Start your data model</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
-              Pick a template to explore, start from a blank canvas, or import an existing model.
-              It's free — no sign-in needed.
+              Pick a template to explore, start from a blank canvas, or import an Open Knowledge Format (OKF)
+              or Apache Ossie model. It's free — no sign-in needed.
             </p>
           </div>
           <button onClick={onStartBlank} aria-label="Close" className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
