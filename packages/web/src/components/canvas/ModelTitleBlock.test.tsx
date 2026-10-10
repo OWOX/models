@@ -22,6 +22,12 @@ describe("ModelTitleBlock", () => {
     const btn = screen.getByRole("button", { name: "Acme. Edit model name and description" });
     expect(btn.className).toContain("z-[14]");
   });
+  it("is plain text with a dotted underline, not a card", () => {
+    render(<ModelTitleBlock name="Acme" onOpen={() => {}} />);
+    const btn = screen.getByRole("button");
+    expect(btn.className).not.toMatch(/\bborder\b|bg-white|shadow/);
+    expect(screen.getByText("Acme").className).toContain("decoration-dotted");
+  });
   it("calls onOpen on click", () => {
     const onOpen = vi.fn();
     render(<ModelTitleBlock name="Acme" onOpen={onOpen} />);

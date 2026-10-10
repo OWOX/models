@@ -164,3 +164,30 @@ describe("mergeGraphs model description", () => {
     expect(mergeGraphs(cur, inc).graph.description).toBe("mine");
   });
 });
+
+describe("mergeGraphs aliases", () => {
+  const n = (key: string, id: string) => ({ key, title: id, inputSource: "SQL" as const, schema: [], position: { x: 0, y: 0 }, status: "created" as const, owoxId: id });
+  const keys = [{ left: "x", right: "y" }];
+  const rel = (sourceId: string, targetId: string, targetAlias?: string) => ({ sourceId, targetId, ...(targetAlias ? { targetAlias } : {}), joinConditions: [{ sourceFieldName: "x", targetFieldName: "y" }] });
+
+  it("refreshes the aliases of an edge already on the canvas from OWOX", () => {
+    const cur: ModelGraph = { storageId: "st_1", nodes: [n("n1", "a"), n("n2", "b")],
+      edges: [{ id: "e1", from: "n1", to: "n2", keys, bidirectional: true, alias: "old_b", reverseAlias: "old_a" }] };
+    const inc = payloadToGraph({ ...base, relationships: [rel("a", "b", "new_b"), rel("b", "a", "new_a")] }, "all");
+    expect(mergeGraphs(cur, inc).graph.edges[0]).toMatchObject({ from: "n1", to: "n2", alias: "new_b", reverseAlias: "new_a" });
+  });
+
+  it("maps the aliases onto an edge drawn in the opposite direction", () => {
+    const cur: ModelGraph = { storageId: "st_1", nodes: [n("n1", "a"), n("n2", "b")],
+      edges: [{ id: "e1", from: "n2", to: "n1", keys, bidirectional: true, alias: "old_a", reverseAlias: "old_b" }] };
+    const inc = payloadToGraph({ ...base, relationships: [rel("a", "b", "new_b"), rel("b", "a", "new_a")] }, "all");
+    expect(mergeGraphs(cur, inc).graph.edges[0]).toMatchObject({ from: "n2", to: "n1", alias: "new_a", reverseAlias: "new_b" });
+  });
+
+  it("keeps the current alias when OWOX sends none", () => {
+    const cur: ModelGraph = { storageId: "st_1", nodes: [n("n1", "a"), n("n2", "b")],
+      edges: [{ id: "e1", from: "n1", to: "n2", keys, bidirectional: false, alias: "mine" }] };
+    const inc = payloadToGraph({ ...base, relationships: [rel("a", "b")] }, "all");
+    expect(mergeGraphs(cur, inc).graph.edges[0].alias).toBe("mine");
+  });
+});

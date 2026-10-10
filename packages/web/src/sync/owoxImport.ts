@@ -76,8 +76,8 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
 
 // Merge incoming into current: marts with a matching owoxId are updated in place
 // (keeping the current key + position); brand-new marts are appended. Edges are
-// merged with de-dup by node pair. Returns the keys of newly added nodes so the
-// caller can lay out only those.
+// merged with de-dup by node pair; a paired edge takes OWOX's aliases. Returns
+// the keys of newly added nodes so the caller can lay out only those.
 export function mergeGraphs(current: ModelGraph, incoming: ModelGraph): { graph: ModelGraph; newKeys: Set<string> } {
   const byOwox = new Map(current.nodes.filter(n => n.owoxId).map(n => [n.owoxId!, n]));
   const keyRemap = new Map<string, string>(); // incoming key → final key
@@ -106,9 +106,19 @@ export function mergeGraphs(current: ModelGraph, incoming: ModelGraph): { graph:
     const from = keyRemap.get(inc.from)!, to = keyRemap.get(inc.to)!;
     const pair = [from, to].sort().join("|");
     if (pairs.has(pair)) {
-      if (inc.description) {
-        const i = edges.findIndex(x => [x.from, x.to].sort().join("|") === pair);
-        if (i >= 0 && !edges[i].description) edges[i] = { ...edges[i], description: inc.description };
+      const i = edges.findIndex(x => [x.from, x.to].sort().join("|") === pair);
+      if (i >= 0) {
+        // OWOX is the source of truth for aliases of a relationship it already
+        // has; map them onto the canvas edge's own direction.
+        const x = edges[i], same = x.from === from;
+        const alias = same ? inc.alias : inc.reverseAlias;
+        const reverseAlias = same ? inc.reverseAlias : inc.alias;
+        edges[i] = {
+          ...x,
+          ...(alias ? { alias } : {}),
+          ...(reverseAlias ? { reverseAlias } : {}),
+          ...(inc.description && !x.description ? { description: inc.description } : {}),
+        };
       }
       continue;
     }
