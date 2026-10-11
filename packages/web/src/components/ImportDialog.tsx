@@ -22,9 +22,11 @@ interface ImportDialogProps {
    *  visitor via deeplink), the Replace/Merge choice is meaningless and hidden;
    *  the import just populates the empty canvas. */
   hasExistingModel?: boolean;
+  /** The selected OWOX storage's Ossie dialect: picked from multi-dialect expressions. */
+  ossieDialect?: string;
 }
 
-export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel = false }: ImportDialogProps) {
+export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel = false, ossieDialect }: ImportDialogProps) {
   const [activeTab, setActiveTab] = useState<TabId>(initialUrl ? "github" : "upload");
   const [pasteText, setPasteText] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +66,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
     let model: LoadedModel;
     if (tab === "paste") {
       if (!paste.trim()) return null;
-      model = await loadModelText(paste.trim());
+      model = await loadModelText(paste.trim(), { ossieDialect });
     } else {
       let files: Record<string, string> = {};
       if (tab === "upload") {
@@ -83,7 +85,7 @@ export function ImportDialog({ onConfirm, onClose, initialUrl, hasExistingModel 
         files = fetched ?? {};
       }
       if (Object.keys(files).length === 0) return null;
-      model = await loadModelFiles(files);
+      model = await loadModelFiles(files, { ossieDialect });
     }
     const graph = { ...model.graph, nodes: model.graph.nodes.map(n => ({ ...n, status: "pending" as const, owoxId: null })) };
     return { ...model, graph };

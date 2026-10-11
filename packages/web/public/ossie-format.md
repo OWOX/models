@@ -35,7 +35,7 @@ The canvas reads the flat `0.2.x` document and the legacy `semantic_model: [ ...
 | `metric` | A metric (calculated field) on a "home" dataset. See below. |
 | `ai_context` | Added to the description as text: `AI instructions: ...`, `Synonyms: a, b`, `Example questions: q1; q2`. A plain string becomes `AI context: ...` (except on a relationship, where it is kept as written). |
 
-Expressions: the canvas takes the `BIGQUERY` dialect entry when there is one, otherwise the first entry.
+**Dialects.** An expression can list several dialects. The canvas shows and pushes the entry in your OWOX storage's dialect (BigQuery = `BIGQUERY`, Snowflake = `SNOWFLAKE`, Databricks = `DATABRICKS`), otherwise `ANSI_SQL`, otherwise the first entry. It keeps all the entries: see **Dialects** under "What it writes".
 
 **Metrics.** The home dataset is the one the metric references that has the most direct relationships to the other referenced datasets (a tie goes to the first referenced). References are rewritten: `home.field` becomes `field`, and `other.field` becomes `<join alias>.field`. If the home has no direct relationship to another referenced dataset, the metric is still imported, with a warning. A metric that references no dataset (for example `COUNT(*)`) is kept only when the OWOX extension names its `home`. Metric `datatype` sets the type (default NUMERIC).
 
@@ -45,7 +45,8 @@ Expressions: the canvas takes the `BIGQUERY` dialect entry when there is one, ot
 
 ## What it writes
 
-- **Document.** `version: 0.2.0.dev0`, a flat document (no `semantic_model` wrapper), YAML, with `name` set to the snake_case model name, then `datasets`, `relationships` and `metrics`. The dialect is `BIGQUERY`.
+- **Document.** `version: 0.2.0.dev0`, a flat document (no `semantic_model` wrapper), YAML, with `name` set to the snake_case model name, then `datasets`, `relationships` and `metrics`.
+- **Dialects.** An imported expression is written back with all its original dialect entries, as long as the canvas text still matches one of them. A new expression, or one whose formula, field name or mart name changed, gets one entry labelled with the storage's dialect: `BIGQUERY`, `SNOWFLAKE` or `DATABRICKS` for those OWOX storages, `ANSI_SQL` for other storages and when no storage is selected. When a changed formula drops other dialects, the export says which.
 - **Datasets.** One per mart, named in snake_case from the title (a clash gets `_2`). `source` is the definition; a mart with no definition gets its title as `source` and a warning. `primary_key` lists the primary-key fields.
 - **Fields.** A regular field has `expression` equal to its name. A calculated column keeps its formula. Types use the reverse of the map above: NUMERIC and BIGNUMERIC become Decimal, TIMESTAMP becomes DateTimeTz, and JSON, GEOGRAPHY, BYTES, RECORD, STRUCT, RANGE and INTERVAL become Opaque (the exact type is kept in the OWOX extension). A calculated field with an empty formula is not exported (warning).
 - **Metrics.** An aggregating calculated field becomes a model `metric`. Its references are written as `dataset.field`. Its home dataset goes in the OWOX extension.
@@ -95,13 +96,13 @@ datasets:
       - name: id
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: id
         datatype: String
       - name: country
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: country
         datatype: String
   - name: orders
@@ -112,25 +113,25 @@ datasets:
       - name: id
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: id
         datatype: String
       - name: customer_id
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: customer_id
         datatype: String
       - name: total
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: total
         datatype: Decimal
       - name: total_with_vat
         expression:
           dialects:
-            - dialect: BIGQUERY
+            - dialect: ANSI_SQL
               expression: total * 1.2
         datatype: Decimal
 relationships:
@@ -145,7 +146,7 @@ metrics:
   - name: revenue_per_customer
     expression:
       dialects:
-        - dialect: BIGQUERY
+        - dialect: ANSI_SQL
           expression: SUM(orders.total) / COUNT(DISTINCT customers.id)
     datatype: Decimal
 ```
