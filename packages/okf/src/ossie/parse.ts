@@ -42,6 +42,23 @@ export function parseOssie(text: string): OssieImport {
   }
 }
 
+const USE_SEMANTIC_MODEL = 'The canvas imports semantic models: import the file with a top-level "datasets" list instead.';
+
+// Ossie also has ontology documents (business concepts) and mapping documents
+// (ontology ↔ semantic model). Neither describes datasets, so say what the file
+// is instead of a bare "not an Ossie model".
+function notSemanticModelMessage(obj: Record<string, unknown>): string {
+  if (Array.isArray(obj.concept_mappings)) {
+    const ref = isObj(obj.semantic_model_ref) ? obj.semantic_model_ref.iri : undefined;
+    const iri = typeof ref === "string" ? ref.trim().slice(0, 200) : "";
+    return iri
+      ? `This is an Apache Ossie mapping document, not a semantic model. Import the semantic model it points to instead: ${iri}`
+      : `This is an Apache Ossie mapping document, not a semantic model. ${USE_SEMANTIC_MODEL}`;
+  }
+  if (Array.isArray(obj.ontology)) return `This is an Apache Ossie ontology (business concepts), not a semantic model. ${USE_SEMANTIC_MODEL}`;
+  return "This file isn't an Ossie model";
+}
+
 function convert(text: string): OssieImport {
   let raw: unknown;
   try { raw = YAML.parse(text, { maxAliasCount: 100 }); }
@@ -60,7 +77,7 @@ function convert(text: string): OssieImport {
   } else if (Array.isArray(obj.datasets)) {
     doc = obj as unknown as OssieDoc;
   } else {
-    throw new Error("This file isn't an Ossie model");
+    throw new Error(notSemanticModelMessage(obj));
   }
 
   const vendors: string[] = [];

@@ -15,6 +15,8 @@
 
 The canvas reads the flat `0.2.x` document and the legacy `semantic_model: [ ... ]` wrapper (YAML or JSON). With several models in one file, it imports the first and tells you how many it skipped.
 
+**Ontologies and mappings are not imported yet.** Ossie also defines ontology documents (`ontology:` — business concepts, see [ontology.md](https://github.com/apache/ossie/blob/main/ontology/ontology.md)) and mapping documents (`concept_mappings:` — ontology ↔ semantic model). They describe no datasets, so the import dialog says what the file is and asks for the semantic model instead. For a mapping document it names the semantic model the mapping points to (`semantic_model_ref.iri`). In the Ossie examples, `flights.semantic_model.yaml` imports; `flights.ontology.yaml`, `flights.mapping.yaml` and `flights.yaml` do not.
+
 ---
 
 ## What the canvas reads

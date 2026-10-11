@@ -53,6 +53,11 @@ describe("loadModel*", () => {
     await expect(loadModelFiles({ "m.yaml": OSSIE, "a.md": "---\ntitle: A\n---" })).rejects.toThrow("Import one format at a time");
     await expect(loadModelFiles({ "a.json": '{"a":1}' })).rejects.toThrow("This file isn't an Ossie model");
   });
+  it("explains an Ossie ontology from a file or pasted text", async () => {
+    const onto = "version: 0.2.0.dev0\nname: Flights\nontology:\n- concept: Airport\n  type: EntityType\n";
+    await expect(loadModelFiles({ "flights.ontology.yaml": onto })).rejects.toThrow(/Apache Ossie ontology/);
+    await expect(loadModelText(onto)).rejects.toThrow(/Apache Ossie ontology/);
+  });
 });
 
 describe("size cap", () => {

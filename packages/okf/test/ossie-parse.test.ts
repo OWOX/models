@@ -93,3 +93,25 @@ describe("parseOssie — malformed but parseable input", () => {
     expect(r.graph.edges[0].keys).toEqual([{ left: "a", right: "c" }]);
   });
 });
+
+describe("parseOssie — Ossie documents that aren't semantic models", () => {
+  const ontology = "version: 0.2.0.dev0\nname: Flights\nontology:\n- concept: Airport\n  type: EntityType\n";
+  const mapping = "version: 0.2.0.dev0\nname: flights_mapping\nontology_ref:\n  name: Flights\n  iri: ./flights.ontology.yaml\nsemantic_model_ref:\n  name: Flights semantic model\n  iri: ./flights.semantic_model.yaml\nconcept_mappings:\n- concept: Runway\n";
+  it("explains that an ontology isn't a semantic model", () => {
+    expect(() => parseOssie(ontology)).toThrow(/Apache Ossie ontology/);
+    expect(() => parseOssie(ontology)).toThrow(/top-level "datasets" list/);
+  });
+  it("treats the legacy combined file (ontology + ontology_mappings) as an ontology", () => {
+    expect(() => parseOssie(`${ontology}ontology_mappings:\n- name: m\n`)).toThrow(/Apache Ossie ontology/);
+  });
+  it("points a mapping document at the semantic model it references", () => {
+    expect(() => parseOssie(mapping)).toThrow(/Apache Ossie mapping/);
+    expect(() => parseOssie(mapping)).toThrow(/flights\.semantic_model\.yaml/);
+  });
+  it("still explains a mapping without a usable semantic model reference", () => {
+    expect(() => parseOssie("concept_mappings: []\nsemantic_model_ref: 5\n")).toThrow(/Apache Ossie mapping.*top-level "datasets" list/);
+  });
+  it("keeps the generic error for anything else", () => {
+    expect(() => parseOssie("ontology: nope")).toThrow("This file isn't an Ossie model");
+  });
+});
