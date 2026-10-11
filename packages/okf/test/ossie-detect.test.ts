@@ -15,4 +15,8 @@ describe("detectModelFormat", () => {
     expect(detectModelFormat({ text: "---\nname: Orders\ntitle: Orders\n---\n# Orders" })).toBe("okf");
     expect(detectModelFormat({ text: "<!-- shop/a.md -->\n---\ntitle: A\n---" })).toBe("okf");
   });
+  it("routes pasted Ossie ontologies and mappings to the Ossie reader (which explains them)", () => {
+    expect(detectModelFormat({ text: "version: 0.2.0.dev0\nname: Flights\nontology:\n- concept: Airport" })).toBe("ossie");
+    expect(detectModelFormat({ text: "version: 0.2.0.dev0\nname: m\nconcept_mappings:\n- concept: Runway" })).toBe("ossie");
+  });
 });

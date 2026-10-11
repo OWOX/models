@@ -19,7 +19,8 @@ export function detectModelFormat(input: { fileName?: string; text: string }): M
   const first = (lines[i] ?? "").trimStart();
   const looksOssie = first.startsWith("{") || OSSIE_KEY.test(first);
   // Frontmatter in OKF docs can also start with `name:` / `version:`, so also
-  // require a top-level `datasets` / `semantic_model` key.
-  const hasModelKey = /^(datasets|semantic_model)\s*:/m.test(lines.join("\n")) || /"(datasets|semantic_model)"\s*:/.test(text);
+  // require a top-level Ossie key. Ontology and mapping documents count too:
+  // the Ossie reader explains that they aren't semantic models.
+  const hasModelKey = /^(datasets|semantic_model|ontology|concept_mappings)\s*:/m.test(lines.join("\n")) || /"(datasets|semantic_model|ontology|concept_mappings)"\s*:/.test(text);
   return looksOssie && hasModelKey ? "ossie" : "okf";
 }
