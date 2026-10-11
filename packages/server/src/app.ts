@@ -1,4 +1,5 @@
-import Fastify from "fastify";
+import { isIP } from "node:net";
+import Fastify, { type FastifyRequest } from "fastify";
 import cookie from "@fastify/cookie";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
@@ -7,11 +8,21 @@ import { dataMartRoutes } from "./routes/datamarts";
 import { metaRoutes } from "./routes/meta";
 import { questionsRoutes } from "./routes/questions";
 
+// The client IP for rate limiting. Render sits behind Cloudflare, which sets
+// CF-Connecting-IP to the real client and overwrites any value the client
+// sends. X-Forwarded-For is client-controlled: with trustProxy, req.ip is its
+// left-most entry, so keying on it lets anyone get a fresh bucket per request.
+// req.ip stays as the fallback (local runs, or if the header ever goes missing).
+export function clientIp(req: Pick<FastifyRequest, "headers" | "ip">): string {
+  const cf = req.headers["cf-connecting-ip"];
+  const v = typeof cf === "string" ? cf.trim() : "";
+  return v && isIP(v) ? v : req.ip;
+}
+
 export function buildApp() {
   // trustProxy: Render terminates TLS and forwards via its load balancer, so
-  // req.ip must be derived from X-Forwarded-For. Without this every client
-  // looks like the proxy IP and the per-IP rate limiter throttles everyone
-  // together.
+  // req.ip is derived from X-Forwarded-For. It is spoofable, so rate limits key
+  // on clientIp() instead; req.ip is only its fallback.
   const app = Fastify({ logger: false, trustProxy: true });
   app.register(cookie);
 
@@ -84,6 +95,7 @@ export function buildApp() {
     global: true,
     max: Number(process.env.RATE_LIMIT_MAX) || 1000,
     timeWindow: process.env.RATE_LIMIT_WINDOW || "1 minute",
+    keyGenerator: clientIp,
   });
 
   app.register(authRoutes);
