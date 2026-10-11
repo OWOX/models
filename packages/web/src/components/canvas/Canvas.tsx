@@ -29,7 +29,7 @@ import { loadRelLabelMode, persistRelLabelMode, type RelLabelMode } from "../../
 import { loadObjHidden, persistObjHidden, type ObjHidden } from "../../state/objLabels";
 import { persistExportFormat, type ExportFormat } from "../../state/exportFormat";
 import { loadModelName, persistModelName, DEFAULT_MODEL_NAME, templateModelName } from "../../state/modelName";
-import type { ModelNode, ModelEdge, ModelGraph } from "@mc/okf";
+import { ossieDialectForStorage, type ModelNode, type ModelEdge, type ModelGraph } from "@mc/okf";
 
 import { graphToBundleFiles, downloadBundle, downloadOssie } from "../../okf/io";
 import { buildShareUrl, readSharedModel, readSharedName, clearSharedModelFromUrl } from "../../share/url";
@@ -595,7 +595,8 @@ function CanvasInner() {
     if (format === "ossie") {
       let warnings: string[];
       try {
-        warnings = await downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME);
+        const dialect = ossieDialectForStorage(storages.find(s => s.id === graph.storageId)?.type);
+        warnings = await downloadOssie(graph, modelName.trim() || DEFAULT_MODEL_NAME, dialect);
       } catch (e) {
         setShareToast({ message: (e as Error).message, sticky: true });
         return null;
@@ -607,7 +608,7 @@ function CanvasInner() {
     const files = graphToBundleFiles(graph, title);
     downloadBundle(files, title);
     return [];
-  }, [me, modelName]);
+  }, [me, modelName, storages]);
 
   // Clear the canvas: permanently wipe every node + edge (keep the selected
   // storage). No undo — the dialog warns and offers an OKF export first.
@@ -986,6 +987,7 @@ function CanvasInner() {
         <ImportDialog
           initialUrl={okfInitialUrl ?? undefined}
           hasExistingModel={graph.nodes.length > 0}
+          ossieDialect={ossieDialectForStorage(storages.find(s => s.id === graph.storageId)?.type)}
           onConfirm={handleImportConfirm}
           onClose={() => { setShowImport(false); setOkfInitialUrl(null); }}
         />

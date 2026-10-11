@@ -3,7 +3,7 @@ import type { Cardinality, InputSource, ModelEdge, ModelGraph, ModelNode, Schema
 import { normalizeFieldType } from "../fieldType";
 import { formulaReferences, formulaWarnings, joinAlias, rewriteReferences } from "../formula";
 import {
-  OWOX_VENDOR, aiContextText, ossieToCanvasType, pickExpression, readOwoxExt,
+  OWOX_VENDOR, aiContextText, expressionDialects, ossieToCanvasType, pickExpression, readOwoxExt,
   type OssieDataset, type OssieDoc, type OssieRelationship, type OssieExt, type OssieMetric,
 } from "./types";
 
@@ -34,8 +34,13 @@ const uniqueKey = (base: string, taken: Set<string>) => {
   return k;
 };
 
-export function parseOssie(text: string): OssieImport {
-  try { return convert(text); }
+export interface ParseOssieOptions {
+  /** Dialect to prefer when an expression has several (the OWOX storage's, see ossieDialectForStorage). */
+  dialect?: string;
+}
+
+export function parseOssie(text: string, opts: ParseOssieOptions = {}): OssieImport {
+  try { return convert(text, opts.dialect); }
   catch (e) {
     if (e instanceof TypeError) throw new Error(`Couldn't read this Ossie file: ${e.message}`);
     throw e;
@@ -59,7 +64,7 @@ function notSemanticModelMessage(obj: Record<string, unknown>): string {
   return "This file isn't an Ossie model";
 }
 
-function convert(text: string): OssieImport {
+function convert(text: string, prefer?: string): OssieImport {
   let raw: unknown;
   try { raw = YAML.parse(text, { maxAliasCount: 100 }); }
   catch (e) { throw new Error(`Couldn't read this Ossie file: ${(e as Error).message}`); }
@@ -108,7 +113,7 @@ function convert(text: string): OssieImport {
       if (typeof f.name !== "string") { notImported.push(`field without a name in dataset "${ds.name}"`); continue; }
       seeExts(f.custom_extensions);
       const fx = readOwoxExt<Record<string, unknown>>(f.custom_extensions);
-      const expr = pickExpression(f.expression);
+      const expr = pickExpression(f.expression, prefer);
       if (expr === "") notImported.push(`field "${ds.name}.${f.name}": no expression`);
       const calculated = !(expr === "" || expr === f.name);
       const field: SchemaField = {
@@ -121,6 +126,8 @@ function convert(text: string): OssieImport {
       const d = joinText(typeof f.description === "string" ? f.description : undefined, aiContextText(f.ai_context) || undefined);
       if (d) field.description = d;
       if (calculated) field.formula = expr;
+      const dialects = expressionDialects(f.expression);
+      if (dialects.length) field.ossieDialects = dialects;
       schema.push(field);
     }
     // A key column the dataset never lists as a field still has to exist on the canvas.
@@ -188,7 +195,7 @@ function convert(text: string): OssieImport {
   function importMetric(m: OssieMetric) {
     const ext = readOwoxExt<Record<string, unknown>>(m.custom_extensions);
     const extHome = str(ext.home);
-    const expr = pickExpression(m.expression);
+    const expr = pickExpression(m.expression, prefer);
     const used: string[] = [];
     for (const r of formulaReferences(expr)) {
       if (r.alias && keyOf.has(r.alias) && !used.includes(r.alias)) used.push(r.alias);
@@ -239,6 +246,8 @@ function convert(text: string): OssieImport {
       pk: false,
       formula,
     };
+    const dialects = expressionDialects(m.expression);
+    if (dialects.length) field.ossieDialects = dialects;
     const d = joinText(typeof m.description === "string" ? m.description : undefined, aiContextText(m.ai_context) || undefined);
     if (d) field.description = d;
     const mAlias = str(ext.alias);

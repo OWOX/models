@@ -6,8 +6,6 @@ import {
   type OssieDataset, type OssieDoc, type OssieExpression, type OssieField, type OssieMetric, type OssieRelationship,
 } from "./types";
 
-const DIALECT = "BIGQUERY";
-const expr = (e: string): OssieExpression => ({ dialects: [{ dialect: DIALECT, expression: e }] });
 const unique = (base: string, taken: Set<string>) => {
   let k = base, n = 2;
   while (taken.has(k)) k = `${base}_${n++}`;
@@ -17,8 +15,24 @@ const unique = (base: string, taken: Set<string>) => {
 // The canvas type travels in the extension only when the Ossie datatype can't restore it.
 const typeExt = (type: string) => (ossieToCanvasType(canvasToOssieType(type)) !== type ? type : undefined);
 
-export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: string; warnings: string[] } {
+export interface SerializeOssieOptions {
+  /** Dialect label for expressions the canvas writes itself (see ossieDialectForStorage). Default ANSI_SQL. */
+  dialect?: string;
+}
+
+export function serializeOssie(graph: ModelGraph, modelName: string, opts: SerializeOssieOptions = {}): { yaml: string; warnings: string[] } {
   const warnings: string[] = [];
+  const dialect = opts.dialect || "ANSI_SQL";
+  // An imported expression keeps all its dialects while the text the canvas would
+  // write still matches one of them (unchanged formula, mart and field names).
+  // Otherwise the other dialects are stale: write only the canvas text.
+  const expr = (f: SchemaField, text: string, where: string): OssieExpression => {
+    const original = f.ossieDialects ?? [];
+    if (original.some(d => d.expression.trim() === text.trim())) return { dialects: original.map(d => ({ ...d })) };
+    const dropped = [...new Set(original.map(d => d.dialect).filter(d => d && d !== dialect))];
+    if (isCalculated(f) && dropped.length) warnings.push(`"${where}": the formula changed since import — its ${dropped.join(", ")} expressions were dropped`);
+    return { dialects: [{ dialect, expression: text }] };
+  };
   const nodeByKey = new Map(graph.nodes.map(n => [n.key, n]));
 
   const takenDatasets = new Set<string>();
@@ -36,7 +50,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
       if (isCalculated(f) && formulaLevel(f.formula!) === "metric") continue;
       const field: OssieField = {
         name: f.name,
-        expression: expr(isCalculated(f) ? f.formula! : f.name),
+        expression: expr(f, isCalculated(f) ? f.formula! : f.name, `${dsName.get(n.key)}.${f.name}`),
         datatype: canvasToOssieType(f.type),
       };
       if (f.description) field.description = f.description;
@@ -103,7 +117,7 @@ export function serializeOssie(graph: ModelGraph, modelName: string): { yaml: st
           : (aliasToDataset.get(r.alias) ? `${aliasToDataset.get(r.alias)}.${r.field}` : null));
       const name = unique(f.name, takenMetrics);
       if (name !== f.name) warnings.push(`metric "${f.name}" of "${n.title}" clashes with another mart's metric — exported as "${name}"`);
-      const m: OssieMetric = { name, expression: expr(rewritten), datatype: canvasToOssieType(f.type) };
+      const m: OssieMetric = { name, expression: expr(f, rewritten, `metric ${name}`), datatype: canvasToOssieType(f.type) };
       if (f.description) m.description = f.description;
       const ext = owoxExt({ home: ds, alias: f.alias, type: typeExt(f.type) });
       if (ext) m.custom_extensions = ext;

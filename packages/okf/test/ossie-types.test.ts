@@ -16,8 +16,9 @@ describe("ossie types", () => {
     expect(readOwoxExt([{ vendor_name: "DBT", data: "{}" }, ...ext])).toEqual({ alias: "cust", x: 1 });
     expect(readOwoxExt([{ vendor_name: "OWOX", data: "not json" }])).toEqual({});
   });
-  it("picks the BigQuery dialect, else the first", () => {
-    expect(pickExpression({ dialects: [{ dialect: "ANSI_SQL", expression: " a " }, { dialect: "BIGQUERY", expression: "b" }] })).toBe("b");
+  it("picks ANSI_SQL without a preferred dialect, else the first", () => {
+    expect(pickExpression({ dialects: [{ dialect: "BIGQUERY", expression: "b" }, { dialect: "ANSI_SQL", expression: " a " }] })).toBe("a");
+    expect(pickExpression({ dialects: [{ dialect: "ANSI_SQL", expression: " a " }, { dialect: "BIGQUERY", expression: "b" }] }, "BIGQUERY")).toBe("b");
     expect(pickExpression({ dialects: [{ dialect: "SNOWFLAKE", expression: "c" }] })).toBe("c");
     expect(pickExpression(undefined)).toBe("");
   });

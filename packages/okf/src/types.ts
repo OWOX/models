@@ -10,7 +10,11 @@ export interface SchemaField {
   description?: string;
   /** Present ⇒ an OWOX calculated field: plain warehouse SQL, `<alias>.<field>` for joined marts. */
   formula?: string;
+  /** Apache Ossie import: the expression's original dialect entries, written back
+   *  verbatim on export while the field's expression is unchanged. */
+  ossieDialects?: OssieDialectEntry[];
 }
+export interface OssieDialectEntry { dialect: string; expression: string }
 export interface JoinKey { left: string; right: string; }
 
 export interface ModelNode {

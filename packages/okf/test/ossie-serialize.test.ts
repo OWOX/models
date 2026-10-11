@@ -53,7 +53,7 @@ describe("serializeOssie", () => {
   });
   it("round-trips back to the same model", () => {
     const back = parseOssie(yaml).graph;
-    const strip = (g: ModelGraph) => g.nodes.map(n => ({ title: n.title, inputSource: n.inputSource, position: n.position, schema: [...n.schema].sort((a, b) => a.name.localeCompare(b.name)) }));
+    const strip = (g: ModelGraph) => g.nodes.map(n => ({ title: n.title, inputSource: n.inputSource, position: n.position, schema: [...n.schema].map(({ ossieDialects: _d, ...f }) => f).sort((a, b) => a.name.localeCompare(b.name)) }));
     expect(strip(back)).toEqual(strip({ ...graph, nodes: graph.nodes.map(n => n.key === "c2" ? { ...n, definition: "customers" } : n) }));
     const e1 = back.edges.find(e => e.alias === "cust")!;
     expect(e1).toMatchObject({ bidirectional: true, reverseAlias: "ord", cardinality: "N:1", keys: [{ left: "customer_id", right: "id" }] });

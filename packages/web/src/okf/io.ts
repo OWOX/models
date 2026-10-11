@@ -102,9 +102,13 @@ export function loadOssieModule(): Promise<OssieModule> {
   return ossieModule;
 }
 
-async function loadOssieText(text: string): Promise<LoadedModel> {
+/** `ossieDialect`: the OWOX storage's Ossie dialect (ossieDialectForStorage) —
+ *  of an expression's dialects, the canvas shows and pushes that one. */
+export interface LoadOptions { ossieDialect?: string }
+
+async function loadOssieText(text: string, opts: LoadOptions): Promise<LoadedModel> {
   const { parseOssie } = await loadOssieModule();
-  const r = parseOssie(text);
+  const r = parseOssie(text, { dialect: opts.ossieDialect });
   return { format: "ossie", graph: r.graph, name: r.name ?? null, notImported: r.notImported, warnings: r.warnings };
 }
 
@@ -132,7 +136,7 @@ export const MAX_MODEL_BYTES = 5 * 1024 * 1024;
 export const TOO_LARGE = "This file is too large (max 5 MB).";
 const tooLarge = (texts: string[]) => texts.reduce((n, t) => n + t.length, 0) > MAX_MODEL_BYTES;
 
-export async function loadModelFiles(files: Record<string, string>): Promise<LoadedModel> {
+export async function loadModelFiles(files: Record<string, string>, opts: LoadOptions = {}): Promise<LoadedModel> {
   if (tooLarge(Object.values(files))) throw new Error(TOO_LARGE);
   const names = Object.keys(files);
   const dataNames = names.filter(n => /\.(ya?ml|json)$/i.test(n));
@@ -143,23 +147,24 @@ export async function loadModelFiles(files: Record<string, string>): Promise<Loa
   if (ossie.length > 1) throw new Error("Import one Ossie file at a time");
   if (ossie.length === 1) {
     if (hasDocs) throw new Error("Import one format at a time");
-    return loadOssieText(files[ossie[0]]);
+    return loadOssieText(files[ossie[0]], opts);
   }
   // A lone data file that isn't an Ossie model: let the Ossie parser explain.
-  if (dataNames.length > 0 && !hasDocs) return loadOssieText(files[dataNames[0]]);
+  if (dataNames.length > 0 && !hasDocs) return loadOssieText(files[dataNames[0]], opts);
   // Otherwise OKF; stray data files (package.json, configs) are ignored by parseBundle.
   return loadOkfFiles(files);
 }
 
-export async function loadModelText(text: string): Promise<LoadedModel> {
+export async function loadModelText(text: string, opts: LoadOptions = {}): Promise<LoadedModel> {
   if (tooLarge([text])) throw new Error(TOO_LARGE);
-  if (detectModelFormat({ text }) === "ossie") return loadOssieText(text);
+  if (detectModelFormat({ text }) === "ossie") return loadOssieText(text, opts);
   return loadOkfFiles(parsePastedMarkdown(text));
 }
 
-export async function downloadOssie(graph: ModelGraph, modelName: string): Promise<string[]> {
+/** `dialect` labels the expressions the canvas writes itself (default ANSI_SQL). */
+export async function downloadOssie(graph: ModelGraph, modelName: string, dialect?: string): Promise<string[]> {
   const { serializeOssie } = await loadOssieModule();
-  const { yaml, warnings } = serializeOssie(graph, modelName);
+  const { yaml, warnings } = serializeOssie(graph, modelName, { dialect });
   const blob = new Blob([yaml], { type: "application/yaml" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
