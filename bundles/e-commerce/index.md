@@ -32,7 +32,7 @@ description: |
   - Ad Performance — spend set against the orders and revenue the store recorded, campaign by campaign.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:56:37Z
+timestamp: 2026-10-20T20:04:21Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

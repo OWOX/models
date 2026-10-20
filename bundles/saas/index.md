@@ -27,7 +27,7 @@ description: |
   - [Support Tickets](./support-tickets.md) — every support conversation, its satisfaction score and response time.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:58:02Z
+timestamp: 2026-10-20T20:05:36Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
