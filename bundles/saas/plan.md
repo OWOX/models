@@ -6,7 +6,7 @@ description: |
   currently sellable. The reference that gives every subscription its list pricing.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:51:26.000Z
+timestamp: 2026-10-14T22:20:04.000Z
 ---
 
 # Schema
@@ -17,7 +17,7 @@ timestamp: 2026-07-23T12:51:26.000Z
 | `plan_name` | STRING | Plan Name | Human-readable plan name (tier + billing interval). |
 | `tier` | STRING | Tier | Product tier: Starter / Pro / Business / Enterprise. |
 | `billing_interval` | STRING | Billing Interval | Billing cadence: monthly / annual. |
-| `list_price` | NUMERIC | List Price | Published list price for this plan at this interval. |
+| `list_price` | NUMERIC | List Price | Published price per seat for this plan's interval — per seat-month on a monthly plan, per seat-year on an annual one (ten months' price). A subscription's MRR is its seats times this monthly equivalent, less its discount. |
 | `currency` | STRING | Currency | Currency of the list price. |
 | `is_active` | BOOLEAN | Is Active | Whether the plan is currently sellable. |
 

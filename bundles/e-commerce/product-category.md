@@ -7,7 +7,7 @@ description: |
   supposed to deliver, not just reported in isolation.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-05T19:03:08.000Z
+timestamp: 2026-10-11T04:24:49.000Z
 ---
 
 # Schema

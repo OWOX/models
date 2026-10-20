@@ -6,10 +6,29 @@ description: |
   and collections. Each customer carries an internal risk tier that shapes their whole
   journey: who gets approved, at what interest rate, how likely they are to fall behind,
   and how much the business ultimately writes off. Together the tables let you follow both
-  the money and the risk across the entire loan book.
+  the money and the risk across the entire loan book: [Loans](./loans.md) holds every
+  application and what was funded, and [Repayments](./repayments.md) shows how each funded loan
+  is being paid back.
+
+  **How this business is managed**
+  - **Credit Risk** — approves applicants in line with their risk and keeps missed payments and write-offs within appetite.
+  - **Finance** — keeps what lending earns well above what deposits cost, and grows new lending to plan.
+  - **Product** — turns sign-ups into funded customers who use their accounts every month.
+
+  **Key metrics**
+  - On-time payments — [Repayments · On-Time Payment Rate](./repayments.md?field=on_time_payment_rate) by [Repayments · Due Date](./repayments.md?field=due_date).
+  - Delinquency — [Repayments · 30+ DPD Rate (loans)](./repayments.md?field=delinquency_rate_30).
+  - Net interest — [Balances (monthly) · Interest Earned](./balances-monthly.md?field=interest_earned) less [Balances (monthly) · Interest Paid](./balances-monthly.md?field=interest_paid), by [Balances (monthly) · Month](./balances-monthly.md?field=month).
+  - Origination — [Loans · Funded Loans](./loans.md?field=funded_loans) and [Loans · Funded Amount](./loans.md?field=funded_amount) by [Loans · Funded At](./loans.md?field=funded_at).
+
+  **Key Data Marts**
+  - [Loans](./loans.md) — every application, the decision, the amount funded and its APR.
+  - [Repayments](./repayments.md) — every instalment, and how late it was paid.
+  - [Balances (monthly)](./balances-monthly.md) — what each account earns or costs the business, month by month.
+  - [Customer](./customer.md) — who the borrowers are, where they came from and their risk band.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-11T11:01:25Z
+timestamp: 2026-10-20T17:57:08Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

@@ -4,10 +4,11 @@ description: |
   The order lines behind every order — one row per product bought, with quantity, the price
   actually paid, the cost of goods, and the resulting revenue and profit. Revenue is
   recognised only for completed orders, so gross booked value and settled value never get
-  confused. This is the mart that answers what the business actually earned.
+  confused. This is the mart that answers what the business actually earned. A line carries no
+  date of its own: its [Orders](./orders.md) row says when it was placed and in what state it ended.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-11T15:00:26.000Z
+timestamp: 2026-10-20T08:25:00.000Z
 ---
 
 # Schema
@@ -22,12 +23,32 @@ timestamp: 2026-09-11T15:00:26.000Z
 | `currency` | STRING | Currency | The currency used for the transaction (e.g., USD) |
 | `unit_cost` | FLOAT | Unit Cost | The cost incurred by the business to acquire or produce a single unit of the product. |
 | `line_revenue` | FLOAT | Item Revenue | Gross revenue for this order line = Item Sale Price × Quantity. Sum across lines for total gross revenue (all order statuses). |
-| `line_cost` | FLOAT | Item COGS | Cost of goods sold for this order line = Unit Cost × Quantity. Sum for total COGS. |
+| `line_cost` | FLOAT | Item COGS | Cost of goods sold for this order line = Unit Cost × Quantity, on all order statuses including Cancelled and Returned. Sum for total COGS incurred. For the settled figure that matches recognised revenue, use Item Net COGS. |
 | `line_net_revenue` | FLOAT | Item Net Revenue | Revenue recognised only for Completed orders (Cancelled / Returned = 0). Sum for net  revenue. |
 | `line_net_profit` | FLOAT | Item Net Profit | Profit for Completed orders = (Item Sale Price − Unit Cost) × Quantity, else 0. Sum for  total net profit. |
-| `line_net_cost` | FLOAT | Item Net COGS | Cost of goods sold recognised only for Completed orders (Cancelled / Returned = 0). This is the cost figure that pairs with Line Net Revenue: net revenue − net cost = net profit. |
-| `net_margin_pct` | FLOAT | Net Margin % | Settled profit over settled revenue, from summed components. |
-| `margin_bucket` | STRING | Margin Bucket | Each line's gross margin band — Thin, Standard, Healthy or Premium — from its sale price and unit cost, banded to how this store's margins actually spread (mid-40s to high-60s percent, not the wide range a generic Loss/Thin/Healthy/Premium split assumes). Row-level; group and filter by it. |
+| `line_net_cost` | FLOAT | Item Net COGS | Cost of goods sold recognised only for Completed orders (Cancelled / Returned = 0). This is the cost figure that pairs with Item Net Revenue: net revenue − net cost = net profit. |
+
+## Calculated fields
+
+### `net_margin_pct` · FLOAT · Metric
+
+- **Alias:** Net Margin %
+
+Settled profit over settled revenue, from summed components.
+
+```sql
+SAFE_DIVIDE(SUM(line_net_profit), SUM(line_net_revenue))
+```
+
+### `margin_bucket` · STRING · Column
+
+- **Alias:** Margin Bucket
+
+Each line's gross margin band — Thin, Standard, Healthy or Premium — from its sale price and unit cost, banded to how this store's margins actually spread (mid-40s to high-60s percent, not the wide range a generic Loss/Thin/Healthy/Premium split assumes). Row-level; group and filter by it.
+
+```sql
+CASE WHEN SAFE_DIVIDE(line_revenue - line_cost, line_revenue) < 0.55 THEN 'Thin (<55%)' WHEN SAFE_DIVIDE(line_revenue - line_cost, line_revenue) < 0.60 THEN 'Standard (55-60%)' WHEN SAFE_DIVIDE(line_revenue - line_cost, line_revenue) < 0.65 THEN 'Healthy (60-65%)' ELSE 'Premium (65%+)' END
+```
 
 # Example Questions
 

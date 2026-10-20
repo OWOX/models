@@ -13,7 +13,7 @@ description: |
   shoppers trade down.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:49.000Z
+timestamp: 2026-10-19T16:29:01.000Z
 ---
 
 # Schema
@@ -23,7 +23,7 @@ timestamp: 2026-08-06T00:46:49.000Z
 | `product_id` | STRING | Product ID | PK. Unique identifier for this SKU. |
 | `sku` | STRING | SKU | Stock-keeping unit code as it appears on the shelf edge and in ordering. |
 | `name` | STRING | Product Name | Description of the line as it reads on the shelf and the receipt. |
-| `category` | STRING | Category | Top level of the merchandising hierarchy, e.g. `Grocery`, `Fresh Food`, `Apparel`, `Home`. |
+| `category` | STRING | Category | Top level of the merchandising hierarchy, one of ten: `Dairy`, `Produce`, `Pantry`, `Meat & Seafood`, `Bakery`, `Frozen`, `Beverages`, `Household`, `Health & Beauty`, `General Merchandise`. |
 | `subcategory` | STRING | Subcategory | Second level of the merchandising hierarchy within the category. |
 | `brand` | STRING | Brand | Brand the line is sold under. Compare against `is_private_label` to separate own brands from national ones. |
 | `supplier_name` | STRING | Supplier | Vendor the chain buys this line from. Matches the supplier on replenishment orders, so supplier service level is answerable from these two together. |

@@ -5,10 +5,11 @@ description: |
   W-shaped multi-touch attribution model that splits credit 30% to the first touch, 30% to lead
   creation, 30% to opportunity creation and 10% across everything in between. This is the mart
   that answers "which channels and campaigns actually deserve credit," rather than crediting
-  only the first click or the last one.
+  only the first click or the last one. Multiplied by the deal size in
+  [Opportunities](./opportunities.md), that credit becomes each channel's share of pipeline.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:59.000Z
+timestamp: 2026-10-08T18:58:41.000Z
 ---
 
 # Schema

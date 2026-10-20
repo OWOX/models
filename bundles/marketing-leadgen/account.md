@@ -5,11 +5,11 @@ description: |
   account carries an industry, an employee-count band and a region, plus a flag marking whether
   it sits on the account-based marketing (ABM) target list. Because real B2B deals belong to
   accounts rather than to whichever individual filled out a form, this mart is the join point
-  that lets leads, opportunities and touchpoints be rolled up to "who is this company, and how
+  that lets leads, [opportunities](./opportunities.md) and touchpoints be rolled up to "who is this company, and how
   big an opportunity is it."
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:31.000Z
+timestamp: 2026-10-08T18:58:40.000Z
 ---
 
 # Schema

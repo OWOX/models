@@ -5,13 +5,13 @@ description: |
   whatever became of it — attended, cancelled in advance, or simply not turned up to. Keeping
   cancellations and no-shows apart is deliberate, because they are different problems with different
   fixes: one gives the clinic a chance to refill the slot and the other does not. Each visit records
-  the clinician who delivered it and the service they delivered, the location and its currency, what
-  it billed both locally and converted, how the patient paid, and where the wider treatment plan
-  stood at the time. It is the only mart that carries revenue, so every question about money starts
-  here.
+  the [clinician](./provider.md) who delivered it and the service they delivered, the location and
+  its currency, what it billed both locally and converted, how the patient paid, and where the wider
+  treatment plan stood at the time. It is the only mart that carries revenue, so every question
+  about money starts here.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:36.000Z
+timestamp: 2026-10-20T08:55:35.000Z
 ---
 
 # Schema
@@ -38,11 +38,53 @@ timestamp: 2026-09-02T16:20:36.000Z
 | `is_first_visit` | BOOLEAN | Is First Visit | True when this is the patient's first ever attendance at the network. |
 | `count_visits` | INTEGER | Visit Count | Always `1` on every row; SUM to count appointments. |
 
+## Calculated fields
+
+### `attended_visits` · INTEGER · Metric
+
+- **Alias:** Attended Visits
+
+Appointments the patient actually attended (status `completed`). The base for revenue per visit; cancellations, no-shows and future bookings are not counted.
+
+```sql
+COUNTIF(status = 'completed')
+```
+
+### `no_show_rate` · FLOAT · Metric
+
+- **Alias:** No-Show Rate
+
+Share of past appointments missed without notice. Base: attended, cancelled and no-show appointments; future bookings are excluded. The standard measure of lost outpatient capacity.
+
+```sql
+SAFE_DIVIDE(COUNTIF(status = 'no_show'), COUNTIF(status IN ('completed', 'cancelled', 'no_show')))
+```
+
+### `revenue_per_visit` · NUMERIC · Metric
+
+- **Alias:** Revenue per Attended Visit
+
+Revenue billed per attended visit, in USD. Reads Attended Visits, so no-shows and cancellations do not dilute it; for revenue per past appointment, divide by Visit Count with `scheduled` excluded.
+
+```sql
+SAFE_DIVIDE(SUM(revenue_normalized), attended_visits)
+```
+
+### `new_patient_show_rate` · FLOAT · Metric
+
+- **Alias:** New-Patient Show Rate
+
+Share of past new-patient appointments attended — the first visit a converted enquiry booked. Base: first visits attended, cancelled or missed; future bookings excluded.
+
+```sql
+SAFE_DIVIDE(COUNTIF(visit_type = 'new_patient_visit' AND status = 'completed'), COUNTIF(visit_type = 'new_patient_visit' AND status IN ('completed', 'cancelled', 'no_show')))
+```
+
 # Example Questions
 
 - What is our no-show rate by location, specialty and clinician, and what revenue does the missed capacity represent over the period?
 - Which service lines earn most per attended visit, and how does that ranking change once cancellations and no-shows are counted against them?
-- Do `patients` paying through insurance attend more reliably than those paying out of pocket, and does that hold across both markets?
+- How does the way visits are paid for differ between the US and Canadian `clinics`, and how much of each market's revenue arrives through insurance?
 
 ## Joins
 

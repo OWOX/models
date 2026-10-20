@@ -10,7 +10,7 @@ description: |
   recurring business as the checkout is for a one-time one.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:52.000Z
+timestamp: 2026-10-15T10:37:50.000Z
 ---
 
 # Schema

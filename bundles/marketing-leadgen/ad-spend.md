@@ -1,13 +1,13 @@
 ---
 title: "Ad Spend"
 description: |
-  Daily cost, impressions and clicks for every paid campaign, broken out by ad group. This is
+  Daily cost, impressions and clicks for every paid [campaign](./campaign.md), broken out by ad group. This is
   the cost side of the funnel — the numbers a demand-gen team reconciles against Google Ads,
   LinkedIn Ads and other platform reports every week to know what a click, a lead and ultimately
   a closed deal actually costs.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T17:34:31.000Z
+timestamp: 2026-10-20T10:17:02.000Z
 ---
 
 # Schema
@@ -22,6 +22,18 @@ timestamp: 2026-07-23T17:34:31.000Z
 | `impressions` | INTEGER | Impressions | Number of times ads were shown. |
 | `clicks` | INTEGER | Clicks | Number of clicks the ads received. Always `≤ impressions`; CTR by channel. |
 | `cost` | NUMERIC | Cost | Money spent on this ad group for the day (USD). Derived from clicks × per-channel CPC. |
+
+## Calculated fields
+
+### `cpc` · FLOAT · Metric
+
+- **Alias:** CPC
+
+Cost per click, USD: summed cost over summed clicks, right at every cut — channel, campaign, ad group or week. Averaging a per-row CPC would weight a quiet day like a busy one and drop the days with no clicks.
+
+```sql
+SAFE_DIVIDE(SUM(cost), SUM(clicks))
+```
 
 # Example Questions
 

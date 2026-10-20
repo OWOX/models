@@ -8,7 +8,7 @@ description: |
   answerable.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T00:40:32.000Z
+timestamp: 2026-10-14T12:16:34.000Z
 ---
 
 # Schema
@@ -26,6 +26,38 @@ timestamp: 2026-07-29T00:40:32.000Z
 | `cohort_month` | DATE | Cohort Month | The month and year of the visitor's first visit, used for retention analysis. |
 | `visitor_segment` | STRING | Visitor Segment | Classification of the visitor based on their engagement behavior or frequency. |
 | `country_id` | INTEGER | Country ID | Numeric identifier representing the country where the visitor is located. |
+
+## Calculated fields
+
+### `visitors_count` · INTEGER · Metric
+
+- **Alias:** Visitors
+
+Distinct visitors in the selected rows, registered or not.
+
+```sql
+COUNT(DISTINCT visitor_id)
+```
+
+### `returning_visitor_rate` · FLOAT · Metric
+
+- **Alias:** Returning Visitor Rate
+
+Share of visitors who came back for a second session or more.
+
+```sql
+SAFE_DIVIDE(COUNT(DISTINCT IF(total_sessions > 1, visitor_id, NULL)), visitors_count)
+```
+
+### `registration_rate` · FLOAT · Metric
+
+- **Alias:** Registration Rate
+
+Share of visitors linked to a registered customer account.
+
+```sql
+SAFE_DIVIDE(COUNTIF(linked_customer_id IS NOT NULL), visitors_count)
+```
 
 # Example Questions
 

@@ -2,17 +2,17 @@
 title: "Store Traffic"
 description: |
   How many people walked through each door each day, how many of them bought something, and what
-  they spent when they did. Footfall is the denominator retail is missing whenever it looks only
-  at sales: a store whose revenue fell may have been busier than ever and converted worse, or
-  quieter and converted the same, and those two are completely different problems with completely
-  different fixes. One row per store and day, with the day itself described — weekend and holiday
-  flags are carried because retail demand is driven by the calendar more than by anything a store
-  does, and a Tuesday is not comparable to a Saturday. Conversion and average basket sit alongside
-  footfall so the three levers of a store day — traffic, conversion, basket — can be separated
-  instead of collapsing into one revenue number.
+  they spent when they did. Footfall is the denominator retail is missing whenever it looks only at
+  [sales](./pos-sales.md): a store whose revenue fell may have been busier than ever and converted
+  worse, or quieter and converted the same, and those two are completely different problems with
+  completely different fixes. One row per store and day, with the day itself described — weekend and
+  holiday flags are carried because retail demand is driven by the calendar more than by anything a
+  store does, and a Tuesday is not comparable to a Saturday. Conversion and average basket sit
+  alongside footfall so the three levers of a store day — traffic, conversion, basket — can be
+  separated instead of collapsing into one revenue number.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T04:43:44.000Z
+timestamp: 2026-10-19T16:30:25.000Z
 ---
 
 # Schema
@@ -28,6 +28,28 @@ timestamp: 2026-08-06T04:43:44.000Z
 | `transactions` | INTEGER | Transactions | Baskets paid for that day. Reconciles with the receipt lines recorded for the same store and day. |
 | `conversion_pct` | FLOAT | Conversion % | Transactions divided by footfall, as a **percentage on a 0–100 scale** — `87.4` means 87.4%, not 8740%. In food and general-merchandise retail this runs high — most people who walk in buy something — so read it against a grocery benchmark rather than a fashion one. |
 | `avg_basket_value` | NUMERIC | Average Basket Value | Average spend per basket that day, in USD. The third lever on a store day, alongside footfall and conversion. |
+
+## Calculated fields
+
+### `conversion_rate` · FLOAT · Metric
+
+- **Alias:** Conversion Rate
+
+Share of visitors who bought, 0–1 (0.876 means 87.6%): transactions over footfall, both summed at the report's grain. Use this rather than an average of the daily Conversion %, which weights a quiet day like a busy one.
+
+```sql
+SAFE_DIVIDE(SUM(transactions), SUM(footfall))
+```
+
+### `sales_per_visitor` · FLOAT · Metric
+
+- **Alias:** Sales per Visitor
+
+Net sales per person through the door, in USD: each day's baskets times their average value, over footfall. Conversion Rate times average basket — the whole store day in one number.
+
+```sql
+SAFE_DIVIDE(SUM(avg_basket_value * transactions), SUM(footfall))
+```
 
 # Example Questions
 

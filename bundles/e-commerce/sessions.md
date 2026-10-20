@@ -3,11 +3,12 @@ title: "Sessions"
 description: |
   Every browsing session on the storefront, with the device it happened on, the traffic source
   and campaign that produced it, the market it came from, and whether it ended in an order.
-  Sessions are the hinge of the model: marketing spend attaches on one side and orders on the
-  other, which is what lets acquisition cost be weighed against revenue.
+  Sessions are the hinge of the model: marketing spend attaches on one side —
+  [Unified Ad Spend](./unified-ad-spend.md) — and [Orders](./orders.md) on the other, which is
+  what lets acquisition cost be weighed against revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-04T06:57:53.000Z
+timestamp: 2026-10-20T08:24:11.000Z
 ---
 
 # Schema
@@ -26,10 +27,48 @@ timestamp: 2026-09-04T06:57:53.000Z
 | `source` | STRING | Source | The origin of the traffic, such as Google, Facebook, or direct entry. FK to [Unified Ad Spend](./unified-ad-spend.md) |
 | `medium` | STRING | Medium | The high-level channel type of the traffic, such as organic or cost-per-click. FK to [Unified Ad Spend](./unified-ad-spend.md) |
 | `campaign` | STRING | Campaign | The name of the specific marketing campaign that drove the session. |
-| `sessions_count` | INTEGER | Sessions | Distinct sessions in the selected rows. |
-| `orders_count` | INTEGER | Orders | Distinct orders placed in those sessions, counted across the join. |
-| `conversion_rate` | FLOAT | Conversion Rate | Orders per session — right at every cut. Inlined rather than composed over `orders_count`, because that formula reads a joined mart (Orders) and a formula may not read another formula that itself reads a join. |
-| `traffic_type` | STRING | Traffic Type | Paid, Organic, Owned or Direct, from the medium. Row-level; group and filter by it. |
+
+## Calculated fields
+
+### `sessions_count` · INTEGER · Metric
+
+- **Alias:** Sessions
+
+Distinct sessions in the selected rows.
+
+```sql
+COUNT(DISTINCT session_id)
+```
+
+### `orders_count` · INTEGER · Metric
+
+- **Alias:** Orders
+
+Distinct orders placed in those sessions, counted across the join.
+
+```sql
+COUNT(DISTINCT orders_e_commerce.order_id)
+```
+
+### `conversion_rate` · FLOAT · Metric
+
+- **Alias:** Conversion Rate
+
+Orders per session — right at every cut. Inlined rather than composed over `orders_count`, because that formula reads a joined mart (Orders) and a formula may not read another formula that itself reads a join.
+
+```sql
+SAFE_DIVIDE(COUNT(DISTINCT orders_e_commerce.order_id), sessions_count)
+```
+
+### `traffic_type` · STRING · Column
+
+- **Alias:** Traffic Type
+
+Paid, Organic, Owned or Direct, from the medium. Row-level; group and filter by it.
+
+```sql
+CASE WHEN medium = 'cpc' THEN 'Paid' WHEN medium = 'organic' THEN 'Organic' WHEN medium = 'newsletter' THEN 'Owned' WHEN medium = '(none)' THEN 'Direct' ELSE 'Other' END
+```
 
 # Example Questions
 
@@ -40,7 +79,7 @@ timestamp: 2026-09-04T06:57:53.000Z
 ## Joins
 
 - [Countries](./countries.md) — `country_id = country_id` [N:1] — The market the session came from.
-- [Orders](./orders.md) — `session_id = session_id` [1:1] — The order this session produced, where it converted.
+- [Orders](./orders.md) as `orders_e_commerce` — `session_id = session_id` [1:1] — The order this session produced, where it converted.
   - [Order Customer](./customers.md) — The customer who placed the order in this session.
     - [Customer Country](./countries.md) — The customer's home market, which can differ from where the session came from.
     - [Customer Acquisition Source](./traffic-sources.md) — The channel that originally acquired the customer.

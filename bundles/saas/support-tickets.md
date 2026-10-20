@@ -3,10 +3,11 @@ title: "Support Tickets"
 description: |
   Every support interaction — priority, topic, satisfaction score, time to first response, and
   resolution time. Support experience is an early churn-risk signal: unhappy, slow-to-resolve
-  accounts are the ones that quietly leave.
+  accounts are the ones that quietly leave — read it beside how much they use the product, in
+  [Usage (daily)](./usage-daily.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:01:59.000Z
+timestamp: 2026-10-19T16:01:10.000Z
 ---
 
 # Schema
@@ -20,8 +21,8 @@ timestamp: 2026-09-02T16:01:59.000Z
 | `closed_at` | TIMESTAMP | Closed At | When the ticket was closed. |
 | `priority` | STRING | Priority | Ticket priority level. |
 | `category` | STRING | Category | Ticket topic/category. |
-| `csat_score` | INTEGER | Csat Score | Customer satisfaction rating for the ticket. |
-| `first_response_mins` | INTEGER | First Response Mins | Minutes to first agent response. |
+| `csat_score` | INTEGER | CSAT Score | Customer satisfaction rating for the ticket. |
+| `first_response_mins` | INTEGER | First Response (minutes) | Minutes to first agent response. |
 
 # Example Questions
 

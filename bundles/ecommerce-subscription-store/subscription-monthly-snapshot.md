@@ -5,6 +5,9 @@ description: |
   much recurring and one-time revenue they produced, how many cycles were charged, skipped or
   declined, and whether that month was their first, their last, or a return after a break.
   Retention and recurring revenue become a single grouping rather than a window calculation.
+  The current month is present and still filling: its revenue, charges and churn cover only the
+  days elapsed so far, so compare finished months only. Why a subscriber left — a decision, or a
+  card that stopped working — is on the contract in [Subscriptions](./subscriptions.md).
 
   The cohort the subscriber belongs to travels with every row, so month-three and month-twelve
   retention can be read straight off this mart and compared across cadences and acquisition
@@ -12,7 +15,7 @@ description: |
   ways cannot judge the health of its subscription programme from a blended total.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:21:29.000Z
+timestamp: 2026-10-19T20:31:40.000Z
 ---
 
 # Schema
@@ -37,6 +40,28 @@ timestamp: 2026-09-02T16:21:29.000Z
 | `is_new_subscriber` | BOOLEAN | Is New Subscriber | Whether the customer's first ever subscription started in this month. |
 | `is_churned` | BOOLEAN | Is Churned | Whether the customer's last active subscription ended in this month. |
 | `is_reactivated` | BOOLEAN | Is Reactivated | Whether the customer returned to an active subscription this month after a period without one. |
+
+## Calculated fields
+
+### `subscriber_churn_rate` · FLOAT · Metric
+
+- **Alias:** Subscriber Churn Rate (monthly)
+
+Monthly share of subscribers lost: of those holding an active or paused subscription at the start of a month, the share whose last one ended in it. Counts subscribers, not contracts. Over several months it is the pooled monthly rate, not a quarterly or yearly one. The current month is partial and reads low until it closes.
+
+```sql
+SAFE_DIVIDE(COUNTIF(is_churned AND NOT is_new_subscriber), COUNTIF(NOT is_new_subscriber AND (status_at_month_end != 'Cancelled' OR is_churned)))
+```
+
+### `subscriber_retention_rate` · FLOAT · Metric
+
+- **Alias:** Subscriber Retention Rate
+
+Share of subscribers still subscribed (active or paused) at month end, between 0 and 1. Churned subscribers keep a Cancelled row every later month, so cut by Cohort Month and Months Since Cohort for cohort retention: month 3, 6 or 12 reads off directly. By month alone it is the share of everyone who ever subscribed.
+
+```sql
+SAFE_DIVIDE(COUNTIF(status_at_month_end != 'Cancelled'), COUNT(snapshot_id))
+```
 
 # Example Questions
 

@@ -6,14 +6,15 @@ description: |
   whether it ended the day with nothing left, and how many weeks the remaining stock would last at
   current demand. Availability is the constraint on everything a store can sell — an empty shelf
   produces no sale, no margin and no loyalty, and the sale it loses rarely comes back later — so
-  this is the mart that explains sales the sales figures themselves cannot. It is also where
-  working capital sits: stock is cash on a shelf, and the same daily position that reveals a
-  stockout reveals overstock in the lines nobody is buying. Reading the two together is the whole
-  of inventory management — too little loses sales, too much ties up money and, in fresh food, is
-  thrown away.
+  this is the mart that explains sales the sales figures themselves cannot. It is also where working
+  capital sits: stock is cash on a shelf, and the same daily position that reveals a stockout
+  reveals overstock in the lines nobody is buying. Reading the two together is the whole of
+  inventory management — too little loses sales, too much ties up money and, in fresh food, is
+  thrown away. Why a line ran out — ordered too late, or delivered late or short — is read from
+  [Replenishment](./replenishment.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-07T18:20:47.000Z
+timestamp: 2026-10-19T16:29:46.000Z
 ---
 
 # Schema

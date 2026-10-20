@@ -1,13 +1,13 @@
 ---
 title: "Stage Transitions"
 description: |
-  One row per pipeline stage change for a sales opportunity, tracing each deal's path through
+  One row per pipeline stage change for a sales [opportunity](./opportunities.md), tracing each deal's path through
   discovery, demo, proposal and negotiation on the way to a win or a loss. The time spent in
   each stage before moving to the next is the raw material for bottleneck analysis — where deals
   get stuck, and for how long.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:59.000Z
+timestamp: 2026-10-08T18:58:41.000Z
 ---
 
 # Schema

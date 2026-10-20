@@ -20,7 +20,7 @@ description: |
   history rather than a single purchase.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:20:03.000Z
+timestamp: 2026-10-15T17:02:12.000Z
 ---
 
 # Schema
@@ -35,6 +35,28 @@ timestamp: 2026-09-23T14:20:03.000Z
 | `currency` | STRING | Payment Currency | Currency the money arrived in, such as `USD`. Needed before payments can be summed together. |
 | `payment_source` | STRING | Payment Source | Where the money came from: `patient_copay`, collected before the treatment starts and a small share of the total, or `insurance_reimbursement`, paid after the claim is processed. One arrives before the treatment and the other after the claim is processed, so cash-flow questions need this split. |
 | `days_to_payment` | INTEGER | Days to Payment | How long this money took to arrive, counted from the bill. It is the reimbursement lag made measurable: read by `payment_source` it separates the copay collected before treatment from the insurer's part, and tracked over time it shows whether insurers are paying more slowly. |
+
+## Calculated fields
+
+### `revenue_per_patient` · FLOAT · Metric
+
+- **Alias:** Revenue per Paying Patient
+
+Money received per patient who paid anything in the period. Divides by distinct patients, not payments — a patient pays several times — so it is not the average payment, and per-channel values do not add up. For first-touch channel use the Customer (Patient) Person fields: the payer's own first visit, and the same person the three longer Person routes reach.
+
+```sql
+SAFE_DIVIDE(SUM(amount), COUNT(DISTINCT customer_id))
+```
+
+### `insurer_days_to_payment` · FLOAT · Metric
+
+- **Alias:** Avg Days to Insurer Payment
+
+Average days from the bill to the insurer's payment, per reimbursement received. Patient copays are left out; cut by Payment Source and the copay row reads empty. Trend it by Received At: by the bill's issue date the latest months read short, because the slow claims are not paid yet.
+
+```sql
+SAFE_DIVIDE(SUM(IF(payment_source = 'insurance_reimbursement', days_to_payment, 0)), COUNTIF(payment_source = 'insurance_reimbursement'))
+```
 
 # Example Questions
 

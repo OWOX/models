@@ -2,12 +2,13 @@
 title: "Collections"
 description: |
   Every action taken to recover money from loans that have fallen behind — reminders, calls,
-  restructures, and hand-offs to agencies — and what came of each. Tracks how much is
-  recovered and how effective different approaches are once a loan is delinquent or written
-  off. This is the last line of defense on losses.
+  restructures, and hand-offs to agencies — and what came of each. Tracks how much is recovered
+  and how effective different approaches are once a loan is delinquent or written off. This is
+  the last line of defense on losses; the missed instalments that put each loan here are in
+  [Repayments](./repayments.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:35.000Z
+timestamp: 2026-10-20T11:39:21.000Z
 ---
 
 # Schema
@@ -20,6 +21,18 @@ timestamp: 2026-09-02T16:19:35.000Z
 | `action_type` | STRING | Action Type | One of `reminder` / `call` / `restructure` / `agency_handoff`. Early-stage (reminder/call) at low DPD; late-stage (restructure/agency_handoff) once charged off. |
 | `outcome` | STRING | Outcome | One of `promise_to_pay` / `paid` / `no_contact` / `dispute`. |
 | `amount_recovered` | NUMERIC | Amount Recovered | Money recovered by this action; bounded by remaining balance. Cumulative recovery per charged-off loan stays well under 100% and decays with time since charge-off. |
+
+## Calculated fields
+
+### `recovered_per_action` · FLOAT · Metric
+
+- **Alias:** Recovered per Action
+
+Dollars recovered per collections action: total recovered over the number of actions taken. Actions that reached nobody or recovered nothing stay in the count, so this is the yield of the effort, not of the successes.
+
+```sql
+SAFE_DIVIDE(SUM(amount_recovered), COUNT(action_id))
+```
 
 # Example Questions
 

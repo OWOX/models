@@ -3,12 +3,13 @@ title: "Search Requests"
 description: |
   One row per search a buyer runs — the top of the demand funnel and the cleanest read on
   marketplace liquidity. Each request records the category searched, how many results came
-  back, whether the buyer clicked, and whether the search converted into an order, along
-  with the time it took to match. Searches that return nothing, or return results but never
-  convert, are the "demand with no fill" signal a liquidity analyst hunts for.
+  back, whether the buyer clicked, and whether the search converted into an
+  [order](./orders.md), along with the time it took to match. Searches that return nothing, or return results but never
+  convert, are the "demand with no fill" signal a liquidity analyst hunts for; the live supply they
+  could have found is in [Listings](./listings.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:51.000Z
+timestamp: 2026-10-20T15:40:03.000Z
 ---
 
 # Schema
@@ -24,7 +25,7 @@ timestamp: 2026-09-02T16:20:51.000Z
 | `clicked` | BOOLEAN | Clicked | Whether the buyer clicked a result. |
 | `converted` | BOOLEAN | Converted | Whether the search led to an order. |
 | `order_id` | STRING | Order ID | Order the search converted into, if any. FK to [Orders](./orders.md) |
-| `time_to_match_mins` | FLOAT | Time To Match Mins | Search → transaction latency in minutes (null unless converted). |
+| `time_to_match_mins` | FLOAT | Time to Match (min) | Search → transaction latency in minutes (null unless converted). |
 
 # Example Questions
 

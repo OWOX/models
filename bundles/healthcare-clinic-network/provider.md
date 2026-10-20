@@ -6,12 +6,12 @@ description: |
   nurse practitioners and physician assistants who deliver care, and `specialty` is what makes this
   mart load-bearing — it is the only place the model says whether a visit was primary care,
   dermatology, orthopedics or behavioral health, and those service lines behave nothing alike on
-  revenue per visit or on how often patients fail to turn up. `is_active` distinguishes clinicians
-  currently practising from those who have left, so a provider who worked two months of the year is
-  not compared against one who worked twelve.
+  revenue per visit. `is_active` distinguishes clinicians currently practising from those who have
+  left, so a provider who worked two months of the year is not compared against one who worked
+  twelve.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:02:24.000Z
+timestamp: 2026-10-20T08:50:15.000Z
 ---
 
 # Schema

@@ -19,7 +19,7 @@ description: |
   treat.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:19:58.000Z
+timestamp: 2026-10-15T16:52:12.000Z
 ---
 
 # Schema
@@ -33,6 +33,48 @@ timestamp: 2026-09-23T14:19:58.000Z
 | `type` | STRING | Consultation Type | Which of the two screens this is: `Pre-Consultation` for the phone conversation with reception or a manager, `Consultation` for the appointment with a clinician. |
 | `is_qualified` | BOOLEAN | Is Qualified | The verdict of this screen: TRUE when the person moves forward, FALSE when they do not. This is where qualification is actually decided; the same field on the enquiry record is empty. |
 | `disqualification_reason` | STRING | Disqualification Reason | Why the person was not taken forward. Empty when they were. This is what turns a low acceptance rate from a count into a diagnosis, because the fix is different for each reason. |
+
+## Calculated fields
+
+### `enquiries_screened` · INTEGER · Metric
+
+- **Alias:** Enquiries Screened
+
+Distinct enquiries with at least one screening verdict, phone or clinician. Counts enquiries, not screens — an enquiry that passes the phone screen is normally screened twice. A booked screen with no verdict recorded does not count.
+
+```sql
+COUNT(DISTINCT IF(is_qualified IS NOT NULL, lead_id, NULL))
+```
+
+### `enquiries_accepted` · INTEGER · Metric
+
+- **Alias:** Enquiries Accepted by a Clinician
+
+Distinct enquiries a clinician accepted for treatment at a consultation. Passing the phone screen alone does not count.
+
+```sql
+COUNT(DISTINCT IF(type = 'Consultation' AND is_qualified, lead_id, NULL))
+```
+
+### `enquiry_acceptance_rate` · FLOAT · Metric
+
+- **Alias:** Screened-to-Accepted Rate
+
+Share of screened enquiries a clinician accepted: Enquiries Accepted by a Clinician over Enquiries Screened. Per enquiry with a screening verdict, not per enquiry received — enquiries never screened, or with no verdict recorded, are outside it. Read it by channel or campaign, never by Consultation Type; cut by month, an enquiry counts in each month it was screened.
+
+```sql
+SAFE_DIVIDE(enquiries_accepted, enquiries_screened)
+```
+
+### `screen_pass_rate` · FLOAT · Metric
+
+- **Alias:** Screen Pass Rate
+
+Share of screens whose verdict moved the person forward. Cut by Consultation Type to compare the phone screen with the clinician's room; a screen with no verdict recorded is left out of both sides.
+
+```sql
+SAFE_DIVIDE(COUNTIF(is_qualified), COUNTIF(is_qualified IS NOT NULL))
+```
 
 # Example Questions
 

@@ -7,7 +7,7 @@ description: |
   downstream.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-13T07:00:24.000Z
+timestamp: 2026-10-14T12:16:43.000Z
 ---
 
 # Schema
@@ -22,6 +22,38 @@ timestamp: 2026-09-13T07:00:24.000Z
 | `category_id` | INTEGER | Category ID | Unique identifier for the high-level category the product belongs to. FK to [Product Category](./product-category.md) |
 | `page_path` | STRING | Page Path | The URL relative path for the product's detail page on the website. |
 | `page_id` | INTEGER | Page ID | Unique identifier for the specific web page associated with the product. FK to [Pages](./pages.md) |
+
+## Calculated fields
+
+### `unit_margin_pct` · FLOAT · Column
+
+- **Alias:** Unit Margin %
+
+List-price margin of one unit: price less unit cost, over price. Row-level, one value per product; for margin on what actually sold, use Net Margin % in Purchases.
+
+```sql
+SAFE_DIVIDE(price - cost, price)
+```
+
+### `price_tier` · STRING · Column
+
+- **Alias:** Price Tier
+
+Each product's price band — Budget, Mid, Premium or Luxury — cut where this catalog's prices actually split (most items sell under 200, a long tail runs to about 840). Row-level; group and filter by it.
+
+```sql
+CASE WHEN price < 100 THEN 'Budget (<100)' WHEN price < 200 THEN 'Mid (100-200)' WHEN price < 500 THEN 'Premium (200-500)' ELSE 'Luxury (500+)' END
+```
+
+### `avg_list_price` · FLOAT · Metric
+
+- **Alias:** Avg List Price
+
+Average catalog price of the selected products, unweighted by how often each sells.
+
+```sql
+AVG(price)
+```
 
 # Example Questions
 

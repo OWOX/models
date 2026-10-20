@@ -5,12 +5,12 @@ description: |
   campaign, keyword, creative and country, with cost in the original currency and converted to a
   single one, alongside impressions and clicks. This is the mart to use when the question is which
   keyword or creative is consuming budget, rather than which channel — that coarser view is already
-  rolled up with its outcomes in Attribution. Because healthcare acquisition costs vary enormously
-  by channel, keyword-level spend is usually where a blended cost per patient turns out to be
-  hiding one very expensive route and one very cheap one.
+  rolled up with its outcomes in [Attribution](./attribution.md). Because healthcare acquisition
+  costs vary enormously by channel, keyword-level spend is usually where a blended cost per patient
+  turns out to be hiding one very expensive route and one very cheap one.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:02:28.000Z
+timestamp: 2026-10-20T08:50:14.000Z
 ---
 
 # Schema

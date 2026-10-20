@@ -3,17 +3,18 @@ title: "Orders"
 description: |
   One row per order — the header of the transaction, with the money on it and the reason it
   exists. Every order says whether it was a one-time purchase, the first order of a new
-  subscription, or a recurring delivery, and recurring orders carry the subscription and the
+  subscription, or a recurring delivery, and recurring orders carry the [subscription](./subscriptions.md) and the
   cycle they belong to. That single classification is what separates predictable revenue from
   the rest without leaving the order grain.
 
   Gross sales, discounts, tax, shipping and net revenue all sit on the header, so the discount
   the subscription programme gives away is measurable rather than assumed. Retail and wholesale
   orders are flagged apart, and cancelled or returned orders keep their row, so booked and
-  settled revenue never quietly merge.
+  settled revenue never quietly merge. Cost and margin sit one level down, on the lines in
+  [Order Items](./order-items.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:21:31.000Z
+timestamp: 2026-10-19T20:31:30.000Z
 ---
 
 # Schema
@@ -39,6 +40,68 @@ timestamp: 2026-09-02T16:21:31.000Z
 | `loyalty_segment` | STRING | Loyalty Segment | Loyalty band the customer was in when the order was placed. |
 | `currency` | STRING | Currency | Three-letter code of the currency the order was placed in. |
 | `items_count` | INTEGER | Items Count | Number of order lines on the order. |
+
+## Calculated fields
+
+### `settled_revenue` · FLOAT · Metric
+
+- **Alias:** Settled Revenue
+
+Revenue from completed orders only, after discounts, before tax and shipping. Cancelled and returned orders count as zero whatever their own row carries, so this is the revenue figure to quote.
+
+```sql
+SUM(IF(status = 'Completed', net_revenue, 0))
+```
+
+### `subscription_revenue` · FLOAT · Metric
+
+- **Alias:** Subscription Revenue
+
+Settled revenue from subscription orders — first orders and recurring deliveries, completed only. One-time orders are left out.
+
+```sql
+SUM(IF(status = 'Completed' AND purchase_type IN ('Subscription first order', 'Subscription recurring'), net_revenue, 0))
+```
+
+### `subscription_revenue_share` · FLOAT · Metric
+
+- **Alias:** Subscription Revenue Share
+
+Share of settled revenue from subscriptions, between 0 and 1. Reads Subscription Revenue over Settled Revenue, so the three always agree. Cut it by month, channel or customer — by Purchase Type it can only read 0 or 1.
+
+```sql
+SAFE_DIVIDE(subscription_revenue, settled_revenue)
+```
+
+### `aov` · FLOAT · Metric
+
+- **Alias:** AOV (per completed order)
+
+Average order value per completed order: Settled Revenue over the count of completed orders, after discounts, before tax and shipping. Cancelled and returned orders are out of both sides.
+
+```sql
+SAFE_DIVIDE(settled_revenue, COUNTIF(status = 'Completed'))
+```
+
+### `discount_rate` · FLOAT · Metric
+
+- **Alias:** Discount Rate
+
+Discounts as a share of gross sales, between 0 and 1, over every booked order whatever its status. Includes the standing subscription discount. Summed before dividing, so it is right at every cut — an average of per-order rates is not.
+
+```sql
+SAFE_DIVIDE(SUM(discounts), SUM(gross_sales))
+```
+
+### `order_kind` · STRING · Column
+
+- **Alias:** Order Kind
+
+One-time or Subscription order; Subscription covers first orders and recurring deliveries together. A row-level formula that behaves as a dimension: cut Discount Rate, AOV and Settled Revenue by it. Subscription Revenue Share by Order Kind can only read 0 or 1.
+
+```sql
+CASE WHEN purchase_type IN ('Subscription first order', 'Subscription recurring') THEN 'Subscription' ELSE 'One-time' END
+```
 
 # Example Questions
 

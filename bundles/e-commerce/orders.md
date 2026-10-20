@@ -7,7 +7,7 @@ description: |
   settled revenue can be told apart instead of quietly merged.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-05T06:01:07.000Z
+timestamp: 2026-10-20T08:25:20.000Z
 ---
 
 # Schema
@@ -19,10 +19,48 @@ timestamp: 2026-09-05T06:01:07.000Z
 | `order_date` | DATE | Order Date | The date when the transaction was completed |
 | `order_id` | STRING | Order ID | PK. Unique identifier of the purchase transaction FK to [Purchases](./purchases.md) |
 | `status` | STRING | Status | Current fulfillment state of the order (e.g., Completed) |
-| `orders_total` | INTEGER | Orders | Distinct orders in the selected rows, every status. |
-| `completed_orders` | INTEGER | Completed Orders | Orders that completed — a conditional count with no helper column. |
-| `completion_rate` | FLOAT | Completion Rate | Share of orders that completed rather than being cancelled or returned. |
-| `distinct_products_in_order` | INTEGER | Distinct Products in Order | Distinct products across the selected orders' lines, counted through Purchases into Products. |
+
+## Calculated fields
+
+### `orders_total` · INTEGER · Metric
+
+- **Alias:** Orders
+
+Distinct orders in the selected rows, every status.
+
+```sql
+COUNT(DISTINCT order_id)
+```
+
+### `completed_orders` · INTEGER · Metric
+
+- **Alias:** Completed Orders
+
+Orders that completed — a conditional count with no helper column.
+
+```sql
+COUNTIF(status = 'Completed')
+```
+
+### `completion_rate` · FLOAT · Metric
+
+- **Alias:** Completion Rate
+
+Share of orders that completed rather than being cancelled or returned.
+
+```sql
+SAFE_DIVIDE(completed_orders, COUNT(DISTINCT order_id))
+```
+
+### `distinct_products_in_order` · INTEGER · Metric
+
+- **Alias:** Distinct Products in Order
+
+Distinct products across the selected orders' lines, counted through Purchases into Products.
+
+```sql
+COUNT(DISTINCT purchases_e_commerce.products_e_commerce.product_id)
+```
 
 # Example Questions
 
@@ -35,7 +73,7 @@ timestamp: 2026-09-05T06:01:07.000Z
 - [Customers](./customers.md) — `customer_id = customer_id` [N:1] — The customer who placed this order.
   - [Customer Country](./countries.md) — The customer's home market.
   - [Customer Acquisition Source](./traffic-sources.md) — The channel that originally acquired the customer, not the one that drove this order.
-- [Purchases](./purchases.md) — `order_id = order_id` [1:N] — The lines this order is made of.
+- [Purchases](./purchases.md) as `purchases_e_commerce` — `order_id = order_id` [1:N] — The lines this order is made of.
   - [Ordered Product](./products.md) — The products on this order's lines.
     - [Product Page](./pages.md) — The storefront page of each ordered product.
       - [Product Pageviews](./pageviews.md) — Views of those product pages.

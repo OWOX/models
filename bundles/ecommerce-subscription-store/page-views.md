@@ -11,7 +11,7 @@ description: |
   behaviour that precedes churn is visible before the churn itself.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:21:32.000Z
+timestamp: 2026-10-15T10:37:45.000Z
 ---
 
 # Schema

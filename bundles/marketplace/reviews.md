@@ -1,7 +1,7 @@
 ---
 title: "Reviews"
 description: |
-  One row per review left after a fulfilled order — the marketplace's trust signal. Only a
+  One row per review left after a fulfilled [order](./orders.md) — the marketplace's trust signal. Only a
   minority of completed orders are ever reviewed, since reviewing is voluntary, and ratings
   follow the familiar J-shape: mostly five stars, a hard bump at one star, little in between.
   The reviewer role separates the buyer's rating of the seller from the seller's rating of
@@ -9,7 +9,7 @@ description: |
   breaking down.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:50.000Z
+timestamp: 2026-10-20T15:40:03.000Z
 ---
 
 # Schema

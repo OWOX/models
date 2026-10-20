@@ -7,7 +7,7 @@ description: |
   charged. This is the lookup that gives every account and loan its pricing context.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-23T12:02:47.000Z
+timestamp: 2026-10-20T11:39:20.000Z
 ---
 
 # Schema
@@ -16,9 +16,9 @@ timestamp: 2026-07-23T12:02:47.000Z
 |--------|------|-------|-------------|
 | `product_id` | STRING | Product ID | PK. Unique product identifier. |
 | `name` | STRING | Name | Product display name. |
-| `product_type` | STRING | Product Type | `deposit` / `card` / `loan` / `BNPL`. |
-| `apr` | FLOAT | Apr | Rate-card reference rate. Meaning depends on `product_type`: for `deposit` it is the APY *paid to* the customer (low, ~0.5–4%); for `card` / `loan` / `BNPL` it is the rate *charged to* the customer. `Loans.apr` is seeded from this and adjusted by risk-based spread. |
-| `term_months` | INTEGER | Term Months | Stated product term in months. (BNPL "Pay in 4" is modeled here as a short months-denominated term — a deliberate simplification, not real biweekly installments.) |
+| `product_type` | STRING | Product Type | Product family: `BNPL` = buy now, pay later; `card` = credit card; `loan` = instalment loan (personal or auto); `deposit` = savings or checking account. |
+| `apr` | FLOAT | APR | Rate-card reference rate. Meaning depends on `product_type`: for `deposit` it is the APY *paid to* the customer (low, ~0.5–4%); for `card` / `loan` / `BNPL` it is the rate *charged to* the customer. `Loans.apr` is seeded from this and adjusted by risk-based spread. |
+| `term_months` | INTEGER | Term (months) | Stated product term in months. (BNPL "Pay in 4" is modeled here as a short months-denominated term — a deliberate simplification, not real biweekly installments.) |
 
 # Example Questions
 

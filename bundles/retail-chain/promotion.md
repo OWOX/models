@@ -12,7 +12,7 @@ description: |
   rather than against total sales.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:49.000Z
+timestamp: 2026-10-15T10:38:01.000Z
 ---
 
 # Schema
