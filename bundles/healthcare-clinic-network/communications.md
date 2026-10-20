@@ -4,14 +4,14 @@ description: |
   Every attempt to reach a patient, and every time one reached us: one row per interaction, with the
   channel it used, which direction it went, whether it succeeded, and which agent handled it. Calls
   dominate, because that is how most people still choose a clinician, and the honest measure of a
-  contact centre lives here rather than in the enquiry record — how many attempts it takes before
-  someone answers, which enquiries are given up on, and whether persistence actually changes the
-  outcome. `is_first` and `is_last` bracket each conversation, and `is_scheduling` separates the
+  contact centre lives here rather than in the [enquiry record](./leads.md) — how many attempts it
+  takes before someone answers, which enquiries are given up on, and whether persistence actually
+  changes the outcome. `is_first` and `is_last` bracket each conversation, and `is_scheduling` separates the
   interactions that were about getting an appointment in the diary from reminders, follow-ups and
   automated replies.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:36.000Z
+timestamp: 2026-10-20T08:50:17.000Z
 ---
 
 # Schema

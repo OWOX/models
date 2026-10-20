@@ -7,7 +7,7 @@ description: |
   who actually became a funded customer and how healthy those relationships are.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-04T15:03:02.000Z
+timestamp: 2026-10-20T12:55:38.000Z
 ---
 
 # Schema

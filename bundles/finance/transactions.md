@@ -2,13 +2,13 @@
 title: "Transactions"
 description: |
   Every payment, withdrawal, transfer, and card authorization flowing through customer
-  accounts — the day-to-day activity that shows how engaged customers are and where fraud
-  shows up. Each record carries the amount, merchant category, channel, whether it was
-  declined, and the fraud assessment made at the time of authorization. The pulse of
+  [accounts](./accounts.md) — the day-to-day activity that shows how engaged customers are and
+  where fraud shows up. Each record carries the amount, merchant category, channel, whether it
+  was declined, and the fraud assessment made at the time of authorization. The pulse of
   everyday customer behavior.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:36.000Z
+timestamp: 2026-10-20T12:55:11.000Z
 ---
 
 # Schema

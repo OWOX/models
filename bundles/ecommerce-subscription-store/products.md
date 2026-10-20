@@ -11,7 +11,7 @@ description: |
   product. Reporting on the unified name is what stops one product from appearing as several.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-28T16:51:51.000Z
+timestamp: 2026-10-15T10:37:50.000Z
 ---
 
 # Schema

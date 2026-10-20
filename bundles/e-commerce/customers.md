@@ -2,12 +2,12 @@
 title: "Customers"
 description: |
   Everyone who has registered an account on the storefront, with the channel that first
-  brought them in, the market they belong to, and the segment their buying behaviour puts them
-  in. This is where acquisition meets retention: the same row explains how a customer was won
-  and how valuable they turned out to be.
+  brought them in (a [Traffic Sources](./traffic-sources.md) row), the market they belong to,
+  and the segment their buying behaviour puts them in. This is where acquisition meets
+  retention: the same row explains how a customer was won and how valuable they turned out to be.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-11T13:25:25.000Z
+timestamp: 2026-10-16T16:34:27.000Z
 ---
 
 # Schema
@@ -17,7 +17,7 @@ timestamp: 2026-08-11T13:25:25.000Z
 | `customer_id` | INTEGER | Customer ID | PK. Unique identifier for an individual registered customer |
 | `customer_segment` | STRING | Customer Segment | The classification of the customer based on their purchase history or value |
 | `registration_date` | DATE | Registration Date | The specific date when the customer account was created in the system |
-| `acquisition_traffic_source_id` | INTEGER |  | FK to [Traffic Sources](./traffic-sources.md) |
+| `acquisition_traffic_source_id` | INTEGER |  | Traffic source that first brought the customer in. FK to Traffic Sources — the acquisition channel a customer is attributed to. FK to [Traffic Sources](./traffic-sources.md) |
 | `country_id` | INTEGER | Country ID | The primary geographical location assigned to the customer FK to [Countries](./countries.md) |
 
 # Example Questions

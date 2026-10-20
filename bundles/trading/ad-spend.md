@@ -8,10 +8,11 @@ description: |
   bought, so cost per click, cost per thousand impressions and click-through rate all come out
   of a single table. Targeting country is where the budget was spent, not where the trader who
   answered the ad turns out to live — the two diverge often enough that keeping them apart is
-  the whole point of the field.
+  the whole point of the field. What that money went on to buy, from visits down to first
+  deposits, is in [Attribution](./attribution.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T07:25:24.000Z
+timestamp: 2026-10-20T09:00:00.000Z
 ---
 
 # Schema

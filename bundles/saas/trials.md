@@ -6,7 +6,7 @@ description: |
   evaluating. The top of the funnel for new recurring revenue.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-11T08:35:35.000Z
+timestamp: 2026-10-02T15:29:56.000Z
 ---
 
 # Schema

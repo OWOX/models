@@ -9,7 +9,7 @@ description: |
   and net are never confused.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:49.000Z
+timestamp: 2026-10-20T15:40:03.000Z
 ---
 
 # Schema
@@ -24,13 +24,85 @@ timestamp: 2026-09-02T16:20:49.000Z
 | `ordered_at` | TIMESTAMP | Ordered At | When the order was placed. |
 | `quantity` | INTEGER | Quantity | Units ordered (gmv = listing price × quantity). |
 | `gmv` | NUMERIC | GMV | Gross merchandise value booked for the order. |
-| `take_rate` | FLOAT | Take Rate | Platform's cut as a fraction of GMV (= category take_rate_pct / 100). |
+| `take_rate` | FLOAT | Order Commission Rate | Per-order commission rate, as a 0–1 fraction — the category's standard rate (category take_rate_pct / 100), kept even on a cancelled order that earns nothing. For take rate across orders use Take Rate (`net_take_rate`), never an average of this field. |
 | `platform_revenue` | NUMERIC | Platform Revenue | Platform's recognised revenue (gmv × take_rate; zero if cancelled). |
 | `seller_payout` | NUMERIC | Seller Payout | Seller's take-home (gmv − platform_revenue; zero if cancelled). |
 | `net_gmv` | NUMERIC | Net GMV | GMV net of cancellations (equal to gmv unless cancelled, then zero). |
 | `status` | STRING | Status | Order status: pending, fulfilled or cancelled. |
 | `is_fulfilled` | BOOLEAN | Is Fulfilled | Whether the order was fulfilled. |
-| `fulfillment_mins` | FLOAT | Fulfillment Mins | Order-to-fulfilment time in minutes — fill speed (null unless fulfilled). |
+| `fulfillment_mins` | FLOAT | Fulfillment Time (min) | Order-to-fulfilment time in minutes — fill speed (null unless fulfilled). |
+
+## Calculated fields
+
+### `net_take_rate` · FLOAT · Metric
+
+- **Alias:** Take Rate
+
+Platform revenue as a share of net GMV, as a 0–1 fraction — commission earned per dollar of GMV net of cancellations, pending orders included. A ratio of sums, so a large order weighs more than a small one; averaging Order Commission Rate (`take_rate`) typically overstates it, because low-commission categories carry the biggest baskets.
+
+```sql
+SAFE_DIVIDE(SUM(platform_revenue), SUM(net_gmv))
+```
+
+### `cancelled_orders` · INTEGER · Metric
+
+- **Alias:** Cancelled Orders
+
+Orders cancelled before settling, counted at whatever grain the report asks for. The numerator of Cancellation Rate.
+
+```sql
+COUNTIF(status = 'cancelled')
+```
+
+### `cancellation_rate` · FLOAT · Metric
+
+- **Alias:** Cancellation Rate
+
+Share of orders placed that were cancelled, as a 0–1 fraction — by order count, not by value. Reads Cancelled Orders, so the two always agree.
+
+```sql
+SAFE_DIVIDE(cancelled_orders, COUNT(order_id))
+```
+
+### `aov` · FLOAT · Metric
+
+- **Alias:** Average Order Value
+
+Net GMV per non-cancelled order. Cancelled orders leave both sides, so a wave of cancellations does not drag the basket size down; pending orders count, because their GMV is still booked.
+
+```sql
+SAFE_DIVIDE(SUM(net_gmv), COUNT(order_id) - cancelled_orders)
+```
+
+### `active_sellers` · INTEGER · Metric
+
+- **Alias:** Active Sellers
+
+Distinct sellers with at least one non-cancelled order in the selected rows — supply that actually sold. A distinct count: rows do not add up to the total, because one seller sells in several categories and months.
+
+```sql
+COUNT(DISTINCT IF(status != 'cancelled', seller_id, NULL))
+```
+
+### `order_size_band` · STRING · Column
+
+- **Alias:** Order Size Band
+
+Small, Medium, Large or Premium, from the order's gross GMV. A row-level formula that behaves as a dimension: group and filter by it. Bands are the order-value quartiles at round dollar edges.
+
+```sql
+CASE WHEN gmv < 50 THEN 'Small (under $50)' WHEN gmv < 100 THEN 'Medium ($50-99)' WHEN gmv < 250 THEN 'Large ($100-249)' ELSE 'Premium ($250+)' END
+```
+
+### `gmv_per_active_seller` · FLOAT · Metric
+
+- **Alias:** GMV per Active Seller
+
+Net GMV per seller who made a sale, in dollars — supply productivity. Reads Active Sellers, so the divisor is a distinct count: recompute it at each grain, never sum or average the rows.
+
+```sql
+SAFE_DIVIDE(SUM(net_gmv), active_sellers)
+```
 
 # Example Questions
 

@@ -2,18 +2,18 @@
 title: "Replenishment"
 description: |
   Every order placed to refill a store's shelves, from the day it was raised to the day the goods
-  arrived — how much was asked for, how much actually turned up, what it cost, how long it took,
-  and whether it landed when it was promised. This is where an availability problem is diagnosed
-  rather than merely observed: a shelf can be empty because the store never ordered, because the
-  supplier short-shipped, or because the delivery was late, and only the order record separates the
-  three. Fill rate and on-time delivery are the two halves of on-time-in-full, the standard measure
-  of supplier service, and `supplier_name` is what makes them answerable per vendor. Lead time is
-  the other half of the story, because a supplier who reliably takes ten days can be planned around,
-  while one who takes anywhere between three and fifteen forces every store to carry cover stock it
-  should not need.
+  arrived — how much was asked for, how much actually turned up, what it cost, how long it took, and
+  whether it landed when it was promised. This is where an availability problem seen in
+  [Inventory (daily)](./inventory-daily.md) is diagnosed rather than merely observed: a shelf can be
+  empty because the store never ordered, because the supplier short-shipped, or because the delivery
+  was late, and only the order record separates the three. Fill rate and on-time delivery are the
+  two halves of on-time-in-full, the standard measure of supplier service, and `supplier_name` is
+  what makes them answerable per vendor. Lead time is the other half of the story, because a
+  supplier who reliably takes ten days can be planned around, while one who takes anywhere between
+  three and fifteen forces every store to carry cover stock it should not need.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T04:40:19.000Z
+timestamp: 2026-10-16T16:32:31.000Z
 ---
 
 # Schema

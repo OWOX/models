@@ -14,7 +14,7 @@ description: |
   `dunning_stage = 'write_off'`.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-11T08:52:41.000Z
+timestamp: 2026-10-19T16:01:09.000Z
 ---
 
 # Schema
@@ -24,20 +24,32 @@ timestamp: 2026-09-11T08:52:41.000Z
 | `invoice_id` | STRING | Invoice ID | PK. Unique invoice identifier. |
 | `account_id` | STRING | Account ID | Account billed. FK to [Account](./account.md) |
 | `subscription_id` | STRING | Subscription ID | Subscription being billed. FK to [Subscription](./subscription.md) |
-| `issued_at` | DATE | Issued At | Date the invoice was issued. |
+| `issued_at` | DATE | Issued At | Date the invoice was issued — a billing anniversary of the subscription: monthly or yearly by its interval. No invoice is issued after cancellation or between a churn and its win-back. |
 | `period_start` | DATE | Period Start | Start of the billing period. |
 | `period_end` | DATE | Period End | End of the billing period. |
-| `amount` | NUMERIC | Amount | Invoice amount before tax. Booked on every status, including void and write-off — see `net_amount` for the recognised figure. |
+| `amount` | NUMERIC | Amount | Invoice amount before tax, in USD: the subscription's MRR in force on the billing day, times twelve for an annual subscription. Booked on every status, including void and write-off — see `net_amount` for the recognised figure. |
 | `net_amount` | NUMERIC | Net Amount | Recognised revenue: `0` when the invoice is void or written off, otherwise equal to `amount`. Sum this for revenue totals, not `amount`. |
-| `tax` | NUMERIC | Tax | Tax charged on the invoice. |
+| `tax` | NUMERIC | Tax | Tax charged on the invoice, at the account region's rate. |
 | `status` | STRING | Status | Payment status of the invoice. |
-| `currency` | STRING | Currency | Invoice currency, aligned to the account's region. |
-| `discount_amount` | NUMERIC | Discount Amount | Discount applied to the invoice, if any. Always a fraction of `amount`, never larger than it. |
+| `currency` | STRING | Currency | Currency the customer is billed in, aligned to the account's region. The amounts are stated in USD. |
+| `discount_amount` | NUMERIC | Discount Amount | List price the subscription's negotiated discount took off this invoice, if any. `amount` is already net of it. |
 | `credit_applied` | NUMERIC | Credit Applied | Account credit applied to the invoice, if any. |
 | `dunning_stage` | STRING | Dunning Stage | Collections stage: none / retry_1 / retry_2 / final_notice / write_off. |
 | `paid_at` | DATE | Paid At | Date the invoice was paid. Set if and only if `status = 'paid'`. |
 | `is_failed` | BOOLEAN | Is Failed | Failed payment — involuntary-churn signal. Never true on a `paid` invoice. |
 | `is_write_off` | BOOLEAN | Is Write Off | Uncollectible invoice, exactly `dunning_stage = 'write_off'`. Use this to gate money rather than string-matching the dunning label. |
+
+## Calculated fields
+
+### `failed_payment_rate` · FLOAT · Metric
+
+- **Alias:** Failed Payment Rate
+
+Share of invoices whose payment failed — the leading signal of involuntary churn. A conditional count over all invoices issued in the selected rows.
+
+```sql
+SAFE_DIVIDE(COUNTIF(is_failed), COUNT(invoice_id))
+```
 
 # Example Questions
 

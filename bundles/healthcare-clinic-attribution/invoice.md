@@ -18,7 +18,7 @@ description: |
   what a channel produced.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:20:02.000Z
+timestamp: 2026-10-15T17:02:13.000Z
 ---
 
 # Schema
@@ -33,6 +33,18 @@ timestamp: 2026-09-23T14:20:02.000Z
 | `currency` | STRING | Invoice Currency | Currency the bill was raised in, such as `USD`. Needed before amounts from different bills can be added together. |
 | `payer_type` | STRING | Payer Type | Who is being asked to pay: `patient_copay` for the part the patient settles before treatment, `insurance_claim` for the part claimed from the insurer afterwards. One is settled before the treatment, the other after the claim is processed. |
 | `status` | STRING | Invoice Status | Where the claim stands: `issued`, `partially_paid`, `paid`, or `written_off` when the practice has given up on it. Written-off bills are delivered work that earned nothing and should not be dropped from a channel's result. |
+
+## Calculated fields
+
+### `insurer_write_off_share` · FLOAT · Metric
+
+- **Alias:** Insurance Claim Write-Off Share
+
+Share of insurance claims the practice has written off as unpaid. Per claim, not per dollar; claims still awaiting payment count in the denominator, so the most recent months read low. Trend it by Issued At, the claim's own date, and treat the last three months as provisional.
+
+```sql
+SAFE_DIVIDE(COUNTIF(payer_type = 'insurance_claim' AND status = 'written_off'), COUNTIF(payer_type = 'insurance_claim'))
+```
 
 # Example Questions
 

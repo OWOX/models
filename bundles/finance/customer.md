@@ -1,14 +1,14 @@
 ---
 title: "Customer"
 description: |
-  Everyone the business has taken on as a borrower, with the details that drive every
-  downstream decision: how they were acquired, whether they passed identity and eligibility
-  checks, their credit standing at sign-up, an internal risk tier, and whether they went on
-  to fund an account. The starting point for understanding who your customers are and where
-  they come from.
+  Everyone the business has taken on as a borrower, with the details that drive every downstream
+  decision: how they were acquired, whether they passed identity and eligibility checks, their
+  credit standing at sign-up, an internal risk tier, and whether they went on to fund an
+  [account](./accounts.md). The starting point for understanding who your customers are and
+  where they come from.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-29T14:32:39.000Z
+timestamp: 2026-10-20T12:55:11.000Z
 ---
 
 # Schema

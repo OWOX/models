@@ -1,14 +1,15 @@
 ---
 title: "Claims"
 description: |
-  One row per claim submitted to a payer for a clinical encounter — the revenue-cycle record
-  that turns care into cash. Each claim tracks the billed, payer-allowed and actually paid
-  amounts, its submission and payment dates, current status, the denial reason when one
-  applies, and the number of days it has sat in accounts receivable. This is the mart that
+  One row per claim submitted to a [payer](./payer.md) for a clinical
+  [encounter](./encounters.md) — the revenue-cycle record that turns care into cash. Each claim
+  tracks the billed, payer-allowed and actually paid amounts, its submission and payment dates,
+  current status, the denial reason when one applies, and the number of days it has sat in
+  accounts receivable. This is the mart that
   answers how well the health system gets paid for the care it delivers, and how quickly.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:47.000Z
+timestamp: 2026-10-20T08:48:47.000Z
 ---
 
 # Schema
@@ -25,7 +26,39 @@ timestamp: 2026-09-02T16:19:47.000Z
 | `paid_amount` | NUMERIC | Paid Amount | Amount actually paid. |
 | `status` | STRING | Status | Claim status (e.g. submitted, paid, denied). |
 | `denial_code` | STRING | Denial Code | CARC/RARC denial reason, when denied. |
-| `ar_days` | INTEGER | Ar Days | Days in accounts receivable — revenue-cycle speed. |
+| `ar_days` | INTEGER | AR Days | Days in accounts receivable — revenue-cycle speed. |
+
+## Calculated fields
+
+### `denial_rate` · FLOAT · Metric
+
+- **Alias:** Claim Denial Rate
+
+Share of adjudicated claims the payer denied: denied divided by paid plus denied. Pending (submitted) claims are left out of both sides, so recent submission months read high until their payments post.
+
+```sql
+SAFE_DIVIDE(COUNTIF(status = 'denied'), COUNTIF(status IN ('paid', 'denied')))
+```
+
+### `net_collection_rate` · FLOAT · Metric
+
+- **Alias:** Paid-to-Allowed Rate (paid claims)
+
+Cash collected per allowed dollar, on paid claims only: paid divided by allowed amount. Denial loss is not in it, so it is not a full net collection rate; read it with Claim Denial Rate.
+
+```sql
+SAFE_DIVIDE(SUM(IF(status = 'paid', paid_amount, 0)), SUM(IF(status = 'paid', allowed_amount, 0)))
+```
+
+### `revenue_per_encounter` · FLOAT · Metric
+
+- **Alias:** Payment per Paid Encounter
+
+Dollars received per encounter whose claim is paid: paid amount divided by distinct paid encounters. Denied and pending claims are left out of both sides, so denials do not pull it down.
+
+```sql
+SAFE_DIVIDE(SUM(IF(status = 'paid', paid_amount, 0)), COUNT(DISTINCT IF(status = 'paid', encounter_id, NULL)))
+```
 
 # Example Questions
 

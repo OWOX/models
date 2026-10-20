@@ -14,7 +14,7 @@ description: |
   nothing left on it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:21:06.000Z
+timestamp: 2026-10-19T16:30:29.000Z
 ---
 
 # Schema
@@ -38,6 +38,88 @@ timestamp: 2026-09-02T16:21:06.000Z
 | `checkout_type` | STRING | Checkout Type | Where the line was scanned: `staffed` or `self_checkout`. Summed by store it gives each site's self-checkout share of trade, which is the figure to set beside that store's `Shrinkage` events with `detected_by = 'self_checkout_audit'` — the two marts are read side by side at store level rather than joined. |
 | `payment_method` | STRING | Payment Method | How the basket was settled: `card`, `cash`, `mobile_wallet`, `ebt` or `gift_card`. `ebt` marks a benefits-funded basket, which shops a distinctly different assortment. |
 | `count_sale_lines` | INTEGER | Sale Line Count | Always `1` on every row; SUM to count receipt lines. |
+
+## Calculated fields
+
+### `transactions` · INTEGER · Metric
+
+- **Alias:** Transactions
+
+Baskets paid for — distinct receipts, not lines. Adds up across stores and days, since a basket never spans them; does not add up across categories or promotions, where one basket counts once in each.
+
+```sql
+COUNT(DISTINCT basket_id)
+```
+
+### `avg_transaction_value` · FLOAT · Metric
+
+- **Alias:** Average Transaction Value
+
+Net sales per basket, in USD (ATV): net sales divided by Transactions. Cut by a category, it is spend on that category per basket that contained it.
+
+```sql
+SAFE_DIVIDE(SUM(net_sales), transactions)
+```
+
+### `units_per_transaction` · FLOAT · Metric
+
+- **Alias:** Units per Transaction
+
+Selling units per basket (UPT): units sold divided by Transactions. Together with Average Transaction Value it says whether a basket grew by more items or dearer ones.
+
+```sql
+SAFE_DIVIDE(SUM(quantity), transactions)
+```
+
+### `gross_margin_pct` · FLOAT · Metric
+
+- **Alias:** Gross Margin %
+
+Gross margin as a share of net sales, 0–1 (0.22 means 22%). A ratio of sums, so it is right at every cut; never average line-level margins instead.
+
+```sql
+SAFE_DIVIDE(SUM(gross_margin), SUM(net_sales))
+```
+
+### `loyalty_sales_share` · FLOAT · Metric
+
+- **Alias:** Loyalty Sales Share
+
+Share of net sales rung on an identified loyalty basket, 0–1. The rest is anonymous trade; per-member figures must be taken over this identified part only.
+
+```sql
+SAFE_DIVIDE(SUM(IF(member_id IS NOT NULL, net_sales, 0)), SUM(net_sales))
+```
+
+### `promo_sales_share` · FLOAT · Metric
+
+- **Alias:** Promotional Sales Share
+
+Share of net sales sold on a promotion, 0–1 (promo penetration). Lines with a promotion over all net sales; read it beside Gross Margin %, since promoted trade carries far less margin.
+
+```sql
+SAFE_DIVIDE(SUM(IF(promotion_id IS NOT NULL, net_sales, 0)), SUM(net_sales))
+```
+
+### `shopper_type` · STRING · Column
+
+- **Alias:** Shopper Type
+
+Loyalty member or Anonymous: whether a loyalty card was scanned on the basket. A row-level dimension; pair it with Average Transaction Value, Units per Transaction or Transactions to compare member trips with anonymous ones. A basket is never split, so Transactions add up across the two.
+
+```sql
+CASE WHEN member_id IS NOT NULL THEN 'Loyalty member' ELSE 'Anonymous' END
+```
+
+### `price_type` · STRING · Column
+
+- **Alias:** Price Type
+
+Promoted or Full price: whether the line sold on a promotion. A row-level dimension; pair it with Gross Margin % to see the margin promotion costs, or with net sales for the promoted split. One basket can hold both kinds of line, so Transactions do not add up across the two.
+
+```sql
+CASE WHEN promotion_id IS NOT NULL THEN 'Promoted' ELSE 'Full price' END
+```
 
 # Example Questions
 

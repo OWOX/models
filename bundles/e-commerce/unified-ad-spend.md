@@ -6,7 +6,8 @@ description: |
   Google, Facebook, TikTok, LinkedIn, Microsoft, Reddit and X — brought together on one daily
   grain with a common source, medium and campaign naming. Because it shares that naming with
   the storefront's traffic sources, spend can be set against the sessions and revenue it
-  produced instead of being read on its own.
+  produced instead of being read on its own — Ad Performance does exactly
+  that, campaign by campaign.
 
   Unlike every other mart in this model, this one is defined by **SQL inside the data mart
   itself** rather than by a database view — on purpose. Each advertising platform is
@@ -18,7 +19,7 @@ description: |
   reportable with plain SQL.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-15T11:11:46.000Z
+timestamp: 2026-10-20T08:26:17.000Z
 ---
 
 # Schema
@@ -32,8 +33,30 @@ timestamp: 2026-09-15T11:11:46.000Z
 | `spend` | FLOAT | Spend | The total cost of advertising incurred during the specified period. |
 | `clicks` | INTEGER | Clicks | The total number of times users clicked on the advertisements. |
 | `impressions` | INTEGER | Impressions | The total number of times the advertisements were displayed to users. |
-| `platform_conversions` | FLOAT | Platform Conversions | The number of conversion actions claimed by the advertising platform. |
-| `platform_conversion_value` | FLOAT | Platform Conversion Value | The total monetary value of conversions as reported by the advertising platform. |
+| `platform_conversions` | FLOAT | Platform Conversions | Conversions the ad platform itself claims it drove. Deliberately higher than the store's own order count — platforms count post-view as well as post-click, stitch across devices, and two of them will claim the same purchase. Compare with Orders to size the attribution gap. NULL for X, whose connector reports no conversions. |
+| `platform_conversion_value` | FLOAT | Platform Conversion Value | Order value the ad platform attributes to those conversions. NULL for TikTok (its connector reports a conversion count but no value) and for X. |
+
+## Calculated fields
+
+### `platform_roas` · FLOAT · Metric
+
+- **Alias:** Platform ROAS
+
+Revenue the platforms claim per unit of spend. Spend counts only where a platform reports a value, so TikTok and X do not dilute it. Compare with ROAS in Ad Performance, which divides the store's own revenue.
+
+```sql
+SAFE_DIVIDE(SUM(platform_conversion_value), SUM(IF(platform_conversion_value IS NOT NULL, spend, NULL)))
+```
+
+### `platform_cpa` · FLOAT · Metric
+
+- **Alias:** Platform CPA
+
+Spend per conversion the platforms claim. Spend counts only where a platform reports conversions, so X is left out.
+
+```sql
+SAFE_DIVIDE(SUM(IF(platform_conversions IS NOT NULL, spend, NULL)), SUM(platform_conversions))
+```
 
 # Example Questions
 

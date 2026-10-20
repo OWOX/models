@@ -7,12 +7,12 @@ description: |
   that follows: the same row explains how a customer was won and where they are today.
 
   This mart stays a register of who the customer is, not of what they have bought: order history,
-  value and loyalty band live in Customer Value, which joins one-to-one and is computed over the
+  value and loyalty band live in [Customer Value](./customer-value.md), which joins one-to-one and is computed over the
   orders themselves. Marketing consent is explicit, because win-back and dunning campaigns can
   only address customers who allow it.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-01T08:55:43.000Z
+timestamp: 2026-10-16T16:33:03.000Z
 ---
 
 # Schema

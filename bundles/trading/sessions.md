@@ -10,7 +10,7 @@ description: |
   traffic into something you can follow all the way to a deposit.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:05:11.000Z
+timestamp: 2026-10-20T08:52:43.000Z
 ---
 
 # Schema
@@ -31,7 +31,7 @@ timestamp: 2026-07-31T11:05:11.000Z
 | `url` | STRING | URL | Full first-hit URL including UTM parameters, for web sessions. |
 | `started_at` | TIMESTAMP | Started At | Timestamp the session began. Use MIN/MAX only — not a metric to SUM or AVG. |
 | `consent_at` | TIMESTAMP | Consent At | Timestamp of first recorded (GDPR-style) consent. NULL if no consent was recorded in this session. |
-| `ga_client_id` | STRING | Ga Client ID | Browser/device analytics cookie id, used only to link anonymous sessions to the same device across visits. This is NOT the CRM client — do not confuse with `client_id` below. |
+| `ga_client_id` | STRING | GA Client ID | Browser/device analytics cookie id, used only to link anonymous sessions to the same device across visits. This is NOT the CRM client — do not confuse with `client_id` below. |
 | `country` | STRING | Country | Visitor's country from IP geolocation — this is where the visitor actually is, not the ad targeting country (see Ad Spend.targeting_country). |
 | `region` | STRING | Region | Business-region roll-up of the visitor's country: `SEA`, `ME`, `EU`, `LATAM`, `AFRICA`, `CA`, `UK`, `AU`, `ANZ`, `Other`. |
 | `city` | STRING | City | Visitor's city. |

@@ -18,9 +18,26 @@ description: |
   revenue-cycle questions have no answer in this model. Nor does it model the schedule as
   capacity — there are appointments, but no slots or clinician availability — or a coded procedure
   catalogue. What it answers well is the whole path from spend to attended, billed care.
+
+  **How this business is managed**
+  - **Marketing** — brings in new patients from search, social and referral traffic at an acquisition cost the clinics can carry.
+  - **Patient Access** — reaches every enquiry and turns as many as possible into a booked patient.
+  - **Clinic Operations** — keeps clinicians' diaries filled with visits that actually happen.
+
+  **Key metrics**
+  - New patients — [Attribution · New Patients](./attribution.md?field=new_patients) by [Attribution · Date](./attribution.md?field=date).
+  - Ad spend — [Attribution · Normalized Cost](./attribution.md?field=cost_normalized), in USD across both countries; per new patient, [Attribution · Cost per New Patient (Paid)](./attribution.md?field=cost_per_new_patient).
+  - Enquiry close rate — [Leads · Enquiry Close Rate](./leads.md?field=close_rate), a 0–1 share, by [Leads · Lead Submitted At](./leads.md?field=lead_submitted_at).
+  - No-show rate and what an attended visit bills — [Visits · No-Show Rate](./visits.md?field=no_show_rate) (a 0–1 share) and [Visits · Revenue per Attended Visit](./visits.md?field=revenue_per_visit), by [Visits · Visit Date](./visits.md?field=visit_date).
+
+  **Key Data Marts**
+  - [Attribution](./attribution.md) — spend and its outcomes on one row per day, channel, campaign and country.
+  - [Leads](./leads.md) — every enquiry, and whether it became a patient.
+  - [Visits](./visits.md) — every appointment, what became of it and what it billed.
+  - [Patients](./patients.md) — each patient's visit history, lifetime value and unused planned treatment.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-11T11:01:38Z
+timestamp: 2026-10-20T17:57:32Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

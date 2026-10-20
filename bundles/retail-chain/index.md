@@ -23,9 +23,26 @@ description: |
   promotions themselves, so elasticity questions that need a full price ladder cannot be answered.
   There is also no online channel: this is a bricks-and-mortar chain, and its traffic is people
   walking through a door, not sessions on a site.
+
+  **How this business is managed**
+  - **Merchandising** — earns margin on every line and keeps the fast-selling lines on the shelf.
+  - **Store Operations** — turns visitors into baskets and stops stock leaving the store unpaid.
+  - **Loyalty** — puts a known member behind as much of the trade as possible and keeps members reachable through the app.
+
+  **Key metrics**
+  - Gross margin % — [POS Sales · Gross Margin %](./pos-sales.md?field=gross_margin_pct), by [POS Sales · Sale Date](./pos-sales.md?field=sale_date), on a 0–1 scale.
+  - Sales per visitor — [Store Traffic · Sales per Visitor](./store-traffic.md?field=sales_per_visitor), by [Store Traffic · Traffic Date](./store-traffic.md?field=traffic_date).
+  - Shrink — [Shrinkage · Retail Value](./shrinkage.md?field=retail_value) by [Shrinkage · Recorded Date](./shrinkage.md?field=recorded_at).
+  - Loyalty sales share — [POS Sales · Loyalty Sales Share](./pos-sales.md?field=loyalty_sales_share), by Sale Date, on a 0–1 scale.
+
+  **Key Data Marts**
+  - [POS Sales](./pos-sales.md) — every line rung through a till, with its price, discount and margin.
+  - [Store Traffic](./store-traffic.md) — the people who walked in each day, and how many of them bought.
+  - [Inventory (daily)](./inventory-daily.md) — the closing stock position of every line in every store.
+  - [Loyalty Members](./loyalty-members.md) — the members behind identified baskets, and what each is worth.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-11T11:01:58Z
+timestamp: 2026-10-20T17:57:54Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

@@ -4,12 +4,12 @@ description: |
   One row per web session, the very top of the funnel, before most visitors are ever identified
   as a lead. Each session records the traffic source and medium, the landing page, whether it
   converted into a form submission, and — for the small share of visitors identified through
-  identity stitching — the lead that session belongs to. Because the overwhelming majority of
+  identity stitching — the [lead](./lead.md) that session belongs to. Because the overwhelming majority of
   B2B web traffic never converts or gets identified, most sessions carry no lead at all; the
   ones that do show exactly where anonymous traffic turns into a known contact.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:00.000Z
+timestamp: 2026-10-08T18:58:42.000Z
 ---
 
 # Schema

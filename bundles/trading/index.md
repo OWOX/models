@@ -16,9 +16,26 @@ description: |
   not part of it, so questions about trading revenue or volume by symbol have no answer
   here. What it does answer is what a funded client costs, where they come from, and what
   they are worth once they arrive.
+
+  **How this business is managed**
+  - **Marketing** — buys traffic in the markets the brokerage serves and turns it into first-time depositors at a cost the client book can pay back.
+  - **Sales** — reaches the leads that traffic produces and takes them through registration, identity checks and a first deposit.
+  - **Finance** — grows net deposits: the money clients fund, less what they withdraw.
+
+  **Key metrics**
+  - Ad spend — [Ad Spend · Cost Normalized](./ad-spend.md?field=cost_normalized).
+  - Leads — [Leads · Count Leads](./leads.md?field=count_leads) by [Leads · Short Form Submitted At](./leads.md?field=short_form_submitted_at).
+  - First-time depositors (FTDs) — clients where [Clients · Is FTD](./clients.md?field=is_ftd), by [Clients · FTD Date](./clients.md?field=ftd_date).
+  - Net deposits — [Deposits · Net Deposits](./deposits.md?field=net_deposits) by [Deposits · Deposit Datetime](./deposits.md?field=deposit_datetime): completed deposits minus completed withdrawals.
+
+  **Key Data Marts**
+  - [Clients](./clients.md) — every registered client, with the milestones from registration to first trade and the money each one brought.
+  - [Deposits](./deposits.md) — every deposit and withdrawal, settled or not.
+  - [Attribution](./attribution.md) — the whole acquisition funnel per day, campaign and country on one row.
+  - [Leads](./leads.md) — every short form, and how far it has got since.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-11T11:02:04Z
+timestamp: 2026-10-20T17:58:10Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

@@ -5,14 +5,18 @@ description: |
   four milestones the business is run on — registration, identity verification, first deposit
   and first real trade — with the dates between them, so how long a client takes to fund and
   then to trade is a stored number rather than a calculation. Each row also holds the money:
-  every deposit and withdrawal already totalled, net deposits, lifetime value, how recently
-  and how often the client funded, an RFM score on all three axes, and a lifecycle segment
+  every [deposit](./deposits.md) and withdrawal already totalled, net deposits, lifetime value,
+  how recently and how often the client funded, an RFM score on all three axes, and a lifecycle segment
   that names what the client is today, from someone who registered and never deposited to an
   active trader, a dormant account or a churned one. It is the mart that answers who the
   customers are, what they are worth and which of them are slipping away.
+
+  It holds every client ever registered, organic or paid — the same clients Attribution counts.
+  A date range here goes by registration date, while Attribution dates each client by the
+  visit that brought them in, so the two differ slightly at the edges of a range.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:05:11.000Z
+timestamp: 2026-10-20T08:52:44.000Z
 ---
 
 # Schema
@@ -33,14 +37,14 @@ timestamp: 2026-07-31T11:05:11.000Z
 | `kyc_status` | STRING | KYC Status | Identity-verification status: `pending`, `verified`, `rejected`, `expired`. |
 | `kyc_verified_date` | DATE | KYC Verified Date | Date KYC was approved. NULL if not yet verified. |
 | `account_type` | STRING | Account Type | Regulatory client classification: `retail` or `professional`. |
-| `is_ftd` | BOOLEAN | Is Ftd | Whether the client made at least one completed deposit (First Time Depositor). This is the "FTD" / "Profile FTD" metric — `COUNTIF(is_ftd)` gives the FTD count, the primary acquisition-efficiency metric. |
-| `ftd_date` | DATE | Ftd Date | Date of the client's first completed deposit. NULL if `is_ftd = false`. Use for FTD trend charts. |
-| `ftd_amount_normalized` | FLOAT | Ftd Amount Normalized | Amount of the first deposit, in USD. NULL if `is_ftd = false`. |
-| `ftd_payment_method` | STRING | Ftd Payment Method | Payment method used for the first deposit: `card`, `wire_transfer`, `crypto`, `skrill`, `neteller`, `paypal`. NULL if `is_ftd = false`. |
-| `days_to_ftd` | FLOAT | Days To Ftd | Days between `registration_date` and `ftd_date` — how fast a client deposits after registering. NULL if `is_ftd = false`. |
-| `is_ntc` | BOOLEAN | Is Ntc | Whether the client placed at least one real (non-demo) trade — New Trading Client. Always implies `is_ftd = true` (a client must fund before trading). This is the "NTC" / "Profile NTC" metric — `COUNTIF(is_ntc)` gives the NTC count. |
-| `ntc_date` | DATE | Ntc Date | Date of the client's first real trade. NULL if `is_ntc = false`. |
-| `days_to_ntc` | FLOAT | Days To Ntc | Days between `ftd_date` and `ntc_date` — how fast a depositor starts trading. NULL if `is_ntc = false`. |
+| `is_ftd` | BOOLEAN | Is FTD | Whether the client made at least one completed deposit (First Time Depositor). This is the "FTD" / "Profile FTD" metric — `COUNTIF(is_ftd)` gives the FTD count, the primary acquisition-efficiency metric. |
+| `ftd_date` | DATE | FTD Date | Date of the client's first completed deposit. NULL if `is_ftd = false`. Use for FTD trend charts. |
+| `ftd_amount_normalized` | FLOAT | FTD Amount Normalized | Amount of the first deposit, in USD. NULL if `is_ftd = false`. |
+| `ftd_payment_method` | STRING | FTD Payment Method | Payment method used for the first deposit: `card`, `wire_transfer`, `crypto`, `skrill`, `neteller`, `paypal`. NULL if `is_ftd = false`. |
+| `days_to_ftd` | FLOAT | Days to FTD | Days between `registration_date` and `ftd_date` — how fast a client deposits after registering. NULL if `is_ftd = false`. |
+| `is_ntc` | BOOLEAN | Is NTC | Whether the client placed at least one real (non-demo) trade — New Trading Client. Always implies `is_ftd = true` (a client must fund before trading). This is the "NTC" / "Profile NTC" metric — `COUNTIF(is_ntc)` gives the NTC count. |
+| `ntc_date` | DATE | NTC Date | Date of the client's first real trade. NULL if `is_ntc = false`. |
+| `days_to_ntc` | FLOAT | Days to NTC | Days between `ftd_date` and `ntc_date` — how fast a depositor starts trading. NULL if `is_ntc = false`. |
 | `has_open_positions` | BOOLEAN | Has Open Positions | Whether the client currently has open trading positions — a live-engagement signal. |
 | `created_at` | TIMESTAMP | Created At | Record creation timestamp in the warehouse. |
 | `count_clients` | INTEGER | Count Clients | Always `1` on every row; SUM to count clients matching a filter. |
@@ -50,14 +54,36 @@ timestamp: 2026-07-31T11:05:11.000Z
 | `deposit_count` | INTEGER | Deposit Count | Number of completed deposit transactions made by this client — the RFM "frequency" input. |
 | `last_deposit_date` | DATE | Last Deposit Date | Date of the client's most recent completed deposit. |
 | `days_since_last_deposit` | FLOAT | Days Since Last Deposit | Days elapsed since `last_deposit_date` — the RFM "recency" input; also drives `client_segment` (e.g. `dormant`, `churned`). |
-| `days_since_ftd` | FLOAT | Days Since Ftd | Days elapsed since the client's first deposit — client "age" in the system. |
+| `days_since_ftd` | FLOAT | Days Since FTD | Days elapsed since the client's first deposit — client "age" in the system. |
 | `ltv` | FLOAT | LTV | Lifetime value in USD — equal to `total_deposits_normalized`. Use for "what is the LTV of clients acquired via X" questions. |
 | `recency_score` | FLOAT | Recency Score | RFM recency score, 1-5 (5 = deposited most recently). Derived from `days_since_last_deposit`. |
 | `frequency_score` | FLOAT | Frequency Score | RFM frequency score, 1-5 (5 = most deposits). Derived from `deposit_count`. |
 | `monetary_score` | FLOAT | Monetary Score | RFM monetary score, 1-5 (5 = highest `net_deposits`). |
-| `client_segment` | STRING | Client Segment | Behavioural lifecycle segment, already computed: `active_trader`, `dormant`, `ftd_only`, `churned`, `registered_no_ftd`, `new`. Use this directly for "give me churned/dormant clients" questions instead of recomputing from date fields. |
-| `rfm_label` | STRING | Rfm Label | RFM marketing segment, already computed: `champions`, `loyal`, `at_risk`, `lost`, `new`, `promising`. `lost` specifically means the client's most recent contact (see Communications) was an unanswered/unsuccessful call. |
+| `client_segment` | STRING | Client Segment | Lifecycle stage as of today, not at the time of any transaction. `new`: no deposit, registered in the last 30 days. `registered_no_ftd`: no deposit, registered earlier. `ftd_only`: deposited but never placed a real trade. Clients who have traded, by days since their last deposit: `active_trader` up to 60, `dormant` 61–180, `churned` 181 or more. Use this directly for "give me churned/dormant clients" questions instead of recomputing from date fields. |
+| `rfm_label` | STRING | RFM Label | RFM marketing segment, already computed: `champions`, `loyal`, `at_risk`, `lost`, `new`, `promising`. `lost` specifically means the client's most recent contact (see Communications) was an unanswered/unsuccessful call. |
 | `data_source` | STRING | Data Source | `App` or `Web` — the surface this client was first acquired on. |
+
+## Calculated fields
+
+### `kyc_approval_rate` · FLOAT · Metric
+
+- **Alias:** KYC Approval Rate
+
+Share of decided identity checks that were approved (0–1): verified over verified, rejected and expired. Pending checks are left out of both sides; about a quarter of every registration cohort, back to 2024, is still pending, so read pending as documents never submitted.
+
+```sql
+SAFE_DIVIDE(COUNTIF(kyc_status = 'verified'), COUNTIF(kyc_status IN ('verified', 'rejected', 'expired')))
+```
+
+### `ftd_size_band` · STRING · Column
+
+- **Alias:** First Deposit Size
+
+Size band of the client's first deposit in USD: Micro (under $100), Small ($100-249), Standard ($250-999), Large ($1,000+), or No deposit. A row-level formula that behaves as a dimension: group and filter by it.
+
+```sql
+CASE WHEN ftd_amount_normalized IS NULL THEN 'No deposit' WHEN ftd_amount_normalized < 100 THEN 'Micro (under $100)' WHEN ftd_amount_normalized < 250 THEN 'Small ($100-249)' WHEN ftd_amount_normalized < 1000 THEN 'Standard ($250-999)' ELSE 'Large ($1,000+)' END
+```
 
 # Example Questions
 

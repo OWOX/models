@@ -6,10 +6,10 @@ description: |
   diagnosis, admission and discharge timestamps, the resulting length of stay, and whether it
   was an unplanned readmission within 30 days. This is where the clinical story lives: what
   patients are being treated for, how long they stay, and how often they come back
-  unexpectedly.
+  unexpectedly. What each insured encounter was billed and paid is in [Claims](./claims.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:47.000Z
+timestamp: 2026-10-20T08:48:44.000Z
 ---
 
 # Schema
@@ -24,8 +24,30 @@ timestamp: 2026-09-02T16:19:47.000Z
 | `discharge_ts` | TIMESTAMP | Discharge Time | Discharge date and time. |
 | `encounter_type` | STRING | Encounter Type | outpatient / inpatient / ED. |
 | `primary_diagnosis` | STRING | Primary Diagnosis | Primary ICD-10 code. |
-| `length_of_stay_days` | FLOAT | Length Of Stay Days | Length of stay in days. |
-| `is_readmission_30d` | BOOLEAN | Is Readmission 30d | Unplanned readmission within 30 days. |
+| `length_of_stay_days` | FLOAT | Length of Stay (Days) | Length of stay in days. |
+| `is_readmission_30d` | BOOLEAN | Is 30-Day Readmission | Unplanned readmission within 30 days. |
+
+## Calculated fields
+
+### `inpatient_days` · FLOAT · Metric
+
+- **Alias:** Inpatient Days
+
+Inpatient stay-days from encounter records: length of stay summed over inpatient encounters only. Not bed-days: Bed Census counts about ten times more occupied bed-days. The numerator of Average Length of Stay.
+
+```sql
+SUM(IF(encounter_type = 'inpatient', length_of_stay_days, 0))
+```
+
+### `avg_length_of_stay` · FLOAT · Metric
+
+- **Alias:** Average Length of Stay (inpatient)
+
+Days per inpatient stay: Inpatient Days divided by inpatient encounters. Outpatient and ED visits are excluded. For the standard monthly ALOS, cut by discharge month (Discharge Time, `discharge_ts`). NULL where there is no inpatient stay.
+
+```sql
+SAFE_DIVIDE(inpatient_days, COUNTIF(encounter_type = 'inpatient'))
+```
 
 # Example Questions
 

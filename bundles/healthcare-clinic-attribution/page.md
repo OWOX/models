@@ -10,7 +10,7 @@ description: |
   a treatment, checking prices, or browsing the blog.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:19:57.000Z
+timestamp: 2026-10-15T10:37:54.000Z
 ---
 
 # Schema

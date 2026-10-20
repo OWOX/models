@@ -13,7 +13,7 @@ description: |
   the model rolls up through.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-06T00:46:46.000Z
+timestamp: 2026-10-15T10:57:39.000Z
 ---
 
 # Schema
@@ -23,7 +23,7 @@ timestamp: 2026-08-06T00:46:46.000Z
 | `store_id` | STRING | Store ID | PK. Unique identifier for this location. |
 | `name` | STRING | Store Name | Store name as it appears in reporting and on the fascia. |
 | `region` | STRING | Region | Reporting region the store belongs to — the level the estate is managed at. |
-| `state` | STRING | State | US state the store trades in, e.g. `TX`, `OH`, `FL`. The standard external comparison cut. |
+| `state` | STRING | State | US state the store trades in: `AZ`, `IN`, `NV`, `OH`, `TN` or `TX`, one store per state. The standard external comparison cut. |
 | `city` | STRING | City | City the store is located in. |
 | `format` | STRING | Store Format | Trading format: `supercenter`, `supermarket` or `neighborhood_market`. Hold this constant when comparing stores — the three formats trade nothing alike. |
 | `opened_at` | DATE | Opened Date | Date the store opened. Like-for-like comparison needs at least thirteen months of history behind a store. |

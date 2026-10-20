@@ -8,9 +8,26 @@ description: |
   clearing: what buyers searched for and failed to find, which listings never sold, which
   orders fell through before settling, and what the ratings say afterwards. Together they let
   you follow both sides of the flywheel — where demand goes unmet, and where supply gives up.
+
+  **How this business is managed**
+  - **Supply** — grows the number of sellers who actually sell, and keeps their catalogues live while they do.
+  - **Demand** — turns buyers' searches into orders, and brings the buyers who order back for a second one.
+  - **Trust & Safety** — keeps orders from being cancelled after they are placed, and buyers from ending up with a complaint.
+
+  **Key metrics**
+  - Net GMV — [Orders · Net GMV](./orders.md?field=net_gmv) by [Orders · Ordered At](./orders.md?field=ordered_at).
+  - Take rate — [Orders · Take Rate](./orders.md?field=net_take_rate), platform revenue over net GMV, on a 0–1 scale.
+  - Active sellers — [Orders · Active Sellers](./orders.md?field=active_sellers), distinct sellers with a non-cancelled order in the period.
+  - Cancellation rate — [Orders · Cancellation Rate](./orders.md?field=cancellation_rate), by order count, on a 0–1 scale.
+
+  **Key Data Marts**
+  - [Orders](./orders.md) — every match of a buyer to a seller's listing, with its full economics.
+  - [Search Requests](./search-requests.md) — the demand that arrives, and how much of it ends in an order.
+  - [Seller](./seller.md) — the supply side, and where each seller is in its life on the platform.
+  - [Listings](./listings.md) — the catalogue buyers can order from today.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-09-11T11:01:50Z
+timestamp: 2026-10-20T17:57:47Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

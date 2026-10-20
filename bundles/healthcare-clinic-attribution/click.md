@@ -17,7 +17,7 @@ description: |
   `utm_medium`, so a claimed channel agrees with itself from two directions.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:19:59.000Z
+timestamp: 2026-10-15T16:55:22.000Z
 ---
 
 # Schema

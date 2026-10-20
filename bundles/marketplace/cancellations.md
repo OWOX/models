@@ -1,14 +1,14 @@
 ---
 title: "Cancellations"
 description: |
-  One row for every order that was cancelled — and only those. Each row records who pulled
+  One row for every [order](./orders.md) that was cancelled — and only those. Each row records who pulled
   the plug (buyer, seller or platform), at which stage (pre-payment, pre-fulfilment or
   in-transit), the stated reason, and how much was refunded. Because refund magnitude scales
   with stage — near zero pre-payment, close to full once fulfilment is underway — this is
   where an ops or trust-and-safety lead finds the fixable concentration of fill-rate failures.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:50.000Z
+timestamp: 2026-10-20T11:45:13.000Z
 ---
 
 # Schema
@@ -23,6 +23,18 @@ timestamp: 2026-09-02T16:20:50.000Z
 | `reason` | STRING | Reason | Stated cancellation reason. |
 | `refund_amount` | NUMERIC | Refund Amount | Amount refunded to the buyer (never more than the order's gmv). |
 
+## Calculated fields
+
+### `sellers_with_cancellations` · INTEGER · Metric
+
+- **Alias:** Sellers With Cancellations
+
+Distinct sellers behind the cancelled orders in the selected rows, read through the order. Filter Cancelled By to `seller` for sellers who cancelled their own orders. A distinct count across the join: rows do not add up to the total.
+
+```sql
+COUNT(DISTINCT orders.seller_id)
+```
+
 # Example Questions
 
 - Are cancellations concentrated in a stage or reason we can actually fix, and who is driving them — `buyers`, `sellers` or our own platform?
@@ -31,7 +43,7 @@ timestamp: 2026-09-02T16:20:50.000Z
 
 ## Joins
 
-- [Orders](./orders.md) — `order_id = order_id` [N:1] — The order that was cancelled.
+- [Orders](./orders.md) as `orders` — `order_id = order_id` [N:1] — The order that was cancelled.
   - [Orders Buyer](./buyer.md) — The buyer whose order was cancelled.
   - [Orders Category](./category.md) — The category of the cancelled order.
   - [Orders Listings](./listings.md) — The listing that was cancelled.

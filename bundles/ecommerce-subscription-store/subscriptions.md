@@ -8,11 +8,12 @@ description: |
 
   A contract distinguishes the two ways subscriptions die, which reporting that only counts
   cancellations cannot: a subscriber who decided to leave, and a subscriber whose card kept
-  failing until the retries ran out. Pause and skip are held apart from cancellation too, so a
+  failing until the retries ran out — every one of those attempts is a row in
+  [Subscription Events](./subscription-events.md). Pause and skip are held apart from cancellation too, so a
   subscriber taking a break is never counted as lost.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:21:29.000Z
+timestamp: 2026-10-16T16:33:04.000Z
 ---
 
 # Schema
@@ -43,6 +44,28 @@ timestamp: 2026-09-02T16:21:29.000Z
 | `max_retries_reached` | BOOLEAN | Max Retries Reached | Whether the dunning process ran out of retries on this contract. |
 | `is_prepaid` | BOOLEAN | Is Prepaid | Whether the contract was paid upfront for several deliveries. |
 | `tenure_days` | INTEGER | Tenure Days | Number of days the contract has been alive, counted to its end date or to today. |
+
+## Calculated fields
+
+### `involuntary_churn_share` · FLOAT · Metric
+
+- **Alias:** Involuntary Churn Share
+
+Share of cancelled subscriptions lost to failed payments, between 0 and 1 — the recoverable part of churn. Counts contracts, not subscribers; active and paused contracts are out of both sides.
+
+```sql
+SAFE_DIVIDE(COUNTIF(cancel_type = 'Involuntary'), COUNTIF(status = 'Cancelled'))
+```
+
+### `tenure_band` · STRING · Column
+
+- **Alias:** Tenure Band
+
+Subscription age band: Under 2 months, 2-6 months, 6-12 months or 1 year+. Counted to the cancellation date, or to yesterday while the contract is live. A row-level formula that behaves as a dimension: group and filter by it.
+
+```sql
+CASE WHEN tenure_days < 60 THEN 'Under 2 months' WHEN tenure_days < 180 THEN '2-6 months' WHEN tenure_days < 365 THEN '6-12 months' ELSE '1 year+' END
+```
 
 # Example Questions
 

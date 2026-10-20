@@ -3,15 +3,15 @@ title: "Ad Spend"
 description: |
   Advertising spend, clicks and impressions from every paid platform the store runs, on one daily
   grain, down to the ad group and the account the money was spent from. Because it shares source,
-  medium and campaign naming with the storefront's traffic sources, spend can be set against the
-  sessions, orders and subscriptions it produced instead of being read on its own.
+  medium and campaign naming with the storefront's [traffic sources](./traffic-sources.md), spend can be set against the
+  [sessions](./sessions.md), orders and subscriptions it produced instead of being read on its own.
 
   For a subscription business the interesting comparison is not cost per order but cost per
   subscriber, and the two diverge sharply by channel: a channel with expensive first orders can
   still be the cheapest source of long-lived subscribers.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-08-12T20:01:43.000Z
+timestamp: 2026-10-19T20:32:19.000Z
 ---
 
 # Schema

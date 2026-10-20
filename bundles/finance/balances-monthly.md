@@ -1,13 +1,14 @@
 ---
 title: "Balances (monthly)"
 description: |
-  A month-by-month snapshot of every account's balance and the money it earns or costs the
-  business — interest earned on lending, interest paid on deposits, and fee income. This is
-  the view for understanding the earning power of the book over time and how balances build
-  up or run down.
+  A month-by-month snapshot of every [account](./accounts.md)'s balance and the money it earns
+  or costs the business — interest earned on lending, interest paid on deposits, and fee income.
+  This is the view for understanding the earning power of the book over time and how balances
+  build up or run down. Whether a balance is lending or deposits comes from the account's
+  [product](./product.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:19:34.000Z
+timestamp: 2026-10-20T12:55:11.000Z
 ---
 
 # Schema

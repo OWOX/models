@@ -4,11 +4,11 @@ description: |
   One row per listing, the unit of supply a buyer actually orders. Each listing belongs to a
   seller and a category and carries a price and an availability state. The count of live
   listings per seller is exactly that seller's active inventory, which makes this the
-  backbone behind every order's price and category — and the first place to look when demand
-  arrives and finds nothing to buy.
+  backbone behind every order's price and category — and the first place to look when
+  [searches](./search-requests.md) arrive and find nothing to buy.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:49.000Z
+timestamp: 2026-10-20T11:45:11.000Z
 ---
 
 # Schema

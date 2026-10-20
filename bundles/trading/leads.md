@@ -8,10 +8,11 @@ description: |
   stage the lead has reached since, from contacted through the full registration to a first
   deposit and a first trade, or else no answer and rejection with a stated reason. This is the
   top of the sales funnel, and the only place where the leads that were never reached at all
-  are visible next to the ones that converted.
+  are visible next to the ones that converted. The desk's attempts to reach each lead are in
+  [Communications](./communications.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:13.000Z
+timestamp: 2026-10-20T08:59:52.000Z
 ---
 
 # Schema

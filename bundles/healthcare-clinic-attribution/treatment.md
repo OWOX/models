@@ -21,7 +21,7 @@ description: |
   treatments delivered, not only enquiries taken.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-23T14:20:01.000Z
+timestamp: 2026-10-15T17:02:11.000Z
 ---
 
 # Schema
@@ -37,6 +37,28 @@ timestamp: 2026-09-23T14:20:01.000Z
 | `completed_date` | DATE | Completed Date | The day the treatment actually happened. Empty while it is still in the diary or was cancelled, which is what separates delivered work from booked work. |
 | `treatment_name` | STRING | Treatment Name | What is being done. It is what makes a channel's demand readable as a case mix rather than as a single count. |
 | `status` | STRING | Treatment Status | Where the booking stands: `booked` while it is ahead, `completed` once delivered, `cancelled` when it will not happen. Cancellations are qualified patients who did not get treated, so they belong in a funnel count rather than being dropped. |
+
+## Calculated fields
+
+### `cancellation_rate` · FLOAT · Metric
+
+- **Alias:** Treatment Cancellation Rate
+
+Share of decided bookings that were cancelled rather than delivered. Bookings still ahead in the diary are left out of both sides, so recent months are not flattered by work not yet due. Trend it by Scheduled Date, the day the booking was due and so decided; Booked At can fall up to eight weeks earlier.
+
+```sql
+SAFE_DIVIDE(COUNTIF(status = 'cancelled'), COUNTIF(status IN ('completed', 'cancelled')))
+```
+
+### `wait_band` · STRING · Column
+
+- **Alias:** Waiting Time Band
+
+Days from booking to the scheduled date, in four bands: under 1 week, 1-2 weeks, 2-4 weeks, 4 weeks or more. A row-level formula that behaves as a dimension: group and filter by it.
+
+```sql
+CASE WHEN DATE_DIFF(scheduled_date, DATE(booked_at), DAY) <= 6 THEN 'Under 1 week (0-6 days)' WHEN DATE_DIFF(scheduled_date, DATE(booked_at), DAY) <= 13 THEN '1-2 weeks (7-13 days)' WHEN DATE_DIFF(scheduled_date, DATE(booked_at), DAY) <= 27 THEN '2-4 weeks (14-27 days)' ELSE '4 weeks or more (28+ days)' END
+```
 
 # Example Questions
 

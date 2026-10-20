@@ -8,7 +8,7 @@ description: |
   every marketplace watches.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-27T15:57:43.000Z
+timestamp: 2026-10-20T15:40:03.000Z
 ---
 
 # Schema
@@ -22,6 +22,18 @@ timestamp: 2026-07-27T15:57:43.000Z
 | `segment` | STRING | Segment | Buyer segment (one-time, occasional, regular, power). |
 | `lifetime_orders` | INTEGER | Lifetime Orders | Total orders the buyer has placed to date. |
 | `is_repeat` | BOOLEAN | Is Repeat | Whether the buyer has placed 2+ orders — demand-side retention. |
+
+## Calculated fields
+
+### `repeat_buyer_share` · FLOAT · Metric
+
+- **Alias:** Repeat Buyer Share
+
+Share of ordering buyers who placed two or more orders, lifetime, as a 0–1 fraction. Registered buyers who never ordered are left out of both sides, so the rate reads retention, not activation. Recent signup cohorts read lower because they have had less time to reorder.
+
+```sql
+SAFE_DIVIDE(COUNTIF(is_repeat), COUNTIF(lifetime_orders >= 1))
+```
 
 # Example Questions
 

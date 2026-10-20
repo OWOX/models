@@ -2,17 +2,18 @@
 title: "Patients"
 description: |
   Who the network is treating, and what each patient is worth: one row per patient, combining the
-  identity and contact details the clinics hold with the value metrics built on top of their visit
-  history — lifetime value, average value per visit, how many times they have attended, when they
-  first and last came, and how long it has been since. The distinction between a new and an
-  established patient runs through everything here, because the two behave differently on almost
-  every measure that matters, from how much treatment they accept to how likely they are to attend.
+  identity and contact details the clinics hold with the value metrics built on top of their
+  [visit history](./visits.md) — lifetime value, average value per visit, how many times they have
+  attended, when they first and last came, and how long it has been since. The distinction between
+  a new and an established patient runs through everything here — it is the one to control for
+  before comparing value or attendance, because an established patient carries a year of visits and
+  a new one carries a first appointment.
   `has_unused_plan` and `unused_plan_revenue` make the recall opportunity explicit: treatment that
   was planned and paid attention to but never delivered is revenue already earned and still sitting
   on the table.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-07-31T11:02:24.000Z
+timestamp: 2026-10-20T08:50:15.000Z
 ---
 
 # Schema
@@ -47,6 +48,18 @@ timestamp: 2026-07-31T11:02:24.000Z
 | `unused_plan_revenue` | NUMERIC | Unused Plan Revenue | Value of planned but undelivered treatment for this patient, in USD. |
 | `created_at` | TIMESTAMP | Created At | When the patient record was first created. |
 | `count_patients` | INTEGER | Patient Count | Always `1` on every row; SUM to count patients. |
+
+## Calculated fields
+
+### `recall_status` · STRING · Column
+
+- **Alias:** Recall Status
+
+Recent, Due, Overdue or Never attended, from days since the last attended visit, on a six-month recall cycle, regardless of any future booking. A row-level formula that behaves as a dimension: group and filter by it.
+
+```sql
+CASE WHEN days_since_last_visit IS NULL THEN 'Never attended' WHEN days_since_last_visit <= 90 THEN 'Recent (0-90 days)' WHEN days_since_last_visit <= 180 THEN 'Due (91-180 days)' ELSE 'Overdue (181+ days)' END
+```
 
 # Example Questions
 
