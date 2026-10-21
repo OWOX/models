@@ -28,7 +28,7 @@ description: |
   - [Customer](./customer.md) — who the borrowers are, where they came from and their risk band.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:57:08Z
+timestamp: 2026-10-20T20:04:40Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

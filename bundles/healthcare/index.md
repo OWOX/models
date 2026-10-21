@@ -29,7 +29,7 @@ description: |
   - [Appointments](./appointments.md) — every booking and whether the patient showed up.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:57:14Z
+timestamp: 2026-10-20T20:04:47Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

@@ -36,7 +36,7 @@ description: |
   - [Ad Spend](./ad-spend.md) — what each platform and campaign costs, day by day.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:56:48Z
+timestamp: 2026-10-20T20:04:32Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

@@ -37,7 +37,7 @@ description: |
   - [Patients](./patients.md) — each patient's visit history, lifetime value and unused planned treatment.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:57:32Z
+timestamp: 2026-10-20T20:05:06Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

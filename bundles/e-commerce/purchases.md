@@ -70,7 +70,7 @@ CASE WHEN SAFE_DIVIDE(line_revenue - line_cost, line_revenue) < 0.55 THEN 'Thin 
     - [Session Ad Spend](./unified-ad-spend.md) — Spend on that day and channel — a cohort match, not this line's cost.
       - [Ad Spend Traffic Source](./traffic-sources.md) — The channel behind that spend.
     - [Session Visitor](./visitors.md) — The visitor behind the ordering session.
-- [Products](./products.md) — `product_id = product_id` [N:1] — The product sold on this line.
+- [Products](./products.md) as `products_e_commerce` — `product_id = product_id` [N:1] — The product sold on this line.
   - [Product Page](./pages.md) — The storefront page of the product on this line.
     - [Product Pageviews](./pageviews.md) — Views of that product page.
   - [Product Category](./product-category.md) — The category of the product on this line.

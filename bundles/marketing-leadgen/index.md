@@ -27,7 +27,7 @@ description: |
   - [Touchpoints](./touchpoints.md) — the multi-touch credit behind every lead and deal.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:57:40Z
+timestamp: 2026-10-20T20:05:13Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->

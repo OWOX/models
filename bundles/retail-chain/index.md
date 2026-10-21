@@ -42,7 +42,7 @@ description: |
   - [Loyalty Members](./loyalty-members.md) — the members behind identified baskets, and what each is worth.
 tags: ["owox", "index"]
 type: "index"
-timestamp: 2026-10-20T17:57:54Z
+timestamp: 2026-10-20T20:05:28Z
 ---
 
 <!-- OWOX:GENERATED:START — regenerated on export, do not edit inside this block -->
