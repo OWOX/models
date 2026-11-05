@@ -53,3 +53,7 @@ type: "index"
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![GA 360 Standard Data Model diagram](../res/screens/ga360-standard.svg)
