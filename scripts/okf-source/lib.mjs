@@ -19,6 +19,7 @@ export const TYPE_MAP = {
   ARRAY: 'JSON',
   OBJECT: 'JSON',
   DATETIME: 'DATETIME',
+  JSON: 'JSON',
 }
 
 /** The canvas's file name for a mart: title lowercased, runs of other characters -> one hyphen (packages/okf/src/slug.ts). */

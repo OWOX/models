@@ -25,6 +25,7 @@ describe('parseSchemaMd', () => {
   it('maps OBJECT to JSON', () => {
     expect(parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| by_geo | OBJECT | x |\n')[0].type).toBe('OBJECT')
     expect(TYPE_MAP.OBJECT).toBe('JSON')
+    expect(TYPE_MAP.JSON).toBe('JSON')
   })
   it('refuses a type it cannot map and a repeated field', () => {
     expect(() => parseSchemaMd(SCHEMA.replace('ARRAY', 'DECIMAL128'))).toThrow(/DECIMAL128/)
