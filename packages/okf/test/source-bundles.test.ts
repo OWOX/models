@@ -57,6 +57,13 @@ describe.each(keys)("source bundle %s", key => {
     }
   });
 
+  it("reads every key pair of every join line, composite keys included", () => {
+    const written = Object.entries(files).filter(([f]) => f !== "index.md")
+      .flatMap(([, t]) => (t.split("\n## Joins")[1] ?? "").split("\n").filter(l => l.startsWith("- [")))
+      .map(l => [...l.matchAll(/`([^`=]+) = ([^`]+)`/g)].length);
+    expect(graph.edges.map(e => e.keys.length).sort()).toEqual(written.sort());
+  });
+
   it("the index shows a preview drawing that exists in the repo", () => {
     const svg = index.match(/!\[[^\]]*\]\(([^)\s]+\.svg)\)/)?.[1];
     expect(svg).toBeDefined();
