@@ -145,6 +145,7 @@ describe('buildModel', () => {
   it.each([
     ['a join to a field that does not exist', (b) => { b.authored.joins[0].on = [['nope', 'id']] }, /no field nope/],
     ['an N:1 join that misses part of the target key', (b) => { b.endpoints[0].uniqueKeys = ['id', 'other']; b.endpoints[0].rows.push({ column: 'other', type: 'STRING', description: '' }) }, /do not cover Parents's unique keys \(other\)/],
+    ['two joins between the same two tables', (b) => { b.authored.joins.push({ ...b.authored.joins[0], on: [['id', 'id']], note: 'Again.' }) }, /merges it with join 1/],
     ['a join with no source', (b) => { delete b.authored.joins[0].source }, /no source/],
     ['an endpoint nobody described', (b) => { delete b.authored.endpoints.Children }, /Children: no entry/],
     ['a connector with no uniqueKeys', (b) => { b.endpoints[0].uniqueKeys = undefined }, /declares no uniqueKeys/],

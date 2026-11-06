@@ -130,6 +130,14 @@ export function buildModel({ source, endpoints, authored }) {
     if (slugs.has(s)) problems.push(`${e.name}: two endpoints share the file name ${s}.md`)
     slugs.add(s)
   }
+  // The canvas reads two joins between the same two tables as one edge: it keeps the first, drops the rest and
+  // marks the edge two-way (packages/okf/src/parse.ts). Several keys to one table are written as one join.
+  const pairs = new Map()
+  for (const j of joins) {
+    const pair = [j.from, j.to].sort().join(' <-> ')
+    if (pairs.has(pair)) problems.push(`join ${j.n} (${j.from} -> ${j.to}): the canvas merges it with join ${pairs.get(pair)} between the same two tables and drops it; write one join and name the other keys in its note`)
+    else pairs.set(pair, j.n)
+  }
   for (const j of joins) {
     const label = `join ${j.n} (${j.from} -> ${j.to})`
     const from = byName.get(j.from)

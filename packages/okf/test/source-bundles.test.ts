@@ -74,6 +74,10 @@ describe.each(keys)("source bundle %s", key => {
     expect(title).toContain(`${graph.nodes.length} data marts, ${graph.edges.length} relationships`);
   });
 
+  it("has one join per pair of tables, so the canvas merges nothing and marks no edge two-way", () => {
+    expect(graph.edges.filter(e => e.bidirectional).map(e => `${e.from} <-> ${e.to}`)).toEqual([]);
+  });
+
   it("carries each join's note where the canvas reads it", () => {
     for (const e of graph.edges) expect(e.description, `${e.from} -> ${e.to}`).toBeTruthy();
   });
