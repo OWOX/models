@@ -5,7 +5,7 @@ description: |
 
   Every performance table repeats the IDs of the levels above it, so each joins to its parent on a plain ID: [Campaigns Stats](./campaigns-stats.md) to [Campaigns](./campaigns.md) on `campaign_id`, [Ad Groups Stats](./ad-groups-stats.md) to [Ad Groups](./ad-groups.md) on `ad_group_id`. Keyword performance also reaches its targeting row in [Criterion](./criterion.md), and country performance resolves a country ID to a name through [Geo Target Constants](./geo-target-constants.md).
 
-  Two cautions apply to every table. Money fields end in `_micros`: one millionth of the account currency, so divide by 1,000,000. And Google Ads reports in the time zone and currency of each account, so figures from accounts set differently cannot be added before they are converted.
+  One caution applies to every table: fields ending in `_micros` hold millionths of the account currency, so divide by 1,000,000 to read them.
 tags: ["owox", "index", "connector", "google-ads"]
 type: "index"
 sources:

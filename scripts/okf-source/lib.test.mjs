@@ -90,3 +90,18 @@ describe('helpers', () => {
   it('pins a blob URL to a commit and drops the line anchor', () =>
     expect(pinned('https://github.com/o/r/blob/main/a/b.js#L19', 'abc')).toBe('https://github.com/o/r/blob/abc/a/b.js'))
 })
+
+describe('join note guards', () => {
+  it('writes the note inline and as a Description line', () => {
+    const files = renderBundle(buildModel(base()), { svgPath: 's.svg', exploreUrl: 'u' })
+    expect(files['children.md']).toContain('[N:1] — The parent.\n  - Description: The parent.')
+  })
+  it('refuses a note that the canvas would read as a key pair', () => {
+    const b = base()
+    b.authored.joins[0].note = 'Use `a = b` here.'
+    expect(() => buildModel(b)).toThrow(/no backticked/)
+  })
+  it('refuses to pin a URL it cannot pin', () => {
+    expect(() => pinned('https://example.com/x', 'abc')).toThrow(/Cannot pin/)
+  })
+})

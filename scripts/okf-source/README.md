@@ -9,6 +9,10 @@ pnpm okf:source google-ads --owox-com ../owox.com --data-marts ../owox-data-mart
 pnpm okf:source google-ads --owox-com ../owox.com --data-marts ../owox-data-marts --check   # write nothing; exit 1 if the files differ
 ```
 
+`--data-marts` must be a git checkout at the commit the Data Source item pins (`repoCommitSha`); the
+generator refuses any other (`--allow-unpinned` overrides), because every source link in the bundle
+says that commit. A folder that is not a git checkout is accepted with a warning.
+
 Same inputs, same bytes: nothing is fetched, dated or timestamped. Stale `.md` files in the
 bundle folder (an endpoint that no longer exists) are removed.
 
@@ -30,7 +34,9 @@ the file names.
 **Authored, by hand:** descriptions, questions and joins. The generator refuses to build when
 an authored join names a field the schemas do not have, when an N:1 join does not cover the
 target's whole unique key, when a join has no `source`, or when an endpoint has no description
-or questions. A join's `source` is the vendor documentation that confirms it; a join is proposed
+or questions. The note of a join is written twice (inline, where the owox.com site reads it, and as the indented
+`- Description:` line, the only place the canvas and OWOX read it) and may not contain a backticked
+`a = b`. A join's `source` is the vendor documentation that confirms it; a join is proposed
 by matching field names across the endpoints and then checked against that documentation.
 
 ## Preview drawing

@@ -62,3 +62,4 @@ sources:
 ## Joins
 
 - [Ad Groups](./ad-groups.md) — `ad_group_id = ad_group_id` [N:1] — The ad group the ad belongs to.
+  - Description: The ad group the ad belongs to.

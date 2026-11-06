@@ -54,4 +54,6 @@ sources:
 ## Joins
 
 - [Campaigns](./campaigns.md) — `campaign_id = campaign_id` [N:1] — The campaign the country row reports on.
+  - Description: The campaign the country row reports on.
 - [Geo Target Constants](./geo-target-constants.md) — `country_criterion_id = geo_target_constant_id` [N:1] — The country's name and ISO code.
+  - Description: The country's name and ISO code.

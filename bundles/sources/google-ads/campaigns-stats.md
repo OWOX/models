@@ -3,7 +3,7 @@ title: "Campaigns Stats"
 description: |
   Daily campaign performance: impressions, clicks, cost, conversions and conversion value, with ratios such as click-through rate and cost per conversion, and for search campaigns the share of impressions won or lost to budget and to ad rank. One row per campaign per `date`.
 
-  Cost is in micros. Impression-share and video fields only carry values for the campaign types they apply to. Join it to Campaigns on `campaign_id` for the campaign's type and bidding strategy.
+  Cost (`cost_micros`) is in micros. Impression-share and video fields only carry values for the campaign types they apply to. Join it to Campaigns on `campaign_id` for the campaign's type and bidding strategy.
 tags: ["owox", "connector", "google-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -64,3 +64,4 @@ sources:
 ## Joins
 
 - [Campaigns](./campaigns.md) — `campaign_id = campaign_id` [N:1] — The campaign the daily row reports on.
+  - Description: The campaign the daily row reports on.

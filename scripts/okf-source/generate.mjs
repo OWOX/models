@@ -14,9 +14,11 @@
 // (OWOX_COM_DIR and OWOX_DATA_MARTS_DIR work in place of the flags.)
 //
 // Flags: --check     write nothing, exit 1 if the files on disk differ from what would be written
+//        --allow-unpinned  accept a --data-marts checkout that is not at the commit the Data Source item pins
 //        --out <dir> bundles root (default: bundles/sources in this repo)
 //        --explore-base <url>  where the "Explore on canvas" link points: the GitHub tree URL of the folder that
 //                     holds the bundles (default https://github.com/OWOX/models/tree/main/bundles/sources)
+import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,25 +27,38 @@ import { buildModel, parseSchemaMd, parseUniqueKeys, renderBundle } from './lib.
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO = resolve(HERE, '../..')
 
-const args = process.argv.slice(2)
-const flag = (name) => {
-  const i = args.indexOf(name)
-  return i < 0 ? undefined : args[i + 1]
+const VALUE_FLAGS = ['--owox-com', '--data-marts', '--out', '--explore-base']
+const BOOL_FLAGS = ['--check', '--allow-unpinned']
+const opts = {}
+const positional = []
+const argv = process.argv.slice(2)
+for (let i = 0; i < argv.length; i++) {
+  const [name, inline] = argv[i].startsWith('--') ? argv[i].split(/=(.*)/s) : [null]
+  if (!name) positional.push(argv[i])
+  else if (BOOL_FLAGS.includes(name) && inline === undefined) opts[name] = true
+  else if (VALUE_FLAGS.includes(name)) {
+    const value = inline ?? argv[++i]
+    if (value === undefined || value.startsWith('--')) usage(`${name} needs a value.`)
+    opts[name] = value
+  } else usage(`Unknown option ${argv[i]}.`)
 }
-const key = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && args[i - 1] !== '--check'))
-const owoxCom = flag('--owox-com') ?? process.env.OWOX_COM_DIR
-const dataMarts = flag('--data-marts') ?? process.env.OWOX_DATA_MARTS_DIR
-const check = args.includes('--check')
-const exploreBase = (flag('--explore-base') ?? 'https://github.com/OWOX/models/tree/main/bundles/sources').replace(/\/+$/, '')
-const outRoot = resolve(flag('--out') ?? join(REPO, 'bundles/sources'))
-
-if (!key || !owoxCom || !dataMarts) {
+function usage(problem) {
   console.error(
-    'Usage: generate.mjs <source-key> --owox-com <dir> --data-marts <dir> [--check] [--out <dir>]\n' +
+    `${problem ? problem + '\n' : ''}Usage: generate.mjs <source-key> --owox-com <dir> --data-marts <dir> [--check] [--out <dir>] [--explore-base <url>] [--allow-unpinned]\n` +
       '  <source-key> is the folder name under collections/portfolio-management-data-source/ (google-ads).',
   )
   process.exit(2)
 }
+if (positional.length !== 1) usage(positional.length ? `Expected one source key, got ${positional.join(', ')}.` : '')
+const key = positional[0]
+const owoxCom = opts['--owox-com'] ?? process.env.OWOX_COM_DIR
+const dataMarts = opts['--data-marts'] ?? process.env.OWOX_DATA_MARTS_DIR
+const check = opts['--check'] === true
+const allowUnpinned = opts['--allow-unpinned'] === true
+const exploreBase = (opts['--explore-base'] ?? 'https://github.com/OWOX/models/tree/main/bundles/sources').replace(/\/+$/, '')
+const outRoot = resolve(opts['--out'] ?? join(REPO, 'bundles/sources'))
+
+if (!owoxCom || !dataMarts) usage('Both --owox-com and --data-marts are needed (or OWOX_COM_DIR and OWOX_DATA_MARTS_DIR).')
 
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'))
 const fail = (msg) => {
@@ -70,9 +85,22 @@ for (const d of readdirSync(endpointRoot, { withFileTypes: true })) {
   if (existsSync(f)) folderByUuid.set(readJson(f).collectionItemUuid, join(endpointRoot, d.name))
 }
 
-// 2. uniqueKeys from the connector.
-const connectorDir = join(resolve(dataMarts), 'packages/connectors/src/Sources', item.sourceCodeUrl.split('/').pop())
+// 2. uniqueKeys from the connector, read at the commit the item pins.
+const connectorName = item.sourceCodeUrl.replace(/\/+$/, '').split('/').pop()
+if (!/^[A-Za-z0-9_]+$/.test(connectorName)) fail(`${key}/item.json: sourceCodeUrl does not end in a connector folder name: ${item.sourceCodeUrl}`)
+const connectorDir = join(resolve(dataMarts), 'packages/connectors/src/Sources', connectorName)
 if (!existsSync(connectorDir)) fail(`No ${connectorDir}. Is --data-marts a checkout of OWOX/owox-data-marts?`)
+const head = spawnSync('git', ['-C', resolve(dataMarts), 'rev-parse', 'HEAD'], { encoding: 'utf8' })
+if (head.status === 0) {
+  if (head.stdout.trim() !== source.sha && !allowUnpinned) {
+    fail(
+      `--data-marts is at ${head.stdout.trim().slice(0, 9)}, but ${key}/item.json pins connector commit ${source.sha.slice(0, 9)}: ` +
+        'the bundle would say one commit and hold the keys of another. Check out the pinned commit, or pass --allow-unpinned.',
+    )
+  }
+} else {
+  console.warn(`note: --data-marts is not a git checkout, so it cannot be verified to be at connector commit ${source.sha.slice(0, 9)}.`)
+}
 const schemaFiles = []
 const walk = (dir) => {
   for (const d of readdirSync(dir, { withFileTypes: true })) {
@@ -84,7 +112,12 @@ const walk = (dir) => {
 walk(connectorDir)
 if (!schemaFiles.length) fail(`No *FieldsSchema.js under ${connectorDir}.`)
 const uniqueKeys = {}
-for (const f of schemaFiles.sort()) Object.assign(uniqueKeys, parseUniqueKeys(readFileSync(f, 'utf8')))
+for (const f of schemaFiles.sort()) {
+  for (const [endpoint, keys] of Object.entries(parseUniqueKeys(readFileSync(f, 'utf8')))) {
+    if (endpoint in uniqueKeys) fail(`${relative(connectorDir, f)}: endpoint ${endpoint} declares uniqueKeys twice in ${connectorName}.`)
+    uniqueKeys[endpoint] = keys
+  }
+}
 
 const endpoints = item.endpoints.map((uuid) => {
   const dir = folderByUuid.get(uuid)

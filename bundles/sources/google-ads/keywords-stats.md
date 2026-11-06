@@ -1,9 +1,9 @@
 ---
 title: "Keywords Stats"
 description: |
-  Daily keyword performance: impressions, clicks, cost, conversions and conversion value, the keyword's text, match type and status, its quality score, and search impression share and top-of-page rates. One row per keyword per `date`.
+  Daily keyword performance: impressions, clicks, cost, conversions and conversion value, the keyword's text, match type and status, its quality score, and search impression share and top-of-page rates. One row per keyword per `date`, as the connector keys it (`keyword_id` and `date`).
 
-  The keyword is identified by `keyword_id` inside its ad group; join it to Criterion on `keyword_id` and `ad_group_id` for bids and targeting settings, and to Ad Groups for the ad group around it.
+  A criterion ID is only unique inside its ad group, so read `ad_group_id` together with `keyword_id`: join to Criterion on `keyword_id`, `ad_group_id` and `campaign_id` for bids and targeting settings, and to Ad Groups for the ad group around it.
 tags: ["owox", "connector", "google-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -62,4 +62,6 @@ sources:
 ## Joins
 
 - [Ad Groups](./ad-groups.md) — `ad_group_id = ad_group_id` [N:1] — The ad group the keyword sits in.
+  - Description: The ad group the keyword sits in.
 - [Criterion](./criterion.md) — `keyword_id = criterion_id`, `ad_group_id = ad_group_id`, `campaign_id = campaign_id` [N:1] — The keyword's targeting row; a criterion ID is only unique together with its ad group.
+  - Description: The keyword's targeting row; a criterion ID is only unique together with its ad group.

@@ -3,7 +3,7 @@ title: "Campaigns"
 description: |
   One row per campaign: its name, status, advertising channel type and sub type, bidding strategy, budget, target CPA or target ROAS, and start and end dates. It holds settings, not results; a campaign's clicks and cost are in Campaigns Stats, which joins to this table on `campaign_id`.
 
-  Amounts are in micros, one millionth of the account currency. Use it to label and filter the performance tables by campaign type or bidding strategy.
+  The budget and target CPA amounts are in micros, one millionth of the account currency. Use it to label and filter the performance tables by campaign type or bidding strategy.
 tags: ["owox", "connector", "google-ads"]
 type: "OWOX Data Mart"
 sources:

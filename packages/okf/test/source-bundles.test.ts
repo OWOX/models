@@ -64,6 +64,17 @@ describe.each(keys)("source bundle %s", key => {
     expect(graph.edges.map(e => e.keys.length).sort()).toEqual(written.sort());
   });
 
+  it("the preview drawing is of this model: its title counts the same marts and relationships", () => {
+    const svg = index.match(/!\[[^\]]*\]\(([^)\s]+\.svg)\)/)?.[1];
+    const title = readFileSync(join(ROOT, key, svg!), "utf8").match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
+    expect(title).toContain(`${graph.nodes.length} data marts, ${graph.edges.length} relationships`);
+  });
+
+  it("carries each join's note where the canvas reads it", () => {
+    expect(graph.edges.length).toBeGreaterThan(0);
+    for (const e of graph.edges) expect(e.description, `${e.from} -> ${e.to}`).toBeTruthy();
+  });
+
   it("the index shows a preview drawing that exists in the repo", () => {
     const svg = index.match(/!\[[^\]]*\]\(([^)\s]+\.svg)\)/)?.[1];
     expect(svg).toBeDefined();

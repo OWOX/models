@@ -82,8 +82,9 @@ const block = (key, text) =>
 const cell = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ')
 
 /** `https://github.com/.../blob/main/path#L9` -> the same file at a commit, no line anchor (lines move). */
-export function pinned(url, sha) {
-  return url.replace(/\/blob\/[^/]+\//, `/blob/${sha}/`).replace(/#L\d+(-L\d+)?$/, '')
+export function pinned(url, sha, kind = 'blob') {
+  if (!new RegExp(`/${kind}/[^/]+/`).test(url)) throw new Error(`Cannot pin ${url}: no /${kind}/<ref>/ in it`)
+  return url.replace(new RegExp(`/${kind}/[^/]+/`), `/${kind}/${sha}/`).replace(/#L\d+(-L\d+)?$/, '')
 }
 
 /**
@@ -131,6 +132,8 @@ export function buildModel({ source, endpoints, authored }) {
     if (!/^(1|N):(1|N)$/.test(j.cardinality ?? '')) problems.push(`${label}: cardinality must be 1:1, 1:N, N:1 or N:N`)
     if (!j.source) problems.push(`${label}: no source (the vendor doc that confirms it)`)
     if (!j.note?.trim()) problems.push(`${label}: no note`)
+    // The canvas reads every `a = b` in backticks on the join line as a key pair.
+    else if (/\n/.test(j.note) || /`[^`]*=[^`]*`/.test(j.note)) problems.push(`${label}: the note must be one line with no backticked \`a = b\``)
     if (from && to) {
       for (const [l, r] of j.on ?? []) {
         if (!from.rows.some((x) => x.column === l)) problems.push(`${label}: ${j.from} has no field ${l}`)
@@ -152,9 +155,13 @@ export function buildModel({ source, endpoints, authored }) {
   return { source, authored, docs, joins }
 }
 
-const joinLine = (j, byName) => {
+/* The note is written twice on purpose. Inline after the keys is where the owox.com
+ * site reads a join's note (scripts/model-svg/okf.mjs); the indented `- Description:`
+ * line is the only place the canvas and OWOX read it from (packages/okf/src/parse.ts). */
+const joinLines = (j) => {
   const keys = j.on.map(([l, r]) => `\`${l} = ${r}\``).join(', ')
-  return `- [${j.to}](./${slugify(j.to)}.md) — ${keys} [${j.cardinality}] — ${j.note.trim()}`
+  const note = j.note.trim()
+  return [`- [${j.to}](./${slugify(j.to)}.md) — ${keys} [${j.cardinality}] — ${note}`, `  - Description: ${note}`]
 }
 
 /** One endpoint document. */
@@ -201,7 +208,7 @@ export function renderMart(model, doc) {
     out.push('')
     out.push('## Joins')
     out.push('')
-    for (const j of doc.joins) out.push(joinLine(j))
+    for (const j of doc.joins) out.push(...joinLines(j))
   }
   return out.join('\n') + '\n'
 }
@@ -218,7 +225,7 @@ export function renderIndex(model, { svgPath, exploreUrl }) {
   out.push('type: "index"')
   out.push('sources:')
   out.push('  - id: "owox-connector"')
-  out.push(`    resource: ${q(source.sourceCodeUrl.replace('/tree/main/', `/tree/${source.sha}/`))}`)
+  out.push(`    resource: ${q(pinned(source.sourceCodeUrl, source.sha, 'tree'))}`)
   out.push(`    title: ${q(`OWOX Data Marts — ${source.name} connector source`)}`)
   out.push('---')
   out.push('')

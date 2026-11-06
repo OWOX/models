@@ -53,3 +53,4 @@ sources:
 ## Joins
 
 - [Ad Groups](./ad-groups.md) — `ad_group_id = ad_group_id` [N:1] — The ad group the criterion targets for.
+  - Description: The ad group the criterion targets for.
