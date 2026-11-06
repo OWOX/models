@@ -16,6 +16,7 @@ Generated 2026-10-20T20:05:44Z.
 - [Finance](./finance/index.md) — 8 concept(s)
 - [GA 360 Standard Data Model](./ga360-standard/index.md) — 10 concept(s)
 - [GA4 Standard Data Model](./ga4-standard/index.md) — 10 concept(s)
+- [Google Search Console](./google-search-console/index.md) — 8 concept(s)
 - [Healthcare](./healthcare/index.md) — 8 concept(s)
 - [Healthcare Clinic Attribution](./healthcare-clinic-attribution/index.md) — 14 concept(s)
 - [Healthcare Clinic Network](./healthcare-clinic-network/index.md) — 10 concept(s)
