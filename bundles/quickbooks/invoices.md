@@ -23,8 +23,8 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. Unique with `realm_id`. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | Realm ID | FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
 | `create_time` | TIMESTAMP | Create Time | |
 | `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
@@ -38,7 +38,7 @@ sources:
 | `line` | JSON | Line | Line array kept as JSON. Unnest in SQL: DetailType decides which *LineDetail object is present. |
 | `due_date` | DATE | Due Date | |
 | `balance` | FLOAT | Balance | Unpaid remainder; 0 when fully paid. |
-| `customer_id` | STRING | Customer ID | FK to [Customers](./customers.md).  |
+| `customer_id` | STRING | Customer ID | FK to [Customers](./customers.md). |
 | `customer_name` | STRING | Customer Name | |
 | `customer_memo` | STRING | Customer Memo | |
 | `bill_email` | STRING | Bill Email | |
@@ -46,7 +46,7 @@ sources:
 | `print_status` | STRING | Print Status | |
 | `sales_term_id` | STRING | Sales Term ID | |
 | `sales_term_name` | STRING | Sales Term Name | |
-| `deposit_to_account_id` | STRING | Deposit To Account ID | FK to [Accounts](./accounts.md).  |
+| `deposit_to_account_id` | STRING | Deposit To Account ID | FK to [Accounts](./accounts.md). |
 | `deposit_to_account_name` | STRING | Deposit To Account Name | |
 | `class_id` | STRING | Class ID | |
 | `class_name` | STRING | Class Name | |

@@ -23,8 +23,8 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. Unique with `realm_id`. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | Realm ID | FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
 | `create_time` | TIMESTAMP | Create Time | |
 | `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
@@ -38,14 +38,14 @@ sources:
 | `qty_on_hand` | FLOAT | Qty On Hand | |
 | `taxable` | BOOLEAN | Taxable | |
 | `track_qty_on_hand` | BOOLEAN | Track Qty On Hand | |
-| `income_account_id` | STRING | Income Account ID | FK to [Accounts](./accounts.md).  |
+| `income_account_id` | STRING | Income Account ID | FK to [Accounts](./accounts.md). |
 | `income_account_name` | STRING | Income Account Name | |
-| `expense_account_id` | STRING | Expense Account ID | FK to [Accounts](./accounts.md).  |
+| `expense_account_id` | STRING | Expense Account ID | FK to [Accounts](./accounts.md). |
 | `expense_account_name` | STRING | Expense Account Name | |
 | `asset_account_id` | STRING | Asset Account ID | |
 | `asset_account_name` | STRING | Asset Account Name | |
 | `sub_item` | BOOLEAN | Sub Item | |
-| `parent_id` | STRING | Parent ID | FK to [Items](./items.md).  |
+| `parent_id` | STRING | Parent ID | FK to [Items](./items.md). |
 | `parent_name` | STRING | Parent Name | |
 | `active` | BOOLEAN | Active | |
 

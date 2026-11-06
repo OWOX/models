@@ -23,7 +23,7 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | QuickBooks entity Id (string). Primary key together with realm_id. |
+| `id` | STRING | ID | QuickBooks entity Id (string). |
 | `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
 | `create_time` | TIMESTAMP | Create Time | |

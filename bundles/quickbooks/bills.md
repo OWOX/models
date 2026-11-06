@@ -23,8 +23,8 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. Unique with `realm_id`. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | Realm ID | FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
 | `create_time` | TIMESTAMP | Create Time | |
 | `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
@@ -38,9 +38,9 @@ sources:
 | `line` | JSON | Line | Line[] as JSON; DetailType is AccountBasedExpenseLineDetail (AccountRef) or ItemBasedExpenseLineDetail (ItemRef). |
 | `due_date` | DATE | Due Date | |
 | `balance` | FLOAT | Balance | |
-| `vendor_id` | STRING | Vendor ID | FK to [Vendors](./vendors.md).  |
+| `vendor_id` | STRING | Vendor ID | FK to [Vendors](./vendors.md). |
 | `vendor_name` | STRING | Vendor Name | |
-| `ap_account_id` | STRING | AP Account ID | FK to [Accounts](./accounts.md).  |
+| `ap_account_id` | STRING | AP Account ID | FK to [Accounts](./accounts.md). |
 | `ap_account_name` | STRING | AP Account Name | |
 | `sales_term_id` | STRING | Sales Term ID | |
 | `sales_term_name` | STRING | Sales Term Name | |

@@ -24,11 +24,11 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. Unique with `realm_id`. FK to [Invoices](./invoices.md).  |
-| `realm_id` | STRING | Realm ID | FK to [Company info](./company-info.md).  |
+| `id` | STRING | ID | PK. FK to [Invoices](./invoices.md). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). |
 | `entity` | STRING | Entity | Entity name, constant per node. |
 | `status` | STRING | Status | "Deleted" for hard-deleted objects; absent for live ones. Live rows carry the full payload. |
-| `last_updated_time` | TIMESTAMP | Last Updated Time | |
+| `last_updated_time` | TIMESTAMP | Last Updated Time | PK. |
 | `sync_token` | STRING | Sync Token | |
 | `txn_date` | DATE | Txn Date | |
 | `total_amt` | FLOAT | Total Amt | |

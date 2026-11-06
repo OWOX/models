@@ -23,8 +23,8 @@ sources:
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. Unique with `realm_id`. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | Realm ID | FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
 | `create_time` | TIMESTAMP | Create Time | |
 | `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
@@ -40,7 +40,7 @@ sources:
 | `currency_name` | STRING | Currency Name | |
 | `taxable` | BOOLEAN | Taxable | |
 | `job` | BOOLEAN | Job | True for sub-customers (projects). |
-| `parent_id` | STRING | Parent ID | FK to [Customers](./customers.md).  |
+| `parent_id` | STRING | Parent ID | FK to [Customers](./customers.md). |
 | `parent_name` | STRING | Parent Name | |
 | `payment_method_id` | STRING | Payment Method ID | |
 | `payment_method_name` | STRING | Payment Method Name | |
