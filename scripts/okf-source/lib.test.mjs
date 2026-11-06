@@ -155,6 +155,22 @@ describe('buildModel', () => {
   })
 })
 
+describe('a custom connector read from a manifest', () => {
+  const custom = () => {
+    const b = base()
+    b.source = { key: 'x', name: 'X', sha: null, sourceCodeUrl: null, docsUrl: 'https://example.com/docs' }
+    b.endpoints.forEach((e) => { e.definitionSourceUrl = null })
+    return b
+  }
+  it('renders without a pinned connector link, keeping the vendor links', () => {
+    const files = renderBundle(buildModel(custom()), { svgPath: 's.svg', exploreUrl: 'u' })
+    expect(files['parents.md']).not.toContain('owox-connector')
+    expect(files['parents.md']).toContain('id: "vendor-reference"')
+    expect(files['index.md']).not.toContain('owox-connector')
+    expect(files['index.md']).toContain('resource: "https://example.com/docs"')
+  })
+})
+
 describe('helpers', () => {
   it('slugifies the way the canvas does', () => expect(slugify('Ad Group Ads Stats')).toBe('ad-group-ads-stats'))
   it('pins a blob URL to a commit and drops the line anchor', () =>

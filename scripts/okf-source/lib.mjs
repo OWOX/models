@@ -96,7 +96,8 @@ export function pinned(url, sha, kind = 'blob') {
 
 /**
  * The model, ready to render.
- * source:    { key, name, sha }  (Fibery Data Source item)
+ * source:    { key, name, sha, sourceCodeUrl } (Fibery Data Source item); a custom connector read from a manifest has
+ *            sha = null and carries docsUrl (the vendor docs) instead
  * endpoints: [{ name, key, destinationTable, summary, timeSeries, definitionSourceUrl, vendorDocsUrl, rows, uniqueKeys }]
  * authored:  the sources/<key>.json file
  */
@@ -184,9 +185,12 @@ export function renderMart(model, doc) {
   out.push(`tags: ["owox", "connector", ${q(source.key)}]`)
   out.push('type: "OWOX Data Mart"')
   out.push('sources:')
-  out.push('  - id: "owox-connector"')
-  out.push(`    resource: ${q(pinned(e.definitionSourceUrl, source.sha))}`)
-  out.push(`    title: ${q(`OWOX Data Marts ${source.name} connector — ${e.name} endpoint (\`${e.key}\`)`)}`)
+  // A custom connector (read from a manifest) has no public file to link; its link is the vendor's.
+  if (source.sha) {
+    out.push('  - id: "owox-connector"')
+    out.push(`    resource: ${q(pinned(e.definitionSourceUrl, source.sha))}`)
+    out.push(`    title: ${q(`OWOX Data Marts ${source.name} connector — ${e.name} endpoint (\`${e.key}\`)`)}`)
+  }
   out.push('  - id: "vendor-reference"')
   out.push(`    resource: ${q(e.vendorDocsUrl)}`)
   out.push(`    title: ${q(`${authored.vendorName} reference — ${vendorTail}`)}`)
@@ -231,9 +235,15 @@ export function renderIndex(model, { svgPath, exploreUrl }) {
   out.push(`tags: ["owox", "index", "connector", ${q(source.key)}]`)
   out.push('type: "index"')
   out.push('sources:')
-  out.push('  - id: "owox-connector"')
-  out.push(`    resource: ${q(pinned(source.sourceCodeUrl, source.sha, 'tree'))}`)
-  out.push(`    title: ${q(`OWOX Data Marts — ${source.name} connector source`)}`)
+  if (source.sha) {
+    out.push('  - id: "owox-connector"')
+    out.push(`    resource: ${q(pinned(source.sourceCodeUrl, source.sha, 'tree'))}`)
+    out.push(`    title: ${q(`OWOX Data Marts — ${source.name} connector source`)}`)
+  } else {
+    out.push('  - id: "vendor-reference"')
+    out.push(`    resource: ${q(source.docsUrl)}`)
+    out.push(`    title: ${q(`${authored.vendorName} reference`)}`)
+  }
   out.push('---')
   out.push('')
   out.push(`${docs.length} tables, ${fields} fields, ${joins.length} joins.`)

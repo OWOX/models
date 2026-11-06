@@ -10,6 +10,9 @@
 //   --owox-com     a checkout of OWOX/owox.com: collections/portfolio-management-data-source/<key>/item.json,
 //                  the endpoint folders it lists under collections/portfolio-management-endpoint/ (item.json, schema.md)
 //   --data-marts   a checkout of OWOX/owox-data-marts: packages/connectors/src/Sources/<Source>/**/*FieldsSchema.js (uniqueKeys)
+//   --manifest     instead of --data-marts, for a custom connector that has no FieldsSchema file (QuickBooks): its
+//                  manifest JSON, whose `nodes.<endpoint key>.uniqueKeys` give the keys. The Data Source item then has
+//                  no repoCommitSha and the bundle carries no pinned connector link.
 //   scripts/okf-source/sources/<key>.json   the authored part: descriptions, questions, joins
 // (OWOX_COM_DIR and OWOX_DATA_MARTS_DIR work in place of the flags.)
 //
@@ -27,7 +30,7 @@ import { buildModel, parseSchemaMd, parseUniqueKeys, renderBundle } from './lib.
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO = resolve(HERE, '../..')
 
-const VALUE_FLAGS = ['--owox-com', '--data-marts', '--out', '--explore-base']
+const VALUE_FLAGS = ['--owox-com', '--data-marts', '--manifest', '--out', '--explore-base']
 const BOOL_FLAGS = ['--check', '--allow-unpinned']
 const opts = {}
 const positional = []
@@ -44,7 +47,7 @@ for (let i = 0; i < argv.length; i++) {
 }
 function usage(problem) {
   console.error(
-    `${problem ? problem + '\n' : ''}Usage: generate.mjs <source-key> --owox-com <dir> --data-marts <dir> [--check] [--out <dir>] [--explore-base <url>] [--allow-unpinned]\n` +
+    `${problem ? problem + '\n' : ''}Usage: generate.mjs <source-key> --owox-com <dir> (--data-marts <dir> | --manifest <file>) [--check] [--out <dir>] [--explore-base <url>] [--allow-unpinned]\n` +
       '  <source-key> is the folder name under collections/portfolio-management-data-source/ (google-ads).',
   )
   process.exit(2)
@@ -52,13 +55,15 @@ function usage(problem) {
 if (positional.length !== 1) usage(positional.length ? `Expected one source key, got ${positional.join(', ')}.` : '')
 const key = positional[0]
 const owoxCom = opts['--owox-com'] ?? process.env.OWOX_COM_DIR
-const dataMarts = opts['--data-marts'] ?? process.env.OWOX_DATA_MARTS_DIR
+const manifestPath = opts['--manifest']
+const dataMarts = manifestPath ? undefined : (opts['--data-marts'] ?? process.env.OWOX_DATA_MARTS_DIR)
+if (manifestPath && opts['--data-marts']) usage('Pass --data-marts or --manifest, not both: a source is read from one of them.')
 const check = opts['--check'] === true
 const allowUnpinned = opts['--allow-unpinned'] === true
 const exploreBase = (opts['--explore-base'] ?? 'https://github.com/OWOX/models/tree/main/bundles/sources').replace(/\/+$/, '')
 const outRoot = resolve(opts['--out'] ?? join(REPO, 'bundles/sources'))
 
-if (!owoxCom || !dataMarts) usage('Both --owox-com and --data-marts are needed (or OWOX_COM_DIR and OWOX_DATA_MARTS_DIR).')
+if (!owoxCom || (!dataMarts && !manifestPath)) usage('--owox-com and one of --data-marts or --manifest are needed (OWOX_COM_DIR and OWOX_DATA_MARTS_DIR work in place of the first two).')
 
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'))
 const fail = (msg) => {
@@ -72,8 +77,12 @@ if (!existsSync(join(sourceDir, 'item.json'))) fail(`No ${join(sourceDir, 'item.
 const item = readJson(join(sourceDir, 'item.json'))
 if (item.status !== 'Active') fail(`${key} is ${item.status}, not Active.`)
 if (!item.endpoints?.length) fail(`${key} has no endpoints, so there is no bundle to write.`)
-if (!item.repoCommitSha) fail(`${key}/item.json has no repoCommitSha to pin the sources to.`)
-const source = { key, name: item.name, sha: item.repoCommitSha, sourceCodeUrl: item.sourceCodeUrl }
+if (!manifestPath && !item.repoCommitSha) fail(`${key}/item.json has no repoCommitSha to pin the sources to. (A custom connector with a manifest is read with --manifest.)`)
+if (manifestPath && (item.repoCommitSha || item.sourceCodeUrl)) fail(`${key}/item.json has a repoCommitSha or sourceCodeUrl, so it is a connector in OWOX/owox-data-marts: read it with --data-marts, not --manifest.`)
+if (manifestPath && !item.docsUrl) fail(`${key}/item.json has no docsUrl, which a manifest source needs for its vendor link.`)
+const source = manifestPath
+  ? { key, name: item.name, sha: null, sourceCodeUrl: null, docsUrl: item.docsUrl }
+  : { key, name: item.name, sha: item.repoCommitSha, sourceCodeUrl: item.sourceCodeUrl }
 
 // Endpoint folders are named by slug, with a uuid suffix when two sources share a name
 // (campaigns-39111505-...), so they are found by collectionItemUuid, not by name.
@@ -85,38 +94,52 @@ for (const d of readdirSync(endpointRoot, { withFileTypes: true })) {
   if (existsSync(f)) folderByUuid.set(readJson(f).collectionItemUuid, join(endpointRoot, d.name))
 }
 
-// 2. uniqueKeys from the connector, read at the commit the item pins.
-const connectorName = item.sourceCodeUrl.replace(/\/+$/, '').split('/').pop()
-if (!/^[A-Za-z0-9_]+$/.test(connectorName)) fail(`${key}/item.json: sourceCodeUrl does not end in a connector folder name: ${item.sourceCodeUrl}`)
-const connectorDir = join(resolve(dataMarts), 'packages/connectors/src/Sources', connectorName)
-if (!existsSync(connectorDir)) fail(`No ${connectorDir}. Is --data-marts a checkout of OWOX/owox-data-marts?`)
-const head = spawnSync('git', ['-C', resolve(dataMarts), 'rev-parse', 'HEAD'], { encoding: 'utf8' })
-if (head.status === 0) {
-  if (head.stdout.trim() !== source.sha && !allowUnpinned) {
-    fail(
-      `--data-marts is at ${head.stdout.trim().slice(0, 9)}, but ${key}/item.json pins connector commit ${source.sha.slice(0, 9)}: ` +
-        'the bundle would say one commit and hold the keys of another. Check out the pinned commit, or pass --allow-unpinned.',
-    )
-  }
-} else {
-  console.warn(`note: --data-marts is not a git checkout, so it cannot be verified to be at connector commit ${source.sha.slice(0, 9)}.`)
-}
-const schemaFiles = []
-const walk = (dir) => {
-  for (const d of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, d.name)
-    if (d.isDirectory()) walk(p)
-    else if (/FieldsSchema\.js$/.test(d.name)) schemaFiles.push(p)
-  }
-}
-walk(connectorDir)
-if (!schemaFiles.length) fail(`No *FieldsSchema.js under ${connectorDir}.`)
+// 2. uniqueKeys: from the connector's FieldsSchema files at the commit the item pins, or from a custom connector's manifest.
 const uniqueKeys = {}
-for (const f of schemaFiles.sort()) {
-  for (const [endpoint, keys] of Object.entries(parseUniqueKeys(readFileSync(f, 'utf8')))) {
-    if (endpoint in uniqueKeys) fail(`${relative(connectorDir, f)}: endpoint ${endpoint} declares uniqueKeys twice in ${connectorName}.`)
-    uniqueKeys[endpoint] = keys
+let keysFrom
+if (manifestPath) {
+  let manifest
+  try {
+    manifest = readJson(resolve(manifestPath))
+  } catch (e) {
+    fail(`Cannot read the manifest ${manifestPath}: ${e.message}`)
   }
+  if (!manifest.nodes || typeof manifest.nodes !== 'object') fail(`${manifestPath} has no "nodes" object.`)
+  for (const [node, def] of Object.entries(manifest.nodes)) if (def.uniqueKeys) uniqueKeys[node] = def.uniqueKeys
+  keysFrom = `manifest ${manifest.name} v${manifest.version}`
+} else {
+  const connectorName = item.sourceCodeUrl.replace(/\/+$/, '').split('/').pop()
+  if (!/^[A-Za-z0-9_]+$/.test(connectorName)) fail(`${key}/item.json: sourceCodeUrl does not end in a connector folder name: ${item.sourceCodeUrl}`)
+  const connectorDir = join(resolve(dataMarts), 'packages/connectors/src/Sources', connectorName)
+  if (!existsSync(connectorDir)) fail(`No ${connectorDir}. Is --data-marts a checkout of OWOX/owox-data-marts?`)
+  const head = spawnSync('git', ['-C', resolve(dataMarts), 'rev-parse', 'HEAD'], { encoding: 'utf8' })
+  if (head.status === 0) {
+    if (head.stdout.trim() !== source.sha && !allowUnpinned) {
+      fail(
+        `--data-marts is at ${head.stdout.trim().slice(0, 9)}, but ${key}/item.json pins connector commit ${source.sha.slice(0, 9)}: ` +
+          'the bundle would say one commit and hold the keys of another. Check out the pinned commit, or pass --allow-unpinned.',
+      )
+    }
+  } else {
+    console.warn(`note: --data-marts is not a git checkout, so it cannot be verified to be at connector commit ${source.sha.slice(0, 9)}.`)
+  }
+  const schemaFiles = []
+  const walk = (dir) => {
+    for (const d of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, d.name)
+      if (d.isDirectory()) walk(p)
+      else if (/FieldsSchema\.js$/.test(d.name)) schemaFiles.push(p)
+    }
+  }
+  walk(connectorDir)
+  if (!schemaFiles.length) fail(`No *FieldsSchema.js under ${connectorDir}.`)
+  for (const f of schemaFiles.sort()) {
+    for (const [endpoint, keys] of Object.entries(parseUniqueKeys(readFileSync(f, 'utf8')))) {
+      if (endpoint in uniqueKeys) fail(`${relative(connectorDir, f)}: endpoint ${endpoint} declares uniqueKeys twice in ${connectorName}.`)
+      uniqueKeys[endpoint] = keys
+    }
+  }
+  keysFrom = `connector commit ${source.sha.slice(0, 9)}`
 }
 
 const endpoints = item.endpoints.map((uuid) => {
@@ -173,5 +196,5 @@ for (const [n, text] of Object.entries(files)) writeFileSync(join(dest, n), text
 const fields = endpoints.reduce((n, e) => n + e.rows.length, 0)
 console.log(
   `wrote ${relative(REPO, dest)}: ${Object.keys(files).length} files, ${endpoints.length} tables, ${fields} fields, ${authored.joins.length} joins ` +
-    `(${changed.length} changed, ${stale.length} removed; pinned to connector commit ${source.sha.slice(0, 9)})`,
+    `(${changed.length} changed, ${stale.length} removed; keys from ${keysFrom})`,
 )

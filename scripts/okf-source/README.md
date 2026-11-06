@@ -7,6 +7,7 @@ like any other bundle here.
 ```bash
 pnpm okf:source google-ads --owox-com ../owox.com --data-marts ../owox-data-marts
 pnpm okf:source google-ads --owox-com ../owox.com --data-marts ../owox-data-marts --check   # write nothing; exit 1 if the files differ
+pnpm okf:source quickbooks --owox-com ../owox.com --manifest quickbooks-manifest.json         # a custom connector: keys from its manifest
 ```
 
 `--data-marts` must be a git checkout at the commit the Data Source item pins (`repoCommitSha`); the
@@ -23,6 +24,7 @@ bundle folder (an endpoint that no longer exists) are removed.
 | Data Source item | `--owox-com`: `collections/portfolio-management-data-source/<key>/item.json` | the name, its endpoints, `repoCommitSha` (every source link in the bundle is pinned to it) |
 | Endpoints | `--owox-com`: `collections/portfolio-management-endpoint/<folder>/item.json` + `schema.md` | the schema rows (field, type, description), `summary`, destination table, time series flag, vendor docs URL |
 | Unique keys | `--data-marts`: `packages/connectors/src/Sources/<Source>/**/*FieldsSchema.js` | each endpoint's `uniqueKeys`, written as the `PK.` rows |
+| Unique keys, custom connector | `--manifest <file>` in place of `--data-marts`: the connector manifest's `nodes.<endpoint key>.uniqueKeys` | the same keys for a source with no FieldsSchema file (QuickBooks). Its Data Source item has no `repoCommitSha`, so the bundle carries no pinned connector link, only the vendor's |
 | Authored file | `scripts/okf-source/sources/<key>.json` | the model description, each endpoint's description and 2 to 3 example questions, the joins |
 
 ## Generated, and authored
