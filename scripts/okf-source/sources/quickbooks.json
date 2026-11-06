@@ -1,0 +1,917 @@
+{
+  "vendorName": "Intuit QuickBooks Online Accounting API",
+  "description": "What the OWOX Data Marts QuickBooks Online connector loads from Intuit, and how the tables fit together.\nEverything belongs to one company file: every table carries `realm_id`, Intuit's company id, and joins to\n[Company info](./company-info.md) on it.\n\nThe chart of accounts is the spine. Sales transactions ([Invoices](./invoices.md), [Sales receipts](./sales-receipts.md),\n[Credit memos](./credit-memos.md), [Refund receipts](./refund-receipts.md)) hang off [Customers](./customers.md) and settle\nthrough [Payments](./payments.md) and [Deposits](./deposits.md); purchase transactions ([Bills](./bills.md), [Bill payments](./bill-payments.md),\n[Purchases](./purchases.md)) hang off [Vendors](./vendors.md); both sides post to [Accounts](./accounts.md). [Items](./items.md)\ncarry the income and expense accounts that turn line items into margin. Line arrays stay as JSON (`line`) and unnest in SQL.\n\nThe eight report tables are dated snapshots of what QuickBooks itself computes (Profit and Loss, Balance Sheet, Cash Flow,\nA/R and A/P aging, vendor expenses, general ledger detail, sales by customer). Their value is the reconciliation: rebuild\nthe P&L from the transaction tables and compare it with the report for the same period. [Invoice changes](./invoice-changes-cdc-incl-deletes.md)\nis the change-data-capture feed that also surfaces hard deletes, which the query endpoint never returns.\n\nDefinitions follow connector version 3 (2026-11-05) on the Intuit Accounting API v3, minorversion 75.",
+  "questions": [
+    "How much cash is on hand against the bills due this month, once bank `accounts`, open `bills` and overdue `invoices` are joined?",
+    "Which `customers` are overdue, by how much and for how long, and how long do they usually take to pay?",
+    "Does the profit and loss rebuilt from `invoices`, `bills` and `purchases` match the report QuickBooks produces for the same months, and where does it differ?"
+  ],
+  "endpoints": {
+    "A/P Aging Summary report": {
+      "description": "A/P Aging Summary: what the company owes each vendor, split into aging buckets, as of the report date.",
+      "questions": [
+        "How much do we owe, in which aging bucket, by vendor?",
+        "Which vendor balances are past 60 days?"
+      ]
+    },
+    "A/R Aging Summary report": {
+      "description": "A/R Aging Summary: what each customer owes, split into current, 1–30, 31–60, 61–90 and over-90-day buckets, as of the report date.",
+      "questions": [
+        "How much is owed to us, in which aging bucket, by customer?",
+        "Which customers slipped from 1–30 days into 31–60 days this month?"
+      ]
+    },
+    "Accounts": {
+      "description": "The chart of accounts: every bank, receivable, payable, income, expense and equity account with its type, classification, parent and current balance. The spine every transaction posts to. A sub-account names its parent account in `parent_id`; that self-reference is not drawn as a join.",
+      "questions": [
+        "How is the chart of accounts structured, and which accounts are sub-accounts of which?",
+        "What is the current balance of every bank and credit-card account, and how much sits in Accounts Receivable and Payable?",
+        "Which accounts are inactive but still hold a balance?"
+      ]
+    },
+    "Balance Sheet report": {
+      "description": "The Balance Sheet as QuickBooks computes it: assets, liabilities and equity at each period end, one snapshot per period.",
+      "questions": [
+        "What are assets, liabilities and equity at each month end?",
+        "How did cash, receivables and payables move month over month?"
+      ]
+    },
+    "Bill payments": {
+      "description": "Payments made against bills, by check or credit card, with the vendor and the accounts involved.",
+      "questions": [
+        "How much was paid to vendors per month, by check and by card?",
+        "Which bills are still unpaid after their due date?"
+      ]
+    },
+    "Bills": {
+      "description": "What the company owes vendors: one row per bill with vendor, dates, total, open balance and expense or item lines as JSON. The payable side of the business.",
+      "questions": [
+        "How much do we owe each vendor, and which bills are overdue?",
+        "What are monthly expenses by vendor and by expense line?",
+        "What is the average time from bill date to payment?"
+      ]
+    },
+    "Cash Flow report": {
+      "description": "The Statement of Cash Flows as QuickBooks computes it, one snapshot per period.",
+      "questions": [
+        "How much cash did operations, investing and financing generate each period?",
+        "Is operating cash flow tracking net income?"
+      ]
+    },
+    "Company info": {
+      "description": "The company file itself: legal and trading name, country, base currency and fiscal-year start. One row per QuickBooks company; every other table joins to it on `realm_id`.",
+      "questions": [
+        "Which company and fiscal-year start do these books belong to, and in what base currency?",
+        "Has the company name or address changed since the last load?"
+      ]
+    },
+    "Credit memos": {
+      "description": "Credit given back to a customer, to be applied against invoices.",
+      "questions": [
+        "How much revenue was credited back per customer and month, and against which invoices?",
+        "Which customers receive credit memos repeatedly?"
+      ]
+    },
+    "Customers": {
+      "description": "Everyone the company sells to, including sub-customers and projects, with open balance, terms, currency and billing address. A sub-customer or project names its parent customer in `parent_id`; that self-reference is not drawn as a join.",
+      "questions": [
+        "Which `customers` owe money right now, and how much is on sub-customer projects?",
+        "How many active customers were added each month, and from which parent accounts?",
+        "Which customers are taxable and on which sales terms?"
+      ]
+    },
+    "Deposits": {
+      "description": "Bank deposits, including the ones that group undeposited customer payments, with the account deposited to.",
+      "questions": [
+        "How much was deposited per bank account each month, and how much came from Undeposited Funds?",
+        "Which deposits included cash back, and to which account?"
+      ]
+    },
+    "General Ledger Detail report": {
+      "description": "Every posting to every account in the period, as QuickBooks reports it. The audit trail behind the summary reports.",
+      "questions": [
+        "Which transactions posted to a given account in the period?",
+        "Do the ledger totals reconcile with the transaction tables?"
+      ]
+    },
+    "Invoice changes (CDC, incl. deletes)": {
+      "description": "Change feed for invoices: every invoice created, updated or deleted since the last run, with deleted ones marked. The only way to see hard deletes, which the query endpoint never returns.",
+      "questions": [
+        "Which invoices were created, changed or deleted since the last run?",
+        "Which deleted invoices still appear in older extracts?"
+      ]
+    },
+    "Invoices": {
+      "description": "Sales on credit: one row per invoice with customer, dates, total, open balance and the line items as JSON. The receivable side of the business.",
+      "questions": [
+        "How much was invoiced per month, per customer and per sales term?",
+        "Which invoices are overdue, by how many days, and what balance is open on each?",
+        "How long do customers take to pay, from `txn_date` to the linked payment?"
+      ]
+    },
+    "Items": {
+      "description": "Products and services sold or bought, with price, cost, quantity on hand and the income and expense accounts each one posts to. Joining items to invoice lines turns revenue into margin. A sub-item names its parent item in `parent_id`; that self-reference is not drawn as a join.",
+      "questions": [
+        "Which products and services sell most by quantity and by revenue?",
+        "What is the margin per item once its income and expense accounts are joined?",
+        "Which inventory items are below their reorder point?"
+      ]
+    },
+    "Journal entries": {
+      "description": "Manual accounting entries: adjusting, accrual and reclassification postings, with their debit and credit lines as JSON.",
+      "questions": [
+        "Which manual adjustments were posted each month, and to which accounts?",
+        "How large are adjusting entries relative to transactional activity?"
+      ]
+    },
+    "Payments": {
+      "description": "Money received from customers and how it was applied to invoices. The `line` JSON names the invoices each payment settles.",
+      "questions": [
+        "How much cash came in per month, by payment method and deposit account?",
+        "Which payments are unapplied or only partly applied to invoices?",
+        "Which customers pay late most often?"
+      ]
+    },
+    "Preferences": {
+      "description": "How the company keeps its books: accrual or cash basis, whether classes, departments and multicurrency are on, default accounts and terms. One row per company.",
+      "questions": [
+        "Does this company run on accrual or cash accounting, and does it track classes, departments and multicurrency?",
+        "Which default accounts and sales terms do new transactions pick up?"
+      ]
+    },
+    "Profit and Loss report": {
+      "description": "The Profit and Loss report as QuickBooks computes it, one dated snapshot per period with the report rows as JSON. The reference the transaction tables are reconciled against.",
+      "questions": [
+        "What were revenue, cost of sales and net income per month, as QuickBooks reports them?",
+        "Does the P&L rebuilt from invoices, bills and purchases match the report, and where does it differ?"
+      ]
+    },
+    "Purchases": {
+      "description": "Expenses paid directly, without a bill: cash, check or card purchases with the account paid from and the payee. `entity_id` names the payee, and `entity_type` says whether it is a vendor, customer or employee; because ids are only unique per type, it is not drawn as a join to Vendors.",
+      "questions": [
+        "What was spent directly, without a bill, by account and payee each month?",
+        "Which vendors are paid mostly by card versus check?"
+      ]
+    },
+    "Refund receipts": {
+      "description": "Money returned to a customer from a bank or credit-card account.",
+      "questions": [
+        "How much was refunded per month and from which account?",
+        "Which items or customers drive refunds?"
+      ]
+    },
+    "Sales by Customer report": {
+      "description": "Sales per customer for the period, as QuickBooks reports it.",
+      "questions": [
+        "Which customers generated the most sales in the period?",
+        "How concentrated is revenue among the top customers?"
+      ]
+    },
+    "Sales receipts": {
+      "description": "Sales paid at the time of sale, without an invoice: customer, items, total and the account the money went to.",
+      "questions": [
+        "How much point-of-sale revenue arrived without an invoice, by month and payment method?",
+        "Which items sell most through sales receipts versus invoices?"
+      ]
+    },
+    "Transfers": {
+      "description": "Money moved between the company's own accounts, bank to bank or bank to credit card.",
+      "questions": [
+        "How much moved between bank and credit-card accounts each month?",
+        "Which transfers fund credit-card payments?"
+      ]
+    },
+    "Vendor Expenses report": {
+      "description": "Spend per vendor for the period, as QuickBooks reports it.",
+      "questions": [
+        "Which vendors account for most of the spend in the period?",
+        "How did spend per vendor change versus the previous period?"
+      ]
+    },
+    "Vendors": {
+      "description": "Everyone the company buys from, with open payable balance, terms and currency.",
+      "questions": [
+        "Which `vendors` do we owe, and how much per vendor?",
+        "How many vendors have been added or deactivated this year?"
+      ]
+    }
+  },
+  "joins": [
+    {
+      "from": "A/P Aging Summary report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "A/R Aging Summary report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Accounts",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Every table carries the company id.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Balance Sheet report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Bill payments",
+      "to": "Vendors",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "vendor_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The vendor the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPayment.php, VendorRef: \"Identifies the party or organization that originated the purchase of the goods, services or BillPayment.\")"
+    },
+    {
+      "from": "Bill payments",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "ap_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the row refers to.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPayment.php, APAccountRef: \"Optional AP account specification for bill payment transactions.\")"
+    },
+    {
+      "from": "Bill payments",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "check_bank_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Bank account for a check payment.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCheck.php, BankAccountRef: a reference to an account; the SDK gives it no description text)"
+    },
+    {
+      "from": "Bill payments",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "credit_card_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Credit card account for a card payment.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCreditCard.php, CCAccountRef: a reference to an account; the SDK gives it no description text)"
+    },
+    {
+      "from": "Bill payments",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Bills",
+      "to": "Vendors",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "vendor_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The vendor the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/bill (Intuit SDK IPPPurchaseByVendor.php, VendorRef: \"Specifies the vendor reference for this transaction\")"
+    },
+    {
+      "from": "Bills",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "ap_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Accounts Payable account the bill posts to.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/bill (Intuit SDK IPPPurchaseByVendor.php, APAccountRef: \"Specifies which AP account the bill will be credited to.\")"
+    },
+    {
+      "from": "Bills",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Cash Flow report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Credit memos",
+      "to": "Customers",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "customer_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The customer the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/creditmemo (Intuit SDK IPPSalesTransaction.php, CustomerRef: \"Reference to a Customer or job.\")"
+    },
+    {
+      "from": "Credit memos",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Customers",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Deposits",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "deposit_to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the row refers to.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPDeposit.php, DepositToAccountRef: \"Identifies the Asset Account (bank account) to be used for this Deposit.\")"
+    },
+    {
+      "from": "Deposits",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "cash_back_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Only when cash back was taken.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPCashBackInfo.php, AccountRef: \"Identifies the Asset Account (bank account) to be used for this Cash back.\")"
+    },
+    {
+      "from": "Deposits",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "General Ledger Detail report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Invoice changes (CDC, incl. deletes)",
+      "to": "Invoices",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Several change rows per invoice; a row with status Deleted has no live counterpart.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/changedatacapture; the connector manifest (quickbooks-manifest.json v1.1): node cdc_invoice reads entities=Invoice, id from Id; payload: \"Whole object as JSON (CDC returns the full payload, so the main node's columns can be re-derived).\""
+    },
+    {
+      "from": "Invoice changes (CDC, incl. deletes)",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Invoices",
+      "to": "Customers",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "customer_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The customer the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/invoice (Intuit SDK IPPSalesTransaction.php, CustomerRef: \"Reference to a Customer or job.\")"
+    },
+    {
+      "from": "Invoices",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "deposit_to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Set only when the invoice carries a deposit.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/invoice (Intuit SDK IPPSalesTransaction.php, DepositToAccountRef: \"Asset account where the payment money is deposited. If you do not specify this account, QBO uses the Undeposited Funds account.\")"
+    },
+    {
+      "from": "Invoices",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Items",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Items",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "income_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Where sales of the item are booked.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, IncomeAccountRef: \"Reference to the posting account, that is, the account that records the proceeds from the sale of this item.\")"
+    },
+    {
+      "from": "Items",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "expense_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Where purchases of the item are booked (COGS for inventory).",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, ExpenseAccountRef: \"Reference to the expense account used to pay the vendor for this item.\")"
+    },
+    {
+      "from": "Journal entries",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Debit and credit lines, each with its account, sit in line as JSON.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Payments",
+      "to": "Customers",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "customer_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The customer the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/payment (Intuit SDK IPPPayment.php, CustomerRef: \"Represents Customer (or Job) Reference\")"
+    },
+    {
+      "from": "Payments",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "deposit_to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Bank or Undeposited Funds account the payment landed in.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/payment (Intuit SDK IPPPayment.php, DepositToAccountRef: \"Optional asset account specification to designate the account the payment money needs to be deposited to.\")"
+    },
+    {
+      "from": "Payments",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Preferences",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "1:1",
+      "note": "The company these preferences belong to; one row each.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Profit and Loss report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Purchases",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Bank, credit card or cash account paid from.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/purchase (Intuit SDK IPPPurchase.php, AccountRef: \"Specifies the account reference. Check should have bank account, CreditCard should specify credit card account\")"
+    },
+    {
+      "from": "Purchases",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Refund receipts",
+      "to": "Customers",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "customer_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The customer the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/refundreceipt (Intuit SDK IPPSalesTransaction.php, CustomerRef: \"Reference to a Customer or job.\")"
+    },
+    {
+      "from": "Refund receipts",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "deposit_to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "Account the refund was paid from.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/refundreceipt (Intuit SDK IPPSalesTransaction.php, DepositToAccountRef: \"Asset account where the payment money is deposited. If you do not specify this account, QBO uses the Undeposited Funds account.\")"
+    },
+    {
+      "from": "Refund receipts",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Sales by Customer report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Sales receipts",
+      "to": "Customers",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "customer_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The customer the document is for.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/salesreceipt (Intuit SDK IPPSalesTransaction.php, CustomerRef: \"Reference to a Customer or job.\")"
+    },
+    {
+      "from": "Sales receipts",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "deposit_to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the sale was deposited to; Undeposited Funds when none was chosen.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/salesreceipt (Intuit SDK IPPSalesTransaction.php, DepositToAccountRef: \"Asset account where the payment money is deposited. If you do not specify this account, QBO uses the Undeposited Funds account.\")"
+    },
+    {
+      "from": "Sales receipts",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Transfers",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "from_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the money moved from.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, FromAccountRef: \"Must be a Balance Sheet account.\")"
+    },
+    {
+      "from": "Transfers",
+      "to": "Accounts",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ],
+        [
+          "to_account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the money moved to.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, ToAccountRef: \"Must be a Balance Sheet account.\")"
+    },
+    {
+      "from": "Transfers",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Vendor Expenses report",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    },
+    {
+      "from": "Vendors",
+      "to": "Company info",
+      "on": [
+        [
+          "realm_id",
+          "realm_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The company the row belongs to.",
+      "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
+    }
+  ]
+}
