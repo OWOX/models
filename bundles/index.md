@@ -22,8 +22,8 @@ Generated 2026-10-20T20:05:44Z.
 - [Marketing Leadgen](./marketing-leadgen/index.md) — 9 concept(s)
 - [Marketplace](./marketplace/index.md) — 8 concept(s)
 - [MeasureCamp](./measurecamp/index.md) — 11 concept(s)
+- [QuickBooks Online](./quickbooks/index.md) — 26 concept(s)
 - [Retail Chain](./retail-chain/index.md) — 10 concept(s)
 - [SaaS](./saas/index.md) — 10 concept(s)
 - [SEO](./seo/index.md) — 18 concept(s)
 - [Trading](./trading/index.md) — 8 concept(s)
-
