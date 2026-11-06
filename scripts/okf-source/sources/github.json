@@ -1,0 +1,36 @@
+{
+  "vendorName": "GitHub REST API",
+  "description": "What the OWOX Data Marts GitHub connector loads about one repository: its details, a daily count of stars and contributors, and its contributors. The connector is configured with one repository in the form `owner/repo`, so every table describes that single repository.\n\nThe three tables share no key. [Repository Information](./repository-information.md) holds the repository's own `id`, but neither [Repository Statistics](./repository-statistics.md) nor [Repository Contributors](./repository-contributors.md) repeats it, so the tables are not joined here. To follow several repositories, load each into its own tables and combine them in the data warehouse. Contributors are read in one page of up to 1,000, so a repository with more has an incomplete list.",
+  "questions": [
+    "How have stars and contributors grown, day by day?",
+    "Who contributes most to the repository, and are they people or bots?",
+    "Which license, language and default branch does the repository have, and how active is it (open issues, last push)?"
+  ],
+  "endpoints": {
+    "Repository Information": {
+      "description": "One row for the repository: its `id`, name, full name, owner, URLs, description, language, license, visibility, default branch, feature switches (issues, wiki, pages, discussions, projects), flags (private, fork, archived, disabled, template) and counters: stars, watchers, forks, open issues, network count, subscribers and size.\n\nThe counters are as of the run, not a history; the daily history of stars and contributors is in Repository Statistics. `forks`, `open_issues` and `watchers` repeat `forks_count`, `open_issues_count` and `watchers_count`, as GitHub returns them.",
+      "questions": [
+        "What are the repository's language, license, visibility and default branch?",
+        "How many stars, forks, watchers and open issues does it have now?",
+        "When was it created, last updated and last pushed to, and is it archived?"
+      ]
+    },
+    "Repository Statistics": {
+      "description": "One row per run: the `date` the connector ran, the number of stars (`stars`) and the number of contributors (`contributors`) the repository had that day. GitHub does not return a history of these counts, so the history exists only for the days the connector has run; a day it did not run has no row.\n\nThe `contributors` count is the length of the first page of up to 1,000 contributors, so it stops at 1,000.",
+      "questions": [
+        "How many stars did the repository gain per week?",
+        "On which days did the contributor count change?",
+        "What is the star growth over the last 90 days?"
+      ]
+    },
+    "Repository Contributors": {
+      "description": "One row per contributor the GitHub API lists for the repository: login, user `id`, profile and avatar URLs, `type` (User or Bot), whether the person is a site admin and the number of `contributions`. It lists the first page of up to 1,000 contributors, ordered by GitHub.\n\nThe table does not repeat the repository, so it describes the one repository the connector is configured for.",
+      "questions": [
+        "Who are the top ten contributors by contributions?",
+        "What share of contributions comes from bots?",
+        "How many contributors have made only one contribution?"
+      ]
+    }
+  },
+  "joins": []
+}
