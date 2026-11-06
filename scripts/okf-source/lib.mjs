@@ -17,6 +17,8 @@ export const TYPE_MAP = {
   DATE: 'DATE',
   TIMESTAMP: 'TIMESTAMP',
   ARRAY: 'JSON',
+  OBJECT: 'JSON',
+  DATETIME: 'DATETIME',
 }
 
 /** The canvas's file name for a mart: title lowercased, runs of other characters -> one hyphen (packages/okf/src/slug.ts). */
@@ -63,12 +65,16 @@ export function parseSchemaMd(text, where = 'schema.md') {
  */
 export function parseUniqueKeys(js) {
   const out = {}
-  const heads = [...js.matchAll(/^ {2}([A-Za-z_][\w]*):\s*\{/gm)]
+  // Endpoint keys sit at the shallowest indent that opens an object (2 or 4 spaces, bare or quoted,
+  // and may hold `-` or `/`, e.g. "ad-account/adcreatives"); deeper objects such as `parameters` are not endpoints.
+  const all = [...js.matchAll(/^( +)["']?([A-Za-z_][\w/-]*)["']?:\s*\{/gm)]
+  const indent = Math.min(...all.map((m) => m[1].length))
+  const heads = all.filter((m) => m[1].length === indent)
   heads.forEach((m, i) => {
     const end = i + 1 < heads.length ? heads[i + 1].index : js.length
     const block = js.slice(m.index, end)
-    const keys = block.match(/uniqueKeys:\s*\[([^\]]*)\]/)
-    if (keys) out[m[1]] = [...keys[1].matchAll(/['"]([^'"]+)['"]/g)].map((k) => k[1])
+    const keys = block.match(/["']?uniqueKeys["']?:\s*\[([^\]]*)\]/)
+    if (keys) out[m[2]] = [...keys[1].matchAll(/['"]([^'"]+)['"]/g)].map((k) => k[1])
   })
   return out
 }

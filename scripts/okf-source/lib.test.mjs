@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildModel, parseSchemaMd, parseUniqueKeys, pinned, renderBundle, slugify } from './lib.mjs'
+import { TYPE_MAP, buildModel, parseSchemaMd, parseUniqueKeys, pinned, renderBundle, slugify } from './lib.mjs'
 
 const SCHEMA = `| Field | Type | Description |
 | --- | --- | --- |
@@ -9,6 +9,12 @@ const SCHEMA = `| Field | Type | Description |
 `
 
 describe('parseSchemaMd', () => {
+  it('maps OBJECT to JSON and DATETIME to DATETIME', () => {
+    const t = '| Field | Type | Description |\n| --- | --- | --- |\n| a | OBJECT | x |\n| b | DATETIME | y |\n'
+    expect(parseSchemaMd(t).map((r) => r.type)).toEqual(['OBJECT', 'DATETIME'])
+    expect(TYPE_MAP.OBJECT).toBe('JSON')
+    expect(TYPE_MAP.DATETIME).toBe('DATETIME')
+  })
   it('reads rows, keeps an escaped pipe in a description', () => {
     expect(parseSchemaMd(SCHEMA)).toEqual([
       { column: 'id', type: 'STRING', description: 'Campaign ID' },
@@ -37,6 +43,36 @@ describe('parseUniqueKeys', () => {
   }
 };`
     expect(parseUniqueKeys(js)).toEqual({ campaigns: ['campaign_id'], geo_stats: ['campaign_id', 'country_criterion_id', 'date'] })
+  })
+  it('reads connectors that quote their endpoint and property names (JSON-style)', () => {
+    const js = `var S = {
+  "adCampaigns": {
+    "fields": adCampaignFields,
+    "uniqueKeys": ["id"],
+  },
+  'adAnalytics': {
+    'uniqueKeys': ['dateRangeStart', 'dateRangeEnd', 'pivotValues'],
+  },
+};`
+    expect(parseUniqueKeys(js)).toEqual({ adCampaigns: ['id'], adAnalytics: ['dateRangeStart', 'dateRangeEnd', 'pivotValues'] })
+  })
+  it('reads keys with - or /, a 4-space indent, and ignores nested objects', () => {
+    const js = `var S = {
+    "ad-account/adcreatives": {
+        "fields": f,
+        'uniqueKeys': ["id"],
+        "parameters": {
+            "level": { "x": 1 },
+        },
+    },
+    "ad-account/insights": {
+        "parameters": {
+            "a": { "b": 1 },
+        },
+        "uniqueKeys": ["ad_id", "date_start"],
+    },
+};`
+    expect(parseUniqueKeys(js)).toEqual({ 'ad-account/adcreatives': ['id'], 'ad-account/insights': ['ad_id', 'date_start'] })
   })
 })
 

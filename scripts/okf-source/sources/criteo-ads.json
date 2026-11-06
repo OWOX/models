@@ -1,0 +1,44 @@
+{
+  "vendorName": "Criteo Marketing Solutions API",
+  "description": "What the OWOX Data Marts Criteo Ads connector loads, and how the pieces fit together. The connector loads four reports, all time series and all requested one day at a time for each advertiser, in UTC and in one report currency set in the connector (USD by default): [Statistics](./statistics.md), the campaign report with the most metrics; [Placements](./placements.md), performance by publisher placement; [Placement Categories](./placement-categories.md), performance by the content category of the page; and [Transactions](./transactions.md), the individual transactions with their attribution flag.\n\nThere are no tables of campaigns, adsets or advertisers, only these reports, and they sit at different levels. Statistics is keyed by campaign, adset, ad and day, Placements by adset, placement, environment and day, Placement Categories by category and day, and Transactions by transaction. Each repeats the advertiser ID, but none of them is a parent of another, so this bundle draws no joins. Compare the tables on `advertiserId` and the day, and aggregate first.\n\nMetric names in Statistics follow the Criteo pattern of measure, optional `All` for cross-device, attribution model and lookback window: `SalesAllPc30d` is sales including cross-device, post-click, over 30 days, and `Pv24h` is post-view over 24 hours.",
+  "questions": [
+    "Which campaigns and adsets spend the most for the fewest attributed sales?",
+    "How do post-click and post-view sales compare, and how do their windows change the answer?",
+    "Which publisher placements and content categories bring the most clicks and sales?"
+  ],
+  "endpoints": {
+    "Statistics": {
+      "description": "Daily campaign statistics: displays, clicks, advertiser cost, visits, reach, and sales, revenue, average cart, conversion rate, cost of sale, cost per order and ROAS under each attribution model and lookback window, plus app install and omnichannel metrics. One row per `Day` and combination of the dimensions the connector is set to request, which at least are campaign, adset, ad and advertiser.\n\nThe columns are of two kinds. Dimensions are the identifiers and names (`Day`, `Campaign`, `CampaignId`, `Adset`, `AdsetId`, `Ad`, `AdId`, `Advertiser`, `AdvertiserId`, `Currency`) and the optional segments `Device`, `Os`, `Channel`, `Category`, `Coupon` and `MarketingObjective`. Metrics are the rest. Percentages are decimals between 0 and 1. `Currency` is the currency of the advertiser cost.",
+      "questions": [
+        "What did each campaign spend and how many displays and clicks did it get per day?",
+        "Which adsets have the best 30-day post-click ROAS, and what do they cost?",
+        "How do post-click 30-day sales and post-view 24-hour sales compare per campaign?"
+      ]
+    },
+    "Placements": {
+      "description": "Daily performance by publisher placement: clicks, displays and cost, with sales, revenue, cost of sale, ROAS, cost per order and conversion rate under a 30-day post-click and a 1-day post-view window. One row per advertiser, adset, `environment` (Web, Android or iOS), `placement` and `day`.\n\nThe connector requests it from the Criteo placements report, and the `day` column is filled in from the date it requested. The table has no currency column and no campaign or ad ID: amounts come in the report currency set in the connector, and the adset is the lowest level.",
+      "questions": [
+        "Which placements spend the most, and what 30-day post-click revenue do they return?",
+        "How do cost and ROAS differ between Web, Android and iOS?",
+        "Which adsets have placements with high displays but no clicks?"
+      ]
+    },
+    "Placement Categories": {
+      "description": "Daily performance by the content category of the publisher page where the ad was served: displays, clicks, and sales under a 30-day post-click and a 1-day post-view window. One row per advertiser, `categoryId` and `day`.\n\nThe category is the IAB content category of the page, named in `categoryName`. It is not the product category of the Statistics table. The connector reads it from the same Criteo placements report as Placements, with category dimensions, so it has neither adset nor cost columns.",
+      "questions": [
+        "Which content categories get the most displays and clicks?",
+        "Which categories have the most post-click 30-day sales per display?",
+        "How did clicks in a category change from day to day?"
+      ]
+    },
+    "Transactions": {
+      "description": "Transaction-level data: one row per transaction, with its date and amount, its currency, the adset name, the type of event that drove it (click or display) and that event's date, whether it was attributed to a Criteo ad, and whether it happened on a different device from the one where the ad was seen.\n\nThe table has the advertiser but no adset or campaign ID, only `adsetName`. `transactionDate` and `eventDate` are text in the form MM/DD/YYYY HH:MM:SS, and `attributedTransaction` and `crossDeviceTransaction` are text (\"True\" or \"False\", \"Yes\" or \"No\"), so convert them before filtering by date or flag.",
+      "questions": [
+        "How many attributed transactions were there per day, and what was their total amount?",
+        "Which adsets drove the largest total transaction amount?",
+        "What share of attributed transactions are cross-device, and are they driven by clicks or by displays?"
+      ]
+    }
+  },
+  "joins": []
+}

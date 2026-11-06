@@ -8,6 +8,10 @@ import { parseBundle, slugify, FIELD_TYPES } from "../src/index";
 // import cleanly: the canvas fetches index.md, follows its relative .md links and
 // hands the files to parseBundle, so that is what is checked here.
 const ROOT = fileURLToPath(new URL("../../../bundles/sources", import.meta.url));
+const AUTHORED = fileURLToPath(new URL("../../../scripts/okf-source/sources", import.meta.url));
+// A source whose vendor documentation confirms no join is bundled with `"joins": []`: the canvas then
+// draws its tables unlinked. The edges drawn must equal the joins authored, whether that is 0 or more.
+const authoredJoins = (key: string): number => JSON.parse(readFileSync(join(AUTHORED, `${key}.json`), "utf8")).joins.length;
 const keys = existsSync(ROOT) ? readdirSync(ROOT, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name) : [];
 
 function load(key: string): Record<string, string> {
@@ -43,7 +47,7 @@ describe.each(keys)("source bundle %s", key => {
   });
 
   it("every join lands on a mart in the bundle and uses fields both sides have", () => {
-    expect(graph.edges.length).toBeGreaterThan(0);
+    expect(graph.edges).toHaveLength(authoredJoins(key));
     const byKey = new Map(graph.nodes.map(n => [n.key, n]));
     for (const e of graph.edges) {
       const from = byKey.get(e.from)!, to = byKey.get(e.to)!;
@@ -71,7 +75,6 @@ describe.each(keys)("source bundle %s", key => {
   });
 
   it("carries each join's note where the canvas reads it", () => {
-    expect(graph.edges.length).toBeGreaterThan(0);
     for (const e of graph.edges) expect(e.description, `${e.from} -> ${e.to}`).toBeTruthy();
   });
 
