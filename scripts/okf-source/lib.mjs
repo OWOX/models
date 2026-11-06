@@ -59,7 +59,8 @@ export function parseSchemaMd(text, where = 'schema.md') {
 
 /**
  * `uniqueKeys` per endpoint out of a connector's `*FieldsSchema.js`.
- * The file is a JS object literal of endpoints, each `  name: { ... uniqueKeys: ['a', 'b'] ... }`;
+ * The file is a JS object literal of endpoints, each `  name: { ... uniqueKeys: ['a', 'b'] ... }`
+ * (the name and `uniqueKeys` may be quoted, and a name may hold hyphens or a slash: `"abandoned-checkouts"`, `"observations/group"`);
  * it is read as text because the file refers to field lists defined in sibling files.
  * Returns { endpointKey: ['a', 'b'] }; an endpoint without `uniqueKeys` is absent.
  */

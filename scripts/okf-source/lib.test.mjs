@@ -22,6 +22,10 @@ describe('parseSchemaMd', () => {
       { column: 'urls', type: 'ARRAY', description: 'Final URLs' },
     ])
   })
+  it('maps OBJECT to JSON', () => {
+    expect(parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| by_geo | OBJECT | x |\n')[0].type).toBe('OBJECT')
+    expect(TYPE_MAP.OBJECT).toBe('JSON')
+  })
   it('refuses a type it cannot map and a repeated field', () => {
     expect(() => parseSchemaMd(SCHEMA.replace('ARRAY', 'DECIMAL128'))).toThrow(/DECIMAL128/)
     expect(() => parseSchemaMd(SCHEMA + '| id | STRING | again |\n')).toThrow(/twice/)
@@ -73,6 +77,21 @@ describe('parseUniqueKeys', () => {
     },
 };`
     expect(parseUniqueKeys(js)).toEqual({ 'ad-account/adcreatives': ['id'], 'ad-account/insights': ['ad_id', 'date_start'] })
+  })
+  it('reads quoted names and keys, hyphens and slashes in a name', () => {
+    const js = `var S = {
+  "abandoned-checkouts": {
+    "fields": f,
+    "uniqueKeys": ["id"],
+  },
+  'observations/group': {
+    uniqueKeys: ["date", "label"],
+  },
+  'repositoryStats': {
+    uniqueKeys: ["date"],
+  },
+};`
+    expect(parseUniqueKeys(js)).toEqual({ 'abandoned-checkouts': ['id'], 'observations/group': ['date', 'label'], repositoryStats: ['date'] })
   })
 })
 
