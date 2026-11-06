@@ -25,5 +25,6 @@ Generated 2026-10-20T20:05:44Z.
 - [Retail Chain](./retail-chain/index.md) — 10 concept(s)
 - [SaaS](./saas/index.md) — 10 concept(s)
 - [SEO](./seo/index.md) — 18 concept(s)
+- [Stripe](./stripe/index.md) — 14 concept(s)
 - [Trading](./trading/index.md) — 8 concept(s)
 
