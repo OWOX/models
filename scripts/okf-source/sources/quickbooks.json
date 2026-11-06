@@ -280,42 +280,8 @@
         ]
       ],
       "cardinality": "N:1",
-      "note": "The account the row refers to.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPayment.php, APAccountRef: \"Optional AP account specification for bill payment transactions.\")"
-    },
-    {
-      "from": "Bill payments",
-      "to": "Accounts",
-      "on": [
-        [
-          "realm_id",
-          "realm_id"
-        ],
-        [
-          "check_bank_account_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "Bank account for a check payment.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCheck.php, BankAccountRef: a reference to an account; the SDK gives it no description text)"
-    },
-    {
-      "from": "Bill payments",
-      "to": "Accounts",
-      "on": [
-        [
-          "realm_id",
-          "realm_id"
-        ],
-        [
-          "credit_card_account_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "Credit card account for a card payment.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCreditCard.php, CCAccountRef: a reference to an account; the SDK gives it no description text)"
+      "note": "The Accounts Payable account the payment is booked against. `check_bank_account_id` (the bank account of a check payment) and `credit_card_account_id` (the card account of a card payment) also hold account ids, each joined to Accounts the same way.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPayment.php, APAccountRef: \"Optional AP account specification for bill payment transactions.\") | https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCheck.php, BankAccountRef: a reference to an account; the SDK gives it no description text) | https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/billpayment (Intuit SDK IPPBillPaymentCreditCard.php, CCAccountRef: a reference to an account; the SDK gives it no description text)"
     },
     {
       "from": "Bill payments",
@@ -447,25 +413,8 @@
         ]
       ],
       "cardinality": "N:1",
-      "note": "The account the row refers to.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPDeposit.php, DepositToAccountRef: \"Identifies the Asset Account (bank account) to be used for this Deposit.\")"
-    },
-    {
-      "from": "Deposits",
-      "to": "Accounts",
-      "on": [
-        [
-          "realm_id",
-          "realm_id"
-        ],
-        [
-          "cash_back_account_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "Only when cash back was taken.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPCashBackInfo.php, AccountRef: \"Identifies the Asset Account (bank account) to be used for this Cash back.\")"
+      "note": "The bank account the deposit went into. `cash_back_account_id` holds a second account id (cash back taken), joined to Accounts the same way.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPDeposit.php, DepositToAccountRef: \"Identifies the Asset Account (bank account) to be used for this Deposit.\") | https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/deposit (Intuit SDK IPPCashBackInfo.php, AccountRef: \"Identifies the Asset Account (bank account) to be used for this Cash back.\")"
     },
     {
       "from": "Deposits",
@@ -597,25 +546,8 @@
         ]
       ],
       "cardinality": "N:1",
-      "note": "Where sales of the item are booked.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, IncomeAccountRef: \"Reference to the posting account, that is, the account that records the proceeds from the sale of this item.\")"
-    },
-    {
-      "from": "Items",
-      "to": "Accounts",
-      "on": [
-        [
-          "realm_id",
-          "realm_id"
-        ],
-        [
-          "expense_account_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "Where purchases of the item are booked (COGS for inventory).",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, ExpenseAccountRef: \"Reference to the expense account used to pay the vendor for this item.\")"
+      "note": "The account where sales of the item are booked. `expense_account_id` holds the account where purchases of the item are booked (cost of goods for inventory), joined to Accounts the same way.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, IncomeAccountRef: \"Reference to the posting account, that is, the account that records the proceeds from the sale of this item.\") | https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item (Intuit SDK IPPItem.php, ExpenseAccountRef: \"Reference to the expense account used to pay the vendor for this item.\")"
     },
     {
       "from": "Journal entries",
@@ -854,25 +786,8 @@
         ]
       ],
       "cardinality": "N:1",
-      "note": "The account the money moved from.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, FromAccountRef: \"Must be a Balance Sheet account.\")"
-    },
-    {
-      "from": "Transfers",
-      "to": "Accounts",
-      "on": [
-        [
-          "realm_id",
-          "realm_id"
-        ],
-        [
-          "to_account_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the money moved to.",
-      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, ToAccountRef: \"Must be a Balance Sheet account.\")"
+      "note": "The account the money moved from. `to_account_id` holds the account it moved to, joined to Accounts the same way.",
+      "source": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, FromAccountRef: \"Must be a Balance Sheet account.\") | https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/transfer (Intuit SDK IPPTransfer.php, ToAccountRef: \"Must be a Balance Sheet account.\")"
     },
     {
       "from": "Transfers",

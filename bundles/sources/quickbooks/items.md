@@ -57,7 +57,5 @@ sources:
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
   - Description: The company the row belongs to.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `income_account_id = id` [N:1] — Where sales of the item are booked.
-  - Description: Where sales of the item are booked.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `expense_account_id = id` [N:1] — Where purchases of the item are booked (COGS for inventory).
-  - Description: Where purchases of the item are booked (COGS for inventory).
+- [Accounts](./accounts.md) — `realm_id = realm_id`, `income_account_id = id` [N:1] — The account where sales of the item are booked. `expense_account_id` holds the account where purchases of the item are booked (cost of goods for inventory), joined to Accounts the same way.
+  - Description: The account where sales of the item are booked. `expense_account_id` holds the account where purchases of the item are booked (cost of goods for inventory), joined to Accounts the same way.

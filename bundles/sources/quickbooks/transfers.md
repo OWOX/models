@@ -45,9 +45,7 @@ sources:
 
 ## Joins
 
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `from_account_id = id` [N:1] — The account the money moved from.
-  - Description: The account the money moved from.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `to_account_id = id` [N:1] — The account the money moved to.
-  - Description: The account the money moved to.
+- [Accounts](./accounts.md) — `realm_id = realm_id`, `from_account_id = id` [N:1] — The account the money moved from. `to_account_id` holds the account it moved to, joined to Accounts the same way.
+  - Description: The account the money moved from. `to_account_id` holds the account it moved to, joined to Accounts the same way.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
   - Description: The company the row belongs to.

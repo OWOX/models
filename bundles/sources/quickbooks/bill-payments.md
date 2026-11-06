@@ -54,11 +54,7 @@ sources:
 
 - [Vendors](./vendors.md) — `realm_id = realm_id`, `vendor_id = id` [N:1] — The vendor the document is for.
   - Description: The vendor the document is for.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `ap_account_id = id` [N:1] — The account the row refers to.
-  - Description: The account the row refers to.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `check_bank_account_id = id` [N:1] — Bank account for a check payment.
-  - Description: Bank account for a check payment.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `credit_card_account_id = id` [N:1] — Credit card account for a card payment.
-  - Description: Credit card account for a card payment.
+- [Accounts](./accounts.md) — `realm_id = realm_id`, `ap_account_id = id` [N:1] — The Accounts Payable account the payment is booked against. `check_bank_account_id` (the bank account of a check payment) and `credit_card_account_id` (the card account of a card payment) also hold account ids, each joined to Accounts the same way.
+  - Description: The Accounts Payable account the payment is booked against. `check_bank_account_id` (the bank account of a check payment) and `credit_card_account_id` (the card account of a card payment) also hold account ids, each joined to Accounts the same way.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
   - Description: The company the row belongs to.

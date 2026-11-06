@@ -50,9 +50,7 @@ sources:
 
 ## Joins
 
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `deposit_to_account_id = id` [N:1] — The account the row refers to.
-  - Description: The account the row refers to.
-- [Accounts](./accounts.md) — `realm_id = realm_id`, `cash_back_account_id = id` [N:1] — Only when cash back was taken.
-  - Description: Only when cash back was taken.
+- [Accounts](./accounts.md) — `realm_id = realm_id`, `deposit_to_account_id = id` [N:1] — The bank account the deposit went into. `cash_back_account_id` holds a second account id (cash back taken), joined to Accounts the same way.
+  - Description: The bank account the deposit went into. `cash_back_account_id` holds a second account id (cash back taken), joined to Accounts the same way.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
   - Description: The company the row belongs to.
