@@ -33,7 +33,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line array kept as JSON. Unnest in SQL: DetailType decides which *LineDetail object is present. |
+| `line` | JSON | Line array kept as JSON. Unnest in SQL: DetailType decides which \*LineDetail object is present. |
 | `payment_type` | STRING | Cash, Check or CreditCard. |
 | `account_id` | STRING | Bank or credit-card account the money left. |
 | `account_name` | STRING |  |

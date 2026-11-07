@@ -43,7 +43,7 @@ sources:
 | `check_print_status` | STRING |  |
 | `credit_card_account_id` | STRING |  |
 | `credit_card_account_name` | STRING |  |
-| `line` | JSON | Line[] as JSON; LinkedTxn[] {TxnId, TxnType=Bill} names the bills settled. |
+| `line` | JSON | Line\[\] as JSON; LinkedTxn\[\] {TxnId, TxnType=Bill} names the bills settled. |
 
 # Example Questions
 

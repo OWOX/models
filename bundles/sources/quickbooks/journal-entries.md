@@ -32,7 +32,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line[] as JSON; JournalEntryLineDetail has PostingType (Debit/Credit), AccountRef and optional Entity {Type, EntityRef}. |
+| `line` | JSON | Line\[\] as JSON; JournalEntryLineDetail has PostingType (Debit/Credit), AccountRef and optional Entity {Type, EntityRef}. |
 | `adjustment` | BOOLEAN |  |
 | `total_amt` | FLOAT | Sum of one side of the entry. |
 | `home_total_amt` | FLOAT |  |

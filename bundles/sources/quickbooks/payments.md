@@ -41,7 +41,7 @@ sources:
 | `payment_method_name` | STRING |  |
 | `payment_ref_num` | STRING | Check or reference number. |
 | `process_payment` | BOOLEAN |  |
-| `line` | JSON | Line[] as JSON; each line has Amount and LinkedTxn[] {TxnId, TxnType} pointing at the Invoice it settles. |
+| `line` | JSON | Line\[\] as JSON; each line has Amount and LinkedTxn\[\] {TxnId, TxnType} pointing at the Invoice it settles. |
 
 # Example Questions
 
