@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Facebook Ads · `ad-account/insights-by-product-id`
 - **Default destination table:** `facebook_ads_ad_account_insights_by_product_id`
 - **Unique keys:** `ad_id`, `date_start`, `date_stop`, `product_id`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

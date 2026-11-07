@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Facebook Ads · `ad-account/insights-by-publisher-platform-and-position`
 - **Default destination table:** `facebook_ads_ad_account_insights_by_publisher_platform_and_position`
 - **Unique keys:** `ad_id`, `date_start`, `date_stop`, `publisher_platform`, `platform_position`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

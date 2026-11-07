@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** LinkedIn Ads · `adAnalytics`
 - **Default destination table:** `linkedin_ads_ad_analytics`
 - **Unique keys:** `dateRangeStart`, `dateRangeEnd`, `pivotValues`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

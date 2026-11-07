@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Microsoft Ads · `ad_performance_report`
 - **Default destination table:** `microsoft_ads_ad_performance_report`
 - **Unique keys:** `AccountId`, `CampaignId`, `AdGroupId`, `AdId`, `TimePeriod`, `CurrencyCode`, `AdDistribution`, `DeviceType`, `DeviceOS`, `Network`, `TopVsOther`, `BidMatchType`, `DeliveredMatchType`, `Language`, `CampaignType`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

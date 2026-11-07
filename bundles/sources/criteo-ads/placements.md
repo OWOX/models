@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Criteo Ads · `placements`
 - **Default destination table:** `criteo_ads_placements`
 - **Unique keys:** `advertiserId`, `adsetId`, `day`, `environment`, `placement`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

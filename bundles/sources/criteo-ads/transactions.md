@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Criteo Ads · `transactions`
 - **Default destination table:** `criteo_ads_transactions`
 - **Unique keys:** `advertiserId`, `transactionId`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

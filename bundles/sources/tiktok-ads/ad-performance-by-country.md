@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** TikTok Ads · `ad_insights_by_country`
 - **Default destination table:** `tiktok_ads_ad_insights_by_country`
 - **Unique keys:** `ad_id`, `stat_time_day`, `country_code`, `advertiser_id`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 
