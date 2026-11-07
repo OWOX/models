@@ -118,6 +118,6 @@ sources:
 
 # Example Questions
 
-- How many people did each campaign reach, and how often did they see it?
+- How many people did each campaign reach on a given day, and how often did they see it?
 - Which campaigns have the highest spend for the lowest click-through rate?
 - How does spend per day change within each objective?

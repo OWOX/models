@@ -94,6 +94,21 @@ const base = () => ({
   },
 })
 
+describe('buildModel, OBJECT and DATETIME columns', () => {
+  it('renders them as JSON and DATETIME in the schema table', () => {
+    const b = base()
+    b.endpoints[1].rows = [
+      { column: 'id', type: 'STRING', description: 'id.' },
+      { column: 'parent_id', type: 'STRING', description: 'parent.' },
+      { column: 'spec', type: 'OBJECT', description: 'spec.' },
+      { column: 'created_at', type: 'DATETIME', description: 'created.' },
+    ]
+    const doc = renderBundle(buildModel(b), { svgPath: '../../res/screens/sources/x.svg', exploreUrl: 'https://model.owox.com/?okf=u' })['children.md']
+    expect(doc).toContain('| `spec` | JSON |')
+    expect(doc).toContain('| `created_at` | DATETIME |')
+  })
+})
+
 describe('buildModel', () => {
   it('builds, and renders the join on the child only', () => {
     const files = renderBundle(buildModel(base()), { svgPath: '../../res/screens/sources/x.svg', exploreUrl: 'https://model.owox.com/?okf=u' })

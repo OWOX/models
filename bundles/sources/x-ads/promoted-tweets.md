@@ -3,7 +3,7 @@ title: "Promoted Tweets"
 description: |
   One row per promoted tweet: the link that attaches a tweet to a line item. It holds the line item (`line_item_id`), the tweet (`tweet_id`), entity status, approval status, and created and updated times. It carries no text and no results.
 
-  The connector does not ask for deleted promoted tweets, and the X Ads docs say promoted tweets under a deleted line item are only returned on request, so those are not in the table. The performance tables are built from this table's `id` values: Ad Performance and Ad Performance by Country join here on `id`, and `tweet_id` leads to the tweet text in Tweets.
+  The connector does not ask for deleted promoted tweets, and the X Ads docs say promoted tweets under a deleted line item are only returned on request, so those are not in the table. The performance tables are built from this table's `id` values: Ad Performance and Ad Performance by Country join here on `id`, and `tweet_id` leads to the tweet text in Tweets: match it to Tweets' `tweet_id` or `id_str`, which are text like it.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -45,5 +45,3 @@ sources:
 
 - [Line Items](./line-items.md) — `line_item_id = id` [N:1] — The line item the tweet is promoted in.
   - Description: The line item the tweet is promoted in.
-- [Tweets](./tweets.md) — `tweet_id = id` [N:1] — The tweet that is promoted; tweet_id is text and the tweet id is a number, so cast one side.
-  - Description: The tweet that is promoted; tweet_id is text and the tweet id is a number, so cast one side.

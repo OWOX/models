@@ -28,7 +28,7 @@ bundle folder (an endpoint that no longer exists) are removed.
 ## Generated, and authored
 
 **Generated, never typed:** the `# Schema` rows and their types (`NUMBER` -> `NUMERIC`,
-`ARRAY` -> `JSON`, see `TYPE_MAP`), the primary keys, the endpoint facts, the index table,
+`ARRAY` and `OBJECT` -> `JSON`, `DATETIME` stays `DATETIME`, see `TYPE_MAP`; Meta and X datetimes carry a time-zone offset, which the connector's own type does not say, so the bundle keeps the connector's type), the primary keys, the endpoint facts, the index table,
 the file names.
 
 **Authored, by hand:** descriptions, questions and joins. The generator refuses to build when

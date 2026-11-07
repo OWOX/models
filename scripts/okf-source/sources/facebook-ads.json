@@ -1,10 +1,10 @@
 {
   "vendorName": "Meta Marketing API",
-  "description": "What the OWOX Data Marts Facebook Ads connector loads from the Meta Marketing API, and how the pieces fit together. A Meta ad account is a hierarchy: the account holds campaigns, campaigns hold ad sets, ad sets hold ads, and each ad runs one creative. The connector loads the account ([Ad Account](./ad-account.md), [Ad Account User](./ad-account-user.md)), the ads and their creatives as current-state tables ([Ads](./ads.md), [Ad](./ad.md), [Ad Creatives](./ad-creatives.md)), and daily performance as insights tables.\n\nIt loads no table of campaigns or ad sets. Their IDs and names travel as plain columns (`campaign_id`, `campaign_name`, `adset_id`, `adset_name`) on the ads and on the insights rows, so a campaign or an ad set is reached by grouping on those columns rather than by a join.\n\nPerformance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. Every ad-level insights table joins to [Ads](./ads.md) on `ad_id`, and Ads joins to [Ad Creatives](./ad-creatives.md) on `creative_id`.\n\nTwo cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values; take them from the ad set or campaign table. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.",
+  "description": "What the OWOX Data Marts Facebook Ads connector loads from the Meta Marketing API, and how the pieces fit together. A Meta ad account is a hierarchy: the account holds campaigns, campaigns hold ad sets, ad sets hold ads, and each ad runs one creative. The connector loads the account ([Ad Account](./ad-account.md), [Ad Account User](./ad-account-user.md)), the ads and their creatives as current-state tables ([Ads](./ads.md), [Ad](./ad.md), [Ad Creatives](./ad-creatives.md)), and daily performance as insights tables.\n\nIt loads no table of campaigns or ad sets. Their IDs and names travel as plain columns (`campaign_id`, `campaign_name`, `adset_id`, `adset_name`) on the ads and on the insights rows, so a campaign or an ad set is reached by grouping on those columns rather than by a join.\n\nPerformance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. Every ad-level insights table joins to [Ads](./ads.md) on `ad_id`, and Ads joins to [Ad Creatives](./ad-creatives.md) on `creative_id`.\n\nTwo cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.\n\nTwo links are described in words rather than drawn. Every table carries `account_id`, which matches [Ad Account](./ad-account.md), but Ad Account lists both `id` and `account_id` as its unique key and no other table holds the `act_`-prefixed `id`, so a join cannot cover its whole key; match on `account_id`. And [Ad](./ad.md) holds the same ads as [Ads](./ads.md) (both read the account's ads list in the connector), so it is matched on `id` rather than drawn.",
   "questions": [
     "Which campaigns spend the most for the fewest results, once spend is divided by results?",
     "Which creatives drive the cheapest conversions, once performance is joined to the creative each ad runs?",
-    "How many people did each campaign reach, and how often did they see the ads?"
+    "How many people did each campaign reach on a given day, and how often did they see the ads?"
   ],
   "endpoints": {
     "Ad Account": {
@@ -40,7 +40,7 @@
       ]
     },
     "Ad": {
-      "description": "The same ads as [Ads](./ads.md), read through Meta's ad reference (the API calls an ad an \"adgroup\"), with more fields: the review feedback, `tracking_specs`, the ad this one was copied from (`source_ad_id`), recommendations, and the creative's object story and asset group specs. One row per ad, keyed by `id`.\n\nBoth tables come from the account's ads list, so an ad has the same `id` in each. Start from Ads for names, status and the campaign and ad set IDs, and from this table when you need one of the extra fields.",
+      "description": "The same ads as [Ads](./ads.md), read through Meta's ad reference (the API calls an ad an \"adgroup\"), with more fields: the review feedback (`ad_review_feedback`), `tracking_specs`, the source ad object (`source_ad`; `source_ad_id` is in both tables), `recommendations`, the `adset` and `campaign` objects, and the creative's object story and asset group specs. One row per ad, keyed by `id`.\n\nBoth tables come from the account's ads list in the connector, so an ad has the same `id` in each; match them on `id`. Start from Ads for names, status and the campaign and ad set IDs, and from this table when you need one of the extra fields.",
       "questions": [
         "Which ads were copied from another ad (`source_ad_id` is set)?",
         "Which ads have review feedback or delivery issues?",
@@ -114,7 +114,7 @@
     "Ad Insights by Ad Set": {
       "description": "Daily performance per ad set: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per ad set per day, requested from Meta at the ad set level, so `reach` and `frequency` are deduplicated across the ad set's ads. The rows carry the ad set's `objective` and `optimization_goal`.\n\nThere is no `ad_id` and no table of ad sets or campaigns: the row repeats `campaign_id` and `campaign_name`, and the ad set is identified by `adset_id` and `adset_name`. For the ads inside an ad set, use [Ads](./ads.md) on `adset_id`, which is a plain column match. For one campaign's reach, use [Ad Insights by Campaign](./ad-insights-by-campaign.md).",
       "questions": [
-        "How many people did each ad set reach, and how often did they see it?",
+        "How many people did each ad set reach on a given day, and how often did they see it?",
         "Which optimization goals have the lowest cost per click?",
         "Which ad sets spend the most within each campaign?"
       ]
@@ -122,7 +122,7 @@
     "Ad Insights by Campaign": {
       "description": "Daily performance per campaign: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per campaign per day, requested from Meta at the campaign level, so `reach` and `frequency` are deduplicated across the campaign's ads and ad sets, which summing the ad-level tables cannot do.\n\nThere is no table of campaigns: the campaign is identified by `campaign_id` and `campaign_name` on the row, and it carries the campaign `objective` and `buying_type`. The ads in a campaign are in [Ads](./ads.md) on `campaign_id`, which is a plain column match.",
       "questions": [
-        "How many people did each campaign reach, and how often did they see it?",
+        "How many people did each campaign reach on a given day, and how often did they see it?",
         "Which campaigns have the highest spend for the lowest click-through rate?",
         "How does spend per day change within each objective?"
       ]
@@ -245,19 +245,6 @@
       "cardinality": "N:1",
       "note": "The creative the ad runs as of the last load; one creative can serve several ads.",
       "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-creative/ (id: \"Unique ID for an ad creative, numeric string.\"; \"An ad creative object is an instance of a specific creative which is being used to define the `creative` field of one or more ads\")"
-    },
-    {
-      "from": "Ad",
-      "to": "Ads",
-      "on": [
-        [
-          "id",
-          "id"
-        ]
-      ],
-      "cardinality": "1:1",
-      "note": "The same ad: both tables list the account's ads, this one with more fields.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (Reading: \"Ads belonging to this ad account.\"; \"A list of Ad nodes.\"), whose Ad node is the object described at https://developers.facebook.com/docs/marketing-api/reference/adgroup/"
     }
   ]
 }

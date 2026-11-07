@@ -121,6 +121,6 @@ sources:
 
 # Example Questions
 
-- How many people did each ad set reach, and how often did they see it?
+- How many people did each ad set reach on a given day, and how often did they see it?
 - Which optimization goals have the lowest cost per click?
 - Which ad sets spend the most within each campaign?

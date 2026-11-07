@@ -1,9 +1,9 @@
 ---
 title: "Ad"
 description: |
-  The same ads as [Ads](./ads.md), read through Meta's ad reference (the API calls an ad an "adgroup"), with more fields: the review feedback, `tracking_specs`, the ad this one was copied from (`source_ad_id`), recommendations, and the creative's object story and asset group specs. One row per ad, keyed by `id`.
+  The same ads as [Ads](./ads.md), read through Meta's ad reference (the API calls an ad an "adgroup"), with more fields: the review feedback (`ad_review_feedback`), `tracking_specs`, the source ad object (`source_ad`; `source_ad_id` is in both tables), `recommendations`, the `adset` and `campaign` objects, and the creative's object story and asset group specs. One row per ad, keyed by `id`.
 
-  Both tables come from the account's ads list, so an ad has the same `id` in each. Start from Ads for names, status and the campaign and ad set IDs, and from this table when you need one of the extra fields.
+  Both tables come from the account's ads list in the connector, so an ad has the same `id` in each; match them on `id`. Start from Ads for names, status and the campaign and ad set IDs, and from this table when you need one of the extra fields.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -64,8 +64,3 @@ sources:
 - Which ads were copied from another ad (`source_ad_id` is set)?
 - Which ads have review feedback or delivery issues?
 - Which ads have an end time scheduled?
-
-## Joins
-
-- [Ads](./ads.md) — `id = id` [1:1] — The same ad: both tables list the account's ads, this one with more fields.
-  - Description: The same ad: both tables list the account's ads, this one with more fields.

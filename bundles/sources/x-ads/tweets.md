@@ -3,7 +3,7 @@ title: "Tweets"
 description: |
   One row per tweet used as a creative: its text (`full_text`), language, type, name, created time, like and repost counts, entities such as hashtags, links and mentions, and the URI of the card attached to it (`card_uri`). The connector requests published tweets of the promoted-only kind (nullcast), so organic tweets are not loaded.
 
-  The key is `id`, a number; `tweet_id` and `id_str` hold the same ID as text. Promoted Tweets points here through its `tweet_id`.
+  The key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`, so no join is drawn between the two.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:

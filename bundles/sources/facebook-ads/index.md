@@ -7,7 +7,9 @@ description: |
 
   Performance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. Every ad-level insights table joins to [Ads](./ads.md) on `ad_id`, and Ads joins to [Ad Creatives](./ad-creatives.md) on `creative_id`.
 
-  Two cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values; take them from the ad set or campaign table. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.
+  Two cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.
+
+  Two links are described in words rather than drawn. Every table carries `account_id`, which matches [Ad Account](./ad-account.md), but Ad Account lists both `id` and `account_id` as its unique key and no other table holds the `act_`-prefixed `id`, so a join cannot cover its whole key; match on `account_id`. And [Ad](./ad.md) holds the same ads as [Ads](./ads.md) (both read the account's ads list in the connector), so it is matched on `id` rather than drawn.
 tags: ["owox", "index", "connector", "facebook-ads"]
 type: "index"
 sources:
@@ -16,7 +18,7 @@ sources:
     title: "OWOX Data Marts — Facebook Ads connector source"
 ---
 
-15 tables, 1172 fields, 10 joins.
+15 tables, 1172 fields, 9 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|
@@ -40,7 +42,7 @@ sources:
 
 - Which campaigns spend the most for the fewest results, once spend is divided by results?
 - Which creatives drive the cheapest conversions, once performance is joined to the creative each ad runs?
-- How many people did each campaign reach, and how often did they see the ads?
+- How many people did each campaign reach on a given day, and how often did they see the ads?
 
 # Explore this model
 
