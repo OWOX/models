@@ -22,10 +22,6 @@ describe('parseSchemaMd', () => {
       { column: 'urls', type: 'ARRAY', description: 'Final URLs' },
     ])
   })
-  it('drops Markdown escapes from a description', () => {
-    const rows = parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| line | ARRAY | Line\\[\\] as JSON; \\*LineDetail is set. |\n')
-    expect(rows[0].description).toBe('Line[] as JSON; *LineDetail is set.')
-  })
   it('maps OBJECT to JSON', () => {
     expect(parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| by_geo | OBJECT | x |\n')[0].type).toBe('OBJECT')
     expect(TYPE_MAP.OBJECT).toBe('JSON')

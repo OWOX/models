@@ -46,9 +46,7 @@ export function parseSchemaMd(text, where = 'schema.md') {
   }
   const rows = lines.slice(2).map((line) => {
     const [column = '', type = '', ...rest] = cells(line)
-    // schema.md is Markdown: `Line\[\]` and `\*LineDetail` are escapes, and the canvas would show the backslashes.
-    const description = rest.join('|').trim().replace(/\\([\\`*_[\]{}()#+!~<>-])/g, '$1')
-    return { column: column.replace(/^`|`$/g, ''), type, description }
+    return { column: column.replace(/^`|`$/g, ''), type, description: rest.join('|').trim() }
   })
   const seen = new Set()
   for (const r of rows) {
