@@ -1,0 +1,158 @@
+{
+  "vendorName": "X Ads API",
+  "description": "What the OWOX Data Marts X Ads connector loads, and how the pieces fit together. An X advertising account holds campaigns, campaigns hold line items (the X name for ad groups), and line items hold promoted tweets: references that attach a tweet to a line item. The connector loads each level as a current-state table ([Accounts](./accounts.md), [Campaigns](./campaigns.md), [Line Items](./line-items.md), [Promoted Tweets](./promoted-tweets.md)), the tweets and cards used as creatives ([Tweets](./tweets.md), [Cards](./cards.md), [All Cards](./all-cards.md)), a reference table of countries ([Targeting Locations](./targeting-locations.md)), and the daily performance of promoted tweets as two time-series tables: [Ad Performance](./ad-performance.md) and [Ad Performance by Country](./ad-performance-by-country.md).\n\nEach level carries the ID of its parent, so the chain joins on plain IDs: [Promoted Tweets](./promoted-tweets.md) to [Line Items](./line-items.md) on `line_item_id`, [Line Items](./line-items.md) to [Campaigns](./campaigns.md) on `campaign_id`, and [Campaigns](./campaigns.md) to [Accounts](./accounts.md) on `account_id`, a column the connector adds to each campaign row when it is selected. Both performance tables report on promoted tweets, so their `id` joins to [Promoted Tweets](./promoted-tweets.md), and a promoted tweet reaches its tweet through `tweet_id`, matched to the text column `tweet_id` in [Tweets](./tweets.md); that pair is not drawn as a join because Tweets is keyed by its numeric `id`, which can arrive rounded.\n\nTwo cautions apply. Amounts ending in `_micro` are in micros: the X Ads docs write 5.50 USD as 5500000, so divide by 1,000,000. And the performance tables are built only for the promoted tweets the connector has loaded, so line items that were deleted drop out of them.",
+  "questions": [
+    "Which campaigns spend the most for the fewest clicks, once spend is divided by clicks?",
+    "How do impressions, clicks and engagements change from campaign to line item to promoted tweet?",
+    "Which countries do promoted tweets reach, and which of them engage?"
+  ],
+  "endpoints": {
+    "Accounts": {
+      "description": "One row per advertising account listed in the connector's Account IDs: its name and business name, country code, timezone, industry type, business ID, approval status, created and updated times, and whether it is deleted. It is the top of the hierarchy: campaigns belong to an account.\n\nThe connector reads each account by its ID, so the table holds only the accounts you configured. Use it to label campaigns, which join here on `account_id`.",
+      "questions": [
+        "Which advertising accounts does this connector load, and what is the approval status of each?",
+        "In which timezone and country is each account set up?",
+        "Which accounts are marked as deleted, or do not have an accepted approval status?"
+      ]
+    },
+    "Campaigns": {
+      "description": "One row per campaign: its name, entity status and effective status, whether it is servable and why not, budget optimization, daily and total budget, duration in days, frequency cap, currency, funding instrument, purchase order number, and created and updated times. It holds settings, not results.\n\nBudget amounts are in micros: the X Ads docs write 5.50 USD as 5500000, in the currency of the funding instrument. The `account_id` column is not part of the campaign the API returns; the connector fills it with the account being loaded, and only when the field is selected.",
+      "questions": [
+        "Which campaigns are active, and which are not servable and for what reason?",
+        "Which campaigns have a daily budget and which have only a total budget?",
+        "How many campaigns does each account run on each budget optimization setting?"
+      ]
+    },
+    "Line Items": {
+      "description": "One row per line item, the X name for an ad group: its name and the campaign it sits in (`campaign_id`), goal and objective, product type, placements, bid strategy and bid amount, target CPA, daily and total budget, start and end time, payment basis (`pay_by`), currency, frequency cap and entity status. Bid and budget amounts are in micros.\n\nA line item pulls together the bid, the tweet to promote and the targeting. Its promoted tweets are in Promoted Tweets, which joins here on `line_item_id`.",
+      "questions": [
+        "How many line items does each campaign have, and how many are paused?",
+        "Which line items use each bid strategy and goal?",
+        "Which line items have an end time that has already passed but are still active?"
+      ]
+    },
+    "Promoted Tweets": {
+      "description": "One row per promoted tweet: the link that attaches a tweet to a line item. It holds the line item (`line_item_id`), the tweet (`tweet_id`), entity status, approval status, and created and updated times. It carries no text and no results.\n\nThe connector does not ask for deleted promoted tweets, and the X Ads docs say promoted tweets under a deleted line item are only returned on request, so those are not in the table. The performance tables are built from this table's `id` values: Ad Performance and Ad Performance by Country join here on `id`, and `tweet_id` leads to the tweet text in Tweets: match it to Tweets' `tweet_id` or `id_str`, which are text like it.",
+      "questions": [
+        "How many promoted tweets does each line item have, and how many are paused?",
+        "Which promoted tweets have an approval status other than accepted?",
+        "Which tweets are promoted in more than one line item?"
+      ]
+    },
+    "Tweets": {
+      "description": "One row per tweet used as a creative: its text (`full_text`), language, type, name, created time, like and repost counts, entities such as hashtags, links and mentions, and the URI of the card attached to it (`card_uri`). The connector requests published tweets of the promoted-only kind (nullcast), so organic tweets are not loaded.\n\nThe key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`, so no join is drawn between the two.",
+      "questions": [
+        "Which promoted-only tweets carry a card, and which do not?",
+        "Which tweets have the most likes and reposts?",
+        "In which languages are the promoted tweets written?"
+      ]
+    },
+    "Ad Performance": {
+      "description": "Daily performance of promoted tweets: impressions, clicks, URL clicks, engagements, billed engagements, billed charge (`billed_charge_local_micro`, spend in micros), and social actions such as likes, reposts, replies and follows. One row per promoted tweet (`id`) per `date` and `placement`; the connector requests ALL_ON_TWITTER and PUBLISHER_NETWORK.\n\nThe connector requests the engagement and billing metric groups, and stores a metric the API does not return as 0, so a 0 can mean not reported. The `id` is a promoted tweet ID, not a tweet ID: join it to Promoted Tweets on `id`, then to Line Items for the line item.",
+      "questions": [
+        "What did each promoted tweet spend and return per day over the last 30 days?",
+        "How do impressions, clicks and URL clicks compare between placements?",
+        "Which promoted tweets have the lowest engagements per impression?"
+      ]
+    },
+    "Ad Performance by Country": {
+      "description": "Daily performance of promoted tweets split by country: the same impressions, clicks, URL clicks, engagements, billed charge and social actions as Ad Performance, with `country` added to the key. One row per promoted tweet (`id`), `date`, `placement` and `country`.\n\nThe connector loads it with the X Ads asynchronous stats jobs, one job per set of promoted tweets and placement, segmented by location. `country` holds a location ID, a hex string, not a name or a country code. Join `id` to Promoted Tweets for the promoted tweet. The connector's Targeting Locations table is described as the lookup of names for these IDs, but no join is drawn here because the X Ads docs do not state that the segment value is a targeting value.",
+      "questions": [
+        "Which countries bring the most clicks, and at what billed charge per click?",
+        "Do promoted tweets get more engagements per impression in some countries than in others?",
+        "Which promoted tweets reach more than one country?"
+      ]
+    },
+    "Targeting Locations": {
+      "description": "A reference table of X targeting locations: the location's hex ID (`targeting_value`), its name, location type and two-letter ISO country code. It carries no performance, only names.\n\nThe connector requests the location type COUNTRIES only, so it holds countries, not regions, cities or postal codes. The schema describes `targeting_value` as the ID to match with the `country` column of Ad Performance by Country.",
+      "questions": [
+        "What are the names and country codes of the locations the connector loads?",
+        "Which country code belongs to each location ID?",
+        "How many locations of each location type are in the table?"
+      ]
+    },
+    "Cards": {
+      "description": "One row per website or app card: its ID, name, card type, card URI, created and updated times, whether it is deleted, and its components (media and buttons) as JSON. A card is the link preview attached to a tweet.\n\nFor the full creative detail of the cards attached to your tweets, such as title and destination URL, use All Cards.",
+      "questions": [
+        "How many cards of each card type exist?",
+        "Which cards were created in the last 90 days?",
+        "Which cards are marked as deleted?"
+      ]
+    },
+    "All Cards": {
+      "description": "One row per card with its full creative detail: card type, title, website URL, destination URL and display URL, call to action, app store IDs, and the video URLs, poster and sizes. The connector fetches it by card URI, taking the URIs from the `card_uri` column of the tweets it loaded, so it holds the cards attached to those tweets, deleted ones included.\n\nA card URI is not this table's key (`id` is), which is why Tweets does not join here on `card_uri`. Fields that do not apply to a card type are empty.",
+      "questions": [
+        "Which cards use each call to action?",
+        "Which destination URLs do the cards send clicks to?",
+        "How many cards are video cards, and how long are their videos?"
+      ]
+    }
+  },
+  "joins": [
+    {
+      "from": "Ad Performance",
+      "to": "Promoted Tweets",
+      "on": [
+        [
+          "id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The promoted tweet the daily row reports on.",
+      "source": "https://docs.x.com/x-ads-api/analytics (entity: \"PROMOTED_TWEET\"; entity_ids: \"The specific entities to retrieve data for.\"; example entity_ids dvcz7 returns \"id\": \"dvcz7\"); https://docs.x.com/x-ads-api/campaign-management/reference (promoted_tweet_ids: \"Scope the response to just the desired promoted Tweets\")"
+    },
+    {
+      "from": "Ad Performance by Country",
+      "to": "Promoted Tweets",
+      "on": [
+        [
+          "id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The promoted tweet the country row reports on.",
+      "source": "https://docs.x.com/x-ads-api/analytics (entity: \"PROMOTED_TWEET\"; entity_ids: \"The specific entities to retrieve data for.\"; asynchronous jobs take the same entity and entity_ids); https://docs.x.com/x-ads-api/campaign-management/reference (promoted_tweet_ids: \"Scope the response to just the desired promoted Tweets\")"
+    },
+    {
+      "from": "Promoted Tweets",
+      "to": "Line Items",
+      "on": [
+        [
+          "line_item_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The line item the tweet is promoted in.",
+      "source": "https://docs.x.com/x-ads-api/campaign-management/reference (GET accounts/:account_id/promoted_tweets: \"Retrieve references to Tweets associated with line items under the current account.\"; line_item_ids: \"Scope the response to just the Tweets associated with specific line items\"; example response \"line_item_id\": \"96uzp\")"
+    },
+    {
+      "from": "Line Items",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the line item sits in.",
+      "source": "https://docs.x.com/x-ads-api/campaign-management/reference (GET accounts/:account_id/line_items, campaign_ids: \"Scope the response to just the line items under specific campaigns\"; example response \"campaign_id\": \"f4z6x\")"
+    },
+    {
+      "from": "Campaigns",
+      "to": "Accounts",
+      "on": [
+        [
+          "account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The account the campaign belongs to; the connector fills account_id.",
+      "source": "https://docs.x.com/x-ads-api/campaign-management/reference (GET accounts/:account_id/campaigns: \"Retrieve details for some or all campaigns associated with the current account.\"; GET accounts/:account_id example response \"id\": \"18ce54d4x5t\")"
+    }
+  ]
+}

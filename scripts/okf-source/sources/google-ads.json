@@ -1,0 +1,210 @@
+{
+  "vendorName": "Google Ads API",
+  "description": "What the OWOX Data Marts Google Ads connector loads, and how the pieces fit together. A Google Ads account is a hierarchy: campaigns hold ad groups, ad groups hold ads and targeting criteria such as keywords. The connector loads the settings of campaigns, ad groups and criteria as current-state tables, and the daily performance of campaigns, ad groups, ads, keywords and countries as time-series tables.\n\nEvery performance table repeats the IDs of the levels above it, so each joins to its parent on a plain ID: [Campaigns Stats](./campaigns-stats.md) to [Campaigns](./campaigns.md) on `campaign_id`, [Ad Groups Stats](./ad-groups-stats.md) to [Ad Groups](./ad-groups.md) on `ad_group_id`. Keyword performance also reaches its targeting row in [Criterion](./criterion.md), and country performance resolves a country ID to a name through [Geo Target Constants](./geo-target-constants.md).\n\nOne caution applies to every table: fields ending in `_micros` hold millionths of the account currency, so divide by 1,000,000 to read them.",
+  "questions": [
+    "Which campaigns spend the most for the fewest conversions, once cost is divided by conversions?",
+    "How does cost per conversion change from campaign to ad group to keyword for the same budget?",
+    "Which countries do campaigns spend in, and which of them convert?"
+  ],
+  "endpoints": {
+    "Campaigns": {
+      "description": "One row per campaign: its name, status, advertising channel type and sub type, bidding strategy, budget, target CPA or target ROAS, and start and end dates. It holds settings, not results; a campaign's clicks and cost are in Campaigns Stats, which joins to this table on `campaign_id`.\n\nThe budget and target CPA amounts are in micros, one millionth of the account currency. Use it to label and filter the performance tables by campaign type or bidding strategy.",
+      "questions": [
+        "Which campaigns are enabled, and which bidding strategy does each use?",
+        "How many campaigns run on each advertising channel type?",
+        "Which campaigns have an end date that has already passed but are still enabled?"
+      ]
+    },
+    "Campaigns Stats": {
+      "description": "Daily campaign performance: impressions, clicks, cost, conversions and conversion value, with ratios such as click-through rate and cost per conversion, and for search campaigns the share of impressions won or lost to budget and to ad rank. One row per campaign per `date`.\n\nCost (`cost_micros`) is in micros. Impression-share and video fields only carry values for the campaign types they apply to. Join it to Campaigns on `campaign_id` for the campaign's type and bidding strategy.",
+      "questions": [
+        "What did each campaign spend and return per day over the last 30 days?",
+        "Which search campaigns lose the most impression share to budget, and which to rank?",
+        "How does conversion value per unit of cost compare across advertising channel types?"
+      ]
+    },
+    "Ad Groups": {
+      "description": "One row per ad group: its name, status and type, the campaign it sits in, and its CPC, CPM and target CPA bids. An ad group is the level at which ads and keywords are grouped, so this table is the bridge between a campaign and the ads and keywords below it.\n\nBid amounts are in micros. Performance is in Ad Groups Stats, which joins here on `ad_group_id`.",
+      "questions": [
+        "How many ad groups does each campaign have, and how many are paused?",
+        "Which ad groups carry the highest CPC bids?",
+        "Which ad group types does each campaign use?"
+      ]
+    },
+    "Ad Groups Stats": {
+      "description": "Daily ad group performance: impressions, clicks, cost, conversions and conversion value, with interaction and engagement ratios. One row per ad group per `date`.\n\nUse it to see which ad groups carry a campaign's spend. It repeats `campaign_id`, but join through Ad Groups to reach the campaign's name and settings.",
+      "questions": [
+        "Which ad groups account for most of each campaign's cost?",
+        "Which ad groups have a falling click-through rate week over week?",
+        "What is the cost per conversion of each ad group last month?"
+      ]
+    },
+    "Ad Group Ads Stats": {
+      "description": "Daily performance of each ad: impressions, clicks, cost, conversions and conversion value, with the ad's type, name, status and final URLs. One row per ad per `date`.\n\nThe connector loads no separate table of ads, so what is known about an ad, such as its type and landing page, is on these rows. Join it to Ad Groups on `ad_group_id` for the ad group's settings.",
+      "questions": [
+        "Which ads have the lowest click-through rate within their ad group?",
+        "Which landing pages (final URLs) bring the cheapest conversions?",
+        "How do ad types compare on cost per conversion?"
+      ]
+    },
+    "Keywords Stats": {
+      "description": "Daily keyword performance: impressions, clicks, cost, conversions and conversion value, the keyword's text, match type and status, its quality score, and search impression share and top-of-page rates. One row per keyword per `date`, as the connector keys it (`keyword_id` and `date`).\n\nA criterion ID is only unique inside its ad group, so read `ad_group_id` together with `keyword_id`: join to Criterion on `keyword_id`, `ad_group_id` and `campaign_id` for bids and targeting settings, and to Ad Groups for the ad group around it.",
+      "questions": [
+        "Which keywords spend the most without a conversion?",
+        "How does quality score relate to cost per click across keywords?",
+        "Which match type returns the most conversions per unit of cost?"
+      ]
+    },
+    "Criterion": {
+      "description": "One row per targeting criterion of an ad group: keywords, placements and negative exclusions, with their type, status, bids, quality score, final URLs and estimated first-page and top-of-page bids. A criterion is identified by its ID together with its ad group.\n\nThe `negative` field tells a criterion that is targeted from one that is excluded. Keyword performance is in Keywords Stats, which joins here on `keyword_id`, `ad_group_id` and `campaign_id`.",
+      "questions": [
+        "How many keywords and negative keywords does each ad group have?",
+        "Which keywords have a CPC bid below the estimated first-page bid?",
+        "Which placements are targeted rather than excluded?"
+      ]
+    },
+    "Geo Stats": {
+      "description": "Daily campaign performance by country and by how the location was matched: impressions, clicks, cost, conversions and conversion value. One row per campaign, country, location type and `date`.\n\n`location_type` separates people who were physically in a country from people who searched for it. The country appears only as an ID; join it to Geo Target Constants on `country_criterion_id` for its name.",
+      "questions": [
+        "Which countries bring the most conversions, and at what cost per conversion?",
+        "Do people in a country convert differently from people searching for it?",
+        "Which campaigns spend in countries outside the intended markets?"
+      ]
+    },
+    "Geo Target Constants": {
+      "description": "A reference table of Google's geographic targets: the English name, the fully qualified name, the ISO country code, the target type and status, and the parent target. It carries no performance, only names for the IDs other tables hold.\n\nThe connector loads the targets of type Country only, so it resolves the country IDs in Geo Stats but not regions or cities.",
+      "questions": [
+        "What are the names behind the country IDs in the Geo Stats table?",
+        "Which countries are flagged as removal planned?",
+        "Which ISO country code belongs to each country ID?"
+      ]
+    }
+  },
+  "joins": [
+    {
+      "from": "Campaigns Stats",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign_id",
+          "campaign_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the daily row reports on.",
+      "source": "https://developers.google.com/google-ads/api/fields/v21/campaign"
+    },
+    {
+      "from": "Ad Groups",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign_id",
+          "campaign_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the ad group belongs to.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroup (campaign: \"The campaign to which the ad group belongs.\")"
+    },
+    {
+      "from": "Ad Groups Stats",
+      "to": "Ad Groups",
+      "on": [
+        [
+          "ad_group_id",
+          "ad_group_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad group the daily row reports on.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroup (resource name customers/{customer_id}/adGroups/{ad_group_id})"
+    },
+    {
+      "from": "Ad Group Ads Stats",
+      "to": "Ad Groups",
+      "on": [
+        [
+          "ad_group_id",
+          "ad_group_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad group the ad belongs to.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroupAd (adGroup: \"The ad group to which the ad belongs.\")"
+    },
+    {
+      "from": "Keywords Stats",
+      "to": "Ad Groups",
+      "on": [
+        [
+          "ad_group_id",
+          "ad_group_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad group the keyword sits in.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroupCriterion (adGroup: \"The ad group to which the criterion belongs.\")"
+    },
+    {
+      "from": "Keywords Stats",
+      "to": "Criterion",
+      "on": [
+        [
+          "keyword_id",
+          "criterion_id"
+        ],
+        [
+          "ad_group_id",
+          "ad_group_id"
+        ],
+        [
+          "campaign_id",
+          "campaign_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The keyword's targeting row; a criterion ID is only unique together with its ad group.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroupCriterion (resource name customers/{customer_id}/adGroupCriteria/{ad_group_id}~{criterion_id})"
+    },
+    {
+      "from": "Criterion",
+      "to": "Ad Groups",
+      "on": [
+        [
+          "ad_group_id",
+          "ad_group_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad group the criterion targets for.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/AdGroupCriterion (adGroup: \"The ad group to which the criterion belongs.\")"
+    },
+    {
+      "from": "Geo Stats",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign_id",
+          "campaign_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the country row reports on.",
+      "source": "https://developers.google.com/google-ads/api/fields/v21/geographic_view"
+    },
+    {
+      "from": "Geo Stats",
+      "to": "Geo Target Constants",
+      "on": [
+        [
+          "country_criterion_id",
+          "geo_target_constant_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The country's name and ISO code.",
+      "source": "https://developers.google.com/google-ads/api/rest/reference/rest/v21/GeoTargetConstant (resource name geoTargetConstants/{geo_target_constant_id}); geographic_view.country_criterion_id: \"Criterion Id for the country.\""
+    }
+  ]
+}

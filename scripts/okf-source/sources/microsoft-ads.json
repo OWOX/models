@@ -1,0 +1,36 @@
+{
+  "vendorName": "Microsoft Advertising API",
+  "description": "What the OWOX Data Marts Microsoft Ads connector loads, and how the pieces fit together. A Microsoft Advertising account holds campaigns, campaigns hold ad groups (and asset groups), and ad groups hold ads and keywords. The connector loads this structure with the Bulk service into one current-state table, [Campaigns](./campaigns.md), and the daily performance with the Reporting service into two time-series tables: [Ad Performance Report](./ad-performance-report.md), one row per ad, and [User Location Performance Report](./user-location-performance-report.md), one row per campaign, ad group and location.\n\n[Campaigns](./campaigns.md) is not a list of campaigns only. It is the Bulk download, so campaign, ad group, asset group and keyword rows sit in the same table, told apart by the `Type` column, and `ParentId` points from a row to the row above it: from an ad group to its campaign, from a campaign to its account. Its `Id` is the ID of whatever the row is, so it matches a report's `CampaignId` only on the rows whose `Type` is Campaign. For that reason this bundle draws no joins between the tables; filter on `Type` before you match.\n\nThe two report tables repeat `AccountId`, `CampaignId` and `AdGroupId` and are segmented by many columns at once, such as device, network and match type, so one ad on one day can appear in several rows. Sum the rows before you compare days or ads, and read `Spend` together with `CurrencyCode`, the account currency.",
+  "questions": [
+    "Which campaigns are active, and which bid strategy type does each use?",
+    "How do spend and qualified conversions differ between devices and networks?",
+    "Which countries and cities bring the most clicks, and which of them convert?"
+  ],
+  "endpoints": {
+    "Campaigns": {
+      "description": "The Bulk download of the account structure, as one table. Each row is one record, and `Type` says which: a campaign, an ad group, an asset group, a keyword. `Id` is the identifier of that record, and `ParentId` is the identifier of the record above it (for a campaign, the account; for an ad group, the campaign).\n\nThe columns that apply to a record type are the ones filled for it, for example `BidStrategyType` and `Budget` for a campaign, or `Keyword`, `MatchType` and `Bid` for a keyword. Names such as `Campaign` and `AdGroup` repeat the names of the parents. The table holds settings; daily results are in the two report tables. Filter on `Type` before counting or matching IDs.",
+      "questions": [
+        "Which campaigns are active, and which bid strategy type and budget does each have?",
+        "How many ad groups does each campaign have, counting the ad group rows by ParentId?",
+        "Which keywords and match types are defined, and with which bids?"
+      ]
+    },
+    "Ad Performance Report": {
+      "description": "Daily performance of each ad: impressions, clicks, spend, conversions, revenue, assists and return on ad spend, plus the ad's text, type, status and URLs, and for video ads the view and completion counts. The connector requests the report one day at a time for each account, with the aggregation set in its settings (Daily by default), so `TimePeriod` is a day by default.\n\nThe report is segmented by device type and OS, network, top versus other position, bid and delivered match type, language, ad distribution and campaign type, and each combination is its own row. All of these are part of the key, together with `CurrencyCode`, the account currency. The vendor reference marks `Conversions`, `AllConversions` and `AveragePosition` as deprecated and returning zero going forward; use `ConversionsQualified` and `AllConversionsQualified` for conversion counts.",
+      "questions": [
+        "Which ads have the lowest click-through rate, and what do they spend?",
+        "How do spend and qualified conversions compare between device types and networks?",
+        "Which delivered match types return the most qualified conversions for the same spend?"
+      ]
+    },
+    "User Location Performance Report": {
+      "description": "Daily performance by the physical location of the user: impressions, clicks, spend, conversions, revenue and assists, with the country, state, metro area, city, county and postal code where the user was physically located when they clicked, and the `QueryIntent` columns for the location the search was about. One row per account, campaign, ad group, location, day and segment.\n\nThe report is segmented by campaign type, bid and delivered match type, asset group, ad distribution, device type and OS, and top versus other position, and all of these are part of the key together with `LocationId` and `CurrencyCode`. A row is not an ad: the table has no ad ID. For results per ad use Ad Performance Report. As in the ad report, the vendor reference marks `Conversions` as deprecated and returning zero; use `ConversionsQualified`.",
+      "questions": [
+        "Which countries bring the most clicks, and at what spend?",
+        "Which cities have the most qualified conversions, and what is the spend there?",
+        "Which states and metro areas inside a country receive most of a campaign's impressions?"
+      ]
+    }
+  },
+  "joins": []
+}

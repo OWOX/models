@@ -1,0 +1,20 @@
+{
+  "vendorName": "Bank of Canada Valet API",
+  "description": "What the OWOX Data Marts Bank of Canada connector loads: the daily exchange rates the Bank of Canada publishes, in one table. The connector reads the Valet API group of daily foreign exchange rates (`FX_RATES_DAILY`) and writes one row per currency pair per day.\n\nThe rate is the number of Canadian dollars for one unit of the foreign currency, so `USDCAD` is Canadian dollars per US dollar. There is nothing to join: the table carries no key that points at another table, and a rate is joined to your own data by `date` and the currency in `label`.",
+  "questions": [
+    "What was the US dollar worth in Canadian dollars on each day of the last year?",
+    "Which currencies moved the most against the Canadian dollar this month?",
+    "How would last quarter's foreign-currency sales look converted to Canadian dollars at the rate of each sale's date?"
+  ],
+  "endpoints": {
+    "Exchange Rates": {
+      "description": "Daily foreign exchange rates published by the Bank of Canada, one row per currency pair per `date`. `label` is the pair as the connector names it: the Valet series name without its leading `FX`, for example `USDCAD` from the series `FXUSDCAD`. `rate` is Canadian dollars per one unit of the foreign currency.\n\nThe Bank publishes on business days, so weekends and holidays have no rows. Join it to your own data on `date` and the currency in `label`, and fill the gaps with the last earlier rate.",
+      "questions": [
+        "What was the rate of each currency against the Canadian dollar on a given day?",
+        "How did the US dollar rate change from one month to the next over the last year?",
+        "Which dates in the last month have no rate, and what was the last published rate before each?"
+      ]
+    }
+  },
+  "joins": []
+}

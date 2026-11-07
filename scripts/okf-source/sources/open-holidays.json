@@ -1,0 +1,20 @@
+{
+  "vendorName": "OpenHolidays API",
+  "description": "What the OWOX Data Marts Open Holidays connector loads: the public holidays of one country, in one table. The connector asks the OpenHolidays API for the holidays of the configured country and language between the start and end dates and writes one row per holiday.\n\nThere is nothing to join: the table carries no country or language column, because one run loads one country in one language, and it has no key that points at another table. Join it to your own data on `date`, for example to tell a working day from a public holiday in a daily sales or traffic table.",
+  "questions": [
+    "Which days of the year are public holidays in the configured country?",
+    "How do daily orders on public holidays compare with the days around them?",
+    "Which holidays apply only in some regions and not nationwide?"
+  ],
+  "endpoints": {
+    "Public Holidays": {
+      "description": "One row per holiday of one country: the holiday `id`, its `date`, its `name` in the configured language, its `type`, whether it applies nationwide, and its regional and temporal scope. This endpoint returns public holidays, whose `type` is Public or Optional (the API's type list also has Bank and the school types, which its separate school-holiday endpoint uses); the regional scope is National, Regional or Local and the temporal scope is FullDay or HalfDay. `name` is the name in the configured language, or `Unknown` when the API has none in that language.\n\n`date` is the holiday's start date. A holiday that lasts several days has one row, and its end date is not loaded. Join the table to a daily table on `date` to flag holidays.",
+      "questions": [
+        "Which holidays fall on a weekday next month?",
+        "How many holidays of each type does the country have in the year?",
+        "Which holidays are not nationwide, and what is their regional scope?"
+      ]
+    }
+  },
+  "joins": []
+}
