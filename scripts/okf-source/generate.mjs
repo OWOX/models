@@ -105,7 +105,13 @@ if (manifestPath) {
     fail(`Cannot read the manifest ${manifestPath}: ${e.message}`)
   }
   if (!manifest.nodes || typeof manifest.nodes !== 'object') fail(`${manifestPath} has no "nodes" object.`)
-  for (const [node, def] of Object.entries(manifest.nodes)) if (def.uniqueKeys) uniqueKeys[node] = def.uniqueKeys
+  for (const [node, def] of Object.entries(manifest.nodes)) {
+    if (def.uniqueKeys === undefined) continue
+    if (!Array.isArray(def.uniqueKeys) || !def.uniqueKeys.every((k) => typeof k === 'string' && k)) {
+      fail(`${manifestPath}: node ${node} has uniqueKeys that are not a list of field names.`)
+    }
+    uniqueKeys[node] = def.uniqueKeys
+  }
   keysFrom = `manifest ${manifest.name} v${manifest.version}`
 } else {
   const connectorName = item.sourceCodeUrl.replace(/\/+$/, '').split('/').pop()

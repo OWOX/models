@@ -22,6 +22,10 @@ describe('parseSchemaMd', () => {
       { column: 'urls', type: 'ARRAY', description: 'Final URLs' },
     ])
   })
+  it('drops Markdown escapes from a description', () => {
+    const rows = parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| line | ARRAY | Line\\[\\] as JSON; \\*LineDetail is set. |\n')
+    expect(rows[0].description).toBe('Line[] as JSON; *LineDetail is set.')
+  })
   it('maps OBJECT to JSON', () => {
     expect(parseSchemaMd('| Field | Type | Description |\n| --- | --- | --- |\n| by_geo | OBJECT | x |\n')[0].type).toBe('OBJECT')
     expect(TYPE_MAP.OBJECT).toBe('JSON')
@@ -146,6 +150,7 @@ describe('buildModel', () => {
     ['a join to a field that does not exist', (b) => { b.authored.joins[0].on = [['nope', 'id']] }, /no field nope/],
     ['an N:1 join that misses part of the target key', (b) => { b.endpoints[0].uniqueKeys = ['id', 'other']; b.endpoints[0].rows.push({ column: 'other', type: 'STRING', description: '' }) }, /do not cover Parents's unique keys \(other\)/],
     ['two joins between the same two tables', (b) => { b.authored.joins.push({ ...b.authored.joins[0], on: [['id', 'id']], note: 'Again.' }) }, /merges it with join 1/],
+    ['the same two tables joined the other way round', (b) => { b.authored.joins.push({ from: 'Parents', to: 'Children', on: [['id', 'parent_id']], cardinality: '1:N', note: 'Reverse.', source: 'https://example.com' }) }, /merges it with join 1/],
     ['a join with no source', (b) => { delete b.authored.joins[0].source }, /no source/],
     ['an endpoint nobody described', (b) => { delete b.authored.endpoints.Children }, /Children: no entry/],
     ['a connector with no uniqueKeys', (b) => { b.endpoints[0].uniqueKeys = undefined }, /declares no uniqueKeys/],
@@ -154,6 +159,22 @@ describe('buildModel', () => {
     const b = base()
     mutate(b)
     expect(() => buildModel(b)).toThrow(message)
+  })
+})
+
+describe('the time series line', () => {
+  const render = (timeSeries, cols) => {
+    const b = base()
+    b.endpoints[1].timeSeries = timeSeries
+    b.endpoints[1].rows = cols.map((c) => ({ column: c, type: 'STRING', description: '' }))
+    b.endpoints[1].uniqueKeys = ['id']
+    b.authored.joins = []
+    return renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })['children.md']
+  }
+  it('says per date only when there is a date column', () => {
+    expect(render(true, ['id', 'date'])).toContain('yes, one row per key per `date`')
+    expect(render(true, ['id', 'updated_at'])).toContain('**Time series:** yes, loaded by date range')
+    expect(render(false, ['id', 'date'])).toContain('no, one current row per key')
   })
 })
 

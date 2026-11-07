@@ -46,7 +46,9 @@ export function parseSchemaMd(text, where = 'schema.md') {
   }
   const rows = lines.slice(2).map((line) => {
     const [column = '', type = '', ...rest] = cells(line)
-    return { column: column.replace(/^`|`$/g, ''), type, description: rest.join('|').trim() }
+    // schema.md is Markdown: `Line\[\]` and `\*LineDetail` are escapes, and the canvas would show the backslashes.
+    const description = rest.join('|').trim().replace(/\\([\\`*_[\]{}()#+!~<>-])/g, '$1')
+    return { column: column.replace(/^`|`$/g, ''), type, description }
   })
   const seen = new Set()
   for (const r of rows) {
@@ -210,7 +212,9 @@ export function renderMart(model, doc) {
   out.push(`- **Endpoint:** ${source.name} · \`${e.key}\``)
   out.push(`- **Default destination table:** \`${e.destinationTable}\``)
   out.push(`- **Unique keys:** ${e.uniqueKeys.map((k) => `\`${k}\``).join(', ')}`)
-  out.push(`- **Time series:** ${e.timeSeries ? 'yes, one row per key per `date`' : 'no, one current row per key'}`)
+  // "per `date`" only where the table has a date column; Shopify orders, QuickBooks reports and the like load by date range without one.
+  const hasDate = e.rows.some((r) => r.column === 'date')
+  out.push(`- **Time series:** ${e.timeSeries ? (hasDate ? 'yes, one row per key per `date`' : 'yes, loaded by date range') : 'no, one current row per key'}`)
   out.push('')
   out.push('# Schema')
   out.push('')
