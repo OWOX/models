@@ -8,7 +8,7 @@ description: |
   The chart of accounts is the spine. Sales transactions ([Invoices](./invoices.md), [Sales receipts](./sales-receipts.md),
   [Credit memos](./credit-memos.md), [Refund receipts](./refund-receipts.md)) hang off [Customers](./customers.md) and settle
   through [Payments](./payments.md) and [Deposits](./deposits.md); purchase transactions ([Bills](./bills.md), [Bill payments](./bill-payments.md),
-  [Purchases](./purchases.md)) hang off [Vendors](./vendors.md); both sides post to [Accounts](./accounts.md). [Items](./items.md)
+  [Purchases](./purchases.md)) hang off [Vendors](./vendors.md), except [Purchases](./purchases.md), which name their payee in `entity_id` and `entity_type`; both sides post to [Accounts](./accounts.md). [Items](./items.md)
   carry the income and expense accounts that turn line items into margin. Line arrays stay as JSON (`line`) and unnest in SQL.
 
   The eight report tables are dated snapshots of what QuickBooks itself computes (Profit and Loss, Balance Sheet, Cash Flow,
@@ -16,7 +16,7 @@ description: |
   the P&L from the transaction tables and compare it with the report for the same period. [Invoice changes](./invoice-changes-cdc-incl-deletes.md)
   is the change-data-capture feed that also surfaces hard deletes, which the query endpoint never returns.
 
-  Definitions follow connector version 3 (2026-11-05) on the Intuit Accounting API v3, minorversion 75.
+  Definitions follow the connector manifest QuickBooksOnline v1.1 on the Intuit Accounting API v3, minorversion 75.
 tags: ["owox", "index", "connector", "quickbooks"]
 type: "index"
 sources:

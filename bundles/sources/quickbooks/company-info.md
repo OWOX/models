@@ -1,7 +1,7 @@
 ---
 title: "Company info"
 description: |
-  The company file itself: legal and trading name, country, base currency and fiscal-year start. One row per QuickBooks company; every other table joins to it on `realm_id`.
+  The company file itself: legal and trading name, country, address, first day of business and fiscal-year start month. One row per QuickBooks company; every other table joins to it on `realm_id`.
 tags: ["owox", "connector", "quickbooks"]
 type: "OWOX Data Mart"
 sources:
@@ -39,5 +39,5 @@ sources:
 
 # Example Questions
 
-- Which company and fiscal-year start do these books belong to, and in what base currency?
+- Which company and fiscal-year start do these books belong to, and where is the company based?
 - Has the company name or address changed since the last load?

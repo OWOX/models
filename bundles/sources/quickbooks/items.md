@@ -51,7 +51,7 @@ sources:
 
 - Which products and services sell most by quantity and by revenue?
 - What is the margin per item once its income and expense accounts are joined?
-- Which inventory items are below their reorder point?
+- Which items that track quantity on hand have zero or negative `qty_on_hand`?
 
 ## Joins
 

@@ -15,7 +15,7 @@ sources:
 - **Endpoint:** QuickBooks · `general_ledger_detail`
 - **Default destination table:** `quickbooks_report_general_ledger_detail`
 - **Unique keys:** `realm_id`, `report_name`, `start_period`, `end_period`, `accounting_method_param`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

@@ -15,7 +15,7 @@ sources:
 - **Endpoint:** QuickBooks · `cdc_invoice`
 - **Default destination table:** `quickbooks_cdc_invoice`
 - **Unique keys:** `realm_id`, `id`, `last_updated_time`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

@@ -1,6 +1,6 @@
 {
   "vendorName": "Intuit QuickBooks Online Accounting API",
-  "description": "What the OWOX Data Marts QuickBooks Online connector loads from Intuit, and how the tables fit together.\nEverything belongs to one company file: every table carries `realm_id`, Intuit's company id, and joins to\n[Company info](./company-info.md) on it.\n\nThe chart of accounts is the spine. Sales transactions ([Invoices](./invoices.md), [Sales receipts](./sales-receipts.md),\n[Credit memos](./credit-memos.md), [Refund receipts](./refund-receipts.md)) hang off [Customers](./customers.md) and settle\nthrough [Payments](./payments.md) and [Deposits](./deposits.md); purchase transactions ([Bills](./bills.md), [Bill payments](./bill-payments.md),\n[Purchases](./purchases.md)) hang off [Vendors](./vendors.md); both sides post to [Accounts](./accounts.md). [Items](./items.md)\ncarry the income and expense accounts that turn line items into margin. Line arrays stay as JSON (`line`) and unnest in SQL.\n\nThe eight report tables are dated snapshots of what QuickBooks itself computes (Profit and Loss, Balance Sheet, Cash Flow,\nA/R and A/P aging, vendor expenses, general ledger detail, sales by customer). Their value is the reconciliation: rebuild\nthe P&L from the transaction tables and compare it with the report for the same period. [Invoice changes](./invoice-changes-cdc-incl-deletes.md)\nis the change-data-capture feed that also surfaces hard deletes, which the query endpoint never returns.\n\nDefinitions follow connector version 3 (2026-11-05) on the Intuit Accounting API v3, minorversion 75.",
+  "description": "What the OWOX Data Marts QuickBooks Online connector loads from Intuit, and how the tables fit together.\nEverything belongs to one company file: every table carries `realm_id`, Intuit's company id, and joins to\n[Company info](./company-info.md) on it.\n\nThe chart of accounts is the spine. Sales transactions ([Invoices](./invoices.md), [Sales receipts](./sales-receipts.md),\n[Credit memos](./credit-memos.md), [Refund receipts](./refund-receipts.md)) hang off [Customers](./customers.md) and settle\nthrough [Payments](./payments.md) and [Deposits](./deposits.md); purchase transactions ([Bills](./bills.md), [Bill payments](./bill-payments.md),\n[Purchases](./purchases.md)) hang off [Vendors](./vendors.md), except [Purchases](./purchases.md), which name their payee in `entity_id` and `entity_type`; both sides post to [Accounts](./accounts.md). [Items](./items.md)\ncarry the income and expense accounts that turn line items into margin. Line arrays stay as JSON (`line`) and unnest in SQL.\n\nThe eight report tables are dated snapshots of what QuickBooks itself computes (Profit and Loss, Balance Sheet, Cash Flow,\nA/R and A/P aging, vendor expenses, general ledger detail, sales by customer). Their value is the reconciliation: rebuild\nthe P&L from the transaction tables and compare it with the report for the same period. [Invoice changes](./invoice-changes-cdc-incl-deletes.md)\nis the change-data-capture feed that also surfaces hard deletes, which the query endpoint never returns.\n\nDefinitions follow the connector manifest QuickBooksOnline v1.1 on the Intuit Accounting API v3, minorversion 75.",
   "questions": [
     "How much cash is on hand against the bills due this month, once bank `accounts`, open `bills` and overdue `invoices` are joined?",
     "Which `customers` are overdue, by how much and for how long, and how long do they usually take to pay?",
@@ -40,7 +40,7 @@
       "description": "Payments made against bills, by check or credit card, with the vendor and the accounts involved.",
       "questions": [
         "How much was paid to vendors per month, by check and by card?",
-        "Which bills are still unpaid after their due date?"
+        "Which vendors received the largest payments, and from which accounts?"
       ]
     },
     "Bills": {
@@ -59,16 +59,16 @@
       ]
     },
     "Company info": {
-      "description": "The company file itself: legal and trading name, country, base currency and fiscal-year start. One row per QuickBooks company; every other table joins to it on `realm_id`.",
+      "description": "The company file itself: legal and trading name, country, address, first day of business and fiscal-year start month. One row per QuickBooks company; every other table joins to it on `realm_id`.",
       "questions": [
-        "Which company and fiscal-year start do these books belong to, and in what base currency?",
+        "Which company and fiscal-year start do these books belong to, and where is the company based?",
         "Has the company name or address changed since the last load?"
       ]
     },
     "Credit memos": {
       "description": "Credit given back to a customer, to be applied against invoices.",
       "questions": [
-        "How much revenue was credited back per customer and month, and against which invoices?",
+        "How much revenue was credited back per customer and month?",
         "Which customers receive credit memos repeatedly?"
       ]
     },
@@ -114,7 +114,7 @@
       "questions": [
         "Which products and services sell most by quantity and by revenue?",
         "What is the margin per item once its income and expense accounts are joined?",
-        "Which inventory items are below their reorder point?"
+        "Which items that track quantity on hand have zero or negative `qty_on_hand`?"
       ]
     },
     "Journal entries": {
@@ -133,10 +133,10 @@
       ]
     },
     "Preferences": {
-      "description": "How the company keeps its books: accrual or cash basis, whether classes, departments and multicurrency are on, default accounts and terms. One row per company.",
+      "description": "How the company's books are set up: the home currency, whether multicurrency, class tracking, department tracking and sales tax are on, the fiscal-year start month and the book close date, plus the sales-form, vendor and product preference settings as JSON. One row per company.",
       "questions": [
-        "Does this company run on accrual or cash accounting, and does it track classes, departments and multicurrency?",
-        "Which default accounts and sales terms do new transactions pick up?"
+        "Does this company track classes, departments and multicurrency, and what is its home currency?",
+        "What are the company's fiscal-year start month and book close date?"
       ]
     },
     "Profit and Loss report": {
@@ -559,7 +559,7 @@
         ]
       ],
       "cardinality": "N:1",
-      "note": "Debit and credit lines, each with its account, sit in line as JSON.",
+      "note": "The company the row belongs to.",
       "source": "the connector manifest (quickbooks-manifest.json v1.1): parameter RealmId, \"The numeric company id Intuit returns with the OAuth callback (realmId). … Tokens work only for the realm they were issued for.\"; every node stamps realm_id from it and reads /v3/company/{RealmId}/…"
     },
     {

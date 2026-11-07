@@ -33,7 +33,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line\[\] as JSON; lines either link received Payments (LinkedTxn) or post directly (DepositLineDetail.AccountRef, Entity). |
+| `line` | JSON | Line[] as JSON; lines either link received Payments (LinkedTxn) or post directly (DepositLineDetail.AccountRef, Entity). |
 | `deposit_to_account_id` | STRING |  |
 | `deposit_to_account_name` | STRING |  |
 | `cash_back_amount` | FLOAT |  |

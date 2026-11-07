@@ -1,7 +1,7 @@
 ---
 title: "Preferences"
 description: |
-  How the company keeps its books: accrual or cash basis, whether classes, departments and multicurrency are on, default accounts and terms. One row per company.
+  How the company's books are set up: the home currency, whether multicurrency, class tracking, department tracking and sales tax are on, the fiscal-year start month and the book close date, plus the sales-form, vendor and product preference settings as JSON. One row per company.
 tags: ["owox", "connector", "quickbooks"]
 type: "OWOX Data Mart"
 sources:
@@ -41,8 +41,8 @@ sources:
 
 # Example Questions
 
-- Does this company run on accrual or cash accounting, and does it track classes, departments and multicurrency?
-- Which default accounts and sales terms do new transactions pick up?
+- Does this company track classes, departments and multicurrency, and what is its home currency?
+- What are the company's fiscal-year start month and book close date?
 
 ## Joins
 

@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Shopify · `orders`
 - **Default destination table:** `shopify_orders`
 - **Unique keys:** `id`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

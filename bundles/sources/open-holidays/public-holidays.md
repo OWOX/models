@@ -1,7 +1,7 @@
 ---
 title: "Public Holidays"
 description: |
-  One row per holiday of one country: the holiday `id`, its `date`, its `name` in the configured language, its `type`, whether it applies nationwide, and its regional and temporal scope. The API's types are Public, Bank, Optional, School, BackToSchool and EndOfLessons, its regional scope is National, Regional or Local, and its temporal scope is FullDay or HalfDay.
+  One row per holiday of one country: the holiday `id`, its `date`, its `name` in the configured language, its `type`, whether it applies nationwide, and its regional and temporal scope. This endpoint returns public holidays, whose `type` is Public or Optional (the API's type list also has Bank and the school types, which its separate school-holiday endpoint uses); the regional scope is National, Regional or Local and the temporal scope is FullDay or HalfDay. `name` is the name in the configured language, or `Unknown` when the API has none in that language.
 
   `date` is the holiday's start date. A holiday that lasts several days has one row, and its end date is not loaded. Join the table to a daily table on `date` to flag holidays.
 tags: ["owox", "connector", "open-holidays"]

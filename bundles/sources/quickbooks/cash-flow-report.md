@@ -15,7 +15,7 @@ sources:
 - **Endpoint:** QuickBooks · `cash_flow`
 - **Default destination table:** `quickbooks_report_cash_flow`
 - **Unique keys:** `realm_id`, `report_name`, `start_period`, `end_period`, `accounting_method_param`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

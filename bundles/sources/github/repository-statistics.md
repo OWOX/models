@@ -3,7 +3,7 @@ title: "Repository Statistics"
 description: |
   One row per run: the `date` the connector ran, the number of stars (`stars`) and the number of contributors (`contributors`) the repository had that day. GitHub does not return a history of these counts, so the history exists only for the days the connector has run; a day it did not run has no row.
 
-  The `contributors` count is the length of the first page of up to 1,000 contributors, so it stops at 1,000.
+  The `contributors` count is the length of the first page of contributors the API returns, at most 100, so it stops at 100.
 tags: ["owox", "connector", "github"]
 type: "OWOX Data Mart"
 sources:

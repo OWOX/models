@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** Shopify · `abandoned-checkouts`
 - **Default destination table:** `shopify_abandoned_checkouts`
 - **Unique keys:** `id`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

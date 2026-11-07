@@ -3,7 +3,7 @@ title: "GitHub"
 description: |
   What the OWOX Data Marts GitHub connector loads about one repository: its details, a daily count of stars and contributors, and its contributors. The connector is configured with one repository in the form `owner/repo`, so every table describes that single repository.
 
-  The three tables share no key. [Repository Information](./repository-information.md) holds the repository's own `id`, but neither [Repository Statistics](./repository-statistics.md) nor [Repository Contributors](./repository-contributors.md) repeats it, so the tables are not joined here. To follow several repositories, load each into its own tables and combine them in the data warehouse. Contributors are read in one page of up to 1,000, so a repository with more has an incomplete list.
+  The three tables share no key. [Repository Information](./repository-information.md) holds the repository's own `id`, but neither [Repository Statistics](./repository-statistics.md) nor [Repository Contributors](./repository-contributors.md) repeats it, so the tables are not joined here. To follow several repositories, load each into its own tables and combine them in the data warehouse. Contributors are read in one request, and GitHub returns at most 100 per page, so for a repository with more than 100 contributors the list and the count stop at 100.
 tags: ["owox", "index", "connector", "github"]
 type: "index"
 sources:

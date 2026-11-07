@@ -1,7 +1,7 @@
 ---
 title: "Repository Contributors"
 description: |
-  One row per contributor the GitHub API lists for the repository: login, user `id`, profile and avatar URLs, `type` (User or Bot), whether the person is a site admin and the number of `contributions`. It lists the first page of up to 1,000 contributors, ordered by GitHub.
+  One row per contributor the GitHub API lists for the repository: login, user `id`, profile and avatar URLs, `type` (User or Bot), whether the person is a site admin and the number of `contributions`. It lists the first page the API returns, at most 100 contributors, ordered by GitHub.
 
   The table does not repeat the repository, so it describes the one repository the connector is configured for.
 tags: ["owox", "connector", "github"]

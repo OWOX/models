@@ -33,7 +33,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line\[\] as JSON; DetailType is AccountBasedExpenseLineDetail (AccountRef) or ItemBasedExpenseLineDetail (ItemRef). |
+| `line` | JSON | Line[] as JSON; DetailType is AccountBasedExpenseLineDetail (AccountRef) or ItemBasedExpenseLineDetail (ItemRef). |
 | `due_date` | DATE |  |
 | `balance` | FLOAT |  |
 | `vendor_id` | STRING |  |

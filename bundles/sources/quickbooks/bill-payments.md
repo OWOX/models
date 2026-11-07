@@ -43,12 +43,12 @@ sources:
 | `check_print_status` | STRING |  |
 | `credit_card_account_id` | STRING |  |
 | `credit_card_account_name` | STRING |  |
-| `line` | JSON | Line\[\] as JSON; LinkedTxn\[\] {TxnId, TxnType=Bill} names the bills settled. |
+| `line` | JSON | Line[] as JSON; LinkedTxn[] {TxnId, TxnType=Bill} names the bills settled. |
 
 # Example Questions
 
 - How much was paid to vendors per month, by check and by card?
-- Which bills are still unpaid after their due date?
+- Which vendors received the largest payments, and from which accounts?
 
 ## Joins
 

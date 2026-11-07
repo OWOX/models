@@ -20,7 +20,7 @@ sources:
 - **Endpoint:** LinkedIn Pages · `follower_statistics_time_bound`
 - **Default destination table:** `linkedin_pages_follower_statistics_time_bound`
 - **Unique keys:** `organization_urn`, `time_range_start`, `time_range_end`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

@@ -32,7 +32,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line\[\] as JSON; JournalEntryLineDetail has PostingType (Debit/Credit), AccountRef and optional Entity {Type, EntityRef}. |
+| `line` | JSON | Line[] as JSON; JournalEntryLineDetail has PostingType (Debit/Credit), AccountRef and optional Entity {Type, EntityRef}. |
 | `adjustment` | BOOLEAN |  |
 | `total_amt` | FLOAT | Sum of one side of the entry. |
 | `home_total_amt` | FLOAT |  |
@@ -44,5 +44,5 @@ sources:
 
 ## Joins
 
-- [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — Debit and credit lines, each with its account, sit in line as JSON.
-  - Description: Debit and credit lines, each with its account, sit in line as JSON.
+- [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
+  - Description: The company the row belongs to.

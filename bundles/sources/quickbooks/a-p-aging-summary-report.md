@@ -15,7 +15,7 @@ sources:
 - **Endpoint:** QuickBooks · `aged_payables`
 - **Default destination table:** `quickbooks_report_aged_payables`
 - **Unique keys:** `realm_id`, `report_name`, `start_period`, `end_period`
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

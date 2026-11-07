@@ -33,7 +33,7 @@ sources:
 | `currency_name` | STRING |  |
 | `exchange_rate` | FLOAT |  |
 | `private_note` | STRING |  |
-| `line` | JSON | Line array kept as JSON. Unnest in SQL: DetailType decides which \*LineDetail object is present. |
+| `line` | JSON | Line array kept as JSON. Unnest in SQL: DetailType decides which *LineDetail object is present. |
 | `due_date` | DATE |  |
 | `balance` | FLOAT | Unpaid remainder; 0 when fully paid. |
 | `customer_id` | STRING |  |
