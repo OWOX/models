@@ -42,5 +42,5 @@ sources:
 ## Joins
 
 - [Properties](./properties.md) — `site_url = site_url` [N:1]
-- [Performance by query](./performance-by-query.md) — `query = query` [N:1] — Same site_url, search_type and date: the pages Google showed for one query on one day.
-- [Performance by page](./performance-by-page.md) — `page = page` [N:1] — Same site_url, search_type and date: the queries one page was shown for on one day.
+- [Performance by query](./performance-by-query.md) — `site_url = site_url`, `search_type = search_type`, `date = date`, `query = query` [N:1] — Same site_url, search_type and date: the pages Google showed for one query on one day.
+- [Performance by page](./performance-by-page.md) — `site_url = site_url`, `search_type = search_type`, `date = date`, `page = page` [N:1] — Same site_url, search_type and date: the queries one page was shown for on one day.

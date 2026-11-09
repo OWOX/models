@@ -42,4 +42,4 @@ sources:
 ## Joins
 
 - [Properties](./properties.md) — `site_url = site_url` [N:1]
-- [Performance by date](./performance-by-date.md) — `date = date` [N:1] — Same site_url and search_type: the day's queries roll up to the day total, minus the anonymised share.
+- [Performance by date](./performance-by-date.md) — `site_url = site_url`, `search_type = search_type`, `date = date` [N:1] — Same site_url and search_type: the day's queries roll up to the day total, minus the anonymised share.

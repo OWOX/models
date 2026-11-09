@@ -50,4 +50,4 @@ sources:
 ## Joins
 
 - [Properties](./properties.md) — `site_url = site_url` [N:1]
-- [Performance by page](./performance-by-page.md) — `inspection_url = page` [1:N] — The inspected URL is the page the performance rows are keyed on; join to see whether a page that lost clicks is still indexed.
+- [Performance by page](./performance-by-page.md) — `site_url = site_url`, `inspection_url = page` [1:N] — The inspected URL is the page the performance rows are keyed on; join to see whether a page that lost clicks is still indexed.
