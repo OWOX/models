@@ -41,5 +41,5 @@ sources:
 
 ## Joins
 
-- [Invoices](./invoices.md) — `id = id` [N:1] — Several change rows per invoice; a row with `status = Deleted` has no live counterpart.
+- [Invoices](./invoices.md) — `id = id`, `realm_id = realm_id` [N:1] — Several change rows per invoice; a row whose `status` is Deleted has no live counterpart.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

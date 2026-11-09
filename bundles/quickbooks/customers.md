@@ -61,4 +61,4 @@ sources:
 ## Joins
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
-- [Customers](./customers.md) — `parent_id = id` [N:1] — Sub-customer (project) to its parent customer.
+- [Customers](./customers.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-customer (project) to its parent customer.

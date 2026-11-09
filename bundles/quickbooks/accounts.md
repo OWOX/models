@@ -53,4 +53,4 @@ sources:
 ## Joins
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — Every table carries the company id.
-- [Accounts](./accounts.md) — `parent_id = id` [N:1] — Sub-account to its parent account.
+- [Accounts](./accounts.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-account to its parent account.

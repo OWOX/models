@@ -57,6 +57,6 @@ sources:
 
 ## Joins
 
-- [Customers](./customers.md) — `customer_id = id` [N:1]
-- [Accounts](./accounts.md) — `deposit_to_account_id = id` [N:1] — Account the refund was paid from.
+- [Customers](./customers.md) — `customer_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `deposit_to_account_id = id`, `realm_id = realm_id` [N:1] — Account the refund was paid from.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

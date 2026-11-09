@@ -58,6 +58,6 @@ sources:
 ## Joins
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
-- [Accounts](./accounts.md) — `income_account_id = id` [N:1] — Where sales of the item are booked.
-- [Accounts](./accounts.md) — `expense_account_id = id` [N:1] — Where purchases of the item are booked (COGS for inventory).
-- [Items](./items.md) — `parent_id = id` [N:1] — Sub-item to its parent item or category.
+- [Accounts](./accounts.md) — `income_account_id = id`, `realm_id = realm_id` [N:1] — Where sales of the item are booked.
+- [Accounts](./accounts.md) — `expense_account_id = id`, `realm_id = realm_id` [N:1] — Where purchases of the item are booked (COGS for inventory).
+- [Items](./items.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-item to its parent item or category.

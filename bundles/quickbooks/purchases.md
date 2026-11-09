@@ -57,6 +57,6 @@ sources:
 
 ## Joins
 
-- [Accounts](./accounts.md) — `account_id = id` [N:1] — Bank, credit card or cash account paid from.
-- [Vendors](./vendors.md) — `entity_id = id` [N:1] — Only when the payee is a vendor; QuickBooks also allows a customer or employee here.
+- [Accounts](./accounts.md) — `account_id = id`, `realm_id = realm_id` [N:1] — Bank, credit card or cash account paid from.
+- [Vendors](./vendors.md) — `entity_id = id`, `realm_id = realm_id` [N:1] — Only when the payee is a vendor; QuickBooks also allows a customer or employee here.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

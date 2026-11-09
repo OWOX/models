@@ -57,6 +57,6 @@ sources:
 
 ## Joins
 
-- [Vendors](./vendors.md) — `vendor_id = id` [N:1]
-- [Accounts](./accounts.md) — `ap_account_id = id` [N:1] — Accounts Payable account the bill posts to.
+- [Vendors](./vendors.md) — `vendor_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `ap_account_id = id`, `realm_id = realm_id` [N:1] — Accounts Payable account the bill posts to.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

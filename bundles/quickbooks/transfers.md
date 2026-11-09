@@ -47,6 +47,6 @@ sources:
 
 ## Joins
 
-- [Accounts](./accounts.md) — `from_account_id = id` [N:1]
-- [Accounts](./accounts.md) — `to_account_id = id` [N:1]
+- [Accounts](./accounts.md) — `from_account_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `to_account_id = id`, `realm_id = realm_id` [N:1]
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

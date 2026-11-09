@@ -52,6 +52,6 @@ sources:
 
 ## Joins
 
-- [Accounts](./accounts.md) — `deposit_to_account_id = id` [N:1]
-- [Accounts](./accounts.md) — `cash_back_account_id = id` [N:1] — Only when cash back was taken.
+- [Accounts](./accounts.md) — `deposit_to_account_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `cash_back_account_id = id`, `realm_id = realm_id` [N:1] — Only when cash back was taken.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]

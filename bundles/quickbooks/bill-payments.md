@@ -54,8 +54,8 @@ sources:
 
 ## Joins
 
-- [Vendors](./vendors.md) — `vendor_id = id` [N:1]
-- [Accounts](./accounts.md) — `ap_account_id = id` [N:1]
-- [Accounts](./accounts.md) — `check_bank_account_id = id` [N:1] — Bank account for a check payment.
-- [Accounts](./accounts.md) — `credit_card_account_id = id` [N:1] — Credit card account for a card payment.
+- [Vendors](./vendors.md) — `vendor_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `ap_account_id = id`, `realm_id = realm_id` [N:1]
+- [Accounts](./accounts.md) — `check_bank_account_id = id`, `realm_id = realm_id` [N:1] — Bank account for a check payment.
+- [Accounts](./accounts.md) — `credit_card_account_id = id`, `realm_id = realm_id` [N:1] — Credit card account for a card payment.
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
