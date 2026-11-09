@@ -39,7 +39,7 @@ sources:
 | `currency_id` | STRING | Currency ID | |
 | `currency_name` | STRING | Currency Name | |
 | `sub_account` | BOOLEAN | Sub Account | |
-| `parent_id` | STRING | Parent ID | FK to [Accounts](./accounts.md). |
+| `parent_id` | STRING | Parent ID | The parent account's `id` in this same table, within the same `realm_id`. `parent_name` and `fully_qualified_name` already carry the hierarchy. |
 | `parent_name` | STRING | Parent Name | |
 | `description` | STRING | Description | |
 | `active` | BOOLEAN | Active | |
@@ -53,4 +53,3 @@ sources:
 ## Joins
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — Every table carries the company id.
-- [Accounts](./accounts.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-account to its parent account.
