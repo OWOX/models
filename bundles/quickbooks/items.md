@@ -45,7 +45,7 @@ sources:
 | `asset_account_id` | STRING | Asset Account ID | |
 | `asset_account_name` | STRING | Asset Account Name | |
 | `sub_item` | BOOLEAN | Sub Item | |
-| `parent_id` | STRING | Parent ID | FK to [Items](./items.md). |
+| `parent_id` | STRING | Parent ID | The parent item's or category's `id` in this same table, within the same `realm_id`. `parent_name` and `fully_qualified_name` already carry the hierarchy. |
 | `parent_name` | STRING | Parent Name | |
 | `active` | BOOLEAN | Active | |
 
@@ -60,4 +60,3 @@ sources:
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
 - [Accounts](./accounts.md) — `income_account_id = id`, `realm_id = realm_id` [N:1] — Where sales of the item are booked.
 - [Accounts](./accounts.md) — `expense_account_id = id`, `realm_id = realm_id` [N:1] — Where purchases of the item are booked (COGS for inventory).
-- [Items](./items.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-item to its parent item or category.

@@ -40,7 +40,7 @@ sources:
 | `currency_name` | STRING | Currency Name | |
 | `taxable` | BOOLEAN | Taxable | |
 | `job` | BOOLEAN | Job | True for sub-customers (projects). |
-| `parent_id` | STRING | Parent ID | FK to [Customers](./customers.md). |
+| `parent_id` | STRING | Parent ID | The parent customer's `id` in this same table, within the same `realm_id`; set for sub-customers and projects. `parent_name` already carries the parent's name. |
 | `parent_name` | STRING | Parent Name | |
 | `payment_method_id` | STRING | Payment Method ID | |
 | `payment_method_name` | STRING | Payment Method Name | |
@@ -61,4 +61,3 @@ sources:
 ## Joins
 
 - [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
-- [Customers](./customers.md) — `parent_id = id`, `realm_id = realm_id` [N:1] — Sub-customer (project) to its parent customer.
