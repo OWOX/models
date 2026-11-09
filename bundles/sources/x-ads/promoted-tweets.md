@@ -24,16 +24,16 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `line_item_id` | STRING | ID of the parent line item |
-| `id` | STRING | PK. Unique identifier for the promoted tweet |
-| `entity_status` | STRING | Status of the promoted tweet (e.g., ACTIVE, PAUSED) |
-| `created_at` | DATETIME | Timestamp when the promoted tweet was created |
-| `updated_at` | DATETIME | Timestamp when the promoted tweet was last updated |
-| `approval_status` | STRING | Approval status of the promoted tweet (e.g., ACCEPTED, REJECTED) |
-| `tweet_id` | STRING | ID of the original tweet |
-| `deleted` | BOOLEAN | Flag indicating whether the promoted tweet has been deleted |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `line_item_id` | STRING | Line Item ID | ID of the parent line item |
+| `id` | STRING | ID | PK. Unique identifier for the promoted tweet |
+| `entity_status` | STRING | Entity Status | Status of the promoted tweet (e.g., ACTIVE, PAUSED) |
+| `created_at` | DATETIME | Created at | Timestamp when the promoted tweet was created |
+| `updated_at` | DATETIME | Updated at | Timestamp when the promoted tweet was last updated |
+| `approval_status` | STRING | Approval Status | Approval status of the promoted tweet (e.g., ACCEPTED, REJECTED) |
+| `tweet_id` | STRING | Tweet ID | ID of the original tweet |
+| `deleted` | BOOLEAN | Deleted | Flag indicating whether the promoted tweet has been deleted |
 
 # Example Questions
 

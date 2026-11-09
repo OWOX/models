@@ -1,5 +1,8 @@
+import { spawnSync } from 'node:child_process'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { TYPE_MAP, buildModel, parseSchemaMd, parseUniqueKeys, pinned, renderBundle, slugify } from './lib.mjs'
+import { TYPE_MAP, buildModel, humanize, parseSchemaMd, parseUniqueKeys, pinned, renderBundle, slugify } from './lib.mjs'
 
 const SCHEMA = `| Field | Type | Description |
 | --- | --- | --- |
@@ -114,6 +117,38 @@ const base = () => ({
   },
 })
 
+describe('buildModel, alternateKeys and updated', () => {
+  const withAccount = () => {
+    const b = base()
+    b.endpoints[0] = ep('Parents', 'parents', ['id', 'code'], ['id', 'code'])
+    b.endpoints[1] = ep('Children', 'children', ['id', 'code'], ['id'])
+    b.authored.joins = [{ from: 'Children', to: 'Parents', on: [['code', 'code']], cardinality: 'N:1', note: 'The parent.', source: 'https://example.com' }]
+    return b
+  }
+  it('refuses an N:1 join on one of two key columns, unless the author names it an alternate key with a source', () => {
+    expect(() => buildModel(withAccount())).toThrow(/do not cover Parents's unique keys \(id\)/)
+    const b = withAccount()
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['code'], source: 'https://example.com (code: "The code")' }]
+    const doc = renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })['parents.md']
+    expect(doc).toContain('- **Also unique on its own:** `code`')
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['code'], source: '' }]
+    expect(() => buildModel(b)).toThrow(/needs a source/)
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['nope'], source: 's' }]
+    expect(() => buildModel(b)).toThrow(/must list columns this endpoint has/)
+  })
+  it('shows Last updated in the document and in the index table, and checks the date and commit', () => {
+    const b = base()
+    const sha = 'a'.repeat(40)
+    b.authored.endpoints.Parents.updated = { date: '2026-05-18', commit: sha }
+    const files = renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })
+    expect(files['parents.md']).toContain(`- **Last updated:** 2026-05-18 — last change to this endpoint's fields in the connector ([aaaaaaaaa](https://github.com/o/r/commit/${sha}))`)
+    expect(files['index.md']).toContain('| Data Mart | Fields | Last updated | Description |')
+    expect(files['index.md']).toMatch(/\| \[Parents\]\(\.\/parents\.md\) \| 1 \| 2026-05-18 \|/)
+    b.authored.endpoints.Parents.updated = { date: '18 May', commit: 'abc' }
+    expect(() => buildModel(b)).toThrow(/updated needs a date/)
+  })
+})
+
 describe('buildModel, OBJECT and DATETIME columns', () => {
   it('renders them as JSON and DATETIME in the schema table', () => {
     const b = base()
@@ -135,8 +170,8 @@ describe('buildModel', () => {
     expect(Object.keys(files).sort()).toEqual(['children.md', 'index.md', 'parents.md'])
     expect(files['children.md']).toContain('- [Parents](./parents.md) — `parent_id = id` [N:1] — The parent.')
     expect(files['parents.md']).not.toContain('## Joins')
-    expect(files['children.md']).toContain('| `id` | STRING | PK. id. |')
-    expect(files['children.md']).toContain('| `parent_id` | STRING | parent_id. |')
+    expect(files['children.md']).toContain('| `id` | STRING | ID | PK. id. |')
+    expect(files['children.md']).toContain('| `parent_id` | STRING | Parent ID | parent_id. |')
   })
   it('is deterministic', () => {
     const o = { svgPath: 's.svg', exploreUrl: 'u' }
@@ -208,5 +243,64 @@ describe('join note guards', () => {
   })
   it('refuses to pin a URL it cannot pin', () => {
     expect(() => pinned('https://example.com/x', 'abc')).toThrow(/Cannot pin/)
+  })
+})
+
+describe('aliases', () => {
+  it('humanises a column name: acronyms in capitals, small words in lower case', () => {
+    expect(humanize('ad_group_cpc_bid_micros')).toBe('Ad Group CPC Bid Micros')
+    expect(humanize('cost_per_conversion')).toBe('Cost per Conversion')
+    expect(humanize('ad_final_urls')).toBe('Ad Final URLs')
+    expect(humanize('position_estimates_top_of_page_cpc_micros')).toBe('Position Estimates Top of Page CPC Micros')
+  })
+  it('writes the Alias column, with endpoint-specific overrides winning over source-wide ones', () => {
+    const b = base()
+    b.authored.aliases = { parent_id: 'Parent', 'Children.parent_id': 'Parent of the child' }
+    const files = renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })
+    expect(files['children.md']).toContain('| Column | Type | Alias | Description |')
+    expect(files['children.md']).toContain('| `id` | STRING | ID | PK. id. |')
+    expect(files['children.md']).toContain('| `parent_id` | STRING | Parent of the child | parent_id. |')
+  })
+  it.each([
+    ['an override for a field nothing has', (b) => { b.authored.aliases = { nope: 'X' } }, /matches no field/],
+    ['an override for an endpoint the source lacks', (b) => { b.authored.aliases = { 'Ghost.id': 'X' } }, /Ghost, which/],
+    ['an alias with a pipe', (b) => { b.authored.aliases = { id: 'a|b' } }, /no pipe/],
+    ['two fields of one table with the same alias', (b) => { b.authored.aliases = { 'Children.parent_id': 'ID' } }, /same alias "ID"/],
+  ])('refuses %s', (_, mutate, message) => {
+    const b = base()
+    mutate(b)
+    expect(() => buildModel(b)).toThrow(message)
+  })
+})
+
+describe('joins between one pair of tables', () => {
+  const twice = (second) => {
+    const b = base()
+    b.endpoints[0].rows.push({ column: 'other', type: 'STRING', description: '' })
+    b.endpoints[0].uniqueKeys = ['id']
+    b.endpoints[1].rows.push({ column: 'other_id', type: 'STRING', description: '' })
+    b.authored.joins.push({ ...b.authored.joins[0], ...second })
+    return b
+  }
+  it('keeps parallel joins that differ in their keys', () => {
+    const model = buildModel(twice({ on: [['other_id', 'id']], note: 'Another route.' }))
+    expect(model.docs.find((d) => d.slug === 'children').joins).toHaveLength(2)
+  })
+  it('refuses the same join twice, whatever the order of its key pairs', () => {
+    expect(() => buildModel(twice({ note: 'Again.' }))).toThrow(/repeats join 1/)
+  })
+  it('refuses a join of a table to itself', () => {
+    const b = base()
+    b.authored.joins[0] = { ...b.authored.joins[0], to: 'Children', on: [['id', 'id']] }
+    expect(() => buildModel(b)).toThrow(/to itself/)
+  })
+})
+
+describe('the CLI', () => {
+  const run = (...args) => spawnSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), 'generate.mjs'), ...args], { encoding: 'utf8' })
+  it.each(['../e-commerce', 'Google_Ads', 'a/b', '-x'])('refuses the source key %s before touching a folder', (key) => {
+    const r = run(key, '--owox-com', '.', '--data-marts', '.')
+    expect(r.status).toBe(2)
+    expect(r.stderr).toMatch(/source key must be/)
   })
 })

@@ -24,34 +24,34 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `keyword_id` | STRING | PK. Keyword Criterion ID |
-| `keyword_text` | STRING | Keyword Text |
-| `keyword_match_type` | STRING | Keyword Match Type (EXACT, PHRASE, BROAD) |
-| `keyword_status` | STRING | Criterion Status (ENABLED, PAUSED, REMOVED) |
-| `ad_group_id` | STRING | Ad Group ID |
-| `campaign_id` | STRING | Campaign ID |
-| `date` | STRING | PK. Date for time series data |
-| `impressions` | NUMERIC | Number of Impressions |
-| `clicks` | NUMERIC | Number of Clicks |
-| `cost_micros` | NUMERIC | Cost in Micros |
-| `conversions` | NUMERIC | Number of Conversions |
-| `ctr` | NUMERIC | Click-Through Rate |
-| `average_cpc` | NUMERIC | Average Cost Per Click |
-| `conversions_value` | NUMERIC | Total Conversion Value |
-| `cost_per_conversion` | NUMERIC | Cost Per Conversion |
-| `quality_score` | NUMERIC | Quality Score |
-| `conversion_rate` | NUMERIC | Conversion Rate |
-| `view_through_conversions` | NUMERIC | View-Through Conversions |
-| `all_conversions` | NUMERIC | All Conversions (including cross-device, store visits, etc.) |
-| `all_conversions_value` | NUMERIC | All Conversions Value |
-| `average_cost` | NUMERIC | Average Cost Per Interaction |
-| `average_cpm` | NUMERIC | Average CPM (Cost Per Thousand Impressions) |
-| `search_impression_share` | NUMERIC | Search Impression Share |
-| `search_rank_lost_impression_share` | NUMERIC | Search Rank Lost Impression Share |
-| `top_impression_percentage` | NUMERIC | Top Impression Percentage |
-| `absolute_top_impression_percentage` | NUMERIC | Absolute Top Impression Percentage |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `keyword_id` | STRING | Keyword ID | PK. Keyword Criterion ID |
+| `keyword_text` | STRING | Keyword Text | Keyword Text |
+| `keyword_match_type` | STRING | Keyword Match Type | Keyword Match Type (EXACT, PHRASE, BROAD) |
+| `keyword_status` | STRING | Keyword Status | Criterion Status (ENABLED, PAUSED, REMOVED) |
+| `ad_group_id` | STRING | Ad Group ID | Ad Group ID |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `date` | STRING | Date | PK. Date for time series data |
+| `impressions` | NUMERIC | Impressions | Number of Impressions |
+| `clicks` | NUMERIC | Clicks | Number of Clicks |
+| `cost_micros` | NUMERIC | Cost Micros | Cost in Micros |
+| `conversions` | NUMERIC | Conversions | Number of Conversions |
+| `ctr` | NUMERIC | CTR | Click-Through Rate |
+| `average_cpc` | NUMERIC | Average CPC | Average Cost Per Click |
+| `conversions_value` | NUMERIC | Conversions Value | Total Conversion Value |
+| `cost_per_conversion` | NUMERIC | Cost per Conversion | Cost Per Conversion |
+| `quality_score` | NUMERIC | Quality Score | Quality Score |
+| `conversion_rate` | NUMERIC | Conversion Rate | Conversion Rate |
+| `view_through_conversions` | NUMERIC | View Through Conversions | View-Through Conversions |
+| `all_conversions` | NUMERIC | All Conversions | All Conversions (including cross-device, store visits, etc.) |
+| `all_conversions_value` | NUMERIC | All Conversions Value | All Conversions Value |
+| `average_cost` | NUMERIC | Average Cost | Average Cost Per Interaction |
+| `average_cpm` | NUMERIC | Average CPM | Average CPM (Cost Per Thousand Impressions) |
+| `search_impression_share` | NUMERIC | Search Impression Share | Search Impression Share |
+| `search_rank_lost_impression_share` | NUMERIC | Search Rank Lost Impression Share | Search Rank Lost Impression Share |
+| `top_impression_percentage` | NUMERIC | Top Impression Percentage | Top Impression Percentage |
+| `absolute_top_impression_percentage` | NUMERIC | Absolute Top Impression Percentage | Absolute Top Impression Percentage |
 
 # Example Questions
 

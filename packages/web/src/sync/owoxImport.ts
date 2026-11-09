@@ -1,4 +1,4 @@
-import type { ModelGraph, ModelNode, ModelEdge, InputSource } from "@mc/okf";
+import { joinRelation, hasNoKeys, type ModelGraph, type ModelNode, type ModelEdge, type InputSource } from "@mc/okf";
 
 export type ImportFilter = "all" | "published" | "with-relationships";
 
@@ -54,22 +54,23 @@ export function payloadToGraph(payload: ImportPayload, filter: ImportFilter): Mo
   }));
   const keyByOwoxId = new Map(nodes.map(n => [n.owoxId!, n.key]));
 
+  // Every OWOX relationship is its own join (OWOX allows several between one pair of
+  // marts, each under its own alias). B→A folds into an A→B edge as ↔ only when its
+  // keys mirror A→B's; otherwise it is a separate edge.
   const edges: ModelEdge[] = [];
-  const seen = new Map<string, ModelEdge>();
   for (const r of payload.relationships) {
     const from = keyByOwoxId.get(r.sourceId), to = keyByOwoxId.get(r.targetId);
     if (!from || !to) continue;                       // dangling → drop
-    const pair = [from, to].sort().join("|");
-    const existing = seen.get(pair);
+    const keys = r.joinConditions.map(j => ({ left: j.sourceFieldName, right: j.targetFieldName }));
+    const existing = edges.find(x => !x.bidirectional && joinRelation(x, { from, to, keys }, false) === "reverse");
     if (existing) {
       existing.bidirectional = true;
-      if (r.targetAlias && existing.from !== from) existing.reverseAlias = r.targetAlias;
+      if (r.targetAlias) existing.reverseAlias = r.targetAlias;
       if (r.description && !existing.description) existing.description = r.description;
       continue;
     }
-    const keys = r.joinConditions.map(j => ({ left: j.sourceFieldName, right: j.targetFieldName }));
     const e: ModelEdge = { id: `e${edges.length + 1}`, from, to, keys: keys.length ? keys : [{ left: "", right: "" }], bidirectional: false, existing: true, ...(r.targetAlias ? { alias: r.targetAlias } : {}), ...(r.description ? { description: r.description } : {}) };
-    edges.push(e); seen.set(pair, e);
+    edges.push(e);
   }
   return { storageId: payload.storageId, nodes, edges };
 }
@@ -99,31 +100,46 @@ export function mergeGraphs(current: ModelGraph, incoming: ModelGraph): { graph:
     }
   }
 
+  // An incoming edge lands on the canvas edge that is the same join: same direction
+  // and keys, or the reverse direction with mirrored keys. A canvas edge without keys
+  // between the same marts takes the first incoming join left unmatched. Each canvas
+  // edge takes one incoming edge at most, so parallel joins stay apart.
   const edges = [...current.edges];
-  const pairs = new Set(current.edges.map(e => [e.from, e.to].sort().join("|")));
+  const claimed = new Set<number>();
   let ec = Math.max(0, ...current.edges.map(e => Number(/(\d+)$/.exec(e.id)?.[1] ?? 0)));
-  for (const inc of incoming.edges) {
-    const from = keyRemap.get(inc.from)!, to = keyRemap.get(inc.to)!;
-    const pair = [from, to].sort().join("|");
-    if (pairs.has(pair)) {
-      const i = edges.findIndex(x => [x.from, x.to].sort().join("|") === pair);
-      if (i >= 0) {
-        // OWOX is the source of truth for aliases of a relationship it already
-        // has; map them onto the canvas edge's own direction.
-        const x = edges[i], same = x.from === from;
-        const alias = same ? inc.alias : inc.reverseAlias;
-        const reverseAlias = same ? inc.reverseAlias : inc.alias;
-        edges[i] = {
-          ...x,
-          ...(alias ? { alias } : {}),
-          ...(reverseAlias ? { reverseAlias } : {}),
-          ...(inc.description && !x.description ? { description: inc.description } : {}),
-        };
-      }
-      continue;
-    }
-    pairs.add(pair);
-    edges.push({ ...inc, id: `e${++ec}`, from, to });
+  const incEdges = incoming.edges.map(inc => ({ inc, from: keyRemap.get(inc.from)!, to: keyRemap.get(inc.to)! }));
+  const unmatched: typeof incEdges = [];
+  const apply = (i: number, inc: ModelEdge, from: string) => {
+    // OWOX is the source of truth for aliases of a relationship it already
+    // has; map them onto the canvas edge's own direction.
+    claimed.add(i);
+    const x = edges[i], same = x.from === from;
+    const alias = same ? inc.alias : inc.reverseAlias;
+    const reverseAlias = same ? inc.reverseAlias : inc.alias;
+    edges[i] = {
+      ...x,
+      ...(alias ? { alias } : {}),
+      ...(reverseAlias ? { reverseAlias } : {}),
+      ...(inc.description && !x.description ? { description: inc.description } : {}),
+    };
+  };
+  for (const m of incEdges) {
+    const j = { from: m.from, to: m.to, keys: m.inc.keys };
+    const i = edges.findIndex((x, idx) => !claimed.has(idx) && idx < current.edges.length && !hasNoKeys(x.keys) && joinRelation(x, j, false) !== null);
+    if (i >= 0) apply(i, m.inc, m.from); else unmatched.push(m);
+  }
+  const pairOf = (a: string, b: string) => [a, b].sort().join("|");
+  const incomingPerPair = new Map<string, number>();
+  for (const m of incEdges) incomingPerPair.set(pairOf(m.from, m.to), (incomingPerPair.get(pairOf(m.from, m.to)) ?? 0) + 1);
+  for (const m of unmatched) {
+    const pair = pairOf(m.from, m.to);
+    const open = edges.map((x, idx) => idx).filter(idx => idx < current.edges.length && !claimed.has(idx) && pairOf(edges[idx].from, edges[idx].to) === pair);
+    // A keyless canvas edge, or — when the pair has one join on each side — the only
+    // one there (its keys were edited on the canvas): the same relationship as before.
+    const i = open.find(idx => hasNoKeys(edges[idx].keys))
+      ?? (open.length === 1 && incomingPerPair.get(pair) === 1 && current.edges.filter(x => pairOf(x.from, x.to) === pair).length === 1 ? open[0] : undefined);
+    if (i !== undefined) { apply(i, m.inc, m.from); continue; }
+    edges.push({ ...m.inc, id: `e${++ec}`, from: m.from, to: m.to });
   }
 
   return { graph: { storageId: current.storageId ?? incoming.storageId, nodes, edges, ...(current.description ? { description: current.description } : {}) }, newKeys };

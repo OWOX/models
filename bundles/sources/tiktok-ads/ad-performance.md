@@ -24,47 +24,47 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_id` | STRING | PK. Ad ID |
-| `advertiser_id` | STRING | PK. Advertiser ID |
-| `campaign_id` | STRING | Campaign ID |
-| `adgroup_id` | STRING | Ad Group ID |
-| `stat_time_day` | DATE | PK. Statistics Date |
-| `date_start` | DATE | Start Date |
-| `date_end` | DATE | End Date |
-| `impressions` | INTEGER | Impressions |
-| `clicks` | INTEGER | Clicks |
-| `cost` | NUMERIC | Cost |
-| `ctr` | NUMERIC | Click-Through Rate |
-| `conversion` | INTEGER | Conversions |
-| `cost_per_conversion` | NUMERIC | Cost Per Conversion |
-| `conversion_rate` | NUMERIC | Conversion Rate |
-| `reach` | INTEGER | Reach |
-| `engagement` | INTEGER | Engagement |
-| `video_views` | INTEGER | Video Views |
-| `video_watched_2s` | INTEGER | 2s Video Views |
-| `video_watched_6s` | INTEGER | 6s Video Views |
-| `video_completion` | INTEGER | Video Completion |
-| `spend` | NUMERIC | Spend |
-| `cpc` | NUMERIC | Cost per click |
-| `cpm` | NUMERIC | Cost per thousand impressions |
-| `frequency` | NUMERIC | Frequency of occurrence |
-| `video_play_actions` | INTEGER | Number of video plays |
-| `video_views_p25` | INTEGER | Video views at 25% completion |
-| `video_views_p50` | INTEGER | Video views at 50% completion |
-| `video_views_p75` | INTEGER | Video views at 75% completion |
-| `video_views_p100` | INTEGER | Video views at 100% completion |
-| `profile_visits` | INTEGER | Profile visits |
-| `likes` | INTEGER | Likes count |
-| `comments` | INTEGER | Comments count |
-| `shares` | INTEGER | Shares count |
-| `follows` | INTEGER | Follows count |
-| `real_time_conversion` | INTEGER | Real-time conversions |
-| `real_time_cost_per_conversion` | NUMERIC | Cost per conversion in real-time |
-| `real_time_conversion_rate` | NUMERIC | Real-time conversion rate |
-| `result` | INTEGER | Number of results |
-| `cost_per_result` | NUMERIC | Cost per result |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_id` | STRING | Ad ID | PK. Ad ID |
+| `advertiser_id` | STRING | Advertiser ID | PK. Advertiser ID |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `adgroup_id` | STRING | Adgroup ID | Ad Group ID |
+| `stat_time_day` | DATE | Stat Time Day | PK. Statistics Date |
+| `date_start` | DATE | Date Start | Start Date |
+| `date_end` | DATE | Date End | End Date |
+| `impressions` | INTEGER | Impressions | Impressions |
+| `clicks` | INTEGER | Clicks | Clicks |
+| `cost` | NUMERIC | Cost | Cost |
+| `ctr` | NUMERIC | CTR | Click-Through Rate |
+| `conversion` | INTEGER | Conversion | Conversions |
+| `cost_per_conversion` | NUMERIC | Cost per Conversion | Cost Per Conversion |
+| `conversion_rate` | NUMERIC | Conversion Rate | Conversion Rate |
+| `reach` | INTEGER | Reach | Reach |
+| `engagement` | INTEGER | Engagement | Engagement |
+| `video_views` | INTEGER | Video Views | Video Views |
+| `video_watched_2s` | INTEGER | Video Watched 2s | 2s Video Views |
+| `video_watched_6s` | INTEGER | Video Watched 6s | 6s Video Views |
+| `video_completion` | INTEGER | Video Completion | Video Completion |
+| `spend` | NUMERIC | Spend | Spend |
+| `cpc` | NUMERIC | CPC | Cost per click |
+| `cpm` | NUMERIC | CPM | Cost per thousand impressions |
+| `frequency` | NUMERIC | Frequency | Frequency of occurrence |
+| `video_play_actions` | INTEGER | Video Play Actions | Number of video plays |
+| `video_views_p25` | INTEGER | Video Views P25 | Video views at 25% completion |
+| `video_views_p50` | INTEGER | Video Views P50 | Video views at 50% completion |
+| `video_views_p75` | INTEGER | Video Views P75 | Video views at 75% completion |
+| `video_views_p100` | INTEGER | Video Views P100 | Video views at 100% completion |
+| `profile_visits` | INTEGER | Profile Visits | Profile visits |
+| `likes` | INTEGER | Likes | Likes count |
+| `comments` | INTEGER | Comments | Comments count |
+| `shares` | INTEGER | Shares | Shares count |
+| `follows` | INTEGER | Follows | Follows count |
+| `real_time_conversion` | INTEGER | Real Time Conversion | Real-time conversions |
+| `real_time_cost_per_conversion` | NUMERIC | Real Time Cost per Conversion | Cost per conversion in real-time |
+| `real_time_conversion_rate` | NUMERIC | Real Time Conversion Rate | Real-time conversion rate |
+| `result` | INTEGER | Result | Number of results |
+| `cost_per_result` | NUMERIC | Cost per Result | Cost per result |
 
 # Example Questions
 

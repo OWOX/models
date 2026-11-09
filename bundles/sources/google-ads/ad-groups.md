@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_group_id` | STRING | PK. Ad Group ID |
-| `ad_group_name` | STRING | Ad Group Name |
-| `ad_group_status` | STRING | Ad Group Status (ENABLED, PAUSED, REMOVED) |
-| `ad_group_type` | STRING | Ad Group Type (SEARCH_STANDARD, DISPLAY_STANDARD, etc.) |
-| `campaign_id` | STRING | Campaign ID |
-| `campaign_name` | STRING | Campaign Name |
-| `ad_group_cpc_bid_micros` | NUMERIC | Ad Group CPC Bid in Micros |
-| `ad_group_cpm_bid_micros` | NUMERIC | Ad Group CPM Bid in Micros |
-| `ad_group_target_cpa_micros` | NUMERIC | Ad Group Target CPA in Micros |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_group_id` | STRING | Ad Group ID | PK. Ad Group ID |
+| `ad_group_name` | STRING | Ad Group Name | Ad Group Name |
+| `ad_group_status` | STRING | Ad Group Status | Ad Group Status (ENABLED, PAUSED, REMOVED) |
+| `ad_group_type` | STRING | Ad Group Type | Ad Group Type (SEARCH_STANDARD, DISPLAY_STANDARD, etc.) |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
+| `ad_group_cpc_bid_micros` | NUMERIC | Ad Group CPC Bid Micros | Ad Group CPC Bid in Micros |
+| `ad_group_cpm_bid_micros` | NUMERIC | Ad Group CPM Bid Micros | Ad Group CPM Bid in Micros |
+| `ad_group_target_cpa_micros` | NUMERIC | Ad Group Target CPA Micros | Ad Group Target CPA in Micros |
 
 # Example Questions
 

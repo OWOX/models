@@ -24,89 +24,89 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `AccountName` | STRING | The account name. |
-| `AccountNumber` | STRING | The Microsoft Advertising assigned number of an account. |
-| `AccountId` | STRING | PK. The Microsoft Advertising assigned identifier of an account. |
-| `TimePeriod` | DATE | PK. The time period of each report row. |
-| `CampaignName` | STRING | The campaign name. |
-| `CampaignId` | STRING | PK. The Microsoft Advertising assigned identifier of a campaign. |
-| `AdGroupName` | STRING | The ad group name. |
-| `AdGroupId` | STRING | PK. The Microsoft Advertising assigned identifier of an ad group. |
-| `Country` | STRING | The country where the user was located when they clicked the ad. |
-| `State` | STRING | The state where the user was located when they clicked the ad. |
-| `MetroArea` | STRING | The metro area where the user was located when they clicked the ad. |
-| `CurrencyCode` | STRING | PK. The account currency type. |
-| `AdDistribution` | STRING | PK. The network where you want your ads to show. |
-| `Impressions` | INTEGER | The number of times an ad has been displayed on search results pages. |
-| `Clicks` | INTEGER | Clicks are what you pay for. |
-| `Ctr` | NUMERIC | The click-through rate (CTR) is the number of times an ad was clicked, divided by the number of times the ad was shown. |
-| `AverageCpc` | NUMERIC | The average cost per click (CPC). |
-| `Spend` | NUMERIC | The cost per click (CPC) summed for each click. |
-| `AveragePosition` | NUMERIC | The average position of the ad on a webpage. |
-| `ProximityTargetLocation` | STRING | The location being targeted. |
-| `Radius` | STRING | The radius of the location target. |
-| `Language` | STRING | The language of the publisher where the ad was shown. |
-| `City` | STRING | The city where the user was located when they clicked the ad. |
-| `QueryIntentCountry` | STRING | The country that the user was searching for. |
-| `QueryIntentState` | STRING | The state that the user was searching for. |
-| `QueryIntentCity` | STRING | The city that the user was searching for. |
-| `QueryIntentDMA` | STRING | The DMA that the user was searching for. |
-| `BidMatchType` | STRING | PK. The keyword bid match type. |
-| `DeliveredMatchType` | STRING | PK. The match type used to deliver an ad. |
-| `Network` | STRING | The entire Microsoft Advertising Network made up of Microsoft sites and select traffic, and only partner traffic. |
-| `TopVsOther` | STRING | PK. Indicates whether the ad impression appeared in a top position or elsewhere. |
-| `DeviceType` | STRING | PK. The type of device which showed ads. |
-| `DeviceOS` | STRING | PK. The operating system of the device reported in the DeviceType column. |
-| `Assists` | STRING | The number of conversions from other ads within the same account that were preceded by one or more clicks from this ad. |
-| `Conversions` | INTEGER | The number of conversions. |
-| `ConversionRate` | NUMERIC | The conversion rate as a percentage. |
-| `Revenue` | STRING | The revenue optionally reported by the advertiser as a result of conversions. |
-| `ReturnOnAdSpend` | NUMERIC | The return on ad spend (ROAS). |
-| `CostPerConversion` | NUMERIC | The cost per conversion. |
-| `CostPerAssist` | NUMERIC | The cost per assist. |
-| `RevenuePerConversion` | STRING | The revenue per conversion. |
-| `RevenuePerAssist` | STRING | The revenue per assist. |
-| `County` | STRING | The county where the user was located when they clicked the ad. |
-| `PostalCode` | STRING | The postal code where the user was located when they clicked the ad. |
-| `QueryIntentCounty` | STRING | The county that the user was searching for. |
-| `QueryIntentPostalCode` | STRING | The postal code that the user was searching for. |
-| `LocationId` | STRING | PK. The Microsoft Advertising identifier of the location where the user was physically located when they clicked the ad. |
-| `QueryIntentLocationId` | INTEGER | The Microsoft Advertising identifier of the location that the user was searching for. |
-| `AllConversions` | INTEGER | The number of conversions. |
-| `AllRevenue` | STRING | The revenue optionally reported by the advertiser as a result of conversions. |
-| `AllConversionRate` | NUMERIC | The conversion rate as a percentage. |
-| `AllCostPerConversion` | NUMERIC | The cost per conversion. |
-| `AllReturnOnAdSpend` | NUMERIC | The return on ad spend (ROAS). |
-| `AllRevenuePerConversion` | STRING | The revenue per conversion. |
-| `ViewThroughConversions` | INTEGER | View-through conversions are conversions that people make after they have seen your ad, even though they did not click the ad. |
-| `Goal` | STRING | The name of the goal you set for the conversions you want. |
-| `GoalType` | STRING | The type of conversion goal. |
-| `AbsoluteTopImpressionRatePercent` | NUMERIC | How often your ad was in the first position of all results, as a percentage of your total impressions. |
-| `TopImpressionRatePercent` | NUMERIC | The percentage of times your ad showed in the mainline, the top placement where ads appear above the search results. |
-| `AverageCpm` | NUMERIC | The total advertising cost divided by the number of impressions (in thousands). |
-| `ConversionsQualified` | INTEGER | The number of conversions. |
-| `AllConversionsQualified` | INTEGER | The number of conversions. |
-| `ViewThroughConversionsQualified` | INTEGER | View-through conversions are conversions that people make after they have seen your ad, even though they did not click the ad. |
-| `Neighborhood` | STRING | The neighborhood where the user was located when they clicked the ad. |
-| `QueryIntentNeighborhood` | STRING | The neighborhood that the user was searching for. |
-| `ViewThroughRevenue` | STRING | The revenue optionally reported by the advertiser as a result of view-through conversions. |
-| `CampaignType` | STRING | PK. The campaign type. |
-| `AssetGroupId` | STRING | PK. The Microsoft Advertising assigned identifier of an asset group. |
-| `AssetGroupName` | STRING | The asset group name. |
-| `Downloads` | INTEGER | The number of downloads. |
-| `PostClickDownloadRate` | NUMERIC | The download rate after click. |
-| `CostPerDownload` | NUMERIC | The cost per download. |
-| `AppInstalls` | INTEGER | The number of app installs. |
-| `PostClickInstallRate` | NUMERIC | The install rate after click. |
-| `CPI` | NUMERIC | Cost per install. |
-| `Purchases` | INTEGER | The number of purchases. |
-| `PostInstallPurchaseRate` | NUMERIC | The purchase rate after install. |
-| `CPP` | NUMERIC | Cost per purchase. |
-| `Subscriptions` | INTEGER | The number of subscriptions. |
-| `PostInstallSubscriptionRate` | NUMERIC | The subscription rate after install. |
-| `CPS` | NUMERIC | Cost per subscription. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `AccountName` | STRING | AccountName | The account name. |
+| `AccountNumber` | STRING | AccountNumber | The Microsoft Advertising assigned number of an account. |
+| `AccountId` | STRING | AccountId | PK. The Microsoft Advertising assigned identifier of an account. |
+| `TimePeriod` | DATE | TimePeriod | PK. The time period of each report row. |
+| `CampaignName` | STRING | CampaignName | The campaign name. |
+| `CampaignId` | STRING | CampaignId | PK. The Microsoft Advertising assigned identifier of a campaign. |
+| `AdGroupName` | STRING | AdGroupName | The ad group name. |
+| `AdGroupId` | STRING | AdGroupId | PK. The Microsoft Advertising assigned identifier of an ad group. |
+| `Country` | STRING | Country | The country where the user was located when they clicked the ad. |
+| `State` | STRING | State | The state where the user was located when they clicked the ad. |
+| `MetroArea` | STRING | MetroArea | The metro area where the user was located when they clicked the ad. |
+| `CurrencyCode` | STRING | CurrencyCode | PK. The account currency type. |
+| `AdDistribution` | STRING | AdDistribution | PK. The network where you want your ads to show. |
+| `Impressions` | INTEGER | Impressions | The number of times an ad has been displayed on search results pages. |
+| `Clicks` | INTEGER | Clicks | Clicks are what you pay for. |
+| `Ctr` | NUMERIC | CTR | The click-through rate (CTR) is the number of times an ad was clicked, divided by the number of times the ad was shown. |
+| `AverageCpc` | NUMERIC | AverageCpc | The average cost per click (CPC). |
+| `Spend` | NUMERIC | Spend | The cost per click (CPC) summed for each click. |
+| `AveragePosition` | NUMERIC | AveragePosition | The average position of the ad on a webpage. |
+| `ProximityTargetLocation` | STRING | ProximityTargetLocation | The location being targeted. |
+| `Radius` | STRING | Radius | The radius of the location target. |
+| `Language` | STRING | Language | The language of the publisher where the ad was shown. |
+| `City` | STRING | City | The city where the user was located when they clicked the ad. |
+| `QueryIntentCountry` | STRING | QueryIntentCountry | The country that the user was searching for. |
+| `QueryIntentState` | STRING | QueryIntentState | The state that the user was searching for. |
+| `QueryIntentCity` | STRING | QueryIntentCity | The city that the user was searching for. |
+| `QueryIntentDMA` | STRING | QueryIntentDMA | The DMA that the user was searching for. |
+| `BidMatchType` | STRING | BidMatchType | PK. The keyword bid match type. |
+| `DeliveredMatchType` | STRING | DeliveredMatchType | PK. The match type used to deliver an ad. |
+| `Network` | STRING | Network | The entire Microsoft Advertising Network made up of Microsoft sites and select traffic, and only partner traffic. |
+| `TopVsOther` | STRING | TopVsOther | PK. Indicates whether the ad impression appeared in a top position or elsewhere. |
+| `DeviceType` | STRING | DeviceType | PK. The type of device which showed ads. |
+| `DeviceOS` | STRING | DeviceOS | PK. The operating system of the device reported in the DeviceType column. |
+| `Assists` | STRING | Assists | The number of conversions from other ads within the same account that were preceded by one or more clicks from this ad. |
+| `Conversions` | INTEGER | Conversions | The number of conversions. |
+| `ConversionRate` | NUMERIC | ConversionRate | The conversion rate as a percentage. |
+| `Revenue` | STRING | Revenue | The revenue optionally reported by the advertiser as a result of conversions. |
+| `ReturnOnAdSpend` | NUMERIC | ReturnOnAdSpend | The return on ad spend (ROAS). |
+| `CostPerConversion` | NUMERIC | CostPerConversion | The cost per conversion. |
+| `CostPerAssist` | NUMERIC | CostPerAssist | The cost per assist. |
+| `RevenuePerConversion` | STRING | RevenuePerConversion | The revenue per conversion. |
+| `RevenuePerAssist` | STRING | RevenuePerAssist | The revenue per assist. |
+| `County` | STRING | County | The county where the user was located when they clicked the ad. |
+| `PostalCode` | STRING | PostalCode | The postal code where the user was located when they clicked the ad. |
+| `QueryIntentCounty` | STRING | QueryIntentCounty | The county that the user was searching for. |
+| `QueryIntentPostalCode` | STRING | QueryIntentPostalCode | The postal code that the user was searching for. |
+| `LocationId` | STRING | LocationId | PK. The Microsoft Advertising identifier of the location where the user was physically located when they clicked the ad. |
+| `QueryIntentLocationId` | INTEGER | QueryIntentLocationId | The Microsoft Advertising identifier of the location that the user was searching for. |
+| `AllConversions` | INTEGER | AllConversions | The number of conversions. |
+| `AllRevenue` | STRING | AllRevenue | The revenue optionally reported by the advertiser as a result of conversions. |
+| `AllConversionRate` | NUMERIC | AllConversionRate | The conversion rate as a percentage. |
+| `AllCostPerConversion` | NUMERIC | AllCostPerConversion | The cost per conversion. |
+| `AllReturnOnAdSpend` | NUMERIC | AllReturnOnAdSpend | The return on ad spend (ROAS). |
+| `AllRevenuePerConversion` | STRING | AllRevenuePerConversion | The revenue per conversion. |
+| `ViewThroughConversions` | INTEGER | ViewThroughConversions | View-through conversions are conversions that people make after they have seen your ad, even though they did not click the ad. |
+| `Goal` | STRING | Goal | The name of the goal you set for the conversions you want. |
+| `GoalType` | STRING | GoalType | The type of conversion goal. |
+| `AbsoluteTopImpressionRatePercent` | NUMERIC | AbsoluteTopImpressionRatePercent | How often your ad was in the first position of all results, as a percentage of your total impressions. |
+| `TopImpressionRatePercent` | NUMERIC | TopImpressionRatePercent | The percentage of times your ad showed in the mainline, the top placement where ads appear above the search results. |
+| `AverageCpm` | NUMERIC | AverageCpm | The total advertising cost divided by the number of impressions (in thousands). |
+| `ConversionsQualified` | INTEGER | ConversionsQualified | The number of conversions. |
+| `AllConversionsQualified` | INTEGER | AllConversionsQualified | The number of conversions. |
+| `ViewThroughConversionsQualified` | INTEGER | ViewThroughConversionsQualified | View-through conversions are conversions that people make after they have seen your ad, even though they did not click the ad. |
+| `Neighborhood` | STRING | Neighborhood | The neighborhood where the user was located when they clicked the ad. |
+| `QueryIntentNeighborhood` | STRING | QueryIntentNeighborhood | The neighborhood that the user was searching for. |
+| `ViewThroughRevenue` | STRING | ViewThroughRevenue | The revenue optionally reported by the advertiser as a result of view-through conversions. |
+| `CampaignType` | STRING | CampaignType | PK. The campaign type. |
+| `AssetGroupId` | STRING | AssetGroupId | PK. The Microsoft Advertising assigned identifier of an asset group. |
+| `AssetGroupName` | STRING | AssetGroupName | The asset group name. |
+| `Downloads` | INTEGER | Downloads | The number of downloads. |
+| `PostClickDownloadRate` | NUMERIC | PostClickDownloadRate | The download rate after click. |
+| `CostPerDownload` | NUMERIC | CostPerDownload | The cost per download. |
+| `AppInstalls` | INTEGER | AppInstalls | The number of app installs. |
+| `PostClickInstallRate` | NUMERIC | PostClickInstallRate | The install rate after click. |
+| `CPI` | NUMERIC | CPI | Cost per install. |
+| `Purchases` | INTEGER | Purchases | The number of purchases. |
+| `PostInstallPurchaseRate` | NUMERIC | PostInstallPurchaseRate | The purchase rate after install. |
+| `CPP` | NUMERIC | CPP | Cost per purchase. |
+| `Subscriptions` | INTEGER | Subscriptions | The number of subscriptions. |
+| `PostInstallSubscriptionRate` | NUMERIC | PostInstallSubscriptionRate | The subscription rate after install. |
+| `CPS` | NUMERIC | CPS | Cost per subscription. |
 
 # Example Questions
 

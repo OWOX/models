@@ -1,6 +1,7 @@
 import type { ModelGraph, ModelNode, ModelEdge, InputSource, Cardinality, SchemaField } from "./types";
 import { parseFrontmatter } from "./slug";
 import { normalizeFieldType } from "./fieldType";
+import { joinRelation, hasNoKeys, mirrorKeys } from "./joins";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
@@ -50,6 +51,8 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
     const fromSlug = path.split("/").pop()!.replace(/\.md$/, "");
     const fromKey = (data.owox && data.owox.key) || fromSlug;
     const fromSchema = parseSchema(body);
+    // FK columns already used per target, so parallel keyless joins recover distinct columns.
+    const usedFk = new Map<string, Set<string>>();
     let lastJoin: (typeof raw)[number] | null = null;
     for (const ln of body.split("\n")) {
       const dm = ln.match(/^\s{2,}- Description:\s*(.+)$/);
@@ -61,16 +64,21 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
       const alias = am ? am[1].trim() : undefined;
       const rest = am ? m[2].slice(am[0].length) : m[2];
       const toKey = slugToKey.get(basename(m[1])); if (!toKey) continue;
-      let keys = [...rest.matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
+      // Keys come before the cardinality marker (or, without one, before the dash that
+      // opens the description). A `a = b` quoted in the description is prose, not a key.
+      const cm = rest.match(/\[(1:1|1:N|N:1|N:N)\]/);
+      const cardinality = cm ? (cm[1] as Cardinality) : undefined;
+      const keyPart = cm ? rest.slice(0, cm.index) : rest.split(/\s(?:—|--)\s/)[0];
+      let keys = [...keyPart.matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
       if (keys.length === 0) {
         // Faithful-OWOX join: recover from a `FK to [Target]` note + target PK.
         const targetTitle = nodes.find(n => n.key === toKey)?.title ?? "";
-        const fkCol = fromSchema.find(f => (f.description || "").includes(`FK to [${targetTitle}]`));
+        const used = usedFk.get(toKey) ?? new Set<string>();
+        const isFk = (f: SchemaField) => (f.description || "").includes(`FK to [${targetTitle}]`);
+        const fkCol = fromSchema.find(f => isFk(f) && !used.has(f.name)) ?? fromSchema.find(isFk);
         const rightPk = pkByKey.get(toKey);
-        if (fkCol && rightPk) keys = [{ left: fkCol.name, right: rightPk }];
+        if (fkCol && rightPk) { keys = [{ left: fkCol.name, right: rightPk }]; used.add(fkCol.name); usedFk.set(toKey, used); }
       }
-      const cm = rest.match(/\[(1:1|1:N|N:1|N:N)\]/);
-      const cardinality = cm ? (cm[1] as Cardinality) : undefined;
       lastJoin = { from: fromKey, to: toKey, keys, cardinality, alias };
       raw.push(lastJoin);
     }
@@ -115,16 +123,27 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
     }
   }
 
-  const edges: ModelEdge[] = []; const seen = new Map<string, ModelEdge>();
+  // One edge per join. A line merges into an earlier edge only when it is the same
+  // join (a duplicate) or that join's reverse with mirrored keys (↔). Another line
+  // between the same two marts with other keys is a parallel join: its own edge.
+  const edges: ModelEdge[] = [];
   for (const r of raw) {
-    const pairKey = [r.from, r.to].sort().join("|");
-    const ex = seen.get(pairKey);
+    const ex = edges.find(x => {
+      const rel = joinRelation(x, r, true);
+      if (rel === "same") return !(r.alias && x.alias && r.alias !== x.alias);
+      if (rel === "reverse") return !(r.alias && x.reverseAlias && r.alias !== x.reverseAlias);
+      return false;
+    });
     if (ex) {
-      ex.bidirectional = true;
-      if (ex.from !== r.from && r.alias) ex.reverseAlias = r.alias;
+      const forward = ex.from === r.from;
+      if (!forward) {
+        ex.bidirectional = true;
+        if (r.alias) ex.reverseAlias = r.alias;
+      } else if (!ex.alias && r.alias) ex.alias = r.alias;
+      if (hasNoKeys(ex.keys) && !hasNoKeys(r.keys)) ex.keys = forward ? r.keys : mirrorKeys(r.keys);
       if (!ex.description && r.description) ex.description = r.description;
       if (!ex.cardinality && r.cardinality) {
-        ex.cardinality = ex.from === r.from ? r.cardinality : FLIP_CARDINALITY[r.cardinality];
+        ex.cardinality = forward ? r.cardinality : FLIP_CARDINALITY[r.cardinality];
       }
       continue;
     }
@@ -132,7 +151,7 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
     if (r.cardinality) e.cardinality = r.cardinality;
     if (r.alias) e.alias = r.alias;
     if (r.description) e.description = r.description;
-    seen.set(pairKey, e); edges.push(e);
+    edges.push(e);
   }
   const storageId = (docs[0] && (parseFrontmatter(docs[0][1]).data.owox || {}).storageId) || null;
   return { storageId, nodes, edges };

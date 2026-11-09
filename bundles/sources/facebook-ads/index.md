@@ -9,7 +9,7 @@ description: |
 
   Two cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.
 
-  Two links are described in words rather than drawn. Every table carries `account_id`, which matches [Ad Account](./ad-account.md), but Ad Account lists both `id` and `account_id` as its unique key and no other table holds the `act_`-prefixed `id`, so a join cannot cover its whole key; match on `account_id`. And [Ad](./ad.md) holds the same ads as [Ads](./ads.md) (both read the account's ads list in the connector), so it is matched on `id` rather than drawn.
+  Each table is dated: its **Last updated** is the day the connector last changed what it requests from Meta for that endpoint, or how it describes it. Definitions are current as of connector commit [`8aff3513f`](https://github.com/OWOX/owox-data-marts/commit/8aff3513fdade6760a74baad9aa985167cf542ba).
 tags: ["owox", "index", "connector", "facebook-ads"]
 type: "index"
 sources:
@@ -18,25 +18,25 @@ sources:
     title: "OWOX Data Marts — Facebook Ads connector source"
 ---
 
-15 tables, 1172 fields, 9 joins.
+15 tables, 1172 fields, 24 joins.
 
-| Data Mart | Fields | Description |
-|-----------|--------|-------------|
-| [Ad](./ad.md) | 32 | Individual ads with their creative, status, and links to their campaign and ad set. |
-| [Ad Account](./ad-account.md) | 61 | Your ad account settings, status, currency, and billing details. |
-| [Ad Account User](./ad-account-user.md) | 2 | Users with access to an ad account and their assigned roles. |
-| [Ad Creatives](./ad-creatives.md) | 63 | The images, videos, text, and other visual elements used in your ads. |
-| [Ad Insights](./ad-insights.md) | 100 | Daily performance metrics for each ad — impressions, clicks, spend, and conversions. |
-| [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) | 92 | Daily ad set performance with reach deduplicated to match Meta Ads Manager. |
-| [Ad Insights by Age and Gender](./ad-insights-by-age-and-gender.md) | 102 | Daily ad performance broken down by audience age range and gender. |
-| [Ad Insights by Campaign](./ad-insights-by-campaign.md) | 89 | Daily campaign performance with reach deduplicated to match Meta Ads Manager. |
-| [Ad Insights by Country](./ad-insights-by-country.md) | 101 | Daily ad performance broken down by the country where your audience is located. |
-| [Ad Insights by Device Platform](./ad-insights-by-device-platform.md) | 101 | Daily ad performance broken down by the device type your audience used. |
-| [Ad Insights by Link URL Asset](./ad-insights-by-link-url-asset.md) | 101 | Daily ad performance broken down by the link URL shown in your ads. |
-| [Ad Insights by Product ID](./ad-insights-by-product-id.md) | 101 | Daily ad performance broken down by individual product from your catalog. |
-| [Ad Insights by Publisher Platform and Position](./ad-insights-by-publisher-platform-and-position.md) | 102 | Daily ad performance broken down by where your ads appeared — platform and placement position. |
-| [Ad Insights by Region](./ad-insights-by-region.md) | 101 | Daily ad performance broken down by the region where your audience is located. |
-| [Ads](./ads.md) | 24 | Individual ads with their status, creative, and campaign hierarchy. |
+| Data Mart | Fields | Last updated | Description |
+|-----------|--------|--------------|-------------|
+| [Ad](./ad.md) | 32 | 2026-05-29 | Individual ads with their creative, status, and links to their campaign and ad set. |
+| [Ad Account](./ad-account.md) | 61 | 2026-05-18 | Your ad account settings, status, currency, and billing details. |
+| [Ad Account User](./ad-account-user.md) | 2 | 2026-05-18 | Users with access to an ad account and their assigned roles. |
+| [Ad Creatives](./ad-creatives.md) | 63 | 2026-05-18 | The images, videos, text, and other visual elements used in your ads. |
+| [Ad Insights](./ad-insights.md) | 100 | 2026-05-18 | Daily performance metrics for each ad — impressions, clicks, spend, and conversions. |
+| [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) | 92 | 2026-06-02 | Daily ad set performance with reach deduplicated to match Meta Ads Manager. |
+| [Ad Insights by Age and Gender](./ad-insights-by-age-and-gender.md) | 102 | 2026-05-18 | Daily ad performance broken down by audience age range and gender. |
+| [Ad Insights by Campaign](./ad-insights-by-campaign.md) | 89 | 2026-06-02 | Daily campaign performance with reach deduplicated to match Meta Ads Manager. |
+| [Ad Insights by Country](./ad-insights-by-country.md) | 101 | 2026-05-29 | Daily ad performance broken down by the country where your audience is located. |
+| [Ad Insights by Device Platform](./ad-insights-by-device-platform.md) | 101 | 2026-05-18 | Daily ad performance broken down by the device type your audience used. |
+| [Ad Insights by Link URL Asset](./ad-insights-by-link-url-asset.md) | 101 | 2026-05-18 | Daily ad performance broken down by the link URL shown in your ads. |
+| [Ad Insights by Product ID](./ad-insights-by-product-id.md) | 101 | 2026-05-18 | Daily ad performance broken down by individual product from your catalog. |
+| [Ad Insights by Publisher Platform and Position](./ad-insights-by-publisher-platform-and-position.md) | 102 | 2026-05-18 | Daily ad performance broken down by where your ads appeared — platform and placement position. |
+| [Ad Insights by Region](./ad-insights-by-region.md) | 101 | 2026-05-18 | Daily ad performance broken down by the region where your audience is located. |
+| [Ads](./ads.md) | 24 | 2026-05-18 | Individual ads with their status, creative, and campaign hierarchy. |
 
 # Example Questions
 

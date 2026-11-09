@@ -29,14 +29,33 @@ bundle folder (an endpoint that no longer exists) are removed.
 
 ## Generated, and authored
 
-**Generated, never typed:** the `# Schema` rows and their types (`NUMBER` -> `NUMERIC`,
+**Generated, never typed:** the `# Schema` rows (column, type, alias, description) and their types (`NUMBER` -> `NUMERIC`,
 `ARRAY` and `OBJECT` -> `JSON`, `DATETIME` stays `DATETIME`, see `TYPE_MAP`; Meta and X datetimes carry a time-zone offset, which the connector's own type does not say, so the bundle keeps the connector's type), the primary keys, the endpoint facts, the index table,
 the file names.
 
-**Authored, by hand:** descriptions, questions and joins. The generator refuses to build when
+**Alias column.** The endpoint items carry no field titles (a Fibery endpoint has a `summary`, the
+`schema.md` rows have a field, a type and a description) and the connector's field `description` is a
+sentence, so the alias is the column name made readable (`ad_group_cpc_bid_micros` -> `Ad Group CPC Bid
+Micros`: `humanize()` in `lib.mjs`, acronyms in capitals). Override one under `"aliases"` in the authored
+file: `"column"` for every endpoint of the source, `"Endpoint.column"` for one (that wins). Two fields of
+one table may not end up with the same alias, and an override that matches no field is an error.
+
+**Last updated.** An endpoint entry in the authored file may carry `"updated": {"date": "YYYY-MM-DD", "commit": "<40-char sha>"}`:
+the day, and the connector commit, of the last change to what the endpoint requests or describes (the latest commit
+touching its block in the connector's `FieldsSchema.js` or its fields file, at the pinned commit). The document shows it
+as `Last updated` and, when any endpoint has one, the index table gets the column.
+
+**Alternate keys.** The connector's `uniqueKeys` is one composite key, and an N:1 join must cover all of it. When a vendor
+line says a column also identifies a row alone (a Meta ad account is `id` or `account_id`), list it on the target
+endpoint as `"alternateKeys": [{"columns": ["account_id"], "source": "<vendor URL (field: \"quoted line\")>"}]`; a join
+that covers it then passes, and the document says `Also unique on its own`.
+
+**Authored, by hand:** descriptions, questions, alias overrides, alternate keys, update dates and joins. The generator refuses to build when
 an authored join names a field the schemas do not have, when an N:1 join does not cover the
-target's whole unique key, when a join has no `source`, or when an endpoint has no description
-or questions. The note of a join is written twice (inline, where the owox.com site reads it, and as the indented
+target's whole unique key, when a join has no `source`, when the same join is written twice (same tables, same keys; parallel joins between one pair of tables
+with different keys are fine since OWOX/models#131) or a join goes from a table to itself, or when an
+endpoint has no description or questions. The source key must be a plain slug (`google-ads`): it
+becomes a folder name, and stale files are deleted inside it. The note of a join is written twice (inline, where the owox.com site reads it, and as the indented
 `- Description:` line, the only place the canvas and OWOX read it) and may not contain a backticked
 `a = b`. A join's `source` is the vendor documentation that confirms it; a join is proposed
 by matching field names across the endpoints and then checked against that documentation.

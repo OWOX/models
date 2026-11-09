@@ -12,7 +12,6 @@ Generated 2026-10-20T20:05:44Z.
 
 - [E-Commerce](./e-commerce/index.md) — 12 concept(s)
 - [E-commerce Subscription Store](./ecommerce-subscription-store/index.md) — 15 concept(s)
-- [OWOX Data Marts — Facebook Ads connector source](./facebook-ads/index.md) — 15 concept(s)
 - [Finance](./finance/index.md) — 8 concept(s)
 - [GA 360 Standard Data Model](./ga360-standard/index.md) — 10 concept(s)
 - [GA4 Standard Data Model](./ga4-standard/index.md) — 10 concept(s)
@@ -22,8 +21,8 @@ Generated 2026-10-20T20:05:44Z.
 - [Marketing Leadgen](./marketing-leadgen/index.md) — 9 concept(s)
 - [Marketplace](./marketplace/index.md) — 8 concept(s)
 - [MeasureCamp](./measurecamp/index.md) — 11 concept(s)
+- [QuickBooks Online](./quickbooks/index.md) — 26 concept(s)
 - [Retail Chain](./retail-chain/index.md) — 10 concept(s)
 - [SaaS](./saas/index.md) — 10 concept(s)
 - [SEO](./seo/index.md) — 18 concept(s)
 - [Trading](./trading/index.md) — 8 concept(s)
-

@@ -24,27 +24,27 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `name` | STRING | The name of the campaign |
-| `budget_optimization` | STRING | Budget optimization strategy (e.g. LINE_ITEM) |
-| `reasons_not_servable` | JSON | Reasons why the campaign is not servable |
-| `servable` | BOOLEAN | Whether the campaign is servable |
-| `purchase_order_number` | STRING | Purchase order number |
-| `effective_status` | STRING | Effective status of the campaign (e.g. PAUSED) |
-| `daily_budget_amount_local_micro` | INTEGER | Daily budget amount in micros (nullable) |
-| `funding_instrument_id` | STRING | ID of the funding instrument |
-| `duration_in_days` | INTEGER | Duration of the campaign in days (nullable) |
-| `standard_delivery` | BOOLEAN | Whether standard delivery is enabled (nullable) |
-| `total_budget_amount_local_micro` | INTEGER | Total budget amount in micros (nullable) |
-| `id` | STRING | PK. The unique identifier for the campaign |
-| `entity_status` | STRING | Entity status of the campaign |
-| `frequency_cap` | INTEGER | Frequency cap (nullable) |
-| `currency` | STRING | Currency code (e.g. USD) |
-| `created_at` | DATETIME | Timestamp when the campaign was created |
-| `updated_at` | DATETIME | Timestamp when the campaign was last updated |
-| `deleted` | BOOLEAN | Whether the campaign is deleted |
-| `account_id` | STRING | ID of the account |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `name` | STRING | Name | The name of the campaign |
+| `budget_optimization` | STRING | Budget Optimization | Budget optimization strategy (e.g. LINE_ITEM) |
+| `reasons_not_servable` | JSON | Reasons Not Servable | Reasons why the campaign is not servable |
+| `servable` | BOOLEAN | Servable | Whether the campaign is servable |
+| `purchase_order_number` | STRING | Purchase Order Number | Purchase order number |
+| `effective_status` | STRING | Effective Status | Effective status of the campaign (e.g. PAUSED) |
+| `daily_budget_amount_local_micro` | INTEGER | Daily Budget Amount Local Micro | Daily budget amount in micros (nullable) |
+| `funding_instrument_id` | STRING | Funding Instrument ID | ID of the funding instrument |
+| `duration_in_days` | INTEGER | Duration in Days | Duration of the campaign in days (nullable) |
+| `standard_delivery` | BOOLEAN | Standard Delivery | Whether standard delivery is enabled (nullable) |
+| `total_budget_amount_local_micro` | INTEGER | Total Budget Amount Local Micro | Total budget amount in micros (nullable) |
+| `id` | STRING | ID | PK. The unique identifier for the campaign |
+| `entity_status` | STRING | Entity Status | Entity status of the campaign |
+| `frequency_cap` | INTEGER | Frequency Cap | Frequency cap (nullable) |
+| `currency` | STRING | Currency | Currency code (e.g. USD) |
+| `created_at` | DATETIME | Created at | Timestamp when the campaign was created |
+| `updated_at` | DATETIME | Updated at | Timestamp when the campaign was last updated |
+| `deleted` | BOOLEAN | Deleted | Whether the campaign is deleted |
+| `account_id` | STRING | Account ID | ID of the account |
 
 # Example Questions
 

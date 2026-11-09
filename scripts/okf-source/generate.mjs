@@ -54,6 +54,9 @@ function usage(problem) {
 }
 if (positional.length !== 1) usage(positional.length ? `Expected one source key, got ${positional.join(', ')}.` : '')
 const key = positional[0]
+// The key becomes a folder name under the bundles root and the stale-file cleanup deletes inside it:
+// anything but a plain slug could reach a curated bundle (`../e-commerce`).
+if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(key)) usage(`The source key must be lowercase letters, digits and single hyphens (google-ads), not "${key}".`)
 const owoxCom = opts['--owox-com'] ?? process.env.OWOX_COM_DIR
 const manifestPath = opts['--manifest']
 const dataMarts = manifestPath ? undefined : (opts['--data-marts'] ?? process.env.OWOX_DATA_MARTS_DIR)
@@ -184,6 +187,7 @@ try {
 
 // 4. Write, or compare.
 const dest = join(outRoot, key)
+if (dirname(dest) !== outRoot) fail(`${dest} is not directly under ${outRoot}.`)
 const existing = existsSync(dest) ? readdirSync(dest).filter((n) => n.endsWith('.md')) : []
 const stale = existing.filter((n) => !(n in files))
 const changed = Object.entries(files).filter(([n, text]) => !existsSync(join(dest, n)) || readFileSync(join(dest, n), 'utf8') !== text)

@@ -24,32 +24,32 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_group_id` | STRING | PK. Ad Group ID |
-| `ad_group_name` | STRING | Ad Group Name |
-| `ad_group_status` | STRING | Ad Group Status (ENABLED, PAUSED, REMOVED) |
-| `campaign_id` | STRING | Campaign ID |
-| `date` | STRING | PK. Date for time series data |
-| `impressions` | NUMERIC | Number of Impressions |
-| `clicks` | NUMERIC | Number of Clicks |
-| `cost_micros` | NUMERIC | Cost in Micros |
-| `conversions` | NUMERIC | Number of Conversions |
-| `ctr` | NUMERIC | Click-Through Rate |
-| `average_cpc` | NUMERIC | Average Cost Per Click |
-| `conversions_value` | NUMERIC | Total Conversion Value |
-| `cost_per_conversion` | NUMERIC | Cost Per Conversion |
-| `conversion_rate` | NUMERIC | Conversion Rate |
-| `view_through_conversions` | NUMERIC | View-Through Conversions |
-| `all_conversions` | NUMERIC | All Conversions |
-| `all_conversions_value` | NUMERIC | All Conversions Value |
-| `cost_per_all_conversions` | NUMERIC | Cost Per All Conversions |
-| `average_cost` | NUMERIC | Average Cost |
-| `average_cpm` | NUMERIC | Average CPM |
-| `interactions` | NUMERIC | Number of Interactions |
-| `interaction_rate` | NUMERIC | Interaction Rate |
-| `engagement_rate` | NUMERIC | Engagement Rate |
-| `engagements` | NUMERIC | Number of Engagements |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_group_id` | STRING | Ad Group ID | PK. Ad Group ID |
+| `ad_group_name` | STRING | Ad Group Name | Ad Group Name |
+| `ad_group_status` | STRING | Ad Group Status | Ad Group Status (ENABLED, PAUSED, REMOVED) |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `date` | STRING | Date | PK. Date for time series data |
+| `impressions` | NUMERIC | Impressions | Number of Impressions |
+| `clicks` | NUMERIC | Clicks | Number of Clicks |
+| `cost_micros` | NUMERIC | Cost Micros | Cost in Micros |
+| `conversions` | NUMERIC | Conversions | Number of Conversions |
+| `ctr` | NUMERIC | CTR | Click-Through Rate |
+| `average_cpc` | NUMERIC | Average CPC | Average Cost Per Click |
+| `conversions_value` | NUMERIC | Conversions Value | Total Conversion Value |
+| `cost_per_conversion` | NUMERIC | Cost per Conversion | Cost Per Conversion |
+| `conversion_rate` | NUMERIC | Conversion Rate | Conversion Rate |
+| `view_through_conversions` | NUMERIC | View Through Conversions | View-Through Conversions |
+| `all_conversions` | NUMERIC | All Conversions | All Conversions |
+| `all_conversions_value` | NUMERIC | All Conversions Value | All Conversions Value |
+| `cost_per_all_conversions` | NUMERIC | Cost per All Conversions | Cost Per All Conversions |
+| `average_cost` | NUMERIC | Average Cost | Average Cost |
+| `average_cpm` | NUMERIC | Average CPM | Average CPM |
+| `interactions` | NUMERIC | Interactions | Number of Interactions |
+| `interaction_rate` | NUMERIC | Interaction Rate | Interaction Rate |
+| `engagement_rate` | NUMERIC | Engagement Rate | Engagement Rate |
+| `engagements` | NUMERIC | Engagements | Number of Engagements |
 
 # Example Questions
 

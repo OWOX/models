@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `name` | STRING | The name of the custom audience. |
-| `id` | STRING | PK. The ID of the custom audience. |
-| `status` | STRING | The processing status of the custom audience. A custom audience is only VALID if size_range_upper is at or above 1,000 users, otherwise it will be in the NOT_ENOUGH_MATCHES_ERROR state. |
-| `ad_account_id` | STRING | The ID of the ad account that owns this custom audience. |
-| `created_at` | STRING | The time that this entity was created, represented in ISO 8601. |
-| `modified_at` | STRING | The last time that this entity was modified, represented in ISO 8601. |
-| `size_range_upper` | INTEGER | High estimate of the number of matched users in the audience. |
-| `size_range_lower` | INTEGER | Low estimate of the number of matched users in the audience. |
-| `type` | STRING | The type of the Custom Audience. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `name` | STRING | Name | The name of the custom audience. |
+| `id` | STRING | ID | PK. The ID of the custom audience. |
+| `status` | STRING | Status | The processing status of the custom audience. A custom audience is only VALID if size_range_upper is at or above 1,000 users, otherwise it will be in the NOT_ENOUGH_MATCHES_ERROR state. |
+| `ad_account_id` | STRING | Ad Account ID | The ID of the ad account that owns this custom audience. |
+| `created_at` | STRING | Created at | The time that this entity was created, represented in ISO 8601. |
+| `modified_at` | STRING | Modified at | The last time that this entity was modified, represented in ISO 8601. |
+| `size_range_upper` | INTEGER | Size Range Upper | High estimate of the number of matched users in the audience. |
+| `size_range_lower` | INTEGER | Size Range Lower | Low estimate of the number of matched users in the audience. |
+| `type` | STRING | Type | The type of the Custom Audience. |
 
 # Example Questions
 

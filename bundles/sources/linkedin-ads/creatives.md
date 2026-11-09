@@ -24,22 +24,22 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `account` | STRING | URN identifying the advertising account associated with the creative. This field is read-only. |
-| `campaign` | STRING | URN identifying the campaign associated with the creative |
-| `content` | STRING | Content sponsored in the creative. On creation, it can be dynamic Ad content (follower, job, spotlight), text, document, or a reference to InMail Content or post (image, video, article, carousel). Content can also be extended and specified as inline content instead of an URN. A reference must be a adInMailContent{id}, share{id}, or ugcPost{id}. |
-| `createdAt` | NUMERIC | Creation time |
-| `createdBy` | STRING | Entity (e.g., a person URN) that developed the creative |
-| `id` | STRING | PK. Unique ID for a creative (e.g.,SponsoredCreativeUrn). Read-only |
-| `intendedStatus` | STRING | Creative user intended status. The creative intended status is set independently from parent entity status, but parent entity status overrides creative intended status in effect. For example, parent entity status may be PAUSED while creative status is ACTIVE, in which case the creative's effective status is PAUSED, and not served.ACTIVE - Creative development is complete and the creative is available for review and can be served. |
-| `isServing` | BOOLEAN | This indicates whether the creative is currently being served or not. This field is read-only. |
-| `lastModifiedAt` | INTEGER | Time at which the creative was last modified in milliseconds since epoch. |
-| `lastModifiedBy` | STRING | The entity (e.g., person URN) who modified the creative |
-| `leadgenCallToAction` | JSON | The field is needed for call to action. This currently only applies if the campaign objective is LEAD_GENERATION. |
-| `review` | JSON | Creative review status. The review status cannot be set/updated via the API but is started when the creative is activated (i.e., moves from draft state to active state). Hence, the review is absent (null) when the creative is in DRAFT state. Read-only. |
-| `servingHoldReasons` | JSON | Array that contains all the reasons why the creative is not serving. In the case a creative is being served, this field will be null and not present in the response. |
-| `name` | STRING | The name of the creative that can be set by advertiser; primarily used to make it easier to reference a Creative and to recall its purpose. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `account` | STRING | Account | URN identifying the advertising account associated with the creative. This field is read-only. |
+| `campaign` | STRING | Campaign | URN identifying the campaign associated with the creative |
+| `content` | STRING | Content | Content sponsored in the creative. On creation, it can be dynamic Ad content (follower, job, spotlight), text, document, or a reference to InMail Content or post (image, video, article, carousel). Content can also be extended and specified as inline content instead of an URN. A reference must be a adInMailContent{id}, share{id}, or ugcPost{id}. |
+| `createdAt` | NUMERIC | CreatedAt | Creation time |
+| `createdBy` | STRING | CreatedBy | Entity (e.g., a person URN) that developed the creative |
+| `id` | STRING | ID | PK. Unique ID for a creative (e.g.,SponsoredCreativeUrn). Read-only |
+| `intendedStatus` | STRING | IntendedStatus | Creative user intended status. The creative intended status is set independently from parent entity status, but parent entity status overrides creative intended status in effect. For example, parent entity status may be PAUSED while creative status is ACTIVE, in which case the creative's effective status is PAUSED, and not served.ACTIVE - Creative development is complete and the creative is available for review and can be served. |
+| `isServing` | BOOLEAN | IsServing | This indicates whether the creative is currently being served or not. This field is read-only. |
+| `lastModifiedAt` | INTEGER | LastModifiedAt | Time at which the creative was last modified in milliseconds since epoch. |
+| `lastModifiedBy` | STRING | LastModifiedBy | The entity (e.g., person URN) who modified the creative |
+| `leadgenCallToAction` | JSON | LeadgenCallToAction | The field is needed for call to action. This currently only applies if the campaign objective is LEAD_GENERATION. |
+| `review` | JSON | Review | Creative review status. The review status cannot be set/updated via the API but is started when the creative is activated (i.e., moves from draft state to active state). Hence, the review is absent (null) when the creative is in DRAFT state. Read-only. |
+| `servingHoldReasons` | JSON | ServingHoldReasons | Array that contains all the reasons why the creative is not serving. In the case a creative is being served, this field will be null and not present in the response. |
+| `name` | STRING | Name | The name of the creative that can be set by advertiser; primarily used to make it easier to reference a Creative and to recall its purpose. |
 
 # Example Questions
 

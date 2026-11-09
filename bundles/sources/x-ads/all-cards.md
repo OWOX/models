@@ -24,36 +24,36 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. The unique identifier for the card |
-| `name` | STRING | The name of the card |
-| `card_type` | STRING | Type of the card (e.g. IMAGE_APP_DOWNLOAD, VIDEO_WEBSITE) |
-| `card_uri` | STRING | URI of the card |
-| `created_at` | DATETIME | ISO-8601 timestamp when the card was created |
-| `updated_at` | DATETIME | ISO-8601 timestamp when the card was last updated |
-| `deleted` | BOOLEAN | Whether the card is deleted |
-| `googleplay_app_id` | STRING | Google Play application ID |
-| `country_code` | STRING | Country code associated with the app or destination |
-| `wide_app_image` | STRING | URL to the wide-aspect-ratio image used by the app card |
-| `image_display_width` | STRING | Width (in pixels) of the primary image displayed with the card |
-| `image_display_height` | STRING | Height (in pixels) of the primary image displayed with the card |
-| `app_cta` | STRING | Call-to-action used on the app card (e.g. INSTALL, OPEN) |
-| `title` | STRING | Title shown on the card |
-| `website_url` | STRING | Canonical website URL |
-| `website_dest_url` | STRING | Destination URL used for clicks |
-| `website_display_url` | STRING | Display URL shown on the card |
-| `website_shortened_url` | STRING | Shortened (t.co) URL placed in the card |
-| `video_url` | STRING | URL of the video file or VMAP |
-| `video_hls_url` | STRING | HLS streaming URL |
-| `video_poster_url` | STRING | Poster image displayed before video playback |
-| `video_content_id` | STRING | Internal content identifier of the video |
-| `video_owner_id` | STRING | User ID of the video owner |
-| `content_duration_seconds` | STRING | Video duration in seconds |
-| `video_width` | STRING | Original width of the video |
-| `video_height` | STRING | Original height of the video |
-| `video_poster_width` | STRING | Width of the video poster image |
-| `video_poster_height` | STRING | Height of the video poster image |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. The unique identifier for the card |
+| `name` | STRING | Name | The name of the card |
+| `card_type` | STRING | Card Type | Type of the card (e.g. IMAGE_APP_DOWNLOAD, VIDEO_WEBSITE) |
+| `card_uri` | STRING | Card Uri | URI of the card |
+| `created_at` | DATETIME | Created at | ISO-8601 timestamp when the card was created |
+| `updated_at` | DATETIME | Updated at | ISO-8601 timestamp when the card was last updated |
+| `deleted` | BOOLEAN | Deleted | Whether the card is deleted |
+| `googleplay_app_id` | STRING | Googleplay App ID | Google Play application ID |
+| `country_code` | STRING | Country Code | Country code associated with the app or destination |
+| `wide_app_image` | STRING | Wide App Image | URL to the wide-aspect-ratio image used by the app card |
+| `image_display_width` | STRING | Image Display Width | Width (in pixels) of the primary image displayed with the card |
+| `image_display_height` | STRING | Image Display Height | Height (in pixels) of the primary image displayed with the card |
+| `app_cta` | STRING | App Cta | Call-to-action used on the app card (e.g. INSTALL, OPEN) |
+| `title` | STRING | Title | Title shown on the card |
+| `website_url` | STRING | Website URL | Canonical website URL |
+| `website_dest_url` | STRING | Website Dest URL | Destination URL used for clicks |
+| `website_display_url` | STRING | Website Display URL | Display URL shown on the card |
+| `website_shortened_url` | STRING | Website Shortened URL | Shortened (t.co) URL placed in the card |
+| `video_url` | STRING | Video URL | URL of the video file or VMAP |
+| `video_hls_url` | STRING | Video Hls URL | HLS streaming URL |
+| `video_poster_url` | STRING | Video Poster URL | Poster image displayed before video playback |
+| `video_content_id` | STRING | Video Content ID | Internal content identifier of the video |
+| `video_owner_id` | STRING | Video Owner ID | User ID of the video owner |
+| `content_duration_seconds` | STRING | Content Duration Seconds | Video duration in seconds |
+| `video_width` | STRING | Video Width | Original width of the video |
+| `video_height` | STRING | Video Height | Original height of the video |
+| `video_poster_width` | STRING | Video Poster Width | Width of the video poster image |
+| `video_poster_height` | STRING | Video Poster Height | Height of the video poster image |
 
 # Example Questions
 

@@ -24,12 +24,12 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `advertiser_id` | STRING | PK. Advertiser ID |
-| `advertiser_name` | STRING | Advertiser Name |
-| `company_name` | STRING | Company Name |
-| `currency` | STRING | Account Currency |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `advertiser_id` | STRING | Advertiser ID | PK. Advertiser ID |
+| `advertiser_name` | STRING | Advertiser Name | Advertiser Name |
+| `company_name` | STRING | Company Name | Company Name |
+| `currency` | STRING | Currency | Account Currency |
 
 # Example Questions
 

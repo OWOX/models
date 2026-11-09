@@ -24,15 +24,15 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `email` | STRING | Email address of the member. |
-| `firstname` | STRING | The first name of the member. |
-| `id` | STRING | PK. The unique identifier of the member. |
-| `lastname` | STRING | The last name of the member. |
-| `phone` | STRING | The phone number of the member. |
-| `reddit_user_id` | STRING | ID that maps to the Reddit user. |
-| `reddit_username` | STRING | The Reddit username of the member. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `email` | STRING | Email | Email address of the member. |
+| `firstname` | STRING | Firstname | The first name of the member. |
+| `id` | STRING | ID | PK. The unique identifier of the member. |
+| `lastname` | STRING | Lastname | The last name of the member. |
+| `phone` | STRING | Phone | The phone number of the member. |
+| `reddit_user_id` | STRING | Reddit User ID | ID that maps to the Reddit user. |
+| `reddit_username` | STRING | Reddit Username | The Reddit username of the member. |
 
 # Example Questions
 
