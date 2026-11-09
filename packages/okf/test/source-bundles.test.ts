@@ -75,10 +75,13 @@ describe.each(keys)("source bundle %s", key => {
     expect(graph.edges.map(e => e.keys.length).sort()).toEqual(written.sort());
   });
 
-  it("the preview drawing is of this model: its title counts the same marts and relationships", () => {
+  it("the preview drawing is of this model: its title counts the same marts and pairs of marts", () => {
+    // model-svg (owox.com) draws one line per pair of marts, so parallel joins (QuickBooks: several account keys
+    // from one table to Accounts) share a line; the canvas keeps them as separate relationships.
+    const pairs = new Set(graph.edges.map(e => [e.from, e.to].sort().join("|"))).size;
     const svg = index.match(/!\[[^\]]*\]\(([^)\s]+\.svg)\)/)?.[1];
     const title = readFileSync(join(ROOT, key, svg!), "utf8").match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
-    expect(title).toContain(`${graph.nodes.length} data marts, ${graph.edges.length} relationships`);
+    expect(title).toContain(`${graph.nodes.length} data marts, ${pairs} relationships`);
   });
 
   it("has one join per pair of tables, so the canvas merges nothing and marks no edge two-way", () => {
