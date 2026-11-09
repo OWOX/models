@@ -19,20 +19,20 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `realm_id` | STRING | PK. |
-| `report_name` | STRING | PK. |
-| `report_time` | TIMESTAMP | When QuickBooks produced the snapshot. |
-| `report_basis` | STRING | Cash or Accrual (absent on aging reports). |
-| `start_period` | DATE | PK. |
-| `end_period` | DATE | PK. |
-| `summarize_columns_by` | STRING |  |
-| `currency` | STRING |  |
-| `header_options` | JSON | Name/Value pairs; NoReportData=true means an empty report. |
-| `accounting_method_param` | STRING | PK. AccountingMethod parameter used for the request (ReportBasis echoes it). |
-| `report_rows` | JSON | Nested Section/Data rows as JSON. Flatten in SQL; ColData.id is the Account/Customer/Vendor Id. |
-| `report_columns` | JSON | Column metadata (ColTitle, ColType) as JSON; index-aligned with every ColData array. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
+| `report_name` | STRING | Report Name | PK. Name of the QuickBooks report, for example ProfitAndLoss. |
+| `report_time` | TIMESTAMP | Report Time | When QuickBooks produced the snapshot. |
+| `report_basis` | STRING | Report Basis | Cash or Accrual (absent on aging reports). |
+| `start_period` | DATE | Start Period | PK. First day of the reporting period. |
+| `end_period` | DATE | End Period | PK. Last day of the reporting period. |
+| `summarize_columns_by` | STRING | Summarize Columns by | How the report columns are split, for example Total, Month or Customers. |
+| `currency` | STRING | Currency | Currency code the report amounts are in. |
+| `header_options` | JSON | Header Options | Name/Value pairs; NoReportData=true means an empty report. |
+| `accounting_method_param` | STRING | Accounting Method Param | PK. AccountingMethod parameter used for the request (ReportBasis echoes it). |
+| `report_rows` | JSON | Report Rows | Nested Section/Data rows as JSON. Flatten in SQL; ColData.id is the Account/Customer/Vendor Id. |
+| `report_columns` | JSON | Report Columns | Column metadata (ColTitle, ColType) as JSON; index-aligned with every ColData array. |
 
 # Example Questions
 

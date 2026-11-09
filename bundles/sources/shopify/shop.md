@@ -24,28 +24,28 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `name` | STRING | The name of the shop. |
-| `email` | STRING | The email address of the shop. |
-| `myshopifyDomain` | STRING | The myshopify.com domain of the shop. |
-| `primaryDomain` | STRING | The primary domain of the shop. |
-| `currencyCode` | STRING | The currency code of the shop. |
-| `timezoneAbbreviation` | STRING | The timezone abbreviation. |
-| `ianaTimezone` | STRING | The IANA timezone. |
-| `weightUnit` | STRING | The default weight unit. |
-| `billingAddressCity` | STRING | City from the billing address. |
-| `billingAddressCountry` | STRING | Country from the billing address. |
-| `billingAddressProvince` | STRING | Province from the billing address. |
-| `billingAddressZip` | STRING | Postal/ZIP code from the billing address. |
-| `plan` | STRING | The shop plan name. |
-| `contactEmail` | STRING | The contact email of the shop. |
-| `customerAccountsV2` | STRING | The customer accounts version. |
-| `taxesIncluded` | BOOLEAN | Whether taxes are included in prices. |
-| `taxShipping` | BOOLEAN | Whether shipping is taxed. |
-| `createdAt` | TIMESTAMP | The date and time when the shop was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the shop was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `name` | STRING | Name | The name of the shop. |
+| `email` | STRING | Email | The email address of the shop. |
+| `myshopifyDomain` | STRING | MyshopifyDomain | The myshopify.com domain of the shop. |
+| `primaryDomain` | STRING | PrimaryDomain | The primary domain of the shop. |
+| `currencyCode` | STRING | CurrencyCode | The currency code of the shop. |
+| `timezoneAbbreviation` | STRING | TimezoneAbbreviation | The timezone abbreviation. |
+| `ianaTimezone` | STRING | IanaTimezone | The IANA timezone. |
+| `weightUnit` | STRING | WeightUnit | The default weight unit. |
+| `billingAddressCity` | STRING | BillingAddressCity | City from the billing address. |
+| `billingAddressCountry` | STRING | BillingAddressCountry | Country from the billing address. |
+| `billingAddressProvince` | STRING | BillingAddressProvince | Province from the billing address. |
+| `billingAddressZip` | STRING | BillingAddressZip | Postal/ZIP code from the billing address. |
+| `plan` | STRING | Plan | The shop plan name. |
+| `contactEmail` | STRING | ContactEmail | The contact email of the shop. |
+| `customerAccountsV2` | STRING | CustomerAccountsV2 | The customer accounts version. |
+| `taxesIncluded` | BOOLEAN | TaxesIncluded | Whether taxes are included in prices. |
+| `taxShipping` | BOOLEAN | TaxShipping | Whether shipping is taxed. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the shop was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the shop was last updated. |
 
 # Example Questions
 

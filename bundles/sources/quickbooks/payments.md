@@ -19,29 +19,29 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | PK. Company (realm) id, stamped from the RealmId parameter. |
-| `sync_token` | STRING | Version counter; changes on every edit. |
-| `create_time` | TIMESTAMP |  |
-| `last_updated_time` | TIMESTAMP | Incremental cursor. |
-| `txn_date` | DATE | Business date of the transaction (not the edit date). |
-| `total_amt` | FLOAT |  |
-| `currency_id` | STRING |  |
-| `currency_name` | STRING |  |
-| `exchange_rate` | FLOAT |  |
-| `private_note` | STRING |  |
-| `unapplied_amt` | FLOAT |  |
-| `customer_id` | STRING |  |
-| `customer_name` | STRING |  |
-| `deposit_to_account_id` | STRING |  |
-| `deposit_to_account_name` | STRING |  |
-| `payment_method_id` | STRING |  |
-| `payment_method_name` | STRING |  |
-| `payment_ref_num` | STRING | Check or reference number. |
-| `process_payment` | BOOLEAN |  |
-| `line` | JSON | Line\[\] as JSON; each line has Amount and LinkedTxn\[\] {TxnId, TxnType} pointing at the Invoice it settles. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). Primary key together with realm_id. |
+| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
+| `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
+| `create_time` | TIMESTAMP | Create Time | When the record was created in QuickBooks (UTC timestamp). |
+| `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
+| `txn_date` | DATE | Txn Date | Business date of the transaction (not the edit date). |
+| `total_amt` | FLOAT | Total Amt | Total amount of the document including tax, in the document currency. |
+| `currency_id` | STRING | Currency ID | Currency code of the document, for example USD; empty when multicurrency is off. |
+| `currency_name` | STRING | Currency Name | Currency name that goes with currency_id, for example United States Dollar. |
+| `exchange_rate` | FLOAT | Exchange Rate | Rate that converts the document currency to the company's home currency; 1 or empty when the document is in the home currency. |
+| `private_note` | STRING | Private Note | Internal memo entered on the document; not shown to the customer or vendor. |
+| `unapplied_amt` | FLOAT | Unapplied Amt | Part of the payment not yet applied to any invoice; it stays as customer credit. |
+| `customer_id` | STRING | Customer ID | Id of the customer on the document; joins to customer.id. |
+| `customer_name` | STRING | Customer Name | Name of the customer that customer_id points to. |
+| `deposit_to_account_id` | STRING | Deposit To Account ID | Id of the account the money is deposited to; joins to account.id. |
+| `deposit_to_account_name` | STRING | Deposit to Account Name | Name of the account that deposit_to_account_id points to. |
+| `payment_method_id` | STRING | Payment Method ID | Id of the preferred payment method; joins to the QuickBooks payment method list. |
+| `payment_method_name` | STRING | Payment Method Name | Name of the preferred payment method that payment_method_id points to, for example Cash or Check. |
+| `payment_ref_num` | STRING | Payment Ref Num | Check or reference number. |
+| `process_payment` | BOOLEAN | Process Payment | True when the payment is to be processed through QuickBooks Payments. |
+| `line` | JSON | Line | Line\[\] as JSON; each line has Amount and LinkedTxn\[\] {TxnId, TxnType} pointing at the Invoice it settles. |
 
 # Example Questions
 

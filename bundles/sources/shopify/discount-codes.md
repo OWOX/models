@@ -24,20 +24,20 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `code` | STRING | The discount code string. |
-| `discountType` | STRING | The type of discount (DiscountCodeBasic, DiscountCodeBxgy, DiscountCodeFreeShipping). |
-| `title` | STRING | The title of the discount. |
-| `status` | STRING | The status of the discount. |
-| `startsAt` | TIMESTAMP | The date and time when the discount becomes active. |
-| `endsAt` | TIMESTAMP | The date and time when the discount expires. |
-| `usageLimit` | INTEGER | The maximum number of times the discount can be used. |
-| `appliesOncePerCustomer` | BOOLEAN | Whether the discount can only be used once per customer. |
-| `asyncUsageCount` | INTEGER | The number of times the discount has been used. |
-| `createdAt` | TIMESTAMP | The date and time when the discount was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the discount was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `code` | STRING | Code | The discount code string. |
+| `discountType` | STRING | DiscountType | The type of discount (DiscountCodeBasic, DiscountCodeBxgy, DiscountCodeFreeShipping). |
+| `title` | STRING | Title | The title of the discount. |
+| `status` | STRING | Status | The status of the discount. |
+| `startsAt` | TIMESTAMP | StartsAt | The date and time when the discount becomes active. |
+| `endsAt` | TIMESTAMP | EndsAt | The date and time when the discount expires. |
+| `usageLimit` | INTEGER | UsageLimit | The maximum number of times the discount can be used. |
+| `appliesOncePerCustomer` | BOOLEAN | AppliesOncePerCustomer | Whether the discount can only be used once per customer. |
+| `asyncUsageCount` | INTEGER | AsyncUsageCount | The number of times the discount has been used. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the discount was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the discount was last updated. |
 
 # Example Questions
 

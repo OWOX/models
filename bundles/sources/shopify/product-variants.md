@@ -24,26 +24,26 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `title` | STRING | The title of the variant. |
-| `displayName` | STRING | The display name of the variant. |
-| `sku` | STRING | The SKU of the variant. |
-| `barcode` | STRING | The barcode of the variant. |
-| `price` | NUMERIC | The price of the variant. |
-| `compareAtPrice` | NUMERIC | The compare at price of the variant. |
-| `position` | INTEGER | The position of the variant in the list. |
-| `inventoryQuantity` | INTEGER | The total inventory quantity. |
-| `inventoryPolicy` | STRING | The inventory policy. |
-| `inventoryItemId` | STRING | The ID of the inventory item. |
-| `productId` | STRING | The ID of the product. |
-| `productTitle` | STRING | The title of the product. |
-| `taxable` | BOOLEAN | Whether the variant is taxable. |
-| `taxCode` | STRING | The tax code. |
-| `availableForSale` | BOOLEAN | Whether the variant is available for sale. |
-| `createdAt` | TIMESTAMP | The date and time when the variant was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the variant was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `title` | STRING | Title | The title of the variant. |
+| `displayName` | STRING | DisplayName | The display name of the variant. |
+| `sku` | STRING | SKU | The SKU of the variant. |
+| `barcode` | STRING | Barcode | The barcode of the variant. |
+| `price` | NUMERIC | Price | The price of the variant. |
+| `compareAtPrice` | NUMERIC | CompareAtPrice | The compare at price of the variant. |
+| `position` | INTEGER | Position | The position of the variant in the list. |
+| `inventoryQuantity` | INTEGER | InventoryQuantity | The total inventory quantity. |
+| `inventoryPolicy` | STRING | InventoryPolicy | The inventory policy. |
+| `inventoryItemId` | STRING | InventoryItemId | The ID of the inventory item. |
+| `productId` | STRING | ProductId | The ID of the product. |
+| `productTitle` | STRING | ProductTitle | The title of the product. |
+| `taxable` | BOOLEAN | Taxable | Whether the variant is taxable. |
+| `taxCode` | STRING | TaxCode | The tax code. |
+| `availableForSale` | BOOLEAN | AvailableForSale | Whether the variant is available for sale. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the variant was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the variant was last updated. |
 
 # Example Questions
 

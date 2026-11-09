@@ -25,7 +25,7 @@ sources:
     title: "Intuit QuickBooks Online Accounting API reference"
 ---
 
-26 tables, 486 fields, 43 joins.
+26 tables, 486 fields, 49 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|

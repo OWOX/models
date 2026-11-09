@@ -19,33 +19,33 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | PK. Company (realm) id, stamped from the RealmId parameter. |
-| `sync_token` | STRING | Version counter; changes on every edit. |
-| `create_time` | TIMESTAMP |  |
-| `last_updated_time` | TIMESTAMP | Incremental cursor. |
-| `doc_number` | STRING |  |
-| `txn_date` | DATE | Business date of the transaction (not the edit date). |
-| `total_amt` | FLOAT |  |
-| `currency_id` | STRING |  |
-| `currency_name` | STRING |  |
-| `exchange_rate` | FLOAT |  |
-| `private_note` | STRING |  |
-| `line` | JSON | Line\[\] as JSON; DetailType is AccountBasedExpenseLineDetail (AccountRef) or ItemBasedExpenseLineDetail (ItemRef). |
-| `due_date` | DATE |  |
-| `balance` | FLOAT |  |
-| `vendor_id` | STRING |  |
-| `vendor_name` | STRING |  |
-| `ap_account_id` | STRING |  |
-| `ap_account_name` | STRING |  |
-| `sales_term_id` | STRING |  |
-| `sales_term_name` | STRING |  |
-| `department_id` | STRING |  |
-| `department_name` | STRING |  |
-| `linked_txn` | JSON |  |
-| `home_balance` | FLOAT |  |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). Primary key together with realm_id. |
+| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
+| `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
+| `create_time` | TIMESTAMP | Create Time | When the record was created in QuickBooks (UTC timestamp). |
+| `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
+| `doc_number` | STRING | Doc Number | Document number shown on the form (for example the invoice or bill number); can be empty when the company does not use automatic numbering. |
+| `txn_date` | DATE | Txn Date | Business date of the transaction (not the edit date). |
+| `total_amt` | FLOAT | Total Amt | Total amount of the document including tax, in the document currency. |
+| `currency_id` | STRING | Currency ID | Currency code of the document, for example USD; empty when multicurrency is off. |
+| `currency_name` | STRING | Currency Name | Currency name that goes with currency_id, for example United States Dollar. |
+| `exchange_rate` | FLOAT | Exchange Rate | Rate that converts the document currency to the company's home currency; 1 or empty when the document is in the home currency. |
+| `private_note` | STRING | Private Note | Internal memo entered on the document; not shown to the customer or vendor. |
+| `line` | JSON | Line | Line\[\] as JSON; DetailType is AccountBasedExpenseLineDetail (AccountRef) or ItemBasedExpenseLineDetail (ItemRef). |
+| `due_date` | DATE | Due Date | Date the bill is due for payment. |
+| `balance` | FLOAT | Balance | Open amount still to be paid on the bill, in the bill currency. |
+| `vendor_id` | STRING | Vendor ID | Id of the vendor on the document; joins to vendor.id. |
+| `vendor_name` | STRING | Vendor Name | Name of the vendor that vendor_id points to. |
+| `ap_account_id` | STRING | AP Account ID | Id of the accounts payable account the document is posted to; joins to account.id. |
+| `ap_account_name` | STRING | Ap Account Name | Name of the account that ap_account_id points to. |
+| `sales_term_id` | STRING | Sales Term ID | Id of the payment terms on the bill (for example Net 30); joins to the QuickBooks terms list. |
+| `sales_term_name` | STRING | Sales Term Name | Name of the payment terms that sales_term_id points to. |
+| `department_id` | STRING | Department ID | Id of the department (location) the document is tagged with; empty when locations are off. |
+| `department_name` | STRING | Department Name | Name of the department (location) that department_id points to. |
+| `linked_txn` | JSON | Linked Txn | Transactions linked to this one (for example the payments applied to a bill) as a JSON array of transaction id and type; flatten with UNNEST or JSON functions in SQL. |
+| `home_balance` | FLOAT | Home Balance | Open balance of the bill converted to the company's home currency. |
 
 # Example Questions
 

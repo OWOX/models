@@ -24,14 +24,14 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `organization_urn` | STRING | PK. Organization URN |
-| `category_type` | STRING | PK. Type of follower category (followerCountsByAssociationType, followerCountsBySeniority, etc.) |
-| `segment_name` | STRING | PK. Name of the segment identifier (associationType, seniority, industry, function, staffCountRange, geo) |
-| `segment_value` | STRING | PK. Value of the segment identifier (e.g., urn:li:seniority:3, EMPLOYEE, etc.) |
-| `organic_follower_count` | INTEGER | Count of organic followers in this segment |
-| `paid_follower_count` | INTEGER | Count of paid followers in this segment |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `organization_urn` | STRING | Organization Urn | PK. Organization URN |
+| `category_type` | STRING | Category Type | PK. Type of follower category (followerCountsByAssociationType, followerCountsBySeniority, etc.) |
+| `segment_name` | STRING | Segment Name | PK. Name of the segment identifier (associationType, seniority, industry, function, staffCountRange, geo) |
+| `segment_value` | STRING | Segment Value | PK. Value of the segment identifier (e.g., urn:li:seniority:3, EMPLOYEE, etc.) |
+| `organic_follower_count` | INTEGER | Organic Follower Count | Count of organic followers in this segment |
+| `paid_follower_count` | INTEGER | Paid Follower Count | Count of paid followers in this segment |
 
 # Example Questions
 

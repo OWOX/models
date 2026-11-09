@@ -24,29 +24,29 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `title` | STRING | The title of the product. |
-| `handle` | STRING | A unique, human-friendly string for the product URL. |
-| `description` | STRING | The description of the product. |
-| `descriptionHtml` | STRING | The description of the product in HTML format. |
-| `vendor` | STRING | The name of the product vendor. |
-| `productType` | STRING | The product type. |
-| `status` | STRING | The status of the product. |
-| `tags` | STRING | A comma-separated list of tags. |
-| `templateSuffix` | STRING | The name of the template the product is using. |
-| `totalInventory` | INTEGER | The total inventory across all variants. |
-| `variantsCount` | INTEGER | The number of variants. |
-| `featuredImageUrl` | STRING | The URL of the featured image. |
-| `priceRangeMinAmount` | NUMERIC | The minimum price of the product. |
-| `priceRangeMaxAmount` | NUMERIC | The maximum price of the product. |
-| `seoTitle` | STRING | The SEO title. |
-| `seoDescription` | STRING | The SEO description. |
-| `onlineStoreUrl` | STRING | The URL of the product on the online store. |
-| `publishedAt` | TIMESTAMP | The date and time when the product was published. |
-| `createdAt` | TIMESTAMP | The date and time when the product was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the product was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `title` | STRING | Title | The title of the product. |
+| `handle` | STRING | Handle | A unique, human-friendly string for the product URL. |
+| `description` | STRING | Description | The description of the product. |
+| `descriptionHtml` | STRING | DescriptionHtml | The description of the product in HTML format. |
+| `vendor` | STRING | Vendor | The name of the product vendor. |
+| `productType` | STRING | ProductType | The product type. |
+| `status` | STRING | Status | The status of the product. |
+| `tags` | STRING | Tags | A comma-separated list of tags. |
+| `templateSuffix` | STRING | TemplateSuffix | The name of the template the product is using. |
+| `totalInventory` | INTEGER | TotalInventory | The total inventory across all variants. |
+| `variantsCount` | INTEGER | VariantsCount | The number of variants. |
+| `featuredImageUrl` | STRING | FeaturedImageUrl | The URL of the featured image. |
+| `priceRangeMinAmount` | NUMERIC | PriceRangeMinAmount | The minimum price of the product. |
+| `priceRangeMaxAmount` | NUMERIC | PriceRangeMaxAmount | The maximum price of the product. |
+| `seoTitle` | STRING | SeoTitle | The SEO title. |
+| `seoDescription` | STRING | SeoDescription | The SEO description. |
+| `onlineStoreUrl` | STRING | OnlineStoreUrl | The URL of the product on the online store. |
+| `publishedAt` | TIMESTAMP | PublishedAt | The date and time when the product was published. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the product was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the product was last updated. |
 
 # Example Questions
 

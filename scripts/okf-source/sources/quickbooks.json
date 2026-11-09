@@ -196,6 +196,10 @@
       ]
     }
   },
+  "aliases": {
+    "ap_account_id": "AP Account ID",
+    "deposit_to_account_id": "Deposit To Account ID"
+  },
   "joins": [
     {
       "from": "A/P Aging Summary report",

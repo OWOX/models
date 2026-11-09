@@ -24,19 +24,19 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `status` | STRING | The status of the fulfillment order. |
-| `requestStatus` | STRING | The request status of the fulfillment order. |
-| `orderId` | STRING | The ID of the order associated with this fulfillment order. |
-| `orderName` | STRING | The name of the order. |
-| `assignedLocationId` | STRING | The ID of the location assigned to fulfill this order. |
-| `assignedLocationName` | STRING | The name of the assigned location. |
-| `fulfillAt` | TIMESTAMP | The date and time at which the fulfillment order will be ready to be fulfilled. |
-| `deliveryMethod` | STRING | The delivery method of the fulfillment order. |
-| `createdAt` | TIMESTAMP | The date and time when the fulfillment order was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the fulfillment order was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `status` | STRING | Status | The status of the fulfillment order. |
+| `requestStatus` | STRING | RequestStatus | The request status of the fulfillment order. |
+| `orderId` | STRING | OrderId | The ID of the order associated with this fulfillment order. |
+| `orderName` | STRING | OrderName | The name of the order. |
+| `assignedLocationId` | STRING | AssignedLocationId | The ID of the location assigned to fulfill this order. |
+| `assignedLocationName` | STRING | AssignedLocationName | The name of the assigned location. |
+| `fulfillAt` | TIMESTAMP | FulfillAt | The date and time at which the fulfillment order will be ready to be fulfilled. |
+| `deliveryMethod` | STRING | DeliveryMethod | The delivery method of the fulfillment order. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the fulfillment order was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the fulfillment order was last updated. |
 
 # Example Questions
 

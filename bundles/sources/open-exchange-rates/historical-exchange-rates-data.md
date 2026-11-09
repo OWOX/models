@@ -24,12 +24,12 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `date` | DATE | PK. Date of exchange rate |
-| `base` | STRING | PK. Base currency |
-| `currency` | STRING | PK. Target currency |
-| `rate` | NUMERIC | Exchange rate |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `date` | DATE | Date | PK. Date of exchange rate |
+| `base` | STRING | Base | PK. Base currency |
+| `currency` | STRING | Currency | PK. Target currency |
+| `rate` | NUMERIC | Rate | Exchange rate |
 
 # Example Questions
 

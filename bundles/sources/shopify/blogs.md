@@ -24,14 +24,14 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `title` | STRING | The title of the blog. |
-| `handle` | STRING | A unique, human-friendly string for the blog URL. |
-| `templateSuffix` | STRING | The name of the template the blog is using. |
-| `createdAt` | TIMESTAMP | The date and time when the blog was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the blog was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `title` | STRING | Title | The title of the blog. |
+| `handle` | STRING | Handle | A unique, human-friendly string for the blog URL. |
+| `templateSuffix` | STRING | TemplateSuffix | The name of the template the blog is using. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the blog was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the blog was last updated. |
 
 # Example Questions
 

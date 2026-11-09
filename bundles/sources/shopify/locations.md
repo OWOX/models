@@ -24,27 +24,27 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `name` | STRING | The name of the location. |
-| `isActive` | BOOLEAN | Whether the location is active. |
-| `isPrimary` | BOOLEAN | Whether the location is the primary location. |
-| `isFulfillmentService` | BOOLEAN | Whether the location is a fulfillment service location. |
-| `fulfillsOnlineOrders` | BOOLEAN | Whether the location can fulfill online orders. |
-| `hasActiveInventory` | BOOLEAN | Whether the location has active inventory. |
-| `shipsInventory` | BOOLEAN | Whether the location ships inventory. |
-| `addressLine1` | STRING | The first line of the address. |
-| `addressLine2` | STRING | The second line of the address. |
-| `city` | STRING | The city of the location. |
-| `province` | STRING | The province or state of the location. |
-| `provinceCode` | STRING | The province or state code. |
-| `country` | STRING | The country of the location. |
-| `countryCode` | STRING | The country code of the location. |
-| `zip` | STRING | The postal or ZIP code. |
-| `phone` | STRING | The phone number of the location. |
-| `createdAt` | TIMESTAMP | The date and time when the location was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the location was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `name` | STRING | Name | The name of the location. |
+| `isActive` | BOOLEAN | IsActive | Whether the location is active. |
+| `isPrimary` | BOOLEAN | IsPrimary | Whether the location is the primary location. |
+| `isFulfillmentService` | BOOLEAN | IsFulfillmentService | Whether the location is a fulfillment service location. |
+| `fulfillsOnlineOrders` | BOOLEAN | FulfillsOnlineOrders | Whether the location can fulfill online orders. |
+| `hasActiveInventory` | BOOLEAN | HasActiveInventory | Whether the location has active inventory. |
+| `shipsInventory` | BOOLEAN | ShipsInventory | Whether the location ships inventory. |
+| `addressLine1` | STRING | AddressLine1 | The first line of the address. |
+| `addressLine2` | STRING | AddressLine2 | The second line of the address. |
+| `city` | STRING | City | The city of the location. |
+| `province` | STRING | Province | The province or state of the location. |
+| `provinceCode` | STRING | ProvinceCode | The province or state code. |
+| `country` | STRING | Country | The country of the location. |
+| `countryCode` | STRING | CountryCode | The country code of the location. |
+| `zip` | STRING | Zip | The postal or ZIP code. |
+| `phone` | STRING | Phone | The phone number of the location. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the location was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the location was last updated. |
 
 # Example Questions
 

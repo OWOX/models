@@ -19,17 +19,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. |
-| `realm_id` | STRING | PK. |
-| `entity` | STRING | Entity name, constant per node. |
-| `status` | STRING | "Deleted" for hard-deleted objects; absent for live ones. Live rows carry the full payload. |
-| `last_updated_time` | TIMESTAMP | PK. |
-| `sync_token` | STRING |  |
-| `txn_date` | DATE |  |
-| `total_amt` | FLOAT |  |
-| `payload` | JSON | Whole object as JSON (CDC returns the full payload, so the main node's columns can be re-derived). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. QuickBooks invoice Id; with realm_id it identifies the invoice that changed. |
+| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
+| `entity` | STRING | Entity | Entity name, constant per node. |
+| `status` | STRING | Status | "Deleted" for hard-deleted objects; absent for live ones. Live rows carry the full payload. |
+| `last_updated_time` | TIMESTAMP | Last Updated Time | PK. When the invoice was last changed in QuickBooks (UTC), as returned by the change data capture feed. |
+| `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
+| `txn_date` | DATE | Txn Date | Date of the invoice. |
+| `total_amt` | FLOAT | Total Amt | Total amount of the document including tax, in the document currency. |
+| `payload` | JSON | Payload | Whole object as JSON (CDC returns the full payload, so the main node's columns can be re-derived). |
 
 # Example Questions
 

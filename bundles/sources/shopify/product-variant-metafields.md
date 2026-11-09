@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `namespace` | STRING | The namespace of the metafield. |
-| `key` | STRING | The key of the metafield. |
-| `value` | STRING | The value of the metafield. |
-| `type` | STRING | The type of the metafield. |
-| `ownerId` | STRING | The ID of the owner resource. |
-| `ownerType` | STRING | The type of the owner resource. |
-| `createdAt` | TIMESTAMP | The date and time when the metafield was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the metafield was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `namespace` | STRING | Namespace | The namespace of the metafield. |
+| `key` | STRING | Key | The key of the metafield. |
+| `value` | STRING | Value | The value of the metafield. |
+| `type` | STRING | Type | The type of the metafield. |
+| `ownerId` | STRING | OwnerId | The ID of the owner resource. |
+| `ownerType` | STRING | OwnerType | The type of the owner resource. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the metafield was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the metafield was last updated. |
 
 # Example Questions
 

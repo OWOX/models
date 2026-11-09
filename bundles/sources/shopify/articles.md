@@ -24,23 +24,23 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `title` | STRING | The title of the article. |
-| `handle` | STRING | A unique, human-friendly string for the article URL. |
-| `body` | STRING | The text of the article body, complete with HTML markup. |
-| `summary` | STRING | A summary of the article, which can include HTML markup. |
-| `authorName` | STRING | The name of the author of the article. |
-| `blogId` | STRING | The ID of the blog containing the article. |
-| `blogTitle` | STRING | The title of the blog containing the article. |
-| `isPublished` | BOOLEAN | Whether or not the article is visible. |
-| `publishedAt` | TIMESTAMP | The date and time when the article became or will become visible. |
-| `tags` | STRING | A comma-separated list of tags. |
-| `templateSuffix` | STRING | The name of the template the article is using. |
-| `imageUrl` | STRING | The URL of the image associated with the article. |
-| `createdAt` | TIMESTAMP | The date and time when the article was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the article was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `title` | STRING | Title | The title of the article. |
+| `handle` | STRING | Handle | A unique, human-friendly string for the article URL. |
+| `body` | STRING | Body | The text of the article body, complete with HTML markup. |
+| `summary` | STRING | Summary | A summary of the article, which can include HTML markup. |
+| `authorName` | STRING | AuthorName | The name of the author of the article. |
+| `blogId` | STRING | BlogId | The ID of the blog containing the article. |
+| `blogTitle` | STRING | BlogTitle | The title of the blog containing the article. |
+| `isPublished` | BOOLEAN | IsPublished | Whether or not the article is visible. |
+| `publishedAt` | TIMESTAMP | PublishedAt | The date and time when the article became or will become visible. |
+| `tags` | STRING | Tags | A comma-separated list of tags. |
+| `templateSuffix` | STRING | TemplateSuffix | The name of the template the article is using. |
+| `imageUrl` | STRING | ImageUrl | The URL of the image associated with the article. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the article was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the article was last updated. |
 
 # Example Questions
 

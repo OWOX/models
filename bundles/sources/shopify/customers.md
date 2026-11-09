@@ -24,30 +24,30 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `firstName` | STRING | The customer first name. |
-| `lastName` | STRING | The customer last name. |
-| `displayName` | STRING | The full name of the customer. |
-| `email` | STRING | The customer email address. |
-| `phone` | STRING | The customer phone number. |
-| `state` | STRING | The state of the customer account. |
-| `locale` | STRING | The customer locale. |
-| `taxExempt` | BOOLEAN | Whether the customer is exempt from being charged taxes. |
-| `verifiedEmail` | BOOLEAN | Whether the customer has verified their email. |
-| `emailMarketingConsentState` | STRING | The current email marketing state for the customer. |
-| `smsMarketingConsentState` | STRING | The current SMS marketing state for the customer. |
-| `numberOfOrders` | INTEGER | The number of orders associated with this customer. |
-| `amountSpent` | STRING | The total amount spent by the customer (JSON string with amount and currencyCode). |
-| `tags` | STRING | A comma-separated list of tags associated with the customer. |
-| `note` | STRING | A note about the customer. |
-| `defaultAddressCity` | STRING | City from the default address. |
-| `defaultAddressCountry` | STRING | Country from the default address. |
-| `defaultAddressProvince` | STRING | Province from the default address. |
-| `defaultAddressZip` | STRING | Postal/ZIP code from the default address. |
-| `createdAt` | TIMESTAMP | The date and time when the customer was created. |
-| `updatedAt` | TIMESTAMP | The date and time when the customer was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `firstName` | STRING | FirstName | The customer first name. |
+| `lastName` | STRING | LastName | The customer last name. |
+| `displayName` | STRING | DisplayName | The full name of the customer. |
+| `email` | STRING | Email | The customer email address. |
+| `phone` | STRING | Phone | The customer phone number. |
+| `state` | STRING | State | The state of the customer account. |
+| `locale` | STRING | Locale | The customer locale. |
+| `taxExempt` | BOOLEAN | TaxExempt | Whether the customer is exempt from being charged taxes. |
+| `verifiedEmail` | BOOLEAN | VerifiedEmail | Whether the customer has verified their email. |
+| `emailMarketingConsentState` | STRING | EmailMarketingConsentState | The current email marketing state for the customer. |
+| `smsMarketingConsentState` | STRING | SmsMarketingConsentState | The current SMS marketing state for the customer. |
+| `numberOfOrders` | INTEGER | NumberOfOrders | The number of orders associated with this customer. |
+| `amountSpent` | STRING | AmountSpent | The total amount spent by the customer (JSON string with amount and currencyCode). |
+| `tags` | STRING | Tags | A comma-separated list of tags associated with the customer. |
+| `note` | STRING | Note | A note about the customer. |
+| `defaultAddressCity` | STRING | DefaultAddressCity | City from the default address. |
+| `defaultAddressCountry` | STRING | DefaultAddressCountry | Country from the default address. |
+| `defaultAddressProvince` | STRING | DefaultAddressProvince | Province from the default address. |
+| `defaultAddressZip` | STRING | DefaultAddressZip | Postal/ZIP code from the default address. |
+| `createdAt` | TIMESTAMP | CreatedAt | The date and time when the customer was created. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the customer was last updated. |
 
 # Example Questions
 

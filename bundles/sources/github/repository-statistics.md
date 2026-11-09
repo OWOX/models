@@ -24,11 +24,11 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `date` | DATE | PK. Date of the data snapshot |
-| `stars` | INTEGER | Number of stars for the repository |
-| `contributors` | INTEGER | Number of contributors to the repository |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `date` | DATE | Date | PK. Date of the data snapshot |
+| `stars` | INTEGER | Stars | Number of stars for the repository |
+| `contributors` | INTEGER | Contributors | Number of contributors to the repository |
 
 # Example Questions
 

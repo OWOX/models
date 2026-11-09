@@ -24,11 +24,11 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `date` | DATE | PK. The date for which the exchange rate was recorded. |
-| `label` | STRING | PK. The currency code (e.g., USD, EUR, GBP). |
-| `rate` | NUMERIC | The exchange rate value. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `date` | DATE | Date | PK. The date for which the exchange rate was recorded. |
+| `label` | STRING | Label | PK. The currency code (e.g., USD, EUR, GBP). |
+| `rate` | NUMERIC | Rate | The exchange rate value. |
 
 # Example Questions
 

@@ -24,20 +24,20 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `organization_urn` | STRING | PK. Organization URN |
-| `time_range_start` | TIMESTAMP | PK. Start timestamp of the time range |
-| `time_range_end` | TIMESTAMP | PK. End timestamp of the time range |
-| `organic_follower_gain` | INTEGER | Number of organic followers gained during the time period |
-| `paid_follower_gain` | INTEGER | Number of paid followers gained during the time period |
-| `follower_counts_by_association_type` | JSON | Followers segmented by association type (empty in time-bound responses) |
-| `follower_counts_by_seniority` | JSON | Followers segmented by seniority (empty in time-bound responses) |
-| `follower_counts_by_industry` | JSON | Followers segmented by industry (empty in time-bound responses) |
-| `follower_counts_by_function` | JSON | Followers segmented by function (empty in time-bound responses) |
-| `follower_counts_by_staff_count_range` | JSON | Followers segmented by staff count range (empty in time-bound responses) |
-| `follower_counts_by_geo_country` | JSON | Followers segmented by country (empty in time-bound responses) |
-| `follower_counts_by_geo` | JSON | Followers segmented by geographic area (empty in time-bound responses) |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `organization_urn` | STRING | Organization Urn | PK. Organization URN |
+| `time_range_start` | TIMESTAMP | Time Range Start | PK. Start timestamp of the time range |
+| `time_range_end` | TIMESTAMP | Time Range End | PK. End timestamp of the time range |
+| `organic_follower_gain` | INTEGER | Organic Follower Gain | Number of organic followers gained during the time period |
+| `paid_follower_gain` | INTEGER | Paid Follower Gain | Number of paid followers gained during the time period |
+| `follower_counts_by_association_type` | JSON | Follower Counts by Association Type | Followers segmented by association type (empty in time-bound responses) |
+| `follower_counts_by_seniority` | JSON | Follower Counts by Seniority | Followers segmented by seniority (empty in time-bound responses) |
+| `follower_counts_by_industry` | JSON | Follower Counts by Industry | Followers segmented by industry (empty in time-bound responses) |
+| `follower_counts_by_function` | JSON | Follower Counts by Function | Followers segmented by function (empty in time-bound responses) |
+| `follower_counts_by_staff_count_range` | JSON | Follower Counts by Staff Count Range | Followers segmented by staff count range (empty in time-bound responses) |
+| `follower_counts_by_geo_country` | JSON | Follower Counts by Geo Country | Followers segmented by country (empty in time-bound responses) |
+| `follower_counts_by_geo` | JSON | Follower Counts by Geo | Followers segmented by geographic area (empty in time-bound responses) |
 
 # Example Questions
 

@@ -21,7 +21,7 @@ sources:
 - **Default destination table:** `facebook_ads_ad_account_insights_by_country`
 - **Unique keys:** `ad_id`, `date_start`, `date_stop`, `country`
 - **Last updated:** 2026-05-29 — last change to this endpoint's fields in the connector ([353810d2b](https://github.com/OWOX/owox-data-marts/commit/353810d2bc085efba2a026bc9840d95dc1a360f4))
-- **Time series:** yes, one row per key per `date`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

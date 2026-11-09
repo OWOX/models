@@ -24,18 +24,18 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. A globally-unique ID. |
-| `title` | STRING | The title of the collection. |
-| `handle` | STRING | A unique, human-friendly string for the collection URL. |
-| `description` | STRING | The description of the collection, including any HTML tags and formatting. |
-| `descriptionHtml` | STRING | The description of the collection in HTML format. |
-| `sortOrder` | STRING | The order in which the products in the collection are displayed. |
-| `templateSuffix` | STRING | The name of the template the collection is using. |
-| `productsCount` | INTEGER | The number of products in the collection. |
-| `imageUrl` | STRING | The URL of the image associated with the collection. |
-| `updatedAt` | TIMESTAMP | The date and time when the collection was last updated. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `title` | STRING | Title | The title of the collection. |
+| `handle` | STRING | Handle | A unique, human-friendly string for the collection URL. |
+| `description` | STRING | Description | The description of the collection, including any HTML tags and formatting. |
+| `descriptionHtml` | STRING | DescriptionHtml | The description of the collection in HTML format. |
+| `sortOrder` | STRING | SortOrder | The order in which the products in the collection are displayed. |
+| `templateSuffix` | STRING | TemplateSuffix | The name of the template the collection is using. |
+| `productsCount` | INTEGER | ProductsCount | The number of products in the collection. |
+| `imageUrl` | STRING | ImageUrl | The URL of the image associated with the collection. |
+| `updatedAt` | TIMESTAMP | UpdatedAt | The date and time when the collection was last updated. |
 
 # Example Questions
 

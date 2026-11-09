@@ -24,15 +24,15 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. Unique identifier for the holiday |
-| `date` | DATE | Date of the holiday |
-| `name` | STRING | Name of the holiday in the specified language |
-| `type` | STRING | Type of holiday (public, school, etc.) |
-| `regionalScope` | STRING | Regional scope of the holiday |
-| `temporalScope` | STRING | Temporal scope of the holiday |
-| `nationwide` | BOOLEAN | Whether the holiday is nationwide |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. Unique identifier for the holiday |
+| `date` | DATE | Date | Date of the holiday |
+| `name` | STRING | Name | Name of the holiday in the specified language |
+| `type` | STRING | Type | Type of holiday (public, school, etc.) |
+| `regionalScope` | STRING | RegionalScope | Regional scope of the holiday |
+| `temporalScope` | STRING | TemporalScope | Temporal scope of the holiday |
+| `nationwide` | BOOLEAN | Nationwide | Whether the holiday is nationwide |
 
 # Example Questions
 

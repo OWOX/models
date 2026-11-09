@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `login` | STRING | Contributor login name |
-| `id` | STRING | PK. Contributor ID |
-| `node_id` | STRING | Contributor node ID |
-| `avatar_url` | STRING | Contributor avatar URL |
-| `gravatar_id` | STRING | Contributor gravatar ID |
-| `html_url` | STRING | Contributor HTML URL |
-| `type` | STRING | Contributor type (User/Bot) |
-| `site_admin` | BOOLEAN | Whether the contributor is a site admin |
-| `contributions` | INTEGER | Number of contributions to the repository |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `login` | STRING | Login | Contributor login name |
+| `id` | STRING | ID | PK. Contributor ID |
+| `node_id` | STRING | Node ID | Contributor node ID |
+| `avatar_url` | STRING | Avatar URL | Contributor avatar URL |
+| `gravatar_id` | STRING | Gravatar ID | Contributor gravatar ID |
+| `html_url` | STRING | Html URL | Contributor HTML URL |
+| `type` | STRING | Type | Contributor type (User/Bot) |
+| `site_admin` | BOOLEAN | Site Admin | Whether the contributor is a site admin |
+| `contributions` | INTEGER | Contributions | Number of contributions to the repository |
 
 # Example Questions
 
