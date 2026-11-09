@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { PanelRightOpen } from "lucide-react";
-import type { ModelNode, ModelEdge } from "@mc/okf";
+import { edgeJoinAliases, type ModelNode, type ModelEdge } from "@mc/okf";
 import { ObjectInspector } from "./ObjectInspector";
 import { RelationshipInspector } from "./RelationshipInspector";
 import { QuestionsPanel } from "./QuestionsPanel";
@@ -153,6 +153,7 @@ export function Inspector({
       fromNode={nodes.find(n => n.key === selectedEdge.from)}
       toNode={nodes.find(n => n.key === selectedEdge.to)}
       onUpdate={patch => onUpdateEdge(selectedEdge.id, patch)}
+      defaultAliases={edgeJoinAliases(nodes, edges.map(e => e.id === selectedEdge.id ? { ...e, alias: undefined, reverseAlias: undefined } : e)).get(selectedEdge.id)}
       onEnsureField={(nodeKey, fieldName) => {
         const node = nodes.find(n => n.key === nodeKey);
         if (!node || !fieldName || node.schema.some(f => f.name === fieldName)) return;

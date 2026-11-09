@@ -1,6 +1,7 @@
 import YAML from "yaml";
 import type { ModelGraph, ModelNode, SchemaField } from "../types";
-import { defaultJoinAlias, formulaLevel, isCalculated, joinAlias, rewriteReferences } from "../formula";
+import { defaultJoinAlias, formulaLevel, isCalculated, rewriteReferences } from "../formula";
+import { edgeJoinAliases } from "../joins";
 import {
   OSSIE_VERSION, canvasToOssieType, ossieToCanvasType, owoxExt,
   type OssieDataset, type OssieDoc, type OssieExpression, type OssieField, type OssieMetric, type OssieRelationship,
@@ -34,6 +35,12 @@ export function serializeOssie(graph: ModelGraph, modelName: string, opts: Seria
     return { dialects: [{ dialect, expression: text }] };
   };
   const nodeByKey = new Map(graph.nodes.map(n => [n.key, n]));
+  const aliases = edgeJoinAliases(graph.nodes, graph.edges);
+  // An alias goes into the file when set, or when a parallel join got one other than the default.
+  const aliasToWrite = (explicit: string | undefined, resolved: string | undefined, targetKey: string) => {
+    const t = nodeByKey.get(targetKey);
+    return explicit || (resolved && t && resolved !== defaultJoinAlias(t.title || t.key, t.key) ? resolved : undefined);
+  };
 
   const takenDatasets = new Set<string>();
   const dsName = new Map<string, string>();
@@ -88,7 +95,9 @@ export function serializeOssie(graph: ModelGraph, modelName: string, opts: Seria
       to_columns: keys.map(k => (swapped ? k.left : k.right)),
     };
     const ext = owoxExt({
-      alias: e.alias, reverseAlias: e.reverseAlias, bidirectional: e.bidirectional || undefined,
+      alias: aliasToWrite(e.alias, aliases.get(e.id)?.forward, e.to),
+      reverseAlias: e.bidirectional ? aliasToWrite(e.reverseAlias, aliases.get(e.id)?.reverse, e.from) : e.reverseAlias,
+      bidirectional: e.bidirectional || undefined,
       cardinality: e.cardinality, swapped: swapped || undefined, description: e.description?.trim() ? e.description : undefined,
     });
     if (ext) rel.custom_extensions = ext;
@@ -105,8 +114,9 @@ export function serializeOssie(graph: ModelGraph, modelName: string, opts: Seria
     const aliasToDataset = new Map<string, string>();
     const setAlias = (a: string, d: string) => { if (!aliasToDataset.has(a)) aliasToDataset.set(a, d); };
     for (const e of graph.edges) {
-      if (e.from === n.key && nodeByKey.has(e.to)) setAlias(joinAlias(e.alias, nodeByKey.get(e.to)!), dsName.get(e.to)!);
-      if (e.to === n.key && e.bidirectional && nodeByKey.has(e.from)) setAlias(joinAlias(e.reverseAlias, nodeByKey.get(e.from)!), dsName.get(e.from)!);
+      const a = aliases.get(e.id);
+      if (e.from === n.key && nodeByKey.has(e.to) && a) setAlias(a.forward, dsName.get(e.to)!);
+      if (e.to === n.key && e.bidirectional && nodeByKey.has(e.from) && a?.reverse) setAlias(a.reverse, dsName.get(e.from)!);
     }
     for (const f of n.schema) {
       if (!f.name.trim()) continue;

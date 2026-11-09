@@ -28,6 +28,8 @@ function edgeSides(
     const sx = src.position.x + erdAwareNodeSize(src, viewMode).width / 2;
     const tx = tgt.position.x + erdAwareNodeSize(tgt, viewMode).width / 2;
     if (tx < sx) { source = "left"; target = "right"; }
+    // A self-join leaves and re-enters on the right, so it draws as a loop beside the card.
+    if (src.key === tgt.key) { source = "right"; target = "right"; }
   }
   const storedSource = e.sourceHandle === "left" || e.sourceHandle === "right" ? e.sourceHandle : null;
   const storedTarget = e.targetHandle === "left" || e.targetHandle === "right" ? e.targetHandle : null;
@@ -58,18 +60,39 @@ export function isEdgeReconnectable(
   return viewMode !== "erd" && modelEdgeId != null && modelEdgeId === selectedEdgeId;
 }
 
+// Several joins between the same two marts (QuickBooks: a bill payment → Accounts as
+// its A/P, bank and card account) would draw on top of each other. Edges sharing both
+// end anchors get a lane each, centred on 0: RelEdge bows lane n by n steps, so a lone
+// edge (lane 0) draws exactly as before. A self-join is flagged so it draws as a loop.
+function withLanes(out: Edge[]): Edge[] {
+  const groups = new Map<string, Edge[]>();
+  for (const e of out) {
+    const k = [`${e.source}#${e.sourceHandle ?? ""}`, `${e.target}#${e.targetHandle ?? ""}`].sort().join("|");
+    const g = groups.get(k);
+    if (g) g.push(e); else groups.set(k, [e]);
+  }
+  for (const g of groups.values()) {
+    g.forEach((e, i) => {
+      const data = e.data as Record<string, unknown>;
+      if (g.length > 1) { data.lane = i - (g.length - 1) / 2; data.laneIndex = i; }
+      if (e.source === e.target) data.self = true;
+    });
+  }
+  return out;
+}
+
 export function buildRfEdges(edges: ModelEdge[], nodes: ModelNode[], viewMode: ViewMode, relLabelMode: RelLabelMode = "all"): Edge[] {
   const byKey = new Map(nodes.map(n => [n.key, n]));
 
   if (viewMode !== "erd") {
-    return edges.map(e => compactEdge(e, edgeSides(byKey.get(e.from), byKey.get(e.to), e, viewMode), relLabelMode));
+    return withLanes(edges.map(e => compactEdge(e, edgeSides(byKey.get(e.from), byKey.get(e.to), e, viewMode), relLabelMode)));
   }
 
   const fieldsByKey = new Map<string, Set<string>>(
     nodes.map(n => [n.key, new Set(n.schema.filter(f => !isCalculated(f)).map(f => f.name))]),
   );
 
-  return edges.flatMap(e => {
+  return withLanes(edges.flatMap(e => {
     const sides = edgeSides(byKey.get(e.from), byKey.get(e.to), e, viewMode);
     const usable = e.keys.filter(k => k.left || k.right);
     if (usable.length === 0) return [compactEdge(e, sides, relLabelMode)];
@@ -90,5 +113,5 @@ export function buildRfEdges(edges: ModelEdge[], nodes: ModelNode[], viewMode: V
       type: "rel",
       data: { keys: [k], bidirectional: e.bidirectional, cardinality: e.cardinality, modelEdgeId: e.id, relLabelMode } as unknown as Record<string, unknown>,
     }));
-  });
+  }));
 }
