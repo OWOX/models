@@ -97,6 +97,38 @@ const base = () => ({
   },
 })
 
+describe('buildModel, alternateKeys and updated', () => {
+  const withAccount = () => {
+    const b = base()
+    b.endpoints[0] = ep('Parents', 'parents', ['id', 'code'], ['id', 'code'])
+    b.endpoints[1] = ep('Children', 'children', ['id', 'code'], ['id'])
+    b.authored.joins = [{ from: 'Children', to: 'Parents', on: [['code', 'code']], cardinality: 'N:1', note: 'The parent.', source: 'https://example.com' }]
+    return b
+  }
+  it('refuses an N:1 join on one of two key columns, unless the author names it an alternate key with a source', () => {
+    expect(() => buildModel(withAccount())).toThrow(/do not cover Parents's unique keys \(id\)/)
+    const b = withAccount()
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['code'], source: 'https://example.com (code: "The code")' }]
+    const doc = renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })['parents.md']
+    expect(doc).toContain('- **Also unique on its own:** `code`')
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['code'], source: '' }]
+    expect(() => buildModel(b)).toThrow(/needs a source/)
+    b.authored.endpoints.Parents.alternateKeys = [{ columns: ['nope'], source: 's' }]
+    expect(() => buildModel(b)).toThrow(/must list columns this endpoint has/)
+  })
+  it('shows Last updated in the document and in the index table, and checks the date and commit', () => {
+    const b = base()
+    const sha = 'a'.repeat(40)
+    b.authored.endpoints.Parents.updated = { date: '2026-05-18', commit: sha }
+    const files = renderBundle(buildModel(b), { svgPath: 's.svg', exploreUrl: 'u' })
+    expect(files['parents.md']).toContain(`- **Last updated:** 2026-05-18 — last change to this endpoint's fields in the connector ([aaaaaaaaa](https://github.com/o/r/commit/${sha}))`)
+    expect(files['index.md']).toContain('| Data Mart | Fields | Last updated | Description |')
+    expect(files['index.md']).toMatch(/\| \[Parents\]\(\.\/parents\.md\) \| 1 \| 2026-05-18 \|/)
+    b.authored.endpoints.Parents.updated = { date: '18 May', commit: 'abc' }
+    expect(() => buildModel(b)).toThrow(/updated needs a date/)
+  })
+})
+
 describe('buildModel, OBJECT and DATETIME columns', () => {
   it('renders them as JSON and DATETIME in the schema table', () => {
     const b = base()

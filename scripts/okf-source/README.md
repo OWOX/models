@@ -38,7 +38,17 @@ Micros`: `humanize()` in `lib.mjs`, acronyms in capitals). Override one under `"
 file: `"column"` for every endpoint of the source, `"Endpoint.column"` for one (that wins). Two fields of
 one table may not end up with the same alias, and an override that matches no field is an error.
 
-**Authored, by hand:** descriptions, questions, alias overrides and joins. The generator refuses to build when
+**Last updated.** An endpoint entry in the authored file may carry `"updated": {"date": "YYYY-MM-DD", "commit": "<40-char sha>"}`:
+the day, and the connector commit, of the last change to what the endpoint requests or describes (the latest commit
+touching its block in the connector's `FieldsSchema.js` or its fields file, at the pinned commit). The document shows it
+as `Last updated` and, when any endpoint has one, the index table gets the column.
+
+**Alternate keys.** The connector's `uniqueKeys` is one composite key, and an N:1 join must cover all of it. When a vendor
+line says a column also identifies a row alone (a Meta ad account is `id` or `account_id`), list it on the target
+endpoint as `"alternateKeys": [{"columns": ["account_id"], "source": "<vendor URL (field: \"quoted line\")>"}]`; a join
+that covers it then passes, and the document says `Also unique on its own`.
+
+**Authored, by hand:** descriptions, questions, alias overrides, alternate keys, update dates and joins. The generator refuses to build when
 an authored join names a field the schemas do not have, when an N:1 join does not cover the
 target's whole unique key, when a join has no `source`, when the same join is written twice (same tables, same keys; parallel joins between one pair of tables
 with different keys are fine since OWOX/models#131) or a join goes from a table to itself, or when an
