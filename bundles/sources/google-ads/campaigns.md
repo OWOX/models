@@ -24,19 +24,19 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `campaign_id` | STRING | PK. Campaign ID |
-| `campaign_name` | STRING | Campaign Name |
-| `campaign_status` | STRING | Campaign Status (ENABLED, PAUSED, REMOVED) |
-| `campaign_advertising_channel_type` | STRING | Advertising Channel Type (SEARCH, DISPLAY, VIDEO, etc.) |
-| `campaign_start_date` | STRING | Campaign Start Date |
-| `campaign_end_date` | STRING | Campaign End Date |
-| `campaign_bidding_strategy_type` | STRING | Bidding Strategy Type (MANUAL_CPC, TARGET_CPA, TARGET_ROAS, etc.) |
-| `campaign_budget_amount_micros` | NUMERIC | Campaign Budget Amount in Micros |
-| `campaign_target_cpa_micros` | NUMERIC | Target CPA in Micros (if using Target CPA bidding) |
-| `campaign_target_roas` | NUMERIC | Target ROAS (if using Target ROAS bidding) |
-| `campaign_advertising_channel_sub_type` | STRING | Advertising Channel Sub Type |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `campaign_id` | STRING | Campaign ID | PK. Campaign ID |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
+| `campaign_status` | STRING | Campaign Status | Campaign Status (ENABLED, PAUSED, REMOVED) |
+| `campaign_advertising_channel_type` | STRING | Campaign Advertising Channel Type | Advertising Channel Type (SEARCH, DISPLAY, VIDEO, etc.) |
+| `campaign_start_date` | STRING | Campaign Start Date | Campaign Start Date |
+| `campaign_end_date` | STRING | Campaign End Date | Campaign End Date |
+| `campaign_bidding_strategy_type` | STRING | Campaign Bidding Strategy Type | Bidding Strategy Type (MANUAL_CPC, TARGET_CPA, TARGET_ROAS, etc.) |
+| `campaign_budget_amount_micros` | NUMERIC | Campaign Budget Amount Micros | Campaign Budget Amount in Micros |
+| `campaign_target_cpa_micros` | NUMERIC | Campaign Target CPA Micros | Target CPA in Micros (if using Target CPA bidding) |
+| `campaign_target_roas` | NUMERIC | Campaign Target ROAS | Target ROAS (if using Target ROAS bidding) |
+| `campaign_advertising_channel_sub_type` | STRING | Campaign Advertising Channel Sub Type | Advertising Channel Sub Type |
 
 # Example Questions
 

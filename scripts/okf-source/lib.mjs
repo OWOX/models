@@ -73,6 +73,30 @@ export function parseUniqueKeys(js) {
   return out
 }
 
+/** Words that are written in capitals in a business label. */
+export const ACRONYMS = {
+  id: 'ID', ids: 'IDs', url: 'URL', urls: 'URLs', cpc: 'CPC', cpm: 'CPM', cpa: 'CPA', cpl: 'CPL', ctr: 'CTR', roas: 'ROAS',
+  roi: 'ROI', api: 'API', ip: 'IP', utc: 'UTC', sku: 'SKU', seo: 'SEO', kpi: 'KPI', iso: 'ISO', gdpr: 'GDPR', ga4: 'GA4',
+  utm: 'UTM', ui: 'UI', os: 'OS', sms: 'SMS', vat: 'VAT', rss: 'RSS', csv: 'CSV', json: 'JSON',
+}
+
+const SMALL = new Set(['of', 'per', 'to', 'in', 'by', 'for', 'and', 'the', 'on', 'at', 'from'])
+
+/** `ad_group_cpc_bid_micros` -> `Ad Group CPC Bid Micros`: the default alias of a column. */
+export const humanize = (column) =>
+  String(column)
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((w, i) => ACRONYMS[w.toLowerCase()] ?? (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)))
+    .join(' ')
+
+/**
+ * The Alias of a column: an authored override (`aliases` in the authored file, `"Endpoint.column"`
+ * before `"column"`), else the humanised column name. The endpoint items carry no field titles,
+ * and the connector's field `description` is a sentence, not a label.
+ */
+export const aliasOf = (aliases, endpointName, column) => aliases?.[`${endpointName}.${column}`] ?? aliases?.[column] ?? humanize(column)
+
 const q = (s) => `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 
 /** A frontmatter block scalar (`key: |`) holding paragraphs. */
@@ -110,6 +134,21 @@ export function buildModel({ source, endpoints, authored }) {
         problems.push(`${e.name}: needs 2 or 3 example questions`)
     }
   }
+  for (const [k, v] of Object.entries(authored.aliases ?? {})) {
+    const [endpoint, column] = k.includes('.') ? [k.slice(0, k.indexOf('.')), k.slice(k.indexOf('.') + 1)] : [null, k]
+    const scope = endpoint ? endpoints.filter((e) => e.name === endpoint) : endpoints
+    if (endpoint && !scope.length) problems.push(`aliases: "${k}" names endpoint ${endpoint}, which the Data Source does not have`)
+    else if (!scope.some((e) => e.rows.some((r) => r.column === column))) problems.push(`aliases: "${k}" matches no field`)
+    if (typeof v !== 'string' || !v.trim() || /[|\n]/.test(v)) problems.push(`aliases: "${k}" must be one line of text with no pipe`)
+  }
+  for (const e of endpoints) {
+    const seen = new Map()
+    for (const r of e.rows) {
+      const a = aliasOf(authored.aliases, e.name, r.column)
+      if (seen.has(a)) problems.push(`${e.name}: fields ${seen.get(a)} and ${r.column} get the same alias "${a}"; override one under "aliases"`)
+      else seen.set(a, r.column)
+    }
+  }
   for (const name of Object.keys(authored.endpoints ?? {})) {
     if (!byName.has(name)) problems.push(`authored file names endpoint "${name}", which the Data Source does not have`)
   }
@@ -120,6 +159,14 @@ export function buildModel({ source, endpoints, authored }) {
     const s = slugify(e.name)
     if (slugs.has(s)) problems.push(`${e.name}: two endpoints share the file name ${s}.md`)
     slugs.add(s)
+  }
+  // Parallel joins between one pair of marts are fine (the canvas keeps them as separate edges, OWOX/models#131);
+  // only the same join written twice is refused.
+  const written = new Map()
+  for (const j of joins) {
+    const id = `${j.from}\u0000${j.to}\u0000${(j.on ?? []).map(([l, r]) => `${l}=${r}`).sort().join(',')}`
+    if (written.has(id)) problems.push(`join ${j.n} (${j.from} -> ${j.to}) repeats join ${written.get(id)}: same tables, same keys`)
+    else written.set(id, j.n)
   }
   for (const j of joins) {
     const label = `join ${j.n} (${j.from} -> ${j.to})`
@@ -194,11 +241,11 @@ export function renderMart(model, doc) {
   out.push('')
   out.push('# Schema')
   out.push('')
-  out.push('| Column | Type | Description |')
-  out.push('|--------|------|-------------|')
+  out.push('| Column | Type | Alias | Description |')
+  out.push('|--------|------|-------|-------------|')
   for (const r of e.rows) {
     const d = r.description ? cell(r.description) : ''
-    out.push(`| \`${r.column}\` | ${TYPE_MAP[r.type]} | ${pk.has(r.column) ? `PK. ${d}`.trim() : d} |`)
+    out.push(`| \`${r.column}\` | ${TYPE_MAP[r.type]} | ${aliasOf(authored.aliases, e.name, r.column)} | ${pk.has(r.column) ? `PK. ${d}`.trim() : d} |`)
   }
   out.push('')
   out.push('# Example Questions')
