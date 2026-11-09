@@ -1,6 +1,7 @@
 import type { ModelGraph, ModelNode, Cardinality } from "./types";
 import { slugify, renderFrontmatter } from "./slug";
-import { isCalculated, formulaLevel } from "./formula";
+import { isCalculated, formulaLevel, defaultJoinAlias } from "./formula";
+import { edgeJoinAliases, type EdgeAliases } from "./joins";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = { "1:1": "1:1", "N:N": "N:N", "1:N": "N:1", "N:1": "1:N" };
 
@@ -18,7 +19,8 @@ export function serializeBundle(graph: ModelGraph, projectTitle = "Data Marts"):
     slugByKey.set(n.key, u);
   }
   const files: Record<string, string> = {};
-  for (const n of graph.nodes) files[`${folder}/${slugByKey.get(n.key)}.md`] = renderNode(n, graph, slugByKey);
+  const aliases = edgeJoinAliases(graph.nodes, graph.edges);
+  for (const n of graph.nodes) files[`${folder}/${slugByKey.get(n.key)}.md`] = renderNode(n, graph, slugByKey, aliases);
   const rows = graph.nodes.map(n =>
     `| [${n.title}](./${slugByKey.get(n.key)}.md) | ${n.inputSource} | ${graph.storageId ?? "—"} |`).join("\n");
   files[`${folder}/index.md`] =
@@ -42,7 +44,7 @@ function fkColumns(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>):
   return out;
 }
 
-function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>): string {
+function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>, aliases: Map<string, EdgeAliases>): string {
   const fm = renderFrontmatter({
     type: "OWOX Data Mart", title: n.title, description: n.description || undefined,
     tags: ["owox", n.inputSource.toLowerCase()],
@@ -109,7 +111,11 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
         const cond = keys.map(k => `\`${k.left} = ${k.right}\``).join(", ");
         const card = e.cardinality ? (forward ? e.cardinality : FLIP_CARDINALITY[e.cardinality]) : undefined;
         const suffix = card ? ` [${card}]` : "";
-        const alias = forward ? e.alias : e.reverseAlias;
+        // An alias is written when set, or when a parallel join was given one other
+        // than the default — so it reads the same after a round trip.
+        const resolved = forward ? aliases.get(e.id)?.forward : aliases.get(e.id)?.reverse;
+        const alias = (forward ? e.alias : e.reverseAlias)
+          || (resolved && resolved !== defaultJoinAlias(other.title || other.key, other.key) ? resolved : undefined);
         const as = alias ? ` as \`${alias}\`` : "";
         const desc = forward && e.description?.trim() ? `\n  - Description: ${e.description.replace(/\s*\n\s*/g, " ").trim()}` : "";
         return `- [${other.title}](./${slugByKey.get(otherKey)}.md)${as} — ${cond}${suffix}${desc}`;
