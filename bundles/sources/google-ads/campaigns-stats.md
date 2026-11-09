@@ -24,36 +24,36 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `campaign_id` | STRING | PK. Campaign ID |
-| `campaign_name` | STRING | Campaign Name |
-| `campaign_status` | STRING | Campaign Status (ENABLED, PAUSED, REMOVED) |
-| `date` | STRING | PK. Date for time series data |
-| `impressions` | NUMERIC | Number of Impressions |
-| `clicks` | NUMERIC | Number of Clicks |
-| `cost_micros` | NUMERIC | Cost in Micros |
-| `conversions` | NUMERIC | Number of Conversions |
-| `ctr` | NUMERIC | Click-Through Rate |
-| `average_cpc` | NUMERIC | Average Cost Per Click |
-| `conversions_value` | NUMERIC | Total Conversion Value |
-| `cost_per_conversion` | NUMERIC | Cost Per Conversion |
-| `conversion_rate` | NUMERIC | Conversion Rate |
-| `view_through_conversions` | NUMERIC | View-Through Conversions |
-| `all_conversions` | NUMERIC | All Conversions |
-| `all_conversions_value` | NUMERIC | All Conversions Value |
-| `cost_per_all_conversions` | NUMERIC | Cost Per All Conversions |
-| `average_cost` | NUMERIC | Average Cost |
-| `average_cpm` | NUMERIC | Average CPM |
-| `engagement_rate` | NUMERIC | Engagement Rate |
-| `engagements` | NUMERIC | Number of Engagements |
-| `interactions` | NUMERIC | Number of Interactions |
-| `interaction_rate` | NUMERIC | Interaction Rate |
-| `search_impression_share` | NUMERIC | Search Impression Share |
-| `search_budget_lost_impression_share` | NUMERIC | Search Budget Lost Impression Share |
-| `search_rank_lost_impression_share` | NUMERIC | Search Rank Lost Impression Share |
-| `video_views` | NUMERIC | Video Views (for Video campaigns) |
-| `video_view_rate` | NUMERIC | Video View Rate |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `campaign_id` | STRING | Campaign ID | PK. Campaign ID |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
+| `campaign_status` | STRING | Campaign Status | Campaign Status (ENABLED, PAUSED, REMOVED) |
+| `date` | STRING | Date | PK. Date for time series data |
+| `impressions` | NUMERIC | Impressions | Number of Impressions |
+| `clicks` | NUMERIC | Clicks | Number of Clicks |
+| `cost_micros` | NUMERIC | Cost Micros | Cost in Micros |
+| `conversions` | NUMERIC | Conversions | Number of Conversions |
+| `ctr` | NUMERIC | CTR | Click-Through Rate |
+| `average_cpc` | NUMERIC | Average CPC | Average Cost Per Click |
+| `conversions_value` | NUMERIC | Conversions Value | Total Conversion Value |
+| `cost_per_conversion` | NUMERIC | Cost per Conversion | Cost Per Conversion |
+| `conversion_rate` | NUMERIC | Conversion Rate | Conversion Rate |
+| `view_through_conversions` | NUMERIC | View Through Conversions | View-Through Conversions |
+| `all_conversions` | NUMERIC | All Conversions | All Conversions |
+| `all_conversions_value` | NUMERIC | All Conversions Value | All Conversions Value |
+| `cost_per_all_conversions` | NUMERIC | Cost per All Conversions | Cost Per All Conversions |
+| `average_cost` | NUMERIC | Average Cost | Average Cost |
+| `average_cpm` | NUMERIC | Average CPM | Average CPM |
+| `engagement_rate` | NUMERIC | Engagement Rate | Engagement Rate |
+| `engagements` | NUMERIC | Engagements | Number of Engagements |
+| `interactions` | NUMERIC | Interactions | Number of Interactions |
+| `interaction_rate` | NUMERIC | Interaction Rate | Interaction Rate |
+| `search_impression_share` | NUMERIC | Search Impression Share | Search Impression Share |
+| `search_budget_lost_impression_share` | NUMERIC | Search Budget Lost Impression Share | Search Budget Lost Impression Share |
+| `search_rank_lost_impression_share` | NUMERIC | Search Rank Lost Impression Share | Search Rank Lost Impression Share |
+| `video_views` | NUMERIC | Video Views | Video Views (for Video campaigns) |
+| `video_view_rate` | NUMERIC | Video View Rate | Video View Rate |
 
 # Example Questions
 

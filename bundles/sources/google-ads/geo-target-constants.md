@@ -24,15 +24,15 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `geo_target_constant_id` | STRING | PK. Criterion ID - join key with country_criterion_id in geo_stats |
-| `name` | STRING | English name of the geo target (e.g. United States, California, New York) |
-| `country_code` | STRING | ISO-3166-1 alpha-2 country code (e.g. US, GB, DE) |
-| `target_type` | STRING | Type of geo target (e.g. Country, Region, City, MetroArea, PostalCode) |
-| `status` | STRING | Status of the geo target constant (ENABLED or REMOVAL_PLANNED) |
-| `canonical_name` | STRING | Fully qualified name including parent targets (e.g. New York,New York,United States) |
-| `parent_geo_target` | STRING | Resource name of the parent geo target constant |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `geo_target_constant_id` | STRING | Geo Target Constant ID | PK. Criterion ID - join key with country_criterion_id in geo_stats |
+| `name` | STRING | Geo Target Name | English name of the geo target (e.g. United States, California, New York) |
+| `country_code` | STRING | Country Code | ISO-3166-1 alpha-2 country code (e.g. US, GB, DE) |
+| `target_type` | STRING | Geo Target Type | Type of geo target (e.g. Country, Region, City, MetroArea, PostalCode) |
+| `status` | STRING | Geo Target Status | Status of the geo target constant (ENABLED or REMOVAL_PLANNED) |
+| `canonical_name` | STRING | Canonical Name | Fully qualified name including parent targets (e.g. New York,New York,United States) |
+| `parent_geo_target` | STRING | Parent Geo Target | Resource name of the parent geo target constant |
 
 # Example Questions
 

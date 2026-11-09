@@ -24,20 +24,20 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `name` | STRING | The name of the account |
-| `business_name` | STRING | The business name associated with the account |
-| `timezone` | STRING | The timezone of the account |
-| `timezone_switch_at` | DATETIME | When the timezone was last switched |
-| `country_code` | STRING | The country code of the account (e.g. SI) |
-| `id` | STRING | PK. The unique identifier for the account |
-| `created_at` | DATETIME | When the account was created |
-| `updated_at` | DATETIME | When the account was last updated |
-| `industry_type` | STRING | The industry type of the account |
-| `business_id` | STRING | The business identifier associated with the account |
-| `approval_status` | STRING | The approval status of the account (e.g. ACCEPTED) |
-| `deleted` | BOOLEAN | Whether the account is deleted |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `name` | STRING | Name | The name of the account |
+| `business_name` | STRING | Business Name | The business name associated with the account |
+| `timezone` | STRING | Timezone | The timezone of the account |
+| `timezone_switch_at` | DATETIME | Timezone Switch at | When the timezone was last switched |
+| `country_code` | STRING | Country Code | The country code of the account (e.g. SI) |
+| `id` | STRING | ID | PK. The unique identifier for the account |
+| `created_at` | DATETIME | Created at | When the account was created |
+| `updated_at` | DATETIME | Updated at | When the account was last updated |
+| `industry_type` | STRING | Industry Type | The industry type of the account |
+| `business_id` | STRING | Business ID | The business identifier associated with the account |
+| `approval_status` | STRING | Approval Status | The approval status of the account (e.g. ACCEPTED) |
+| `deleted` | BOOLEAN | Deleted | Whether the account is deleted |
 
 # Example Questions
 

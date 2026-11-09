@@ -24,29 +24,29 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `advertiserId` | STRING | PK. The unique identifier for the advertiser. |
-| `adsetId` | STRING | PK. The unique identifier for the adset. |
-| `adsetName` | STRING | The name of the adset. |
-| `environment` | STRING | PK. The environment where the ad was served (Web, Android, iOS). |
-| `placement` | STRING | PK. The publisher placement where the ad was served. |
-| `day` | DATE | PK. The day of the placement data (YYYY-MM-DD format). |
-| `clicks` | INTEGER | The number of clicks on this placement. |
-| `displays` | INTEGER | The number of ad impressions served on this placement. |
-| `cost` | NUMERIC | Total money spent on this placement. |
-| `salesPc30d` | INTEGER | The number of transactions or conversions (30-day post-click). |
-| `salesPv1d` | INTEGER | The number of transactions or conversions (1-day post-view). |
-| `revenuePc30d` | NUMERIC | The revenue generated (30-day post-click). |
-| `revenuePv1d` | NUMERIC | The revenue generated (1-day post-view). |
-| `cosPc30d` | NUMERIC | The cost of sale (30-day post-click). |
-| `cosPv1d` | NUMERIC | The cost of sale (1-day post-view). |
-| `roasPc30d` | NUMERIC | The return on ad spend (30-day post-click). |
-| `roasPv1d` | NUMERIC | The return on ad spend (1-day post-view). |
-| `cpoPc30d` | NUMERIC | The cost per order (30-day post-click). |
-| `cpoPv1d` | NUMERIC | The cost per order (1-day post-view). |
-| `cvrPc30d` | NUMERIC | The conversion rate (30-day post-click). |
-| `cvrPv1d` | NUMERIC | The conversion rate (1-day post-view). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `advertiserId` | STRING | AdvertiserId | PK. The unique identifier for the advertiser. |
+| `adsetId` | STRING | AdsetId | PK. The unique identifier for the adset. |
+| `adsetName` | STRING | AdsetName | The name of the adset. |
+| `environment` | STRING | Environment | PK. The environment where the ad was served (Web, Android, iOS). |
+| `placement` | STRING | Placement | PK. The publisher placement where the ad was served. |
+| `day` | DATE | Day | PK. The day of the placement data (YYYY-MM-DD format). |
+| `clicks` | INTEGER | Clicks | The number of clicks on this placement. |
+| `displays` | INTEGER | Displays | The number of ad impressions served on this placement. |
+| `cost` | NUMERIC | Cost | Total money spent on this placement. |
+| `salesPc30d` | INTEGER | SalesPc30d | The number of transactions or conversions (30-day post-click). |
+| `salesPv1d` | INTEGER | SalesPv1d | The number of transactions or conversions (1-day post-view). |
+| `revenuePc30d` | NUMERIC | RevenuePc30d | The revenue generated (30-day post-click). |
+| `revenuePv1d` | NUMERIC | RevenuePv1d | The revenue generated (1-day post-view). |
+| `cosPc30d` | NUMERIC | CosPc30d | The cost of sale (30-day post-click). |
+| `cosPv1d` | NUMERIC | CosPv1d | The cost of sale (1-day post-view). |
+| `roasPc30d` | NUMERIC | RoasPc30d | The return on ad spend (30-day post-click). |
+| `roasPv1d` | NUMERIC | RoasPv1d | The return on ad spend (1-day post-view). |
+| `cpoPc30d` | NUMERIC | CpoPc30d | The cost per order (30-day post-click). |
+| `cpoPv1d` | NUMERIC | CpoPv1d | The cost per order (1-day post-view). |
+| `cvrPc30d` | NUMERIC | CvrPc30d | The conversion rate (30-day post-click). |
+| `cvrPv1d` | NUMERIC | CvrPv1d | The conversion rate (1-day post-view). |
 
 # Example Questions
 

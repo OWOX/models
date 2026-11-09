@@ -3,6 +3,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   getBezierPath,
+  Position,
   type EdgeProps,
 } from "@xyflow/react";
 import type { ModelEdge } from "@mc/okf";
@@ -20,7 +21,46 @@ export type RelEdgeData = Pick<ModelEdge, "keys" | "bidirectional" | "cardinalit
   relLabelMode?: RelLabelMode;
   /** One end is the selected card — the edge lights up like a selected one. */
   highlighted?: boolean;
+  /** Parallel edges between the same anchors: lane centred on 0 (buildRfEdges). */
+  lane?: number;
+  laneIndex?: number;
+  /** A self-join: drawn as a loop on the card's right side. */
+  self?: boolean;
 };
+
+const LANE_STEP = 56;      // control-point shift per lane; the label moves ¾ of it
+const LOOP_REACH = 70;     // how far a self-join loop reaches out from the card
+const LOOP_STEP = 32;      // extra reach for each further self-join of one card
+
+/** A cubic path for a parallel edge (bowed by its lane) or a self-join loop, with its
+ *  label point. A lone edge keeps React Flow's own bezier. */
+export function relEdgePath(
+  p: { sourceX: number; sourceY: number; targetX: number; targetY: number; sourcePosition: Position; targetPosition: Position },
+  lane: number, laneIndex: number, self: boolean,
+): [path: string, labelX: number, labelY: number] {
+  const { sourceX: sx, sourceY: sy, targetX: tx, targetY: ty } = p;
+  const point = (c1x: number, c1y: number, c2x: number, c2y: number): [string, number, number] => [
+    `M${sx},${sy} C${c1x},${c1y} ${c2x},${c2y} ${tx},${ty}`,
+    (sx + 3 * c1x + 3 * c2x + tx) / 8,
+    (sy + 3 * c1y + 3 * c2y + ty) / 8,
+  ];
+  const horizontal = (pos: Position) => pos === Position.Left || pos === Position.Right;
+  if (self) {
+    const reach = LOOP_REACH + LOOP_STEP * laneIndex;
+    const dir = p.sourcePosition === Position.Left ? -1 : 1;
+    // Both ends on one row: open the loop up and down so it does not collapse.
+    const spread = Math.abs(ty - sy) < 8 ? reach * 0.8 : 0;
+    return point(sx + dir * reach, sy - spread, tx + dir * reach, ty + spread);
+  }
+  if (!lane || !horizontal(p.sourcePosition) || !horizontal(p.targetPosition)) {
+    const [path, lx, ly] = getBezierPath(p);
+    return [path, lx, ly];
+  }
+  const d = Math.max(Math.abs(tx - sx) * 0.5, 50);
+  const out = (pos: Position) => (pos === Position.Right ? d : -d);
+  const shift = lane * LANE_STEP;
+  return point(sx + out(p.sourcePosition), sy + shift, tx + out(p.targetPosition), ty + shift);
+}
 
 /** The label's join lines, one "left = right" per key, as the product shows them. */
 export function joinLines(keys: ModelEdge["keys"], mode: RelLabelMode): string[] {
@@ -45,10 +85,10 @@ function RelEdgeInner(props: EdgeProps) {
   const mode: RelLabelMode = edgeData?.relLabelMode ?? "all";
   const active = Boolean(selected || edgeData?.highlighted);
 
-  const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX, sourceY, sourcePosition,
-    targetX, targetY, targetPosition,
-  });
+  const [edgePath, labelX, labelY] = relEdgePath(
+    { sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition },
+    edgeData?.lane ?? 0, edgeData?.laneIndex ?? 0, edgeData?.self ?? false,
+  );
 
   const lines = joinLines(keys, mode);
   const cardShown = Boolean(cardinality) && showCardinality(keys, mode);

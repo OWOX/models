@@ -24,28 +24,28 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. The unique identifier for the stats record. |
-| `date` | STRING | PK. The date for which the statistics were collected. |
-| `placement` | STRING | PK. The placement type (ALL_ON_TWITTER or PUBLISHER_NETWORK). |
-| `impressions` | INTEGER | Number of impressions. |
-| `tweets_send` | INTEGER | Number of tweets sent. |
-| `billed_charge_local_micro` | INTEGER | Billed amount in micros. |
-| `qualified_impressions` | INTEGER | Number of qualified impressions. |
-| `follows` | INTEGER | Number of follows. |
-| `app_clicks` | INTEGER | Number of app clicks. |
-| `retweets` | INTEGER | Number of retweets. |
-| `unfollows` | INTEGER | Number of unfollows. |
-| `likes` | INTEGER | Number of likes. |
-| `engagements` | INTEGER | Number of engagements. |
-| `clicks` | INTEGER | Number of clicks. |
-| `card_engagements` | INTEGER | Number of card engagements. |
-| `poll_card_vote` | INTEGER | Number of poll card votes. |
-| `replies` | INTEGER | Number of replies. |
-| `url_clicks` | INTEGER | Number of URL clicks. |
-| `billed_engagements` | INTEGER | Number of billed engagements. |
-| `carousel_swipes` | INTEGER | Number of carousel swipes. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. The unique identifier for the stats record. |
+| `date` | STRING | Date | PK. The date for which the statistics were collected. |
+| `placement` | STRING | Placement | PK. The placement type (ALL_ON_TWITTER or PUBLISHER_NETWORK). |
+| `impressions` | INTEGER | Impressions | Number of impressions. |
+| `tweets_send` | INTEGER | Tweets Send | Number of tweets sent. |
+| `billed_charge_local_micro` | INTEGER | Billed Charge Local Micro | Billed amount in micros. |
+| `qualified_impressions` | INTEGER | Qualified Impressions | Number of qualified impressions. |
+| `follows` | INTEGER | Follows | Number of follows. |
+| `app_clicks` | INTEGER | App Clicks | Number of app clicks. |
+| `retweets` | INTEGER | Retweets | Number of retweets. |
+| `unfollows` | INTEGER | Unfollows | Number of unfollows. |
+| `likes` | INTEGER | Likes | Number of likes. |
+| `engagements` | INTEGER | Engagements | Number of engagements. |
+| `clicks` | INTEGER | Clicks | Number of clicks. |
+| `card_engagements` | INTEGER | Card Engagements | Number of card engagements. |
+| `poll_card_vote` | INTEGER | Poll Card Vote | Number of poll card votes. |
+| `replies` | INTEGER | Replies | Number of replies. |
+| `url_clicks` | INTEGER | URL Clicks | Number of URL clicks. |
+| `billed_engagements` | INTEGER | Billed Engagements | Number of billed engagements. |
+| `carousel_swipes` | INTEGER | Carousel Swipes | Number of carousel swipes. |
 
 # Example Questions
 

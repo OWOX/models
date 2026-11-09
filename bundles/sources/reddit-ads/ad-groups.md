@@ -24,35 +24,35 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_account_id` | STRING | The ID of the ad account that the ad group belongs to. |
-| `app_id` | STRING | The App ID of the app in the mobile app store (iOS App Store, Google Play Store). |
-| `bid_strategy` | STRING | The bid strategy for the ad group. |
-| `bid_type` | STRING | The bidding strategy for the ad group. |
-| `bid_value` | INTEGER | The amount to pay in microcurrency per bidding event. |
-| `campaign_id` | STRING | The ID of the campaign the ad group belongs to. |
-| `campaign_objective_type` | STRING | The objective type of a campaign. |
-| `configured_status` | STRING | The status of the ad group configured by the account owner. |
-| `created_at` | STRING | The time that this entity was created, represented in ISO 8601. |
-| `effective_status` | STRING | The effective status of the ad group in the system. |
-| `end_time` | STRING | ISO 8601 timestamp when the ad group will stop delivering. |
-| `goal_type` | STRING | The type of goal for the ad group. |
-| `goal_value` | INTEGER | The value used to determine if the goal has been met. Measured in microcurrency for monetary goal types. |
-| `id` | STRING | PK. The ID of the ad group. |
-| `modified_at` | STRING | The last time that this entity was modified, represented in ISO 8601. |
-| `name` | STRING | The name of the ad group. |
-| `optimization_strategy_type` | STRING | Deprecated - The type of optimization strategy. |
-| `optimization_goal` | STRING | The event you want to measure. Required for conversion and app install campaign objectives. |
-| `product_set_id` | STRING | The product set to associate with this ad group. |
-| `schedule` | STRING | A list of times to run the ad group. |
-| `shopping_targeting` | STRING | A container for shopping ad tracking-related fields. |
-| `shopping_type` | STRING | The type of ads an ad group should contain for shopping ads. |
-| `skadnetwork_metadata` | STRING | Metadata about the SKAdNetwork source ID associated with the ad group. |
-| `start_time` | STRING | ISO 8601 timestamp when the ad group will begin to deliver. |
-| `targeting` | STRING | Targeting information for the ad group. |
-| `is_campaign_budget_optimization` | BOOLEAN | Determines if the ad group belongs to a CBO (campaign-budget-optimization) campaign. |
-| `view_through_conversion_type` | STRING | The type of view-through conversion being measured. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_account_id` | STRING | Ad Account ID | The ID of the ad account that the ad group belongs to. |
+| `app_id` | STRING | App ID | The App ID of the app in the mobile app store (iOS App Store, Google Play Store). |
+| `bid_strategy` | STRING | Bid Strategy | The bid strategy for the ad group. |
+| `bid_type` | STRING | Bid Type | The bidding strategy for the ad group. |
+| `bid_value` | INTEGER | Bid Value | The amount to pay in microcurrency per bidding event. |
+| `campaign_id` | STRING | Campaign ID | The ID of the campaign the ad group belongs to. |
+| `campaign_objective_type` | STRING | Campaign Objective Type | The objective type of a campaign. |
+| `configured_status` | STRING | Configured Status | The status of the ad group configured by the account owner. |
+| `created_at` | STRING | Created at | The time that this entity was created, represented in ISO 8601. |
+| `effective_status` | STRING | Effective Status | The effective status of the ad group in the system. |
+| `end_time` | STRING | End Time | ISO 8601 timestamp when the ad group will stop delivering. |
+| `goal_type` | STRING | Goal Type | The type of goal for the ad group. |
+| `goal_value` | INTEGER | Goal Value | The value used to determine if the goal has been met. Measured in microcurrency for monetary goal types. |
+| `id` | STRING | ID | PK. The ID of the ad group. |
+| `modified_at` | STRING | Modified at | The last time that this entity was modified, represented in ISO 8601. |
+| `name` | STRING | Name | The name of the ad group. |
+| `optimization_strategy_type` | STRING | Optimization Strategy Type | Deprecated - The type of optimization strategy. |
+| `optimization_goal` | STRING | Optimization Goal | The event you want to measure. Required for conversion and app install campaign objectives. |
+| `product_set_id` | STRING | Product Set ID | The product set to associate with this ad group. |
+| `schedule` | STRING | Schedule | A list of times to run the ad group. |
+| `shopping_targeting` | STRING | Shopping Targeting | A container for shopping ad tracking-related fields. |
+| `shopping_type` | STRING | Shopping Type | The type of ads an ad group should contain for shopping ads. |
+| `skadnetwork_metadata` | STRING | Skadnetwork Metadata | Metadata about the SKAdNetwork source ID associated with the ad group. |
+| `start_time` | STRING | Start Time | ISO 8601 timestamp when the ad group will begin to deliver. |
+| `targeting` | STRING | Targeting | Targeting information for the ad group. |
+| `is_campaign_budget_optimization` | BOOLEAN | Is Campaign Budget Optimization | Determines if the ad group belongs to a CBO (campaign-budget-optimization) campaign. |
+| `view_through_conversion_type` | STRING | View Through Conversion Type | The type of view-through conversion being measured. |
 
 # Example Questions
 

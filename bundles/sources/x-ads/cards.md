@@ -24,16 +24,16 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. The unique identifier for the card. |
-| `name` | STRING | The name of the card. |
-| `card_type` | STRING | Type of the card. |
-| `card_uri` | STRING | URI of the card. |
-| `created_at` | DATETIME | When the card was created. |
-| `updated_at` | DATETIME | When the card was last updated. |
-| `deleted` | BOOLEAN | Whether the card is deleted. |
-| `components` | JSON | Card components including media and buttons. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. The unique identifier for the card. |
+| `name` | STRING | Name | The name of the card. |
+| `card_type` | STRING | Card Type | Type of the card. |
+| `card_uri` | STRING | Card Uri | URI of the card. |
+| `created_at` | DATETIME | Created at | When the card was created. |
+| `updated_at` | DATETIME | Updated at | When the card was last updated. |
+| `deleted` | BOOLEAN | Deleted | Whether the card is deleted. |
+| `components` | JSON | Components | Card components including media and buttons. |
 
 # Example Questions
 

@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `audience_id` | STRING | PK. Unique identifier for the audience |
-| `advertiser_id` | STRING | Advertiser ID |
-| `name` | STRING | Name of the audience |
-| `audience_type` | STRING | Type of audience (e.g., demographic, interest-based) |
-| `cover_num` | INTEGER | Number of audience members covered |
-| `create_time` | DATETIME | Timestamp indicating when the audience was created |
-| `is_valid` | BOOLEAN | Flag indicating if the audience data is valid |
-| `is_expiring` | BOOLEAN | Flag indicating if the audience data is expiring soon |
-| `expired_time` | DATETIME | Timestamp indicating when the audience data expires |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `audience_id` | STRING | Audience ID | PK. Unique identifier for the audience |
+| `advertiser_id` | STRING | Advertiser ID | Advertiser ID |
+| `name` | STRING | Name | Name of the audience |
+| `audience_type` | STRING | Audience Type | Type of audience (e.g., demographic, interest-based) |
+| `cover_num` | INTEGER | Cover Num | Number of audience members covered |
+| `create_time` | DATETIME | Create Time | Timestamp indicating when the audience was created |
+| `is_valid` | BOOLEAN | Is Valid | Flag indicating if the audience data is valid |
+| `is_expiring` | BOOLEAN | Is Expiring | Flag indicating if the audience data is expiring soon |
+| `expired_time` | DATETIME | Expired Time | Timestamp indicating when the audience data expires |
 
 # Example Questions
 

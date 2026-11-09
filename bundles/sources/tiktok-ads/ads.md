@@ -24,54 +24,54 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ad_id` | STRING | PK. Ad ID |
-| `ad_name` | STRING | Ad Name |
-| `advertiser_id` | STRING | Advertiser ID |
-| `campaign_id` | STRING | Campaign ID |
-| `campaign_name` | STRING | Campaign Name |
-| `adgroup_id` | STRING | Ad Group ID |
-| `adgroup_name` | STRING | Ad Group Name |
-| `operation_status` | STRING | Operation Status |
-| `secondary_status` | STRING | Secondary Status |
-| `create_time` | DATETIME | Creation Time |
-| `modify_time` | DATETIME | Last Modified Time |
-| `ad_text` | STRING | Ad Text/Caption |
-| `ad_texts` | JSON | Multiple Ad Text Variations |
-| `call_to_action` | STRING | Call To Action Text |
-| `call_to_action_id` | STRING | Call To Action ID |
-| `image_ids` | JSON | Image IDs Used in the Ad |
-| `video_id` | STRING | Video ID Used in the Ad |
-| `image_mode` | STRING | Image Display Mode |
-| `creative_type` | STRING | Type of Creative (video, image, etc.) |
-| `ad_format` | STRING | Format of the Ad |
-| `landing_page_url` | STRING | Landing Page URL |
-| `landing_page_urls` | JSON | Multiple Landing Page URLs |
-| `deeplink` | STRING | Deep Link URL |
-| `deeplink_type` | STRING | Type of Deep Link |
-| `tracking_pixel_id` | STRING | Pixel ID for Tracking |
-| `impression_tracking_url` | STRING | URL for Impression Tracking |
-| `click_tracking_url` | STRING | URL for Click Tracking |
-| `video_view_tracking_url` | STRING | URL for Video View Tracking |
-| `is_new_structure` | BOOLEAN | Flag indicating new ad structure |
-| `is_aco` | BOOLEAN | Flag indicating Automated Creative Opt. |
-| `optimization_event` | STRING | Event being optimized for |
-| `catalog_id` | STRING | Product Catalog ID |
-| `product_set_id` | STRING | Product Set ID |
-| `sku_ids` | JSON | SKU IDs for Products |
-| `domain` | STRING | Domain for the Ad |
-| `display_name` | STRING | Display Name shown in the Ad |
-| `profile_image_url` | STRING | URL for Profile Image |
-| `app_name` | STRING | Name of the App being promoted |
-| `tracking_app_id` | STRING | App ID for Tracking |
-| `identity_id` | STRING | Identity ID |
-| `identity_type` | STRING | Type of Identity |
-| `page_id` | STRING | TikTok Page ID |
-| `tiktok_item_id` | STRING | TikTok Item ID |
-| `disclaimer_type` | STRING | Type of Disclaimer |
-| `disclaimer_text` | STRING | Disclaimer Text |
-| `utm_params` | JSON | UTM Parameters |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `ad_id` | STRING | Ad ID | PK. Ad ID |
+| `ad_name` | STRING | Ad Name | Ad Name |
+| `advertiser_id` | STRING | Advertiser ID | Advertiser ID |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
+| `adgroup_id` | STRING | Adgroup ID | Ad Group ID |
+| `adgroup_name` | STRING | Adgroup Name | Ad Group Name |
+| `operation_status` | STRING | Operation Status | Operation Status |
+| `secondary_status` | STRING | Secondary Status | Secondary Status |
+| `create_time` | DATETIME | Create Time | Creation Time |
+| `modify_time` | DATETIME | Modify Time | Last Modified Time |
+| `ad_text` | STRING | Ad Text | Ad Text/Caption |
+| `ad_texts` | JSON | Ad Texts | Multiple Ad Text Variations |
+| `call_to_action` | STRING | Call to Action | Call To Action Text |
+| `call_to_action_id` | STRING | Call to Action ID | Call To Action ID |
+| `image_ids` | JSON | Image IDs | Image IDs Used in the Ad |
+| `video_id` | STRING | Video ID | Video ID Used in the Ad |
+| `image_mode` | STRING | Image Mode | Image Display Mode |
+| `creative_type` | STRING | Creative Type | Type of Creative (video, image, etc.) |
+| `ad_format` | STRING | Ad Format | Format of the Ad |
+| `landing_page_url` | STRING | Landing Page URL | Landing Page URL |
+| `landing_page_urls` | JSON | Landing Page URLs | Multiple Landing Page URLs |
+| `deeplink` | STRING | Deeplink | Deep Link URL |
+| `deeplink_type` | STRING | Deeplink Type | Type of Deep Link |
+| `tracking_pixel_id` | STRING | Tracking Pixel ID | Pixel ID for Tracking |
+| `impression_tracking_url` | STRING | Impression Tracking URL | URL for Impression Tracking |
+| `click_tracking_url` | STRING | Click Tracking URL | URL for Click Tracking |
+| `video_view_tracking_url` | STRING | Video View Tracking URL | URL for Video View Tracking |
+| `is_new_structure` | BOOLEAN | Is New Structure | Flag indicating new ad structure |
+| `is_aco` | BOOLEAN | Is Aco | Flag indicating Automated Creative Opt. |
+| `optimization_event` | STRING | Optimization Event | Event being optimized for |
+| `catalog_id` | STRING | Catalog ID | Product Catalog ID |
+| `product_set_id` | STRING | Product Set ID | Product Set ID |
+| `sku_ids` | JSON | SKU IDs | SKU IDs for Products |
+| `domain` | STRING | Domain | Domain for the Ad |
+| `display_name` | STRING | Display Name | Display Name shown in the Ad |
+| `profile_image_url` | STRING | Profile Image URL | URL for Profile Image |
+| `app_name` | STRING | App Name | Name of the App being promoted |
+| `tracking_app_id` | STRING | Tracking App ID | App ID for Tracking |
+| `identity_id` | STRING | Identity ID | Identity ID |
+| `identity_type` | STRING | Identity Type | Type of Identity |
+| `page_id` | STRING | Page ID | TikTok Page ID |
+| `tiktok_item_id` | STRING | Tiktok Item ID | TikTok Item ID |
+| `disclaimer_type` | STRING | Disclaimer Type | Type of Disclaimer |
+| `disclaimer_text` | STRING | Disclaimer Text | Disclaimer Text |
+| `utm_params` | JSON | UTM Params | UTM Parameters |
 
 # Example Questions
 

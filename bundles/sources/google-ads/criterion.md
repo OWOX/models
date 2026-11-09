@@ -24,25 +24,25 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `criterion_id` | STRING | PK. Criterion ID |
-| `criterion_type` | STRING | Criterion Type (KEYWORD, PLACEMENT, etc.) |
-| `criterion_status` | STRING | Criterion Status (ENABLED, PAUSED, REMOVED) |
-| `keyword_text` | STRING | Keyword Text |
-| `keyword_match_type` | STRING | Keyword Match Type (EXACT, PHRASE, BROAD) |
-| `ad_group_id` | STRING | PK. Ad Group ID |
-| `campaign_id` | STRING | PK. Campaign ID |
-| `quality_score` | NUMERIC | Quality Score |
-| `final_urls` | JSON | Final URLs |
-| `negative` | BOOLEAN | Whether to target (false) or exclude (true) the criterion |
-| `cpc_bid_micros` | NUMERIC | CPC Bid in Micros |
-| `effective_cpc_bid_micros` | NUMERIC | Effective CPC Bid in Micros (includes bid modifiers) |
-| `position_estimates_first_page_cpc_micros` | NUMERIC | Estimated CPC Bid needed to appear on first page |
-| `position_estimates_top_of_page_cpc_micros` | NUMERIC | Estimated CPC Bid needed to appear at top of page |
-| `position_estimates_first_position_cpc_micros` | NUMERIC | Estimated CPC Bid needed to appear in first position |
-| `ad_group_name` | STRING | Ad Group Name |
-| `campaign_name` | STRING | Campaign Name |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `criterion_id` | STRING | Criterion ID | PK. Criterion ID |
+| `criterion_type` | STRING | Criterion Type | Criterion Type (KEYWORD, PLACEMENT, etc.) |
+| `criterion_status` | STRING | Criterion Status | Criterion Status (ENABLED, PAUSED, REMOVED) |
+| `keyword_text` | STRING | Keyword Text | Keyword Text |
+| `keyword_match_type` | STRING | Keyword Match Type | Keyword Match Type (EXACT, PHRASE, BROAD) |
+| `ad_group_id` | STRING | Ad Group ID | PK. Ad Group ID |
+| `campaign_id` | STRING | Campaign ID | PK. Campaign ID |
+| `quality_score` | NUMERIC | Quality Score | Quality Score |
+| `final_urls` | JSON | Final URLs | Final URLs |
+| `negative` | BOOLEAN | Negative Criterion | Whether to target (false) or exclude (true) the criterion |
+| `cpc_bid_micros` | NUMERIC | CPC Bid Micros | CPC Bid in Micros |
+| `effective_cpc_bid_micros` | NUMERIC | Effective CPC Bid Micros | Effective CPC Bid in Micros (includes bid modifiers) |
+| `position_estimates_first_page_cpc_micros` | NUMERIC | Position Estimates First Page CPC Micros | Estimated CPC Bid needed to appear on first page |
+| `position_estimates_top_of_page_cpc_micros` | NUMERIC | Position Estimates Top of Page CPC Micros | Estimated CPC Bid needed to appear at top of page |
+| `position_estimates_first_position_cpc_micros` | NUMERIC | Position Estimates First Position CPC Micros | Estimated CPC Bid needed to appear in first position |
+| `ad_group_name` | STRING | Ad Group Name | Ad Group Name |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
 
 # Example Questions
 

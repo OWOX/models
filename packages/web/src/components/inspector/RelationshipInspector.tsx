@@ -10,12 +10,15 @@ interface RelationshipInspectorProps {
   // Add a field to a mart's output schema if a join key references one that
   // isn't defined yet (joining on an undefined field is meaningless).
   onEnsureField: (nodeKey: string, fieldName: string) => void;
+  /** The aliases this join gets when its fields are left empty (a parallel join's
+   *  differs from the target's default). Falls back to the default alias. */
+  defaultAliases?: { forward: string; reverse?: string };
 }
 
 // OWOX join aliases are SQL identifiers.
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsureField }: RelationshipInspectorProps) {
+export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsureField, defaultAliases }: RelationshipInspectorProps) {
   function updateKey(i: number, patch: Partial<JoinKey>) {
     onUpdate({ keys: edge.keys.map((k, idx) => idx === i ? { ...k, ...patch } : k) });
   }
@@ -55,8 +58,8 @@ export function RelationshipInspector({ edge, fromNode, toNode, onUpdate, onEnsu
         <strong className="text-slate-900">{fromTitle}</strong>{" → "}<strong className="text-slate-900">{toTitle}</strong>
       </div>
 
-      {aliasInput("Join alias", edge.alias, defaultJoinAlias(toTitle, edge.to), "alias")}
-      {edge.bidirectional && aliasInput("Reverse join alias", edge.reverseAlias, defaultJoinAlias(fromTitle, edge.from), "reverseAlias")}
+      {aliasInput("Join alias", edge.alias, defaultAliases?.forward ?? defaultJoinAlias(toTitle, edge.to), "alias")}
+      {edge.bidirectional && aliasInput("Reverse join alias", edge.reverseAlias, defaultAliases?.reverse ?? defaultJoinAlias(fromTitle, edge.from), "reverseAlias")}
 
       <div>
         <label htmlFor="rel-description" className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">

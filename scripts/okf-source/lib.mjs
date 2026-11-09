@@ -79,6 +79,30 @@ export function parseUniqueKeys(js) {
   return out
 }
 
+/** Words that are written in capitals in a business label. */
+export const ACRONYMS = {
+  id: 'ID', ids: 'IDs', url: 'URL', urls: 'URLs', cpc: 'CPC', cpm: 'CPM', cpa: 'CPA', cpl: 'CPL', ctr: 'CTR', roas: 'ROAS',
+  roi: 'ROI', api: 'API', ip: 'IP', utc: 'UTC', sku: 'SKU', seo: 'SEO', kpi: 'KPI', iso: 'ISO', gdpr: 'GDPR', ga4: 'GA4',
+  utm: 'UTM', ui: 'UI', os: 'OS', sms: 'SMS', vat: 'VAT', rss: 'RSS', csv: 'CSV', json: 'JSON',
+}
+
+const SMALL = new Set(['of', 'per', 'to', 'in', 'by', 'for', 'and', 'the', 'on', 'at', 'from'])
+
+/** `ad_group_cpc_bid_micros` -> `Ad Group CPC Bid Micros`: the default alias of a column. */
+export const humanize = (column) =>
+  String(column)
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((w, i) => ACRONYMS[w.toLowerCase()] ?? (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)))
+    .join(' ')
+
+/**
+ * The Alias of a column: an authored override (`aliases` in the authored file, `"Endpoint.column"`
+ * before `"column"`), else the humanised column name. The endpoint items carry no field titles,
+ * and the connector's field `description` is a sentence, not a label.
+ */
+export const aliasOf = (aliases, endpointName, column) => aliases?.[`${endpointName}.${column}`] ?? aliases?.[column] ?? humanize(column)
+
 const q = (s) => `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 
 /** A frontmatter block scalar (`key: |`) holding paragraphs. */
@@ -116,6 +140,37 @@ export function buildModel({ source, endpoints, authored }) {
         problems.push(`${e.name}: needs 2 or 3 example questions`)
     }
   }
+  // `alternateKeys`: other column sets that each identify a row on their own (the connector lists `id` and
+  // `account_id` of an ad account together as its key, though either one alone is unique). An N:1 join may land
+  // on one of them; the author gives the vendor line that says so.
+  // `updated`: when the connector last changed the endpoint (date and commit), shown as "Last updated".
+  for (const e of endpoints) {
+    const a = authored.endpoints?.[e.name]
+    if (!a) continue
+    for (const [i, alt] of (a.alternateKeys ?? []).entries()) {
+      const cols = alt?.columns
+      if (!Array.isArray(cols) || !cols.length || cols.some((c) => !e.rows.some((r) => r.column === c))) problems.push(`${e.name}: alternateKeys[${i}] must list columns this endpoint has`)
+      if (!alt?.source?.trim()) problems.push(`${e.name}: alternateKeys[${i}] needs a source (the vendor line that says these columns identify a row)`)
+    }
+    if (a.updated && !(/^\d{4}-\d\d-\d\d$/.test(a.updated.date ?? '') && /^[0-9a-f]{40}$/.test(a.updated.commit ?? ''))) {
+      problems.push(`${e.name}: updated needs a date (YYYY-MM-DD) and a full 40-character commit`)
+    }
+  }
+  for (const [k, v] of Object.entries(authored.aliases ?? {})) {
+    const [endpoint, column] = k.includes('.') ? [k.slice(0, k.indexOf('.')), k.slice(k.indexOf('.') + 1)] : [null, k]
+    const scope = endpoint ? endpoints.filter((e) => e.name === endpoint) : endpoints
+    if (endpoint && !scope.length) problems.push(`aliases: "${k}" names endpoint ${endpoint}, which the Data Source does not have`)
+    else if (!scope.some((e) => e.rows.some((r) => r.column === column))) problems.push(`aliases: "${k}" matches no field`)
+    if (typeof v !== 'string' || !v.trim() || /[|\n]/.test(v)) problems.push(`aliases: "${k}" must be one line of text with no pipe`)
+  }
+  for (const e of endpoints) {
+    const seen = new Map()
+    for (const r of e.rows) {
+      const a = aliasOf(authored.aliases, e.name, r.column)
+      if (seen.has(a)) problems.push(`${e.name}: fields ${seen.get(a)} and ${r.column} get the same alias "${a}"; override one under "aliases"`)
+      else seen.set(a, r.column)
+    }
+  }
   for (const name of Object.keys(authored.endpoints ?? {})) {
     if (!byName.has(name)) problems.push(`authored file names endpoint "${name}", which the Data Source does not have`)
   }
@@ -126,6 +181,14 @@ export function buildModel({ source, endpoints, authored }) {
     const s = slugify(e.name)
     if (slugs.has(s)) problems.push(`${e.name}: two endpoints share the file name ${s}.md`)
     slugs.add(s)
+  }
+  // Parallel joins between one pair of marts are fine (the canvas keeps them as separate edges, OWOX/models#131);
+  // only the same join written twice is refused.
+  const written = new Map()
+  for (const j of joins) {
+    const id = `${j.from}\u0000${j.to}\u0000${(j.on ?? []).map(([l, r]) => `${l}=${r}`).sort().join(',')}`
+    if (written.has(id)) problems.push(`join ${j.n} (${j.from} -> ${j.to}) repeats join ${written.get(id)}: same tables, same keys`)
+    else written.set(id, j.n)
   }
   for (const j of joins) {
     const label = `join ${j.n} (${j.from} -> ${j.to})`
@@ -149,7 +212,9 @@ export function buildModel({ source, endpoints, authored }) {
       if (j.cardinality === 'N:1') {
         const hit = new Set((j.on ?? []).map(([, r]) => r))
         const missing = (to.uniqueKeys ?? []).filter((k) => !hit.has(k))
-        if (missing.length) problems.push(`${label}: N:1 but the key pairs do not cover ${j.to}'s unique keys (${missing.join(', ')})`)
+        const alternates = authored.endpoints?.[j.to]?.alternateKeys ?? []
+        const viaAlternate = alternates.some((alt) => alt.columns.every((c) => hit.has(c)))
+        if (missing.length && !viaAlternate) problems.push(`${label}: N:1 but the key pairs do not cover ${j.to}'s unique keys (${missing.join(', ')})`)
       }
     }
   }
@@ -169,6 +234,9 @@ const joinLines = (j) => {
   const note = j.note.trim()
   return [`- [${j.to}](./${slugify(j.to)}.md) — ${keys} [${j.cardinality}] — ${note}`, `  - Description: ${note}`]
 }
+
+/** The commit page of the connector repository (`https://github.com/<owner>/<repo>/commit/<sha>`). */
+const commitUrl = (source, sha) => `${source.sourceCodeUrl.split('/').slice(0, 5).join('/')}/commit/${sha}`
 
 /** One endpoint document. */
 export function renderMart(model, doc) {
@@ -196,15 +264,17 @@ export function renderMart(model, doc) {
   out.push(`- **Endpoint:** ${source.name} · \`${e.key}\``)
   out.push(`- **Default destination table:** \`${e.destinationTable}\``)
   out.push(`- **Unique keys:** ${e.uniqueKeys.map((k) => `\`${k}\``).join(', ')}`)
+  for (const alt of doc.authored.alternateKeys ?? []) out.push(`- **Also unique on its own:** ${alt.columns.map((c) => `\`${c}\``).join(', ')}`)
+  if (doc.authored.updated) out.push(`- **Last updated:** ${doc.authored.updated.date} — last change to this endpoint's fields in the connector ([${doc.authored.updated.commit.slice(0, 9)}](${commitUrl(source, doc.authored.updated.commit)}))`)
   out.push(`- **Time series:** ${e.timeSeries ? 'yes, one row per key per `date`' : 'no, one current row per key'}`)
   out.push('')
   out.push('# Schema')
   out.push('')
-  out.push('| Column | Type | Description |')
-  out.push('|--------|------|-------------|')
+  out.push('| Column | Type | Alias | Description |')
+  out.push('|--------|------|-------|-------------|')
   for (const r of e.rows) {
     const d = r.description ? cell(r.description) : ''
-    out.push(`| \`${r.column}\` | ${TYPE_MAP[r.type]} | ${pk.has(r.column) ? `PK. ${d}`.trim() : d} |`)
+    out.push(`| \`${r.column}\` | ${TYPE_MAP[r.type]} | ${aliasOf(authored.aliases, e.name, r.column)} | ${pk.has(r.column) ? `PK. ${d}`.trim() : d} |`)
   }
   out.push('')
   out.push('# Example Questions')
@@ -237,10 +307,12 @@ export function renderIndex(model, { svgPath, exploreUrl }) {
   out.push('')
   out.push(`${docs.length} tables, ${fields} fields, ${joins.length} joins.`)
   out.push('')
-  out.push('| Data Mart | Fields | Description |')
-  out.push('|-----------|--------|-------------|')
+  const dated = docs.some((d) => d.authored.updated)
+  out.push(dated ? '| Data Mart | Fields | Last updated | Description |' : '| Data Mart | Fields | Description |')
+  out.push(dated ? '|-----------|--------|--------------|-------------|' : '|-----------|--------|-------------|')
   for (const d of docs) {
-    out.push(`| [${d.endpoint.name}](./${d.slug}.md) | ${d.endpoint.rows.length} | ${cell(d.endpoint.summary)} |`)
+    const when = dated ? ` ${d.authored.updated?.date ?? ''} |` : ''
+    out.push(`| [${d.endpoint.name}](./${d.slug}.md) | ${d.endpoint.rows.length} |${when} ${cell(d.endpoint.summary)} |`)
   }
   out.push('')
   out.push('# Example Questions')

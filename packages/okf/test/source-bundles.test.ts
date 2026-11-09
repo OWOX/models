@@ -61,6 +61,13 @@ describe.each(keys)("source bundle %s", key => {
     }
   });
 
+  it("gives every field an Alias, and the canvas reads it", () => {
+    for (const n of graph.nodes) for (const f of n.schema) expect(f.alias, `${n.title}.${f.name}`).toBeTruthy();
+    for (const [name, text] of Object.entries(files)) {
+      if (name !== "index.md") expect(text, name).toContain("| Column | Type | Alias | Description |");
+    }
+  });
+
   it("reads every key pair of every join line, composite keys included", () => {
     const written = Object.entries(files).filter(([f]) => f !== "index.md")
       .flatMap(([, t]) => (t.split("\n## Joins")[1] ?? "").split("\n").filter(l => l.startsWith("- [")))

@@ -24,41 +24,41 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `advertiser_user_id` | STRING | ID of the advertiser user |
-| `name` | STRING | Name of the line item |
-| `placements` | JSON | List of placement targets (e.g. ALL_ON_TWITTER) |
-| `start_time` | DATETIME | Line item start time |
-| `bid_amount_local_micro` | INTEGER | Bid amount in micro-currency units |
-| `advertiser_domain` | STRING | Domain of the advertiser |
-| `target_cpa_local_micro` | INTEGER | Target CPA (cost per action) in micro-currency units |
-| `primary_web_event_tag` | STRING | Primary web event tag identifier |
-| `goal` | STRING | Line item goal/objective (e.g. APP_INSTALLS) |
-| `daily_budget_amount_local_micro` | INTEGER | Daily budget in micro-currency units |
-| `product_type` | STRING | Product type (e.g. PROMOTED_TWEETS) |
-| `end_time` | DATETIME | Line item end time (nullable) |
-| `funding_instrument_id` | STRING | ID of the funding instrument |
-| `bid_strategy` | STRING | Bidding strategy (e.g. AUTO) |
-| `duration_in_days` | INTEGER | Duration in days (nullable) |
-| `standard_delivery` | BOOLEAN | Whether standard delivery is enabled |
-| `total_budget_amount_local_micro` | INTEGER | Total budget in micro-currency units (nullable) |
-| `objective` | STRING | Campaign objective (duplicate of goal in some APIs) |
-| `id` | STRING | PK. Unique identifier of the line item |
-| `entity_status` | STRING | Status of the line item (e.g. ACTIVE, PAUSED) |
-| `automatic_tweet_promotion` | BOOLEAN | Whether automatic tweet promotion is enabled |
-| `frequency_cap` | INTEGER | Frequency cap for ad serving |
-| `android_app_store_identifier` | STRING | Android app store identifier |
-| `categories` | JSON | Array of category labels |
-| `currency` | STRING | Currency code (e.g. USD) |
-| `pay_by` | STRING | Payment method (e.g. IMPRESSION) |
-| `created_at` | DATETIME | Timestamp when the line item was created |
-| `ios_app_store_identifier` | STRING | iOS app store identifier |
-| `updated_at` | DATETIME | Timestamp when the line item was last updated |
-| `campaign_id` | STRING | ID of the parent campaign |
-| `creative_source` | STRING | Source of the creative (e.g. MANUAL) |
-| `audience_expansion` | STRING | Audience expansion setting (e.g. EXPANDED) |
-| `deleted` | BOOLEAN | Whether the line item is marked as deleted |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `advertiser_user_id` | STRING | Advertiser User ID | ID of the advertiser user |
+| `name` | STRING | Name | Name of the line item |
+| `placements` | JSON | Placements | List of placement targets (e.g. ALL_ON_TWITTER) |
+| `start_time` | DATETIME | Start Time | Line item start time |
+| `bid_amount_local_micro` | INTEGER | Bid Amount Local Micro | Bid amount in micro-currency units |
+| `advertiser_domain` | STRING | Advertiser Domain | Domain of the advertiser |
+| `target_cpa_local_micro` | INTEGER | Target CPA Local Micro | Target CPA (cost per action) in micro-currency units |
+| `primary_web_event_tag` | STRING | Primary Web Event Tag | Primary web event tag identifier |
+| `goal` | STRING | Goal | Line item goal/objective (e.g. APP_INSTALLS) |
+| `daily_budget_amount_local_micro` | INTEGER | Daily Budget Amount Local Micro | Daily budget in micro-currency units |
+| `product_type` | STRING | Product Type | Product type (e.g. PROMOTED_TWEETS) |
+| `end_time` | DATETIME | End Time | Line item end time (nullable) |
+| `funding_instrument_id` | STRING | Funding Instrument ID | ID of the funding instrument |
+| `bid_strategy` | STRING | Bid Strategy | Bidding strategy (e.g. AUTO) |
+| `duration_in_days` | INTEGER | Duration in Days | Duration in days (nullable) |
+| `standard_delivery` | BOOLEAN | Standard Delivery | Whether standard delivery is enabled |
+| `total_budget_amount_local_micro` | INTEGER | Total Budget Amount Local Micro | Total budget in micro-currency units (nullable) |
+| `objective` | STRING | Objective | Campaign objective (duplicate of goal in some APIs) |
+| `id` | STRING | ID | PK. Unique identifier of the line item |
+| `entity_status` | STRING | Entity Status | Status of the line item (e.g. ACTIVE, PAUSED) |
+| `automatic_tweet_promotion` | BOOLEAN | Automatic Tweet Promotion | Whether automatic tweet promotion is enabled |
+| `frequency_cap` | INTEGER | Frequency Cap | Frequency cap for ad serving |
+| `android_app_store_identifier` | STRING | Android App Store Identifier | Android app store identifier |
+| `categories` | JSON | Categories | Array of category labels |
+| `currency` | STRING | Currency | Currency code (e.g. USD) |
+| `pay_by` | STRING | Pay by | Payment method (e.g. IMPRESSION) |
+| `created_at` | DATETIME | Created at | Timestamp when the line item was created |
+| `ios_app_store_identifier` | STRING | Ios App Store Identifier | iOS app store identifier |
+| `updated_at` | DATETIME | Updated at | Timestamp when the line item was last updated |
+| `campaign_id` | STRING | Campaign ID | ID of the parent campaign |
+| `creative_source` | STRING | Creative Source | Source of the creative (e.g. MANUAL) |
+| `audience_expansion` | STRING | Audience Expansion | Audience expansion setting (e.g. EXPANDED) |
+| `deleted` | BOOLEAN | Deleted | Whether the line item is marked as deleted |
 
 # Example Questions
 

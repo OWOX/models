@@ -24,12 +24,12 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `targeting_value` | STRING | PK. Unique hex ID for this location (e.g. 96683cc9126741d1). Use this to join with the country field in stats_by_country. |
-| `name` | STRING | Human-readable location name (e.g. United States, California). |
-| `location_type` | STRING | Type of location: COUNTRIES, REGIONS, CITIES, METROS, or POSTAL_CODES. |
-| `country_code` | STRING | ISO 2-letter country code (e.g. US, DE, NL). |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `targeting_value` | STRING | Targeting Value | PK. Unique hex ID for this location (e.g. 96683cc9126741d1). Use this to join with the country field in stats_by_country. |
+| `name` | STRING | Name | Human-readable location name (e.g. United States, California). |
+| `location_type` | STRING | Location Type | Type of location: COUNTRIES, REGIONS, CITIES, METROS, or POSTAL_CODES. |
+| `country_code` | STRING | Country Code | ISO 2-letter country code (e.g. US, DE, NL). |
 
 # Example Questions
 

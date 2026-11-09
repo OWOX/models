@@ -24,17 +24,17 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | STRING | PK. The ID of the funding instrument. |
-| `name` | STRING | The name of the funding instrument, if any. |
-| `currency` | STRING | An ISO4217 currency code indicating the currency used in this invoice. |
-| `credit_limit` | INTEGER | When the billable_amount exceeds this number, campaigns linked to this funding instrument will not run. |
-| `billable_amount` | INTEGER | The current amount of outstanding debt on this funding instrument, in local micro-currency. |
-| `start_time` | STRING | When set, campaigns linked to this funding instrument will not deliver unless the current time is beyond this ISO-8601 time. |
-| `end_time` | STRING | When set, campaigns linked to this funding instrument will not deliver unless the current time is before this ISO-8601 time. |
-| `is_servable` | BOOLEAN | When true, campaigns linked to this funding instrument are allowed to run. |
-| `reasons_not_servable` | STRING | Contains a list of reasons why this funding instrument is not servable. When this list is empty, it is servable. |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. The ID of the funding instrument. |
+| `name` | STRING | Name | The name of the funding instrument, if any. |
+| `currency` | STRING | Currency | An ISO4217 currency code indicating the currency used in this invoice. |
+| `credit_limit` | INTEGER | Credit Limit | When the billable_amount exceeds this number, campaigns linked to this funding instrument will not run. |
+| `billable_amount` | INTEGER | Billable Amount | The current amount of outstanding debt on this funding instrument, in local micro-currency. |
+| `start_time` | STRING | Start Time | When set, campaigns linked to this funding instrument will not deliver unless the current time is beyond this ISO-8601 time. |
+| `end_time` | STRING | End Time | When set, campaigns linked to this funding instrument will not deliver unless the current time is before this ISO-8601 time. |
+| `is_servable` | BOOLEAN | Is Servable | When true, campaigns linked to this funding instrument are allowed to run. |
+| `reasons_not_servable` | STRING | Reasons Not Servable | Contains a list of reasons why this funding instrument is not servable. When this list is empty, it is servable. |
 
 # Example Questions
 

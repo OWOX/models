@@ -24,53 +24,53 @@ sources:
 
 # Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `adgroup_id` | STRING | PK. Ad Group ID |
-| `adgroup_name` | STRING | Ad Group Name |
-| `advertiser_id` | STRING | Advertiser ID |
-| `campaign_id` | STRING | Campaign ID |
-| `campaign_name` | STRING | Campaign Name |
-| `operation_status` | STRING | Operation Status |
-| `budget` | NUMERIC | Ad Group Budget |
-| `budget_mode` | STRING | Budget Mode (BUDGET_MODE_DAY or BUDGET_MODE_TOTAL) |
-| `bid_type` | STRING | Bidding Type |
-| `bid_price` | NUMERIC | Bid Price |
-| `optimization_goal` | STRING | Optimization Goal |
-| `optimization_event` | STRING | Optimization Event |
-| `app_id` | STRING | ID of the app being promoted |
-| `app_type` | STRING | Type of app |
-| `audience_type` | STRING | Type of audience |
-| `audience_ids` | JSON | List of audience IDs |
-| `excluded_audience_ids` | JSON | List of excluded audience IDs |
-| `gender` | STRING | Target gender |
-| `age_groups` | JSON | Target age groups |
-| `languages` | JSON | Target languages |
-| `location_ids` | JSON | Target location IDs |
-| `interest_category_ids` | JSON | Interest category IDs |
-| `placements` | JSON | Ad placements |
-| `placement_type` | STRING | Type of placement |
-| `schedule_start_time` | DATETIME | Schedule Start Time |
-| `schedule_end_time` | DATETIME | Schedule End Time |
-| `schedule_type` | STRING | Type of schedule |
-| `frequency` | INTEGER | Frequency cap |
-| `billing_event` | STRING | Billing Event Type |
-| `conversion_id` | STRING | Conversion ID |
-| `conversion_bid_price` | NUMERIC | Conversion Bid Price |
-| `conversion_window` | INTEGER | Conversion Window |
-| `click_attribution_window` | INTEGER | Click Attribution Window |
-| `view_attribution_window` | INTEGER | View Attribution Window |
-| `is_smart_performance_campaign` | BOOLEAN | Flag indicating if the ad group uses smart performance optimization |
-| `is_new_structure` | BOOLEAN | Flag indicating if the ad group utilizes a new structure |
-| `auto_targeting_enabled` | BOOLEAN | Flag indicating if auto targeting is enabled |
-| `targeting_expansion` | JSON | Targeting expansion settings |
-| `device_price_ranges` | JSON | Target device price ranges |
-| `device_model_ids` | JSON | Target device model IDs |
-| `operating_systems` | JSON | Target operating systems |
-| `network_types` | JSON | Target network types |
-| `carrier_ids` | JSON | Target carrier IDs |
-| `create_time` | DATETIME | Creation Time |
-| `modify_time` | DATETIME | Last Modified Time |
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `adgroup_id` | STRING | Adgroup ID | PK. Ad Group ID |
+| `adgroup_name` | STRING | Adgroup Name | Ad Group Name |
+| `advertiser_id` | STRING | Advertiser ID | Advertiser ID |
+| `campaign_id` | STRING | Campaign ID | Campaign ID |
+| `campaign_name` | STRING | Campaign Name | Campaign Name |
+| `operation_status` | STRING | Operation Status | Operation Status |
+| `budget` | NUMERIC | Budget | Ad Group Budget |
+| `budget_mode` | STRING | Budget Mode | Budget Mode (BUDGET_MODE_DAY or BUDGET_MODE_TOTAL) |
+| `bid_type` | STRING | Bid Type | Bidding Type |
+| `bid_price` | NUMERIC | Bid Price | Bid Price |
+| `optimization_goal` | STRING | Optimization Goal | Optimization Goal |
+| `optimization_event` | STRING | Optimization Event | Optimization Event |
+| `app_id` | STRING | App ID | ID of the app being promoted |
+| `app_type` | STRING | App Type | Type of app |
+| `audience_type` | STRING | Audience Type | Type of audience |
+| `audience_ids` | JSON | Audience IDs | List of audience IDs |
+| `excluded_audience_ids` | JSON | Excluded Audience IDs | List of excluded audience IDs |
+| `gender` | STRING | Gender | Target gender |
+| `age_groups` | JSON | Age Groups | Target age groups |
+| `languages` | JSON | Languages | Target languages |
+| `location_ids` | JSON | Location IDs | Target location IDs |
+| `interest_category_ids` | JSON | Interest Category IDs | Interest category IDs |
+| `placements` | JSON | Placements | Ad placements |
+| `placement_type` | STRING | Placement Type | Type of placement |
+| `schedule_start_time` | DATETIME | Schedule Start Time | Schedule Start Time |
+| `schedule_end_time` | DATETIME | Schedule End Time | Schedule End Time |
+| `schedule_type` | STRING | Schedule Type | Type of schedule |
+| `frequency` | INTEGER | Frequency | Frequency cap |
+| `billing_event` | STRING | Billing Event | Billing Event Type |
+| `conversion_id` | STRING | Conversion ID | Conversion ID |
+| `conversion_bid_price` | NUMERIC | Conversion Bid Price | Conversion Bid Price |
+| `conversion_window` | INTEGER | Conversion Window | Conversion Window |
+| `click_attribution_window` | INTEGER | Click Attribution Window | Click Attribution Window |
+| `view_attribution_window` | INTEGER | View Attribution Window | View Attribution Window |
+| `is_smart_performance_campaign` | BOOLEAN | Is Smart Performance Campaign | Flag indicating if the ad group uses smart performance optimization |
+| `is_new_structure` | BOOLEAN | Is New Structure | Flag indicating if the ad group utilizes a new structure |
+| `auto_targeting_enabled` | BOOLEAN | Auto Targeting Enabled | Flag indicating if auto targeting is enabled |
+| `targeting_expansion` | JSON | Targeting Expansion | Targeting expansion settings |
+| `device_price_ranges` | JSON | Device Price Ranges | Target device price ranges |
+| `device_model_ids` | JSON | Device Model IDs | Target device model IDs |
+| `operating_systems` | JSON | Operating Systems | Target operating systems |
+| `network_types` | JSON | Network Types | Target network types |
+| `carrier_ids` | JSON | Carrier IDs | Target carrier IDs |
+| `create_time` | DATETIME | Create Time | Creation Time |
+| `modify_time` | DATETIME | Modify Time | Last Modified Time |
 
 # Example Questions
 

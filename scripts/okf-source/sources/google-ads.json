@@ -6,6 +6,12 @@
     "How does cost per conversion change from campaign to ad group to keyword for the same budget?",
     "Which countries do campaigns spend in, and which of them convert?"
   ],
+  "aliases": {
+    "Geo Target Constants.name": "Geo Target Name",
+    "Geo Target Constants.status": "Geo Target Status",
+    "Geo Target Constants.target_type": "Geo Target Type",
+    "Criterion.negative": "Negative Criterion"
+  },
   "endpoints": {
     "Campaigns": {
       "description": "One row per campaign: its name, status, advertising channel type and sub type, bidding strategy, budget, target CPA or target ROAS, and start and end dates. It holds settings, not results; a campaign's clicks and cost are in Campaigns Stats, which joins to this table on `campaign_id`.\n\nThe budget and target CPA amounts are in micros, one millionth of the account currency. Use it to label and filter the performance tables by campaign type or bidding strategy.",
