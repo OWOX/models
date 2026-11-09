@@ -2,6 +2,7 @@ import YAML from "yaml";
 import type { Cardinality, InputSource, ModelEdge, ModelGraph, ModelNode, SchemaField } from "../types";
 import { normalizeFieldType } from "../fieldType";
 import { formulaReferences, formulaWarnings, joinAlias, rewriteReferences } from "../formula";
+import { edgeJoinAliases } from "../joins";
 import {
   OWOX_VENDOR, aiContextText, expressionDialects, ossieToCanvasType, pickExpression, readOwoxExt,
   type OssieDataset, type OssieDoc, type OssieRelationship, type OssieExt, type OssieMetric,
@@ -214,16 +215,18 @@ function convert(text: string, prefer?: string): OssieImport {
       }
     }
     // A join from home to `other`: a forward edge, or the far end of a bidirectional one.
-    const link = (other: string): { alias?: string } | undefined => {
+    // An Ossie metric names datasets, not joins; with parallel joins it reads the first.
+    const aliases = edgeJoinAliases(nodes, edges);
+    const link = (other: string): { alias: string } | undefined => {
       const h = keyOf.get(home), o = keyOf.get(other);
       const fwd = edges.find(e => e.from === h && e.to === o);
-      if (fwd) return { alias: fwd.alias };
+      if (fwd) return { alias: aliases.get(fwd.id)!.forward };
       const back = edges.find(e => e.bidirectional && e.to === h && e.from === o);
-      return back ? { alias: back.reverseAlias } : undefined;
+      return back ? { alias: aliases.get(back.id)!.reverse! } : undefined;
     };
     const formula = rewriteReferences(expr, r => {
       if (r.alias === home) return r.field;
-      if (r.alias && usedSet.has(r.alias)) return `${joinAlias(link(r.alias)?.alias, nodeOf(r.alias))}.${r.field}`;
+      if (r.alias && usedSet.has(r.alias)) return `${link(r.alias)?.alias ?? joinAlias(undefined, nodeOf(r.alias))}.${r.field}`;
       return null;
     });
     for (const u of used) {

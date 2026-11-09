@@ -23,7 +23,8 @@ describe("selectMartIds", () => {
 
 describe("payloadToGraph description", () => {
   it("takes the first relationship's description, falling back to the reverse one", () => {
-    const rel = (s: string, t: string, description?: string) => ({ sourceId: s, targetId: t, joinConditions: [{ sourceFieldName: "x", targetFieldName: "y" }], ...(description ? { description } : {}) });
+    // B→A mirrors A→B's keys: together they are one ↔ relationship.
+    const rel = (s: string, t: string, description?: string) => ({ sourceId: s, targetId: t, joinConditions: [s < t ? { sourceFieldName: "x", targetFieldName: "y" } : { sourceFieldName: "y", targetFieldName: "x" }], ...(description ? { description } : {}) });
     const p = (rels: ImportPayload["relationships"]): ImportPayload => ({ ...base, relationships: rels });
     expect(payloadToGraph(p([rel("a", "b", "first"), rel("b", "a", "second")]), "all").edges[0].description).toBe("first");
     expect(payloadToGraph(p([rel("a", "b"), rel("b", "a", "second")]), "all").edges[0].description).toBe("second");
@@ -168,7 +169,8 @@ describe("mergeGraphs model description", () => {
 describe("mergeGraphs aliases", () => {
   const n = (key: string, id: string) => ({ key, title: id, inputSource: "SQL" as const, schema: [], position: { x: 0, y: 0 }, status: "created" as const, owoxId: id });
   const keys = [{ left: "x", right: "y" }];
-  const rel = (sourceId: string, targetId: string, targetAlias?: string) => ({ sourceId, targetId, ...(targetAlias ? { targetAlias } : {}), joinConditions: [{ sourceFieldName: "x", targetFieldName: "y" }] });
+  // B→A mirrors A→B's keys: together they are one ↔ relationship.
+  const rel = (sourceId: string, targetId: string, targetAlias?: string) => ({ sourceId, targetId, ...(targetAlias ? { targetAlias } : {}), joinConditions: [sourceId < targetId ? { sourceFieldName: "x", targetFieldName: "y" } : { sourceFieldName: "y", targetFieldName: "x" }] });
 
   it("refreshes the aliases of an edge already on the canvas from OWOX", () => {
     const cur: ModelGraph = { storageId: "st_1", nodes: [n("n1", "a"), n("n2", "b")],

@@ -1,7 +1,7 @@
 import type { ModelStore } from "../state/model";
 import { api as defaultApi } from "../lib/api";
-import { type ModelNode, type ModelGraph, type SchemaField, normalizeFieldType, isCalculated, toStoredFormula } from "@mc/okf";
-import { buildFormulaContext, joinAlias } from "../lib/formulaContext";
+import { type ModelNode, type ModelGraph, type SchemaField, normalizeFieldType, isCalculated, toStoredFormula, edgeJoinAliases } from "@mc/okf";
+import { buildFormulaContext } from "../lib/formulaContext";
 import { joinFieldType, alignedJoinTypes } from "./joinFieldType";
 
 type Api = typeof defaultApi;
@@ -330,6 +330,8 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
   const g = store.get();
   const owoxIdByKey = new Map(g.nodes.map(n => [n.key, n.owoxId]));
   const titleByKey = new Map(g.nodes.map(n => [n.key, n.title]));
+  // Parallel joins between one pair of marts need distinct aliases (OWOX keys them per source mart).
+  const aliases = edgeJoinAliases(g.nodes, g.edges);
 
   for (const e of g.edges) {
     // Imported edges already exist in OWOX — but only in the storage they were
@@ -337,9 +339,17 @@ export async function pushModel(store: ModelStore, api: Api = defaultApi, storag
     // live in the active storage). If an endpoint was recreated here (different
     // storage/project), the relationship doesn't exist yet and must be pushed.
     if (e.existing && skippedKeys.has(e.from) && skippedKeys.has(e.to)) continue;
+    if (e.from === e.to) {
+      // OWOX refuses a relationship from a mart to itself ("A data mart cannot have a
+      // relationship with itself"), so a self-join stays on the canvas only.
+      res.relationshipsFailed++;
+      res.errors.push(`Link ${titleByKey.get(e.from)} → ${titleByKey.get(e.to)}: OWOX doesn't support a relationship from a mart to itself — kept on the canvas only`);
+      continue;
+    }
     const keys = e.keys.filter(k => k.left && k.right);
-    const fwdAlias = joinAlias(e.alias, { title: titleByKey.get(e.to) ?? "", key: e.to });
-    const revAlias = joinAlias(e.reverseAlias, { title: titleByKey.get(e.from) ?? "", key: e.from });
+    const a = aliases.get(e.id)!;
+    const fwdAlias = a.forward;
+    const revAlias = a.reverse ?? "";
     const directions: Array<[string, string, { left: string; right: string }[], string]> = e.bidirectional
       ? [[e.from, e.to, keys, fwdAlias], [e.to, e.from, keys.map(k => ({ left: k.right, right: k.left })), revAlias]]
       : [[e.from, e.to, keys, fwdAlias]];
