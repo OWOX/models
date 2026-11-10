@@ -3,7 +3,7 @@ title: "Targeting Locations"
 description: |
   A reference table of X targeting locations: the location's hex ID (`targeting_value`), its name, location type and two-letter ISO country code. It carries no performance, only names.
 
-  The connector requests the location type COUNTRIES only, so it holds countries, not regions, cities or postal codes. The schema describes `targeting_value` as the ID to match with the `country` column of Ad Performance by Country.
+  The connector requests the location type COUNTRIES only, so it holds countries, not regions, cities or postal codes. [Ad Performance by Country](./ad-performance-by-country.md) joins here on `country`, which holds this table's `targeting_value`.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:

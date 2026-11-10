@@ -3,7 +3,7 @@ title: "Tweets"
 description: |
   One row per tweet used as a creative: its text (`full_text`), language, type, name, created time, like and repost counts, entities such as hashtags, links and mentions, and the URI of the card attached to it (`card_uri`). The connector requests published tweets of the promoted-only kind (nullcast), so organic tweets are not loaded.
 
-  The key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`, so no join is drawn between the two.
+  The key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`; `tweet_id` also identifies a tweet on its own, so the join is drawn on it. The card attached to a tweet is in [All Cards](./all-cards.md), matched on `card_uri`.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -20,6 +20,7 @@ sources:
 - **Endpoint:** X Ads · `tweets`
 - **Default destination table:** `x_ads_tweets`
 - **Unique keys:** `id`
+- **Also unique on its own:** `tweet_id`
 - **Time series:** no, one current row per key
 
 # Schema
@@ -66,3 +67,8 @@ sources:
 - Which promoted-only tweets carry a card, and which do not?
 - Which tweets have the most likes and reposts?
 - In which languages are the promoted tweets written?
+
+## Joins
+
+- [All Cards](./all-cards.md) — `card_uri = card_uri` [N:1] — The card attached to the tweet; one card can be attached to several tweets.
+  - Description: The card attached to the tweet; one card can be attached to several tweets.

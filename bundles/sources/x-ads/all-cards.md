@@ -3,7 +3,7 @@ title: "All Cards"
 description: |
   One row per card with its full creative detail: card type, title, website URL, destination URL and display URL, call to action, app store IDs, and the video URLs, poster and sizes. The connector fetches it by card URI, taking the URIs from the `card_uri` column of the tweets it loaded, so it holds the cards attached to those tweets, deleted ones included.
 
-  A card URI is not this table's key (`id` is), which is why Tweets does not join here on `card_uri`. Fields that do not apply to a card type are empty.
+  The table is keyed by `id`, and a card URI (`card://` plus the card's `id`) identifies a card on its own, so Tweets joins here on `card_uri`. Fields that do not apply to a card type are empty.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -20,6 +20,7 @@ sources:
 - **Endpoint:** X Ads · `cards_all`
 - **Default destination table:** `x_ads_cards_all`
 - **Unique keys:** `id`
+- **Also unique on its own:** `card_uri`
 - **Time series:** no, one current row per key
 
 # Schema

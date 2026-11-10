@@ -3,7 +3,7 @@ title: "Cards"
 description: |
   One row per website or app card: its ID, name, card type, card URI, created and updated times, whether it is deleted, and its components (media and buttons) as JSON. A card is the link preview attached to a tweet.
 
-  For the full creative detail of the cards attached to your tweets, such as title and destination URL, use All Cards.
+  For the full creative detail of the cards attached to your tweets, such as title and destination URL, use [All Cards](./all-cards.md), which each card here joins to on `id`.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -40,3 +40,8 @@ sources:
 - How many cards of each card type exist?
 - Which cards were created in the last 90 days?
 - Which cards are marked as deleted?
+
+## Joins
+
+- [All Cards](./all-cards.md) — `id = id` [1:1] — The same card seen through the plain cards list; All Cards holds only the cards attached to loaded tweets.
+  - Description: The same card seen through the plain cards list; All Cards holds only the cards attached to loaded tweets.

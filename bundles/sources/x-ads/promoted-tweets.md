@@ -45,3 +45,5 @@ sources:
 
 - [Line Items](./line-items.md) — `line_item_id = id` [N:1] — The line item the tweet is promoted in.
   - Description: The line item the tweet is promoted in.
+- [Tweets](./tweets.md) — `tweet_id = tweet_id` [N:1] — The tweet the promoted tweet attaches to the line item; matched on the text ID, since the numeric id can arrive rounded.
+  - Description: The tweet the promoted tweet attaches to the line item; matched on the text ID, since the numeric id can arrive rounded.

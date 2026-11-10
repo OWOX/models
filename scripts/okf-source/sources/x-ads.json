@@ -1,6 +1,6 @@
 {
   "vendorName": "X Ads API",
-  "description": "What the OWOX Data Marts X Ads connector loads, and how the pieces fit together. An X advertising account holds campaigns, campaigns hold line items (the X name for ad groups), and line items hold promoted tweets: references that attach a tweet to a line item. The connector loads each level as a current-state table ([Accounts](./accounts.md), [Campaigns](./campaigns.md), [Line Items](./line-items.md), [Promoted Tweets](./promoted-tweets.md)), the tweets and cards used as creatives ([Tweets](./tweets.md), [Cards](./cards.md), [All Cards](./all-cards.md)), a reference table of countries ([Targeting Locations](./targeting-locations.md)), and the daily performance of promoted tweets as two time-series tables: [Ad Performance](./ad-performance.md) and [Ad Performance by Country](./ad-performance-by-country.md).\n\nEach level carries the ID of its parent, so the chain joins on plain IDs: [Promoted Tweets](./promoted-tweets.md) to [Line Items](./line-items.md) on `line_item_id`, [Line Items](./line-items.md) to [Campaigns](./campaigns.md) on `campaign_id`, and [Campaigns](./campaigns.md) to [Accounts](./accounts.md) on `account_id`, a column the connector adds to each campaign row when it is selected. Both performance tables report on promoted tweets, so their `id` joins to [Promoted Tweets](./promoted-tweets.md), and a promoted tweet reaches its tweet through `tweet_id`, matched to the text column `tweet_id` in [Tweets](./tweets.md); that pair is not drawn as a join because Tweets is keyed by its numeric `id`, which can arrive rounded.\n\nTwo cautions apply. Amounts ending in `_micro` are in micros: the X Ads docs write 5.50 USD as 5500000, so divide by 1,000,000. And the performance tables are built only for the promoted tweets the connector has loaded, so line items that were deleted drop out of them.",
+  "description": "What the OWOX Data Marts X Ads connector loads, and how the pieces fit together. An X advertising account holds campaigns, campaigns hold line items (the X name for ad groups), and line items hold promoted tweets: references that attach a tweet to a line item. The connector loads each level as a current-state table ([Accounts](./accounts.md), [Campaigns](./campaigns.md), [Line Items](./line-items.md), [Promoted Tweets](./promoted-tweets.md)), the tweets and cards used as creatives ([Tweets](./tweets.md), [Cards](./cards.md), [All Cards](./all-cards.md)), a reference table of countries ([Targeting Locations](./targeting-locations.md)), and the daily performance of promoted tweets as two time-series tables: [Ad Performance](./ad-performance.md) and [Ad Performance by Country](./ad-performance-by-country.md).\n\nEach level carries the ID of its parent, so the chain joins on plain IDs: [Promoted Tweets](./promoted-tweets.md) to [Line Items](./line-items.md) on `line_item_id`, [Line Items](./line-items.md) to [Campaigns](./campaigns.md) on `campaign_id`, and [Campaigns](./campaigns.md) to [Accounts](./accounts.md) on `account_id`, a column the connector adds to each campaign row when it is selected. Both performance tables report on promoted tweets, so their `id` joins to [Promoted Tweets](./promoted-tweets.md), and a promoted tweet reaches its tweet through `tweet_id`, matched to the text column `tweet_id` in [Tweets](./tweets.md) rather than to the numeric `id`, which can arrive rounded. A tweet reaches its card through `card_uri` in [All Cards](./all-cards.md), and [Cards](./cards.md) is the same cards seen through the plain cards list, matched on `id`. [Ad Performance by Country](./ad-performance-by-country.md) holds a location ID in `country`, which matches `targeting_value` in [Targeting Locations](./targeting-locations.md).\n\nTwo cautions apply. Amounts ending in `_micro` are in micros: the X Ads docs write 5.50 USD as 5500000, so divide by 1,000,000. And the performance tables are built only for the promoted tweets the connector has loaded, so line items that were deleted drop out of them.",
   "questions": [
     "Which campaigns spend the most for the fewest clicks, once spend is divided by clicks?",
     "How do impressions, clicks and engagements change from campaign to line item to promoted tweet?",
@@ -40,11 +40,19 @@
       ]
     },
     "Tweets": {
-      "description": "One row per tweet used as a creative: its text (`full_text`), language, type, name, created time, like and repost counts, entities such as hashtags, links and mentions, and the URI of the card attached to it (`card_uri`). The connector requests published tweets of the promoted-only kind (nullcast), so organic tweets are not loaded.\n\nThe key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`, so no join is drawn between the two.",
+      "description": "One row per tweet used as a creative: its text (`full_text`), language, type, name, created time, like and repost counts, entities such as hashtags, links and mentions, and the URI of the card attached to it (`card_uri`). The connector requests published tweets of the promoted-only kind (nullcast), so organic tweets are not loaded.\n\nThe key is `id`, a number. Tweet IDs are longer than 15 digits, so the numeric `id` can arrive rounded; `tweet_id` and `id_str` hold the same ID as text and are the columns to match on. Promoted Tweets points here through its `tweet_id`, which is matched to this table's `tweet_id` (or `id_str`) rather than its `id`; `tweet_id` also identifies a tweet on its own, so the join is drawn on it. The card attached to a tweet is in [All Cards](./all-cards.md), matched on `card_uri`.",
       "questions": [
         "Which promoted-only tweets carry a card, and which do not?",
         "Which tweets have the most likes and reposts?",
         "In which languages are the promoted tweets written?"
+      ],
+      "alternateKeys": [
+        {
+          "columns": [
+            "tweet_id"
+          ],
+          "source": "https://docs.x.com/x-ads-api/creatives/reference (GET accounts/:account_id/tweets example response: \"id\": 1166476031668015104 and \"tweet_id\": \"1166476031668015104\"); the schema describes tweet_id as a duplicate of id_str, the tweet's ID as a string. Each alone identifies the tweet; the connector lists id as its key."
+        }
       ]
     },
     "Ad Performance": {
@@ -56,7 +64,7 @@
       ]
     },
     "Ad Performance by Country": {
-      "description": "Daily performance of promoted tweets split by country: the same impressions, clicks, URL clicks, engagements, billed charge and social actions as Ad Performance, with `country` added to the key. One row per promoted tweet (`id`), `date`, `placement` and `country`.\n\nThe connector loads it with the X Ads asynchronous stats jobs, one job per set of promoted tweets and placement, segmented by location. `country` holds a location ID, a hex string, not a name or a country code. Join `id` to Promoted Tweets for the promoted tweet. The connector's Targeting Locations table is described as the lookup of names for these IDs, but no join is drawn here because the X Ads docs do not state that the segment value is a targeting value.",
+      "description": "Daily performance of promoted tweets split by country: the same impressions, clicks, URL clicks, engagements, billed charge and social actions as Ad Performance, with `country` added to the key. One row per promoted tweet (`id`), `date`, `placement` and `country`.\n\nThe connector loads it with the X Ads asynchronous stats jobs, one job per set of promoted tweets and placement, segmented by location. `country` holds a location ID, a hex string, not a name or a country code. Join `id` to Promoted Tweets for the promoted tweet. Join `country` to `targeting_value` in [Targeting Locations](./targeting-locations.md) for the name. The connector describes that table as the lookup for these IDs; the current X Ads docs no longer list the location segmentation as enabled, so check that the table has rows.",
       "questions": [
         "Which countries bring the most clicks, and at what billed charge per click?",
         "Do promoted tweets get more engagements per impression in some countries than in others?",
@@ -64,7 +72,7 @@
       ]
     },
     "Targeting Locations": {
-      "description": "A reference table of X targeting locations: the location's hex ID (`targeting_value`), its name, location type and two-letter ISO country code. It carries no performance, only names.\n\nThe connector requests the location type COUNTRIES only, so it holds countries, not regions, cities or postal codes. The schema describes `targeting_value` as the ID to match with the `country` column of Ad Performance by Country.",
+      "description": "A reference table of X targeting locations: the location's hex ID (`targeting_value`), its name, location type and two-letter ISO country code. It carries no performance, only names.\n\nThe connector requests the location type COUNTRIES only, so it holds countries, not regions, cities or postal codes. [Ad Performance by Country](./ad-performance-by-country.md) joins here on `country`, which holds this table's `targeting_value`.",
       "questions": [
         "What are the names and country codes of the locations the connector loads?",
         "Which country code belongs to each location ID?",
@@ -72,7 +80,7 @@
       ]
     },
     "Cards": {
-      "description": "One row per website or app card: its ID, name, card type, card URI, created and updated times, whether it is deleted, and its components (media and buttons) as JSON. A card is the link preview attached to a tweet.\n\nFor the full creative detail of the cards attached to your tweets, such as title and destination URL, use All Cards.",
+      "description": "One row per website or app card: its ID, name, card type, card URI, created and updated times, whether it is deleted, and its components (media and buttons) as JSON. A card is the link preview attached to a tweet.\n\nFor the full creative detail of the cards attached to your tweets, such as title and destination URL, use [All Cards](./all-cards.md), which each card here joins to on `id`.",
       "questions": [
         "How many cards of each card type exist?",
         "Which cards were created in the last 90 days?",
@@ -80,11 +88,19 @@
       ]
     },
     "All Cards": {
-      "description": "One row per card with its full creative detail: card type, title, website URL, destination URL and display URL, call to action, app store IDs, and the video URLs, poster and sizes. The connector fetches it by card URI, taking the URIs from the `card_uri` column of the tweets it loaded, so it holds the cards attached to those tweets, deleted ones included.\n\nA card URI is not this table's key (`id` is), which is why Tweets does not join here on `card_uri`. Fields that do not apply to a card type are empty.",
+      "description": "One row per card with its full creative detail: card type, title, website URL, destination URL and display URL, call to action, app store IDs, and the video URLs, poster and sizes. The connector fetches it by card URI, taking the URIs from the `card_uri` column of the tweets it loaded, so it holds the cards attached to those tweets, deleted ones included.\n\nThe table is keyed by `id`, and a card URI (`card://` plus the card's `id`) identifies a card on its own, so Tweets joins here on `card_uri`. Fields that do not apply to a card type are empty.",
       "questions": [
         "Which cards use each call to action?",
         "Which destination URLs do the cards send clicks to?",
         "How many cards are video cards, and how long are their videos?"
+      ],
+      "alternateKeys": [
+        {
+          "columns": [
+            "card_uri"
+          ],
+          "source": "https://docs.x.com/x-ads-api/creatives/reference (Tweets: \"Associate a card with the Tweet using the card_uri value from any cards response\"; GET accounts/:account_id/cards/all: \"Retrieve multiple cards, by card_uri\"). A card URI identifies one card; the connector lists id as its key."
+        }
       ]
     }
   },
@@ -153,6 +169,58 @@
       "cardinality": "N:1",
       "note": "The account the campaign belongs to; the connector fills account_id.",
       "source": "https://docs.x.com/x-ads-api/campaign-management/reference (GET accounts/:account_id/campaigns: \"Retrieve details for some or all campaigns associated with the current account.\"; GET accounts/:account_id example response \"id\": \"18ce54d4x5t\")"
+    },
+    {
+      "from": "Promoted Tweets",
+      "to": "Tweets",
+      "on": [
+        [
+          "tweet_id",
+          "tweet_id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The tweet the promoted tweet attaches to the line item; matched on the text ID, since the numeric id can arrive rounded.",
+      "source": "https://docs.x.com/x-ads-api/campaign-management/reference (GET accounts/:account_id/promoted_tweets: \"Use the GET accounts/:account_id/tweets endpoint to fetch the Tweet objects. Use the tweet_id values for each promoted_tweets object.\"); https://docs.x.com/x-ads-api/creatives/reference (GET accounts/:account_id/tweets example response: \"id\": 1166476031668015104 and \"tweet_id\": \"1166476031668015104\")"
+    },
+    {
+      "from": "Tweets",
+      "to": "All Cards",
+      "on": [
+        [
+          "card_uri",
+          "card_uri"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The card attached to the tweet; one card can be attached to several tweets.",
+      "source": "https://docs.x.com/x-ads-api/creatives/reference (Tweets: \"Associate a card with the Tweet using the card_uri value from any cards response, if available.\"; GET accounts/:account_id/cards/all: \"Retrieve multiple cards, by card_uri, associated with the current account.\"); the connector fetches All Cards by the card_uri values of the tweets it loaded (https://github.com/OWOX/owox-data-marts/blob/8aff3513fdade6760a74baad9aa985167cf542ba/packages/connectors/src/Sources/XAds/Source.js)"
+    },
+    {
+      "from": "Cards",
+      "to": "All Cards",
+      "on": [
+        [
+          "id",
+          "id"
+        ]
+      ],
+      "cardinality": "1:1",
+      "note": "The same card seen through the plain cards list; All Cards holds only the cards attached to loaded tweets.",
+      "source": "https://docs.x.com/x-ads-api/creatives/reference (GET accounts/:account_id/cards: \"Retrieve details for some or all cards associated with the current account.\", \"This only returns cards that were created using the POST accounts/:account_id/cards endpoint.\"; GET accounts/:account_id/cards/all: \"Retrieve multiple cards, by card_uri, associated with the current account.\"; example card id 1321554298900107264 with card_uri card://1321554298900107264)"
+    },
+    {
+      "from": "Ad Performance by Country",
+      "to": "Targeting Locations",
+      "on": [
+        [
+          "country",
+          "targeting_value"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The location the row is split by: country holds a location ID, not a name. The current X docs no longer list the LOCATIONS segmentation as enabled, so rows may be missing.",
+      "source": "https://github.com/OWOX/owox-data-marts/blob/8aff3513fdade6760a74baad9aa985167cf542ba/packages/connectors/src/Sources/XAds/Source.js (Targeting Locations: \"as a guide table so users can JOIN stats_by_country.country → targeting_value\"); the archived X Ads analytics docs (async stats country: \"the targeting_value from the GET targeting_criteria/locations endpoint response\")"
     }
   ]
 }

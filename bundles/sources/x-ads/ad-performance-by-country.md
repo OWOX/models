@@ -3,7 +3,7 @@ title: "Ad Performance by Country"
 description: |
   Daily performance of promoted tweets split by country: the same impressions, clicks, URL clicks, engagements, billed charge and social actions as Ad Performance, with `country` added to the key. One row per promoted tweet (`id`), `date`, `placement` and `country`.
 
-  The connector loads it with the X Ads asynchronous stats jobs, one job per set of promoted tweets and placement, segmented by location. `country` holds a location ID, a hex string, not a name or a country code. Join `id` to Promoted Tweets for the promoted tweet. The connector's Targeting Locations table is described as the lookup of names for these IDs, but no join is drawn here because the X Ads docs do not state that the segment value is a targeting value.
+  The connector loads it with the X Ads asynchronous stats jobs, one job per set of promoted tweets and placement, segmented by location. `country` holds a location ID, a hex string, not a name or a country code. Join `id` to Promoted Tweets for the promoted tweet. Join `country` to `targeting_value` in [Targeting Locations](./targeting-locations.md) for the name. The connector describes that table as the lookup for these IDs; the current X Ads docs no longer list the location segmentation as enabled, so check that the table has rows.
 tags: ["owox", "connector", "x-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -58,3 +58,5 @@ sources:
 
 - [Promoted Tweets](./promoted-tweets.md) — `id = id` [N:1] — The promoted tweet the country row reports on.
   - Description: The promoted tweet the country row reports on.
+- [Targeting Locations](./targeting-locations.md) — `country = targeting_value` [N:1] — The location the row is split by: country holds a location ID, not a name. The current X docs no longer list the LOCATIONS segmentation as enabled, so rows may be missing.
+  - Description: The location the row is split by: country holds a location ID, not a name. The current X docs no longer list the LOCATIONS segmentation as enabled, so rows may be missing.

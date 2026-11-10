@@ -3,7 +3,7 @@ title: "X Ads"
 description: |
   What the OWOX Data Marts X Ads connector loads, and how the pieces fit together. An X advertising account holds campaigns, campaigns hold line items (the X name for ad groups), and line items hold promoted tweets: references that attach a tweet to a line item. The connector loads each level as a current-state table ([Accounts](./accounts.md), [Campaigns](./campaigns.md), [Line Items](./line-items.md), [Promoted Tweets](./promoted-tweets.md)), the tweets and cards used as creatives ([Tweets](./tweets.md), [Cards](./cards.md), [All Cards](./all-cards.md)), a reference table of countries ([Targeting Locations](./targeting-locations.md)), and the daily performance of promoted tweets as two time-series tables: [Ad Performance](./ad-performance.md) and [Ad Performance by Country](./ad-performance-by-country.md).
 
-  Each level carries the ID of its parent, so the chain joins on plain IDs: [Promoted Tweets](./promoted-tweets.md) to [Line Items](./line-items.md) on `line_item_id`, [Line Items](./line-items.md) to [Campaigns](./campaigns.md) on `campaign_id`, and [Campaigns](./campaigns.md) to [Accounts](./accounts.md) on `account_id`, a column the connector adds to each campaign row when it is selected. Both performance tables report on promoted tweets, so their `id` joins to [Promoted Tweets](./promoted-tweets.md), and a promoted tweet reaches its tweet through `tweet_id`, matched to the text column `tweet_id` in [Tweets](./tweets.md); that pair is not drawn as a join because Tweets is keyed by its numeric `id`, which can arrive rounded.
+  Each level carries the ID of its parent, so the chain joins on plain IDs: [Promoted Tweets](./promoted-tweets.md) to [Line Items](./line-items.md) on `line_item_id`, [Line Items](./line-items.md) to [Campaigns](./campaigns.md) on `campaign_id`, and [Campaigns](./campaigns.md) to [Accounts](./accounts.md) on `account_id`, a column the connector adds to each campaign row when it is selected. Both performance tables report on promoted tweets, so their `id` joins to [Promoted Tweets](./promoted-tweets.md), and a promoted tweet reaches its tweet through `tweet_id`, matched to the text column `tweet_id` in [Tweets](./tweets.md) rather than to the numeric `id`, which can arrive rounded. A tweet reaches its card through `card_uri` in [All Cards](./all-cards.md), and [Cards](./cards.md) is the same cards seen through the plain cards list, matched on `id`. [Ad Performance by Country](./ad-performance-by-country.md) holds a location ID in `country`, which matches `targeting_value` in [Targeting Locations](./targeting-locations.md).
 
   Two cautions apply. Amounts ending in `_micro` are in micros: the X Ads docs write 5.50 USD as 5500000, so divide by 1,000,000. And the performance tables are built only for the promoted tweets the connector has loaded, so line items that were deleted drop out of them.
 tags: ["owox", "index", "connector", "x-ads"]
@@ -14,7 +14,7 @@ sources:
     title: "OWOX Data Marts — X Ads connector source"
 ---
 
-10 tables, 187 fields, 5 joins.
+10 tables, 187 fields, 9 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|
