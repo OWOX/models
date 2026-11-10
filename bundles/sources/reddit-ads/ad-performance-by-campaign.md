@@ -3,7 +3,7 @@ title: "Ad Performance by Campaign"
 description: |
   Daily ad performance with the campaign as the breakdown: one row per ad per `date` per `campaign_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.
 
-  `campaign_id` is a plain column here: join the row to [Ads](./ads.md) on `ad_id`, then through Ad Groups to Campaigns, to read the campaign's name, objective and spend cap. The schema also lists a `dma` column on this table, which belongs to the DMA breakdown and is not part of this table's key. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.
+  `campaign_id` joins to [Campaigns](./campaigns.md) on `id` for the campaign's name, objective and spend cap; join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row. The schema also lists a `dma` column on this table, which belongs to the DMA breakdown and is not part of this table's key. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.
 tags: ["owox", "connector", "reddit-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -92,5 +92,7 @@ sources:
 
 ## Joins
 
-- [Ads](./ads.md) — `ad_id = id` [N:1] — The ad the daily row reports on.
-  - Description: The ad the daily row reports on.
+- [Ad Performance](./ad-performance.md) — `ad_id = ad_id`, `date = date` [N:1] — The ad's day that this row splits by one more dimension; one ad-day has several rows here.
+  - Description: The ad's day that this row splits by one more dimension; one ad-day has several rows here.
+- [Campaigns](./campaigns.md) — `campaign_id = id` [N:1] — The campaign the row is split by.
+  - Description: The campaign the row is split by.

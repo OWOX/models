@@ -1,6 +1,6 @@
 {
   "vendorName": "Reddit Ads API",
-  "description": "What the OWOX Data Marts Reddit Ads connector loads, and how the pieces fit together. A Reddit Ads account is a hierarchy: an [Ad Account](./ad-account.md) holds [Campaigns](./campaigns.md), a campaign holds [Ad Groups](./ad-groups.md), and an ad group holds [Ads](./ads.md). Campaigns draw on a payment method in [Funding Instruments](./funding-instruments.md), and the account also owns [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md). [Ad Account User](./ad-account-user.md) is the authenticated member and stands apart from the hierarchy.\n\nThose tables hold current settings, one row per entity. The results are in ten daily report tables, all keyed by `ad_id` and `date`: [Ad Performance](./ad-performance.md) has no further breakdown, and each of the others splits the same metrics by one more dimension: [account](./ad-performance-by-account.md), [ad group](./ad-performance-by-ad-group.md), [campaign](./ad-performance-by-campaign.md), [country](./ad-performance-by-country.md), [DMA](./ad-performance-by-dma.md), [interest](./ad-performance-by-interest.md), [community](./ad-performance-by-community.md), [keyword](./ad-performance-by-keyword.md) or [placement](./ad-performance-by-placement.md). Because every report row names its ad, each report joins to Ads on `ad_id`, and reaches the ad group, campaign and account through Ads.\n\nThe breakdown tables are alternatives, not parts of one total: a row in Ad Performance by Country and a row in Ad Performance by Keyword can describe the same spend, so never add the tables together. The API reference describes `spend` in microcurrency; divide it by 1 million to read it in the account currency.",
+  "description": "What the OWOX Data Marts Reddit Ads connector loads, and how the pieces fit together. A Reddit Ads account is a hierarchy: an [Ad Account](./ad-account.md) holds [Campaigns](./campaigns.md), a campaign holds [Ad Groups](./ad-groups.md), and an ad group holds [Ads](./ads.md). Campaigns draw on a payment method in [Funding Instruments](./funding-instruments.md), and the account also owns [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md). [Ad Account User](./ad-account-user.md) is the authenticated member; an account's `primary_contact_member_id` points to it, but it holds only that one member.\n\nThose tables hold current settings, one row per entity. The results are in ten daily report tables, all keyed by `ad_id` and `date`: [Ad Performance](./ad-performance.md) has no further breakdown, and each of the others splits the same metrics by one more dimension: [account](./ad-performance-by-account.md), [ad group](./ad-performance-by-ad-group.md), [campaign](./ad-performance-by-campaign.md), [country](./ad-performance-by-country.md), [DMA](./ad-performance-by-dma.md), [interest](./ad-performance-by-interest.md), [community](./ad-performance-by-community.md), [keyword](./ad-performance-by-keyword.md) or [placement](./ad-performance-by-placement.md). Ad Performance joins to Ads on `ad_id`, and each of the nine breakdown tables joins to Ad Performance on `ad_id` and `date`, the ungrouped row it splits, so the drawing shows them as one family. The three breakdowns that split by a table here also join to it: by account to Ad Account, by ad group to Ad Groups, by campaign to Campaigns.\n\nThe breakdown tables are alternatives, not parts of one total: a row in Ad Performance by Country and a row in Ad Performance by Keyword can describe the same spend, so never add the tables together. The API reference describes `spend` in microcurrency; divide it by 1 million to read it in the account currency.",
   "questions": [
     "Which campaigns spend the most for the fewest key conversions, once spend is divided by conversions?",
     "How does cost per click change from campaign to ad group to ad for the same budget?",
@@ -8,7 +8,7 @@
   ],
   "endpoints": {
     "Ad Account": {
-      "description": "One row per ad account the connector is configured for: its name, type, currency, time zone, the click and view attribution windows, the business it belongs to, the primary contact member, and the account-level excluded communities and keywords. It is the top of the hierarchy: [Campaigns](./campaigns.md), [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md) carry its ID as `ad_account_id`.\n\nThe `currency` field holds the ISO 4217 code of the currency used. There is no separate table of businesses, so `business_id` stays a plain column.",
+      "description": "One row per ad account the connector is configured for: its name, type, currency, time zone, the click and view attribution windows, the business it belongs to, the primary contact member, and the account-level excluded communities and keywords. It is the top of the hierarchy: [Campaigns](./campaigns.md), [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md) carry its ID as `ad_account_id`.\n\nThe `currency` field holds the ISO 4217 code of the currency used. `primary_contact_member_id` joins to [Ad Account User](./ad-account-user.md), which holds only the authenticated member. There is no separate table of businesses, so `business_id` stays a plain column.",
       "questions": [
         "Which currency and time zone does each ad account use?",
         "Which click and view attribution windows are set on each ad account?",
@@ -16,7 +16,7 @@
       ]
     },
     "Ad Account User": {
-      "description": "The Reddit Ads user the connector authenticates as: the member ID, first and last name, email, phone, and the linked Reddit user ID and username. The connector loads it from the Get Me operation, so it holds the authenticated user, not every member of the account.\n\nIt joins to no other table here: the Ad Account table carries a `primary_contact_member_id`, but the API reference does not state that it refers to the authenticated user, so the two stay unjoined.",
+      "description": "The Reddit Ads user the connector authenticates as: the member ID, first and last name, email, phone, and the linked Reddit user ID and username. The connector loads it from the Get Me operation, so it holds the authenticated user, not every member of the account.\n\n[Ad Account](./ad-account.md) joins here on `primary_contact_member_id`, which the API reference describes as the primary contact member's ID. This table holds only the authenticated member, so most accounts' contacts will not find a row.",
       "questions": [
         "Which Reddit username is the connector authenticated as?",
         "Which email address belongs to the authenticated member?",
@@ -72,7 +72,7 @@
       ]
     },
     "Ad Performance": {
-      "description": "Daily ad performance with no breakdown beyond the ad: one row per ad per `date`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\nIt is the base report; the other Ad Performance tables repeat the same metrics split by one more dimension (ad group, campaign, account, country, DMA, interest, community, keyword or placement). Join it to [Ads](./ads.md) on `ad_id` for the ad's name, status and ad group. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100. Reddit notes that metrics can take up to 6 hours to stabilize and late conversions can change earlier totals, so the connector re-imports a lookback window (2 days by default) on each run.",
+      "description": "Daily ad performance with no breakdown beyond the ad: one row per ad per `date`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\nIt is the base report; the other Ad Performance tables repeat the same metrics split by one more dimension (ad group, campaign, account, country, DMA, interest, community, keyword or placement), and each joins here on `ad_id` and `date`. Join it to [Ads](./ads.md) on `ad_id` for the ad's name, status and ad group. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100. Reddit notes that metrics can take up to 6 hours to stabilize and late conversions can change earlier totals, so the connector re-imports a lookback window (2 days by default) on each run.",
       "questions": [
         "What did each ad spend and return per day over the last 30 days?",
         "Which ads have the highest conversion_roas, and how much did they spend?",
@@ -80,7 +80,7 @@
       ]
     },
     "Ad Performance by Account": {
-      "description": "Daily ad performance with the ad account as the breakdown: one row per ad per `date` per `account_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`account_id` is the ID of the ad account. It is a plain column here: to reach the account's settings, go through [Ads](./ads.md) on `ad_id`, since the ad table already leads to the account. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance with the ad account as the breakdown: one row per ad per `date` per `account_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`account_id` is the ID of the ad account. It joins to [Ad Account](./ad-account.md) on `id` for the account's settings; join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "How much did each ad account spend per day?",
         "Which ad accounts have the highest conversion_roas?",
@@ -88,7 +88,7 @@
       ]
     },
     "Ad Performance by Ad Group": {
-      "description": "Daily ad performance with the ad group as the breakdown: one row per ad per `date` per `ad_group_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`ad_group_id` is a plain column here: join the row to [Ads](./ads.md) on `ad_id`, and from there to Ad Groups, to read the ad group's name and bids. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance with the ad group as the breakdown: one row per ad per `date` per `ad_group_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`ad_group_id` joins to [Ad Groups](./ad-groups.md) on `id` for the ad group's name and bids; join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which ad groups account for most of the spend each week?",
         "Which ad groups have the lowest cost per click?",
@@ -96,7 +96,7 @@
       ]
     },
     "Ad Performance by Campaign": {
-      "description": "Daily ad performance with the campaign as the breakdown: one row per ad per `date` per `campaign_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`campaign_id` is a plain column here: join the row to [Ads](./ads.md) on `ad_id`, then through Ad Groups to Campaigns, to read the campaign's name, objective and spend cap. The schema also lists a `dma` column on this table, which belongs to the DMA breakdown and is not part of this table's key. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance with the campaign as the breakdown: one row per ad per `date` per `campaign_id`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`campaign_id` joins to [Campaigns](./campaigns.md) on `id` for the campaign's name, objective and spend cap; join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row. The schema also lists a `dma` column on this table, which belongs to the DMA breakdown and is not part of this table's key. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which campaigns spend the most per day?",
         "Which campaigns have the highest purchase value relative to spend?",
@@ -104,7 +104,7 @@
       ]
     },
     "Ad Performance by Country": {
-      "description": "Daily ad performance split by the user's country: one row per ad per `date` per `country`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`country` holds the targeted country as the API returns it; the connector loads no table of countries. Join to [Ads](./ads.md) on `ad_id` for the ad. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by the user's country: one row per ad per `date` per `country`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`country` holds the targeted country as the API returns it; the connector loads no table of countries. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which countries bring the most clicks and conversions?",
         "What is the cost per click in each country?",
@@ -112,7 +112,7 @@
       ]
     },
     "Ad Performance by DMA": {
-      "description": "Daily ad performance split by Designated Market Area (DMA): one row per ad per `date` per `dma`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`dma` holds the targeted DMA as the API returns it; the connector loads no table of markets. Join to [Ads](./ads.md) on `ad_id` for the ad. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by Designated Market Area (DMA): one row per ad per `date` per `dma`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`dma` holds the targeted DMA as the API returns it; the connector loads no table of markets. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which DMAs get the most impressions for each ad?",
         "Which DMAs have the lowest cost per click?",
@@ -120,7 +120,7 @@
       ]
     },
     "Ad Performance by Interest": {
-      "description": "Daily ad performance split by the interest the audience was targeted by: one row per ad per `date` per `interest`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`interest` holds the targeted interest as the API returns it. Join to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by the interest the audience was targeted by: one row per ad per `date` per `interest`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`interest` holds the targeted interest as the API returns it. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which interests drive the most clicks at the lowest cost per click?",
         "Which interests have the highest click-through rate?",
@@ -128,7 +128,7 @@
       ]
     },
     "Ad Performance by Community": {
-      "description": "Daily ad performance split by community (subreddit): one row per ad per `date` per `community`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`community` holds the targeted community as the API returns it; the connector loads no table of communities. Join to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by community (subreddit): one row per ad per `date` per `community`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`community` holds the targeted community as the API returns it; the connector loads no table of communities. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which subreddits get the most impressions and clicks?",
         "Which communities have the lowest cost per click?",
@@ -136,7 +136,7 @@
       ]
     },
     "Ad Performance by Keyword": {
-      "description": "Daily ad performance split by keyword: one row per ad per `date` per `keyword`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`keyword` holds the keyword the ad was matched on, as the API returns it. Join to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by keyword: one row per ad per `date` per `keyword`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`keyword` holds the keyword the ad was matched on, as the API returns it. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which keywords spend the most without a key conversion?",
         "Which keywords have the highest click-through rate?",
@@ -144,7 +144,7 @@
       ]
     },
     "Ad Performance by Placement": {
-      "description": "Daily ad performance split by placement of the creative: one row per ad per `date` per `placement`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`placement` is an enum value for the placement of a creative; the connector loads no table that lists them. Join to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
+      "description": "Daily ad performance split by placement of the creative: one row per ad per `date` per `placement`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.\n\n`placement` is an enum value for the placement of a creative; the connector loads no table that lists them. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.",
       "questions": [
         "Which placements get the most impressions and clicks?",
         "How does cost per click compare across placements?",
@@ -168,120 +168,156 @@
     },
     {
       "from": "Ad Performance by Account",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Ad Group",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Campaign",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Country",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by DMA",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Interest",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Community",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Keyword",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ad Performance by Placement",
-      "to": "Ads",
+      "to": "Ad Performance",
       "on": [
         [
           "ad_id",
-          "id"
+          "ad_id"
+        ],
+        [
+          "date",
+          "date"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The ad the daily row reports on.",
-      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_id breakdown: \"We recommend including the `ad_id` breakdown. Use joins in Get Ad to retrieve IDs.\"; report response ad_id: \"The ad ID.\", Ads id: \"The ad ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+      "note": "The ad's day that this row splits by one more dimension; one ad-day has several rows here.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (the report is requested with the ad_id breakdown plus one more; \"We recommend including the `ad_id` breakdown.\"); the connector sends the same metrics for every report table (OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
     },
     {
       "from": "Ads",
@@ -360,6 +396,58 @@
       "cardinality": "N:1",
       "note": "The ad account the form belongs to.",
       "source": "https://ads-api.reddit.com/docs/v3/api/list-lead-generation-forms (\"Retrieve the lead generation forms in an ad account.\", ad_account_id: \"The ad account ID.\"; OpenAPI spec https://ads-api.reddit.com/api/v3/openapi.json)"
+    },
+    {
+      "from": "Ad Performance by Account",
+      "to": "Ad Account",
+      "on": [
+        [
+          "account_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad account the row is split by.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (AD_ACCOUNT_ID breakdown; response account_id: the ad account ID); Ad Account id: \"The ad account ID.\" (https://ads-api.reddit.com/api/v3/openapi.json)"
+    },
+    {
+      "from": "Ad Performance by Ad Group",
+      "to": "Ad Groups",
+      "on": [
+        [
+          "ad_group_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad group the row is split by.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (ad_group_id breakdown); https://ads-api.reddit.com/docs/v3/api/list-ad-groups (Ad Groups id: \"The ad group ID.\") (https://ads-api.reddit.com/api/v3/openapi.json)"
+    },
+    {
+      "from": "Ad Performance by Campaign",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the row is split by.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/get-a-report (campaign_id breakdown); https://ads-api.reddit.com/docs/v3/api/list-campaigns (Campaigns id: \"The campaign ID.\") (https://ads-api.reddit.com/api/v3/openapi.json)"
+    },
+    {
+      "from": "Ad Account",
+      "to": "Ad Account User",
+      "on": [
+        [
+          "primary_contact_member_id",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The member who is the account's primary contact. Ad Account User holds only the authenticated member, so most accounts' contacts will not find a row.",
+      "source": "https://ads-api.reddit.com/docs/v3/api/list-ad-accounts (primary_contact_member_id: \"The primary contact member's ID.\"); https://ads-api.reddit.com/docs/v3/api/get-me (id: \"The member's ID.\") (https://ads-api.reddit.com/api/v3/openapi.json)"
     }
   ]
 }

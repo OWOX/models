@@ -1,9 +1,9 @@
 ---
 title: "Reddit Ads"
 description: |
-  What the OWOX Data Marts Reddit Ads connector loads, and how the pieces fit together. A Reddit Ads account is a hierarchy: an [Ad Account](./ad-account.md) holds [Campaigns](./campaigns.md), a campaign holds [Ad Groups](./ad-groups.md), and an ad group holds [Ads](./ads.md). Campaigns draw on a payment method in [Funding Instruments](./funding-instruments.md), and the account also owns [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md). [Ad Account User](./ad-account-user.md) is the authenticated member and stands apart from the hierarchy.
+  What the OWOX Data Marts Reddit Ads connector loads, and how the pieces fit together. A Reddit Ads account is a hierarchy: an [Ad Account](./ad-account.md) holds [Campaigns](./campaigns.md), a campaign holds [Ad Groups](./ad-groups.md), and an ad group holds [Ads](./ads.md). Campaigns draw on a payment method in [Funding Instruments](./funding-instruments.md), and the account also owns [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md). [Ad Account User](./ad-account-user.md) is the authenticated member; an account's `primary_contact_member_id` points to it, but it holds only that one member.
 
-  Those tables hold current settings, one row per entity. The results are in ten daily report tables, all keyed by `ad_id` and `date`: [Ad Performance](./ad-performance.md) has no further breakdown, and each of the others splits the same metrics by one more dimension: [account](./ad-performance-by-account.md), [ad group](./ad-performance-by-ad-group.md), [campaign](./ad-performance-by-campaign.md), [country](./ad-performance-by-country.md), [DMA](./ad-performance-by-dma.md), [interest](./ad-performance-by-interest.md), [community](./ad-performance-by-community.md), [keyword](./ad-performance-by-keyword.md) or [placement](./ad-performance-by-placement.md). Because every report row names its ad, each report joins to Ads on `ad_id`, and reaches the ad group, campaign and account through Ads.
+  Those tables hold current settings, one row per entity. The results are in ten daily report tables, all keyed by `ad_id` and `date`: [Ad Performance](./ad-performance.md) has no further breakdown, and each of the others splits the same metrics by one more dimension: [account](./ad-performance-by-account.md), [ad group](./ad-performance-by-ad-group.md), [campaign](./ad-performance-by-campaign.md), [country](./ad-performance-by-country.md), [DMA](./ad-performance-by-dma.md), [interest](./ad-performance-by-interest.md), [community](./ad-performance-by-community.md), [keyword](./ad-performance-by-keyword.md) or [placement](./ad-performance-by-placement.md). Ad Performance joins to Ads on `ad_id`, and each of the nine breakdown tables joins to Ad Performance on `ad_id` and `date`, the ungrouped row it splits, so the drawing shows them as one family. The three breakdowns that split by a table here also join to it: by account to Ad Account, by ad group to Ad Groups, by campaign to Campaigns.
 
   The breakdown tables are alternatives, not parts of one total: a row in Ad Performance by Country and a row in Ad Performance by Keyword can describe the same spend, so never add the tables together. The API reference describes `spend` in microcurrency; divide it by 1 million to read it in the account currency.
 tags: ["owox", "index", "connector", "reddit-ads"]
@@ -14,7 +14,7 @@ sources:
     title: "OWOX Data Marts — Reddit Ads connector source"
 ---
 
-18 tables, 675 fields, 16 joins.
+18 tables, 675 fields, 20 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|

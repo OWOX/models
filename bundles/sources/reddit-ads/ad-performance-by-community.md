@@ -3,7 +3,7 @@ title: "Ad Performance by Community"
 description: |
   Daily ad performance split by community (subreddit): one row per ad per `date` per `community`. Each row carries impressions, clicks, `spend`, `ctr`, `cpc`, `ecpm`, `reach`, `frequency`, the key conversion count and cost, and click and view counts, cost per action and value for the standard conversion events (purchase, sign up, lead, add to cart, add to wishlist, page visit, search, view content), plus `conversion_roas` and the account `currency`.
 
-  `community` holds the targeted community as the API returns it; the connector loads no table of communities. Join to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.
+  `community` holds the targeted community as the API returns it; the connector loads no table of communities. Join to [Ad Performance](./ad-performance.md) on `ad_id` and `date` for the ungrouped row, or to [Ads](./ads.md) on `ad_id`. Per the API reference, `spend`, `cpc`, `cpv` and `ecpm` and the `conversion_*_ecpa` fields are to be divided by 1 million, and the `conversion_*_total_value` fields by 100.
 tags: ["owox", "connector", "reddit-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -91,5 +91,5 @@ sources:
 
 ## Joins
 
-- [Ads](./ads.md) — `ad_id = id` [N:1] — The ad the daily row reports on.
-  - Description: The ad the daily row reports on.
+- [Ad Performance](./ad-performance.md) — `ad_id = ad_id`, `date = date` [N:1] — The ad's day that this row splits by one more dimension; one ad-day has several rows here.
+  - Description: The ad's day that this row splits by one more dimension; one ad-day has several rows here.

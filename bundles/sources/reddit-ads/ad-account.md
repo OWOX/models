@@ -3,7 +3,7 @@ title: "Ad Account"
 description: |
   One row per ad account the connector is configured for: its name, type, currency, time zone, the click and view attribution windows, the business it belongs to, the primary contact member, and the account-level excluded communities and keywords. It is the top of the hierarchy: [Campaigns](./campaigns.md), [Custom Audiences](./custom-audiences.md) and [Lead Gen Forms](./lead-gen-forms.md) carry its ID as `ad_account_id`.
 
-  The `currency` field holds the ISO 4217 code of the currency used. There is no separate table of businesses, so `business_id` stays a plain column.
+  The `currency` field holds the ISO 4217 code of the currency used. `primary_contact_member_id` joins to [Ad Account User](./ad-account-user.md), which holds only the authenticated member. There is no separate table of businesses, so `business_id` stays a plain column.
 tags: ["owox", "connector", "reddit-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -49,3 +49,8 @@ sources:
 - Which currency and time zone does each ad account use?
 - Which click and view attribution windows are set on each ad account?
 - Which ad accounts are suspended, and for what reason?
+
+## Joins
+
+- [Ad Account User](./ad-account-user.md) — `primary_contact_member_id = id` [N:1] — The member who is the account's primary contact. Ad Account User holds only the authenticated member, so most accounts' contacts will not find a row.
+  - Description: The member who is the account's primary contact. Ad Account User holds only the authenticated member, so most accounts' contacts will not find a row.
