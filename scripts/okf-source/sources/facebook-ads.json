@@ -1,6 +1,6 @@
 {
   "vendorName": "Meta Marketing API",
-  "description": "What the OWOX Data Marts Facebook Ads connector loads from the Meta Marketing API, and how the pieces fit together. A Meta ad account is a hierarchy: the account holds campaigns, campaigns hold ad sets, ad sets hold ads, and each ad runs one creative. The connector loads the account ([Ad Account](./ad-account.md), [Ad Account User](./ad-account-user.md)), the ads and their creatives as current-state tables ([Ads](./ads.md), [Ad](./ad.md), [Ad Creatives](./ad-creatives.md)), and daily performance as insights tables.\n\nIt loads no table of campaigns or ad sets. Their IDs and names travel as plain columns (`campaign_id`, `campaign_name`, `adset_id`, `adset_name`) on the ads and on the insights rows, so a campaign or an ad set is reached by grouping on those columns rather than by a join.\n\nPerformance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. Every ad-level insights table joins to [Ads](./ads.md) on `ad_id`, and Ads joins to [Ad Creatives](./ad-creatives.md) on `creative_id`.\n\nTwo cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.\n\nEach table is dated: its **Last updated** is the day the connector last changed what it requests from Meta for that endpoint, or how it describes it. Definitions are current as of connector commit [`8aff3513f`](https://github.com/OWOX/owox-data-marts/commit/8aff3513fdade6760a74baad9aa985167cf542ba).",
+  "description": "What the OWOX Data Marts Facebook Ads connector loads from the Meta Marketing API, and how the pieces fit together. A Meta ad account is a hierarchy: the account holds campaigns, campaigns hold ad sets, ad sets hold ads, and each ad runs one creative. The connector loads the account ([Ad Account](./ad-account.md), [Ad Account User](./ad-account-user.md)), the ads and their creatives as current-state tables ([Ads](./ads.md), [Ad](./ad.md), [Ad Creatives](./ad-creatives.md)), and daily performance as insights tables.\n\nIt loads no table of campaigns or ad sets. Their IDs and names travel as plain columns (`campaign_id`, `campaign_name`, `adset_id`, `adset_name`) on the ads and on the insights rows, so a campaign or an ad set is reached by grouping on those columns rather than by a join.\n\nPerformance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. The drawing is a hierarchy with [Ad Account](./ad-account.md) at the root. [Ads](./ads.md), [Ad Creatives](./ad-creatives.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) join to it on `account_id`, and [Ad Account User](./ad-account-user.md) is the account's own row. [Ad](./ad.md) joins to Ads on `id`, Ads joins to Ad Creatives on `creative_id`, and Ad Insights joins to Ads on `ad_id`. The seven breakdown tables join to Ad Insights on `ad_id`, `date_start` and `date_stop`. Performance rolls up through the tables that exist: Ad Insights joins to Ad Insights by Ad Set on `adset_id` and the two dates, and Ad Insights by Ad Set joins to Ad Insights by Campaign on `campaign_id` and the two dates. Every insights table also carries `account_id`, which matches Ad Account, but those second paths are not drawn.\n\nTwo cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.\n\nEach table is dated: its **Last updated** is the day the connector last changed what it requests from Meta for that endpoint, or how it describes it. Definitions are current as of connector commit [`8aff3513f`](https://github.com/OWOX/owox-data-marts/commit/8aff3513fdade6760a74baad9aa985167cf542ba).",
   "questions": [
     "Which campaigns spend the most for the fewest results, once spend is divided by results?",
     "Which creatives drive the cheapest conversions, once performance is joined to the creative each ad runs?",
@@ -8,7 +8,7 @@
   ],
   "endpoints": {
     "Ad Account": {
-      "description": "One row per ad account the connector is set up to read: its name, status, currency, time zone, business details, amount spent, spend cap and balance. It holds the account's settings, not its results.\n\n`id` is the account number with the `act_` prefix and `account_id` is the bare number. Every ads, creatives and insights table in this model carries the bare number in its own `account_id`, so to put account settings next to any of them, match their `account_id` to this table's `account_id`.",
+      "description": "One row per ad account the connector is set up to read: its name, status, currency, time zone, business details, amount spent, spend cap and balance. It holds the account's settings, not its results.\n\n`id` is the account number with the `act_` prefix and `account_id` is the bare number. Every ads, creatives and insights table in this model carries the bare number in its own `account_id`. Ads, Ad Creatives and Ad Insights by Campaign join here on it; for any other table, match its `account_id` to this table's `account_id`, or go through Ads.",
       "questions": [
         "Which accounts are close to their spend cap?",
         "What currency and time zone does each account use?",
@@ -52,7 +52,7 @@
       }
     },
     "Ads": {
-      "description": "One row per ad: its name, status and effective status, the campaign and ad set it sits in (as `campaign_id` and `adset_id`), the creative it runs (`creative_id`), its schedule, bid amount and created and updated times. It is the table every ad-level insights table joins to, on `ad_id`.\n\nThe connector loads no campaign or ad set table, so `campaign_id` and `adset_id` here are plain columns. It is the state of each ad as of the last load, so `creative_id` is the creative the ad runs now, not necessarily the one it ran on an earlier day. [Ad](./ad.md) holds the same ads with more fields.",
+      "description": "One row per ad: its name, status and effective status, the campaign and ad set it sits in (as `campaign_id` and `adset_id`), the creative it runs (`creative_id`), its schedule, bid amount and created and updated times. [Ad Insights](./ad-insights.md) joins to it on `ad_id`, and the breakdown tables reach it through Ad Insights or directly on `ad_id`.\n\nThe connector loads no campaign or ad set table, so `campaign_id` and `adset_id` here are plain columns. It is the state of each ad as of the last load, so `creative_id` is the creative the ad runs now, not necessarily the one it ran on an earlier day. [Ad](./ad.md) holds the same ads with more fields.",
       "questions": [
         "How many ads are active, paused or with issues in each campaign?",
         "Which ads run the same creative?",
@@ -76,7 +76,7 @@
       }
     },
     "Ad Insights": {
-      "description": "Daily performance per ad: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions with their values, ROAS and video metrics. The base table, with no breakdown: one row per ad per day, where `date_start` and `date_stop` are the same day because the connector asks Meta for one day at a time. `account_currency` names the account's currency.\n\nThe row repeats the ad's `campaign_id`, `campaign_name`, `adset_id` and `adset_name`, which is how you reach the campaign and ad set, since there is no table for either. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative. Spend, impressions and clicks add up across ads and days; reach, frequency and the `unique_*` columns count people, so do not sum them.",
+      "description": "Daily performance per ad: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions with their values, ROAS and video metrics. The base table, with no breakdown: one row per ad per day, where `date_start` and `date_stop` are the same day because the connector asks Meta for one day at a time. `account_currency` names the account's currency.\n\nThe row repeats the ad's `campaign_id`, `campaign_name`, `adset_id` and `adset_name`, which is how you reach the campaign and ad set, since there is no table for either. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative. Spend, impressions and clicks add up across ads and days; reach, frequency and the `unique_*` columns count people, so do not sum them. The rows roll up into [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) on `adset_id` and the two dates, and the seven breakdown tables below split them.",
       "questions": [
         "What did each ad spend and return per day over the last 30 days?",
         "Which campaigns have the highest cost per click, once their ads are rolled up through `campaign_id`?",
@@ -88,7 +88,7 @@
       }
     },
     "Ad Insights by Age and Gender": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the age range and gender of the people reached. One row per ad per day per `age` and `gender`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the age range and gender of the people reached. One row per ad per day per `age` and `gender`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which age and gender groups give the cheapest clicks?",
         "How do impressions split by gender within each age range?",
@@ -100,7 +100,7 @@
       }
     },
     "Ad Insights by Country": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the country the people reached are in. One row per ad per day per `country`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the country the people reached are in. One row per ad per day per `country`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which countries get the most spend, and what do they return?",
         "Which ads spend in the most countries?",
@@ -112,7 +112,7 @@
       }
     },
     "Ad Insights by Region": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the region where the ad was shown. One row per ad per day per `region`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the region where the ad was shown. One row per ad per day per `region`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which regions bring the most clicks per unit of spend?",
         "Which regions get impressions but few clicks?",
@@ -124,7 +124,7 @@
       }
     },
     "Ad Insights by Device Platform": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the type of device the ad was viewed or clicked on, mobile or desktop. One row per ad per day per `device_platform`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the type of device the ad was viewed or clicked on, mobile or desktop. One row per ad per day per `device_platform`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Do mobile and desktop differ in click-through rate?",
         "How does spend split across device platforms for each campaign?",
@@ -136,7 +136,7 @@
       }
     },
     "Ad Insights by Publisher Platform and Position": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by where the ad was shown: the platform (`publisher_platform`, for example Facebook, Instagram or Audience Network) and the position within it (`platform_position`). One row per ad per day per `publisher_platform` and `platform_position`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by where the ad was shown: the platform (`publisher_platform`, for example Facebook, Instagram or Audience Network) and the position within it (`platform_position`). One row per ad per day per `publisher_platform` and `platform_position`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which placements cost the least per click?",
         "How does spend split across platforms and positions for each campaign?",
@@ -148,7 +148,7 @@
       }
     },
     "Ad Insights by Product ID": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the ID of the catalog product involved in the impression, click or action. One row per ad per day per `product_id`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by the ID of the catalog product involved in the impression, click or action. One row per ad per day per `product_id`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.\n\nThe campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which products get the most spend?",
         "Which products have the most clicks per impression?",
@@ -160,7 +160,7 @@
       }
     },
     "Ad Insights by Link URL Asset": {
-      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by `link_url_asset`, the URL asset involved in the impression, click or action. The connector's short-link option, on by default, processes short links in this column. The metrics are the same as the base table.\n\nThe connector keys the table on `ad_id`, `date_start` and `date_stop` only, without the link, so check that a loaded table keeps one row per link before you rely on the split. The campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
+      "description": "The ad-day of [Ad Insights](./ad-insights.md), split by `link_url_asset`, the URL asset involved in the impression, click or action. The connector's short-link option, on by default, processes short links in this column. The metrics are the same as the base table.\n\nThe connector keys the table on `ad_id`, `date_start` and `date_stop` only, without the link, so check that a loaded table keeps one row per link before you rely on the split. The campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.",
       "questions": [
         "Which link URLs get the most clicks?",
         "Which ads send traffic to more than one URL?",
@@ -172,7 +172,7 @@
       }
     },
     "Ad Insights by Ad Set": {
-      "description": "Daily performance per ad set: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per ad set per day, requested from Meta at the ad set level, so `reach` and `frequency` are deduplicated across the ad set's ads. The rows carry the ad set's `objective` and `optimization_goal`.\n\nThere is no `ad_id` and no table of ad sets or campaigns: the row repeats `campaign_id` and `campaign_name`, and the ad set is identified by `adset_id` and `adset_name`. For the ads inside an ad set, use [Ads](./ads.md) on `adset_id`, which is a plain column match. For one campaign's reach, use [Ad Insights by Campaign](./ad-insights-by-campaign.md).",
+      "description": "Daily performance per ad set: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per ad set per day, requested from Meta at the ad set level, so `reach` and `frequency` are deduplicated across the ad set's ads. The rows carry the ad set's `objective` and `optimization_goal`.\n\nThere is no `ad_id` and no table of ad sets or campaigns: the row repeats `campaign_id` and `campaign_name`, and the ad set is identified by `adset_id` and `adset_name`. For the ads inside an ad set, use [Ads](./ads.md) on `adset_id`, which is a plain column match. [Ad Insights](./ad-insights.md) rolls up into this table on `adset_id` and the two dates, and this table rolls up into [Ad Insights by Campaign](./ad-insights-by-campaign.md) on `campaign_id` and the two dates, which is where one campaign's reach is.",
       "questions": [
         "How many people did each ad set reach on a given day, and how often did they see it?",
         "Which optimization goals have the lowest cost per click?",
@@ -184,7 +184,7 @@
       }
     },
     "Ad Insights by Campaign": {
-      "description": "Daily performance per campaign: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per campaign per day, requested from Meta at the campaign level, so `reach` and `frequency` are deduplicated across the campaign's ads and ad sets, which summing the ad-level tables cannot do.\n\nThere is no table of campaigns: the campaign is identified by `campaign_id` and `campaign_name` on the row, and it carries the campaign `objective` and `buying_type`. The ads in a campaign are in [Ads](./ads.md) on `campaign_id`, which is a plain column match.",
+      "description": "Daily performance per campaign: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per campaign per day, requested from Meta at the campaign level, so `reach` and `frequency` are deduplicated across the campaign's ads and ad sets, which summing the ad-level tables cannot do.\n\nThere is no table of campaigns: the campaign is identified by `campaign_id` and `campaign_name` on the row, and it carries the campaign `objective` and `buying_type`. The ads in a campaign are in [Ads](./ads.md) on `campaign_id`, which is a plain column match. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) rolls up into this table on `campaign_id` and the two dates, and this table joins to [Ad Account](./ad-account.md) on `account_id`.",
       "questions": [
         "How many people did each campaign reach on a given day, and how often did they see it?",
         "Which campaigns have the highest spend for the lowest click-through rate?",
@@ -211,97 +211,6 @@
       "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
     },
     {
-      "from": "Ad Insights by Age and Gender",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Country",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Region",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Device Platform",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Publisher Platform and Position",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Product ID",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
-      "from": "Ad Insights by Link URL Asset",
-      "to": "Ads",
-      "on": [
-        [
-          "ad_id",
-          "id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad the daily row reports on; one ad has many daily rows.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/insights (\"Insights from an ad\")"
-    },
-    {
       "from": "Ads",
       "to": "Ad Creatives",
       "on": [
@@ -315,150 +224,7 @@
       "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-creative/ (id: \"Unique ID for an ad creative, numeric string.\"; \"An ad creative object is an instance of a specific creative which is being used to define the `creative` field of one or more ads\")"
     },
     {
-      "from": "Ad Insights",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Age and Gender",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Country",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Region",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Device Platform",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Publisher Platform and Position",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Product ID",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Link URL Asset",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the spend was charged to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Ad Set",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the ad set belongs to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad Insights by Campaign",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the campaign belongs to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
       "from": "Ads",
-      "to": "Ad Account",
-      "on": [
-        [
-          "account_id",
-          "account_id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The account the ad belongs to.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (Reading: \"Ads belonging to this ad account.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
-    },
-    {
-      "from": "Ad",
       "to": "Ad Account",
       "on": [
         [
@@ -497,17 +263,219 @@
       "source": "https://github.com/OWOX/owox-data-marts/blob/8aff3513fdade6760a74baad9aa985167cf542ba/packages/connectors/src/Sources/FacebookMarketing/Source.js (ad-account-user is requested as `act_${accountId}/?fields=...`, the ad account node itself); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (id: \"The string `act_{ad_account_id}`.\")"
     },
     {
-      "from": "Ad",
-      "to": "Ad Creatives",
+      "from": "Ad Insights by Campaign",
+      "to": "Ad Account",
       "on": [
         [
-          "creative_id",
-          "id"
+          "account_id",
+          "account_id"
         ]
       ],
       "cardinality": "N:1",
-      "note": "The creative the ad runs now.",
-      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-creative/ (id: \"Unique ID for an ad creative, numeric string.\"; \"An ad creative object is an instance of a specific creative which is being used to define the `creative` field of one or more ads\")"
+      "note": "The account the campaign belongs to.",
+      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights/ (account_id: \"The ID number of your ad account, which groups your advertising activity.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/ (account_id: \"The ID of the Ad Account.\"; id: \"The string `act_{ad_account_id}`.\")"
+    },
+    {
+      "from": "Ad",
+      "to": "Ads",
+      "on": [
+        [
+          "id",
+          "id"
+        ]
+      ],
+      "cardinality": "1:1",
+      "note": "The same ad, read through Meta's ad reference; both tables list the ads of the account.",
+      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads (\"A list of Ad nodes.\"); https://developers.facebook.com/docs/marketing-api/reference/adgroup (the Ad node: id, account_id, adset_id, campaign_id, creative); the connector reads both tables from the account's ads list (Source.js, act_<id>/ads)"
+    },
+    {
+      "from": "Ad Insights",
+      "to": "Ad Insights by Ad Set",
+      "on": [
+        [
+          "adset_id",
+          "adset_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad set's day that the ad's day rolls up into; counts of people do not add up across the two.",
+      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (level: \"Represents the level of result.\", values ad, adset, campaign, account; adset_id: \"The unique ID of the ad set you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Ad Set",
+      "to": "Ad Insights by Campaign",
+      "on": [
+        [
+          "campaign_id",
+          "campaign_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign's day that the ad set's day rolls up into; counts of people do not add up across the two.",
+      "source": "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (campaign_id: \"The unique ID number of the ad campaign you're viewing in reporting. Your campaign contains ad sets and ads.\"; level: ad, adset, campaign, account)"
+    },
+    {
+      "from": "Ad Insights by Age and Gender",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Country",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Region",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Device Platform",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Publisher Platform and Position",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Product ID",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
+    },
+    {
+      "from": "Ad Insights by Link URL Asset",
+      "to": "Ad Insights",
+      "on": [
+        [
+          "ad_id",
+          "ad_id"
+        ],
+        [
+          "date_start",
+          "date_start"
+        ],
+        [
+          "date_stop",
+          "date_stop"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad's day that this row splits into parts; one ad-day has several rows here.",
+      "source": "https://developers.facebook.com/docs/marketing-api/insights/breakdowns (\"You can group the Insights API results into different sets using breakdowns.\"); https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights (ad_id: \"The unique ID of the ad you're viewing in reporting.\")"
     }
   ],
   "aliases": {

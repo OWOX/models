@@ -1,7 +1,7 @@
 ---
 title: "Ads"
 description: |
-  One row per ad: its name, status and effective status, the campaign and ad set it sits in (as `campaign_id` and `adset_id`), the creative it runs (`creative_id`), its schedule, bid amount and created and updated times. It is the table every ad-level insights table joins to, on `ad_id`.
+  One row per ad: its name, status and effective status, the campaign and ad set it sits in (as `campaign_id` and `adset_id`), the creative it runs (`creative_id`), its schedule, bid amount and created and updated times. [Ad Insights](./ad-insights.md) joins to it on `ad_id`, and the breakdown tables reach it through Ad Insights or directly on `ad_id`.
 
   The connector loads no campaign or ad set table, so `campaign_id` and `adset_id` here are plain columns. It is the state of each ad as of the last load, so `creative_id` is the creative the ad runs now, not necessarily the one it ran on an earlier day. [Ad](./ad.md) holds the same ads with more fields.
 tags: ["owox", "connector", "facebook-ads"]

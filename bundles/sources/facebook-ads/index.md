@@ -5,7 +5,7 @@ description: |
 
   It loads no table of campaigns or ad sets. Their IDs and names travel as plain columns (`campaign_id`, `campaign_name`, `adset_id`, `adset_name`) on the ads and on the insights rows, so a campaign or an ad set is reached by grouping on those columns rather than by a join.
 
-  Performance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. Every ad-level insights table joins to [Ads](./ads.md) on `ad_id`, and Ads joins to [Ad Creatives](./ad-creatives.md) on `creative_id`.
+  Performance comes at three levels. [Ad Insights](./ad-insights.md) holds one row per ad per day, and seven variants split the same ad-day by age and gender, country, region, device platform, publisher platform and position, product ID or link URL asset. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) are requested from Meta at that level, with their own reach. The drawing is a hierarchy with [Ad Account](./ad-account.md) at the root. [Ads](./ads.md), [Ad Creatives](./ad-creatives.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) join to it on `account_id`, and [Ad Account User](./ad-account-user.md) is the account's own row. [Ad](./ad.md) joins to Ads on `id`, Ads joins to Ad Creatives on `creative_id`, and Ad Insights joins to Ads on `ad_id`. The seven breakdown tables join to Ad Insights on `ad_id`, `date_start` and `date_stop`. Performance rolls up through the tables that exist: Ad Insights joins to Ad Insights by Ad Set on `adset_id` and the two dates, and Ad Insights by Ad Set joins to Ad Insights by Campaign on `campaign_id` and the two dates. Every insights table also carries `account_id`, which matches Ad Account, but those second paths are not drawn.
 
   Two cautions apply. Reach, frequency and the `unique_*` columns count people, so do not sum them across ads, days or breakdown values. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) and [Ad Insights by Campaign](./ad-insights-by-campaign.md) give people counted once across the ads of one ad set or campaign within a single day; no table here gives people reached over several days. And the ads and creatives tables hold each object as of the last load, so an ad's `creative_id` is the creative it runs now, not necessarily the one that ran on an earlier day.
 
@@ -18,7 +18,7 @@ sources:
     title: "OWOX Data Marts — Facebook Ads connector source"
 ---
 
-15 tables, 1172 fields, 24 joins.
+15 tables, 1172 fields, 16 joins.
 
 | Data Mart | Fields | Last updated | Description |
 |-----------|--------|--------------|-------------|

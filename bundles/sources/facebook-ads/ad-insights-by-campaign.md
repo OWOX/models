@@ -3,7 +3,7 @@ title: "Ad Insights by Campaign"
 description: |
   Daily performance per campaign: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per campaign per day, requested from Meta at the campaign level, so `reach` and `frequency` are deduplicated across the campaign's ads and ad sets, which summing the ad-level tables cannot do.
 
-  There is no table of campaigns: the campaign is identified by `campaign_id` and `campaign_name` on the row, and it carries the campaign `objective` and `buying_type`. The ads in a campaign are in [Ads](./ads.md) on `campaign_id`, which is a plain column match.
+  There is no table of campaigns: the campaign is identified by `campaign_id` and `campaign_name` on the row, and it carries the campaign `objective` and `buying_type`. The ads in a campaign are in [Ads](./ads.md) on `campaign_id`, which is a plain column match. [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) rolls up into this table on `campaign_id` and the two dates, and this table joins to [Ad Account](./ad-account.md) on `account_id`.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:

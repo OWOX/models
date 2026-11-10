@@ -68,7 +68,5 @@ sources:
 
 ## Joins
 
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the ad belongs to.
-  - Description: The account the ad belongs to.
-- [Ad Creatives](./ad-creatives.md) — `creative_id = id` [N:1] — The creative the ad runs now.
-  - Description: The creative the ad runs now.
+- [Ads](./ads.md) — `id = id` [1:1] — The same ad, read through Meta's ad reference; both tables list the ads of the account.
+  - Description: The same ad, read through Meta's ad reference; both tables list the ads of the account.

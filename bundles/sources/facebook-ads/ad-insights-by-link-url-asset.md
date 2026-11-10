@@ -3,7 +3,7 @@ title: "Ad Insights by Link URL Asset"
 description: |
   The ad-day of [Ad Insights](./ad-insights.md), split by `link_url_asset`, the URL asset involved in the impression, click or action. The connector's short-link option, on by default, processes short links in this column. The metrics are the same as the base table.
 
-  The connector keys the table on `ad_id`, `date_start` and `date_stop` only, without the link, so check that a loaded table keeps one row per link before you rely on the split. The campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.
+  The connector keys the table on `ad_id`, `date_start` and `date_stop` only, without the link, so check that a loaded table keeps one row per link before you rely on the split. The campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -137,7 +137,5 @@ sources:
 
 ## Joins
 
-- [Ads](./ads.md) — `ad_id = id` [N:1] — The ad the daily row reports on; one ad has many daily rows.
-  - Description: The ad the daily row reports on; one ad has many daily rows.
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the spend was charged to.
-  - Description: The account the spend was charged to.
+- [Ad Insights](./ad-insights.md) — `ad_id = ad_id`, `date_start = date_start`, `date_stop = date_stop` [N:1] — The ad's day that this row splits into parts; one ad-day has several rows here.
+  - Description: The ad's day that this row splits into parts; one ad-day has several rows here.

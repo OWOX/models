@@ -3,7 +3,7 @@ title: "Ad Insights by Country"
 description: |
   The ad-day of [Ad Insights](./ad-insights.md), split by the country the people reached are in. One row per ad per day per `country`, with the same metrics as the base table. Reach, frequency and the `unique_*` columns count people, so do not sum them across the breakdown values.
 
-  The campaign and ad set IDs and names are columns on the row. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative.
+  The campaign and ad set IDs and names are columns on the row. Join to [Ad Insights](./ad-insights.md) on `ad_id`, `date_start` and `date_stop` for the ungrouped row, or to [Ads](./ads.md) on `ad_id` for the ad's status and creative.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -137,7 +137,5 @@ sources:
 
 ## Joins
 
-- [Ads](./ads.md) — `ad_id = id` [N:1] — The ad the daily row reports on; one ad has many daily rows.
-  - Description: The ad the daily row reports on; one ad has many daily rows.
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the spend was charged to.
-  - Description: The account the spend was charged to.
+- [Ad Insights](./ad-insights.md) — `ad_id = ad_id`, `date_start = date_start`, `date_stop = date_stop` [N:1] — The ad's day that this row splits into parts; one ad-day has several rows here.
+  - Description: The ad's day that this row splits into parts; one ad-day has several rows here.

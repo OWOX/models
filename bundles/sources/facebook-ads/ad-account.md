@@ -3,7 +3,7 @@ title: "Ad Account"
 description: |
   One row per ad account the connector is set up to read: its name, status, currency, time zone, business details, amount spent, spend cap and balance. It holds the account's settings, not its results.
 
-  `id` is the account number with the `act_` prefix and `account_id` is the bare number. Every ads, creatives and insights table in this model carries the bare number in its own `account_id`, so to put account settings next to any of them, match their `account_id` to this table's `account_id`.
+  `id` is the account number with the `act_` prefix and `account_id` is the bare number. Every ads, creatives and insights table in this model carries the bare number in its own `account_id`. Ads, Ad Creatives and Ad Insights by Campaign join here on it; for any other table, match its `account_id` to this table's `account_id`, or go through Ads.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:

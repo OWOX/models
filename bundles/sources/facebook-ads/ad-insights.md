@@ -3,7 +3,7 @@ title: "Ad Insights"
 description: |
   Daily performance per ad: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions with their values, ROAS and video metrics. The base table, with no breakdown: one row per ad per day, where `date_start` and `date_stop` are the same day because the connector asks Meta for one day at a time. `account_currency` names the account's currency.
 
-  The row repeats the ad's `campaign_id`, `campaign_name`, `adset_id` and `adset_name`, which is how you reach the campaign and ad set, since there is no table for either. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative. Spend, impressions and clicks add up across ads and days; reach, frequency and the `unique_*` columns count people, so do not sum them.
+  The row repeats the ad's `campaign_id`, `campaign_name`, `adset_id` and `adset_name`, which is how you reach the campaign and ad set, since there is no table for either. Join to [Ads](./ads.md) on `ad_id` for the ad's status and creative. Spend, impressions and clicks add up across ads and days; reach, frequency and the `unique_*` columns count people, so do not sum them. The rows roll up into [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) on `adset_id` and the two dates, and the seven breakdown tables below split them.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -138,5 +138,5 @@ sources:
 
 - [Ads](./ads.md) — `ad_id = id` [N:1] — The ad the daily row reports on; one ad has many daily rows.
   - Description: The ad the daily row reports on; one ad has many daily rows.
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the spend was charged to.
-  - Description: The account the spend was charged to.
+- [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) — `adset_id = adset_id`, `date_start = date_start`, `date_stop = date_stop` [N:1] — The ad set's day that the ad's day rolls up into; counts of people do not add up across the two.
+  - Description: The ad set's day that the ad's day rolls up into; counts of people do not add up across the two.

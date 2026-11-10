@@ -3,7 +3,7 @@ title: "Ad Insights by Ad Set"
 description: |
   Daily performance per ad set: impressions, clicks, spend, reach, frequency, cost and rate metrics, actions and conversions. One row per ad set per day, requested from Meta at the ad set level, so `reach` and `frequency` are deduplicated across the ad set's ads. The rows carry the ad set's `objective` and `optimization_goal`.
 
-  There is no `ad_id` and no table of ad sets or campaigns: the row repeats `campaign_id` and `campaign_name`, and the ad set is identified by `adset_id` and `adset_name`. For the ads inside an ad set, use [Ads](./ads.md) on `adset_id`, which is a plain column match. For one campaign's reach, use [Ad Insights by Campaign](./ad-insights-by-campaign.md).
+  There is no `ad_id` and no table of ad sets or campaigns: the row repeats `campaign_id` and `campaign_name`, and the ad set is identified by `adset_id` and `adset_name`. For the ads inside an ad set, use [Ads](./ads.md) on `adset_id`, which is a plain column match. [Ad Insights](./ad-insights.md) rolls up into this table on `adset_id` and the two dates, and this table rolls up into [Ad Insights by Campaign](./ad-insights-by-campaign.md) on `campaign_id` and the two dates, which is where one campaign's reach is.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
@@ -128,5 +128,5 @@ sources:
 
 ## Joins
 
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the ad set belongs to.
-  - Description: The account the ad set belongs to.
+- [Ad Insights by Campaign](./ad-insights-by-campaign.md) — `campaign_id = campaign_id`, `date_start = date_start`, `date_stop = date_stop` [N:1] — The campaign's day that the ad set's day rolls up into; counts of people do not add up across the two.
+  - Description: The campaign's day that the ad set's day rolls up into; counts of people do not add up across the two.
