@@ -3,7 +3,7 @@ title: "Campaigns"
 description: |
   The Bulk download of the account structure, as one table. Each row is one record, and `Type` says which: a campaign, an ad group, an asset group, a keyword. `Id` is the identifier of that record, and `ParentId` is the identifier of the record above it (for a campaign, the account; for an ad group, the campaign).
 
-  The columns that apply to a record type are the ones filled for it, for example `BidStrategyType` and `Budget` for a campaign, or `Keyword`, `MatchType` and `Bid` for a keyword. Names such as `Campaign` and `AdGroup` repeat the names of the parents. The table holds settings; daily results are in the two report tables. Filter on `Type` before counting or matching IDs. [Ad Performance Report](./ad-performance-report.md) joins here on `CampaignId` and `AdGroupId`, and [User Location Performance Report](./user-location-performance-report.md) on `CampaignId`, `AdGroupId` and `AssetGroupId`.
+  The columns that apply to a record type are the ones filled for it, for example `BidStrategyType` and `Budget` for a campaign, or `Keyword`, `MatchType` and `Bid` for a keyword. Names such as `Campaign` and `AdGroup` repeat the names of the parents. The table holds settings; daily results are in the two report tables. Filter on `Type` before counting or matching IDs. [Ad Performance Report](./ad-performance-report.md) and [User Location Performance Report](./user-location-performance-report.md) join here on `CampaignId`; their `AdGroupId` (and `AssetGroupId` in the location report) matches `Id` the same way, on the rows of those types.
 tags: ["owox", "connector", "microsoft-ads"]
 type: "OWOX Data Mart"
 sources:

@@ -3,7 +3,7 @@ title: "Microsoft Ads"
 description: |
   What the OWOX Data Marts Microsoft Ads connector loads, and how the pieces fit together. A Microsoft Advertising account holds campaigns, campaigns hold ad groups (and asset groups), and ad groups hold ads and keywords. The connector loads this structure with the Bulk service into one current-state table, [Campaigns](./campaigns.md), and the daily performance with the Reporting service into two time-series tables: [Ad Performance Report](./ad-performance-report.md), one row per ad, and [User Location Performance Report](./user-location-performance-report.md), one row per campaign, ad group and location.
 
-  [Campaigns](./campaigns.md) is not a list of campaigns only. It is the Bulk download, so campaign, ad group, asset group and keyword rows sit in the same table, told apart by the `Type` column, and `ParentId` points from a row to the row above it: from an ad group to its campaign, from a campaign to its account. Its `Id` is the ID of whatever the row is: a report's `CampaignId` matches the rows whose `Type` is Campaign, its `AdGroupId` the rows whose `Type` is Ad Group, and the location report's `AssetGroupId` the rows whose `Type` is Asset Group. The two reports join to Campaigns on those three columns, and the drawing shows one line for each; filter on `Type` after you join.
+  [Campaigns](./campaigns.md) is not a list of campaigns only. It is the Bulk download, so campaign, ad group, asset group and keyword rows sit in the same table, told apart by the `Type` column, and `ParentId` points from a row to the row above it: from an ad group to its campaign, from a campaign to its account. Its `Id` is the ID of whatever the row is: a report's `CampaignId` matches the rows whose `Type` is Campaign, its `AdGroupId` the rows whose `Type` is Ad Group, and the location report's `AssetGroupId` the rows whose `Type` is Asset Group. The two reports join to Campaigns on `CampaignId`, which is the line the drawing shows; match `AdGroupId` (and the location report's `AssetGroupId`) to `Id` the same way. Filter on `Type` after you join.
 
   The two report tables repeat `AccountId`, `CampaignId` and `AdGroupId` and are segmented by many columns at once, such as device, network and match type, so one ad on one day can appear in several rows. Sum the rows before you compare days or ads, and read `Spend` together with `CurrencyCode`, the account currency.
 tags: ["owox", "index", "connector", "microsoft-ads"]
@@ -14,7 +14,7 @@ sources:
     title: "OWOX Data Marts — Microsoft Ads connector source"
 ---
 
-3 tables, 225 fields, 5 joins.
+3 tables, 225 fields, 2 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|

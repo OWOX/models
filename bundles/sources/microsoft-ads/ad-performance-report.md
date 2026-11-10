@@ -129,5 +129,3 @@ sources:
 
 - [Campaigns](./campaigns.md) — `CampaignId = Id` [N:1] — The campaign the row reports on; match the rows of Campaigns whose Type is Campaign.
   - Description: The campaign the row reports on; match the rows of Campaigns whose Type is Campaign.
-- [Campaigns](./campaigns.md) — `AdGroupId = Id` [N:1] — The ad group the row reports on; match the rows of Campaigns whose Type is Ad Group.
-  - Description: The ad group the row reports on; match the rows of Campaigns whose Type is Ad Group.

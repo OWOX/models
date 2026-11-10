@@ -1,6 +1,6 @@
 {
   "vendorName": "Microsoft Advertising API",
-  "description": "What the OWOX Data Marts Microsoft Ads connector loads, and how the pieces fit together. A Microsoft Advertising account holds campaigns, campaigns hold ad groups (and asset groups), and ad groups hold ads and keywords. The connector loads this structure with the Bulk service into one current-state table, [Campaigns](./campaigns.md), and the daily performance with the Reporting service into two time-series tables: [Ad Performance Report](./ad-performance-report.md), one row per ad, and [User Location Performance Report](./user-location-performance-report.md), one row per campaign, ad group and location.\n\n[Campaigns](./campaigns.md) is not a list of campaigns only. It is the Bulk download, so campaign, ad group, asset group and keyword rows sit in the same table, told apart by the `Type` column, and `ParentId` points from a row to the row above it: from an ad group to its campaign, from a campaign to its account. Its `Id` is the ID of whatever the row is: a report's `CampaignId` matches the rows whose `Type` is Campaign, its `AdGroupId` the rows whose `Type` is Ad Group, and the location report's `AssetGroupId` the rows whose `Type` is Asset Group. The two reports join to Campaigns on those three columns, and the drawing shows one line for each; filter on `Type` after you join.\n\nThe two report tables repeat `AccountId`, `CampaignId` and `AdGroupId` and are segmented by many columns at once, such as device, network and match type, so one ad on one day can appear in several rows. Sum the rows before you compare days or ads, and read `Spend` together with `CurrencyCode`, the account currency.",
+  "description": "What the OWOX Data Marts Microsoft Ads connector loads, and how the pieces fit together. A Microsoft Advertising account holds campaigns, campaigns hold ad groups (and asset groups), and ad groups hold ads and keywords. The connector loads this structure with the Bulk service into one current-state table, [Campaigns](./campaigns.md), and the daily performance with the Reporting service into two time-series tables: [Ad Performance Report](./ad-performance-report.md), one row per ad, and [User Location Performance Report](./user-location-performance-report.md), one row per campaign, ad group and location.\n\n[Campaigns](./campaigns.md) is not a list of campaigns only. It is the Bulk download, so campaign, ad group, asset group and keyword rows sit in the same table, told apart by the `Type` column, and `ParentId` points from a row to the row above it: from an ad group to its campaign, from a campaign to its account. Its `Id` is the ID of whatever the row is: a report's `CampaignId` matches the rows whose `Type` is Campaign, its `AdGroupId` the rows whose `Type` is Ad Group, and the location report's `AssetGroupId` the rows whose `Type` is Asset Group. The two reports join to Campaigns on `CampaignId`, which is the line the drawing shows; match `AdGroupId` (and the location report's `AssetGroupId`) to `Id` the same way. Filter on `Type` after you join.\n\nThe two report tables repeat `AccountId`, `CampaignId` and `AdGroupId` and are segmented by many columns at once, such as device, network and match type, so one ad on one day can appear in several rows. Sum the rows before you compare days or ads, and read `Spend` together with `CurrencyCode`, the account currency.",
   "questions": [
     "Which campaigns are active, and which bid strategy type does each use?",
     "How do spend and qualified conversions differ between devices and networks?",
@@ -8,7 +8,7 @@
   ],
   "endpoints": {
     "Campaigns": {
-      "description": "The Bulk download of the account structure, as one table. Each row is one record, and `Type` says which: a campaign, an ad group, an asset group, a keyword. `Id` is the identifier of that record, and `ParentId` is the identifier of the record above it (for a campaign, the account; for an ad group, the campaign).\n\nThe columns that apply to a record type are the ones filled for it, for example `BidStrategyType` and `Budget` for a campaign, or `Keyword`, `MatchType` and `Bid` for a keyword. Names such as `Campaign` and `AdGroup` repeat the names of the parents. The table holds settings; daily results are in the two report tables. Filter on `Type` before counting or matching IDs. [Ad Performance Report](./ad-performance-report.md) joins here on `CampaignId` and `AdGroupId`, and [User Location Performance Report](./user-location-performance-report.md) on `CampaignId`, `AdGroupId` and `AssetGroupId`.",
+      "description": "The Bulk download of the account structure, as one table. Each row is one record, and `Type` says which: a campaign, an ad group, an asset group, a keyword. `Id` is the identifier of that record, and `ParentId` is the identifier of the record above it (for a campaign, the account; for an ad group, the campaign).\n\nThe columns that apply to a record type are the ones filled for it, for example `BidStrategyType` and `Budget` for a campaign, or `Keyword`, `MatchType` and `Bid` for a keyword. Names such as `Campaign` and `AdGroup` repeat the names of the parents. The table holds settings; daily results are in the two report tables. Filter on `Type` before counting or matching IDs. [Ad Performance Report](./ad-performance-report.md) and [User Location Performance Report](./user-location-performance-report.md) join here on `CampaignId`; their `AdGroupId` (and `AssetGroupId` in the location report) matches `Id` the same way, on the rows of those types.",
       "questions": [
         "Which campaigns are active, and which bid strategy type and budget does each have?",
         "How many ad groups does each campaign have, counting the ad group rows by ParentId?",
@@ -47,19 +47,6 @@
       "source": "https://learn.microsoft.com/en-us/advertising/reporting-service/adperformancereportcolumn (CampaignId: \"The Microsoft Advertising assigned identifier of a campaign.\"); https://learn.microsoft.com/en-us/advertising/bulk-service/campaign (Id: \"The system-generated identifier of the campaign.\"); the connector's Campaigns schema describes Id as the unique ID of the entity (Campaign, Ad Group, etc.)"
     },
     {
-      "from": "Ad Performance Report",
-      "to": "Campaigns",
-      "on": [
-        [
-          "AdGroupId",
-          "Id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad group the row reports on; match the rows of Campaigns whose Type is Ad Group.",
-      "source": "https://learn.microsoft.com/en-us/advertising/reporting-service/adperformancereportcolumn (AdGroupId: \"The Microsoft Advertising assigned identifier of an ad group.\"); https://learn.microsoft.com/en-us/advertising/bulk-service/ad-group (Id: \"The system-generated identifier of the ad group.\"); the connector's Campaigns schema describes Id as the unique ID of the entity (Campaign, Ad Group, etc.)"
-    },
-    {
       "from": "User Location Performance Report",
       "to": "Campaigns",
       "on": [
@@ -71,32 +58,6 @@
       "cardinality": "N:1",
       "note": "The campaign the row reports on; match the rows of Campaigns whose Type is Campaign.",
       "source": "https://learn.microsoft.com/en-us/advertising/reporting-service/userlocationperformancereportcolumn (CampaignId: \"The Microsoft Advertising assigned identifier of a campaign.\"); https://learn.microsoft.com/en-us/advertising/bulk-service/campaign (Id: \"The system-generated identifier of the campaign.\"); the connector's Campaigns schema describes Id as the unique ID of the entity (Campaign, Ad Group, etc.)"
-    },
-    {
-      "from": "User Location Performance Report",
-      "to": "Campaigns",
-      "on": [
-        [
-          "AdGroupId",
-          "Id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The ad group the row reports on; match the rows of Campaigns whose Type is Ad Group.",
-      "source": "https://learn.microsoft.com/en-us/advertising/reporting-service/userlocationperformancereportcolumn (AdGroupId: \"The Microsoft Advertising assigned identifier of an ad group.\"); https://learn.microsoft.com/en-us/advertising/bulk-service/ad-group (Id: \"The system-generated identifier of the ad group.\"); the connector's Campaigns schema describes Id as the unique ID of the entity (Campaign, Ad Group, etc.)"
-    },
-    {
-      "from": "User Location Performance Report",
-      "to": "Campaigns",
-      "on": [
-        [
-          "AssetGroupId",
-          "Id"
-        ]
-      ],
-      "cardinality": "N:1",
-      "note": "The asset group the row reports on; match the rows of Campaigns whose Type is Asset Group.",
-      "source": "https://learn.microsoft.com/en-us/advertising/reporting-service/userlocationperformancereportcolumn (AssetGroupId: \"The Microsoft Advertising assigned identifier of an asset group.\"); https://learn.microsoft.com/en-us/advertising/bulk-service/asset-group (Id: \"The system-generated identifier of the asset group.\"); the connector's Campaigns schema describes Id as the unique ID of the entity (Campaign, Ad Group, etc.)"
     }
   ]
 }
