@@ -65,7 +65,7 @@ sources:
 
 # Explore this model
 
-**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/quickbooks)**
+**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/sources/quickbooks)**
 
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
@@ -73,4 +73,4 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 ## Model preview
 
-![QuickBooks Online model diagram](../res/screens/quickbooks.svg)
+![QuickBooks Online model diagram](../../res/screens/sources/quickbooks.svg)

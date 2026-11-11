@@ -56,7 +56,7 @@ sources:
 
 # Explore this model
 
-**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/stripe)**
+**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/sources/stripe)**
 
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
@@ -64,4 +64,4 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 ## Model preview
 
-![Stripe model diagram](../res/screens/stripe.svg)
+![Stripe model diagram](../../res/screens/sources/stripe.svg)

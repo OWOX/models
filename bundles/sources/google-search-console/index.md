@@ -48,8 +48,12 @@ sources:
 
 # Explore this model
 
-**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/google-search-console)**
+**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/sources/google-search-console)**
 
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![Google Search Console model diagram](../../res/screens/sources/google-search-console.svg)

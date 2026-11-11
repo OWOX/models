@@ -59,7 +59,7 @@ sources:
 
 # Explore this model
 
-**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/facebook-ads)**
+**[▶ Explore on canvas](https://model.owox.com/?okf=https://github.com/OWOX/models/tree/main/bundles/sources/facebook-ads)**
 
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
@@ -67,4 +67,4 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 ## Model preview
 
-![Facebook Ads model diagram](../res/screens/facebook-ads.svg)
+![Facebook Ads model diagram](../../res/screens/sources/facebook-ads.svg)
