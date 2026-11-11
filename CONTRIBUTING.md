@@ -42,6 +42,10 @@ Please make sure tests and the build pass before opening a PR. Add or update tes
 
 The format the app reads and writes is documented at [`packages/web/public/okf-format.md`](packages/web/public/okf-format.md) (served live at `/okf-format.md`). If you're improving import compatibility (e.g. with Google's OKF v0.1 bundles), keep changes **additive** — don't change how the app exports its own bundles, and keep the export↔import round-trip stable.
 
+## Publishing a model to the gallery
+
+Bundles in [`bundles/`](bundles) are the gallery the canvas lists under Templates. To add or update one, follow [`bundles/AGENTS.md`](bundles/AGENTS.md): where the bundle goes, what it must contain, the join rules, and the check to run before the pull request.
+
 ## Reporting bugs & ideas
 
 Open a GitHub issue with steps to reproduce (a shared model link or a small OKF snippet helps a lot). For **security vulnerabilities**, do **not** open a public issue — see [SECURITY.md](SECURITY.md).
