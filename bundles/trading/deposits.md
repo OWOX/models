@@ -11,7 +11,7 @@ description: |
   deposit, which is where the acquisition funnel finally turns into cash.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-20T08:59:51.000Z
+timestamp: 2026-11-11T18:33:05.000Z
 ---
 
 # Schema
@@ -89,7 +89,7 @@ SAFE_DIVIDE(withdrawal_volume, deposit_volume)
 - [Leads](./leads.md) — `lead_id = lead_id` [N:1] — The lead this funded client came from.
   - [Leads Clients](./clients.md) — The client the funding lead became.
   - [Leads Sessions](./sessions.md) — The visit the funding lead came from.
-    - [Leads Sessions Attribution](./attribution.md) — The acquisition funnel behind the funded lead.
+    - [Leads Sessions Attribution](./attribution.md) — Spend and funnel of the funded lead's campaign, day and country — a cohort, not its own cost.
     - [Leads Sessions Clients](./clients.md) — The client recognised on that visit.
 - [Trading Accounts](./trading-accounts.md) — `account_id = account_id` [N:1] — The account the money was deposited into.
   - [Trading Accounts Clients](./clients.md) — The client who owns the funded account.

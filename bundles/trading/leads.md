@@ -12,7 +12,7 @@ description: |
   [Communications](./communications.md).
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-20T08:59:52.000Z
+timestamp: 2026-11-11T18:33:03.000Z
 ---
 
 # Schema
@@ -46,5 +46,5 @@ timestamp: 2026-10-20T08:59:52.000Z
 
 - [Clients](./clients.md) — `client_id = client_id` [N:1] — The client this lead became, where it converted.
 - [Sessions](./sessions.md) — `session_id = session_id` [N:1] — The visit the form was submitted in.
-  - [Sessions Attribution](./attribution.md) — The acquisition funnel behind this lead's visit.
+  - [Sessions Attribution](./attribution.md) — Spend and funnel of this lead's campaign, day and country — a cohort, not its own cost.
   - [Sessions Clients](./clients.md) — The client recognised on the visit.

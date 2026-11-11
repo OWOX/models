@@ -12,7 +12,7 @@ description: |
   forms and the deposits.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-09-02T16:20:14.000Z
+timestamp: 2026-11-11T18:33:04.000Z
 ---
 
 # Schema
@@ -48,5 +48,5 @@ timestamp: 2026-09-02T16:20:14.000Z
 - [Leads](./leads.md) — `lead_id = lead_id` [N:1] — The lead the desk was trying to convert.
   - [Leads Clients](./clients.md) — The client the contacted lead became.
   - [Leads Sessions](./sessions.md) — The visit the contacted lead came from.
-    - [Leads Sessions Attribution](./attribution.md) — The acquisition funnel behind the contacted lead.
+    - [Leads Sessions Attribution](./attribution.md) — Spend and funnel of the contacted lead's campaign, day and country — a cohort, not its own cost.
     - [Leads Sessions Clients](./clients.md) — The client recognised on that visit.

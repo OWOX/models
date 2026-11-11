@@ -17,7 +17,7 @@ description: |
   slightly from Clients, which dates each client by registration.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-20T08:52:42.000Z
+timestamp: 2026-11-11T18:33:02.000Z
 ---
 
 # Schema
@@ -28,7 +28,7 @@ timestamp: 2026-10-20T08:52:42.000Z
 | `source` | STRING | Source | Traffic source. Part of the join grain. |
 | `medium` | STRING | Medium | Traffic medium. Part of the join grain. |
 | `campaign` | STRING | Campaign | UTM campaign name. Part of the join grain. |
-| `targeting_country` | STRING | Targeting Country | Country the ad budget was targeted at (for organic/direct rows, the country traffic actually came from). Part of the join grain; joins to Ad Spend.targeting_country. |
+| `targeting_country` | STRING | Targeting Country | Country the ad budget was targeted at (for organic/direct rows, the country traffic actually came from). Part of the join grain; joins to Ad Spend.targeting_country and to Sessions.country. |
 | `cost_normalized` | FLOAT | Cost Normalized | Ad spend in USD for this row. `0` for organic/direct/affiliate rows (they have no matching Ad Spend row). SUM this for total spend by any slice; divide by short_forms/ftd_count/ntc_count for CPA-style metrics. |
 | `cost` | FLOAT | Cost | Ad spend in the original billing currency. `0` for organic/direct/affiliate rows. Prefer `cost_normalized` for any cross-currency total. |
 | `impressions` | INTEGER | Impressions | Ad impressions for this row. `0` for unpaid rows. |

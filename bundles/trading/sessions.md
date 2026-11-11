@@ -10,7 +10,7 @@ description: |
   traffic into something you can follow all the way to a deposit.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-20T08:52:43.000Z
+timestamp: 2026-11-11T21:07:27.000Z
 ---
 
 # Schema
@@ -32,7 +32,7 @@ timestamp: 2026-10-20T08:52:43.000Z
 | `started_at` | TIMESTAMP | Started At | Timestamp the session began. Use MIN/MAX only — not a metric to SUM or AVG. |
 | `consent_at` | TIMESTAMP | Consent At | Timestamp of first recorded (GDPR-style) consent. NULL if no consent was recorded in this session. |
 | `ga_client_id` | STRING | GA Client ID | Browser/device analytics cookie id, used only to link anonymous sessions to the same device across visits. This is NOT the CRM client — do not confuse with `client_id` below. |
-| `country` | STRING | Country | Visitor's country from IP geolocation — this is where the visitor actually is, not the ad targeting country (see Ad Spend.targeting_country). |
+| `country` | STRING | Country | Visitor's country from IP geolocation — this is where the visitor actually is, not the ad targeting country (see Ad Spend.targeting_country). Joins to Attribution.targeting_country, so a visit from a country the campaign did not target that day reads zero spend. FK to [Attribution](./attribution.md) |
 | `region` | STRING | Region | Business-region roll-up of the visitor's country: `SEA`, `ME`, `EU`, `LATAM`, `AFRICA`, `CA`, `UK`, `AU`, `ANZ`, `Other`. |
 | `city` | STRING | City | Visitor's city. |
 | `device_category` | STRING | Device Category | `Desktop`, `Mobile` or `Tablet`. |
@@ -55,5 +55,5 @@ timestamp: 2026-10-20T08:52:43.000Z
 
 ## Joins
 
-- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign` [N:1] — The acquisition funnel this visit rolls into.
+- [Attribution](./attribution.md) — `date = date`, `source = source`, `medium = medium`, `campaign = campaign`, `country = targeting_country` [N:N] — Spend and funnel of this visit's campaign, day and country — a cohort, not this visit's own cost.
 - [Clients](./clients.md) — `client_id = client_id` [N:1] — The client this visit is recognised as.
