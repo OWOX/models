@@ -3,18 +3,7 @@ title: "LinkedIn Ads"
 description: |
   What the OWOX Data Marts LinkedIn Ads connector loads, and how the pieces fit together. A LinkedIn ad account holds campaign groups, campaign groups hold campaigns, and campaigns hold creatives. The connector loads the settings of the account, its campaign groups, campaigns and creatives as current-state tables, one row per entity, and the daily performance as one time-series table, [Ad Analytics](./ad-analytics.md).
 
-  LinkedIn refers to its entities by URN, not by the plain ID in each table's own `id` column. [Campaigns](./campaigns.md) hold their account in `account` and their group in `campaignGroup`, and [Creatives](./creatives.md) hold their campaign in `campaign`, each as a URN such as `urn:li:sponsoredAccount:{id}`. [Ad Analytics](./ad-analytics.md) goes one step further: it has no campaign or creative column at all, only `pivotValues`, an array of the URNs the row is grouped by. Because a URN is not the same string as an `id`, this bundle draws no joins between the tables: a join on the columns as they are matches nothing. Strip the prefix first. The part after the last colon is the identifier, which is what the target's `id` holds (both are text), for example in BigQuery:
-
-  ```sql
-  SELECT cr.id AS creative_id, c.name AS campaign_name, g.name AS campaign_group_name
-  FROM creatives AS cr
-  JOIN campaigns AS c
-    ON REGEXP_EXTRACT(cr.campaign, r'[^:]+$') = c.id
-  JOIN campaign_groups AS g
-    ON REGEXP_EXTRACT(c.campaignGroup, r'[^:]+$') = g.id
-  ```
-
-  The same `REGEXP_EXTRACT(account, r'[^:]+$')` links `account` on Campaigns, Campaign Groups and Creatives to `id` in Ad Accounts. The strip is the only step; the table names above are the destination tables you chose in the data warehouse.
+  LinkedIn refers to its entities by URN, not by the plain ID in each table's own `id` column. [Campaigns](./campaigns.md) hold their account in `account` and their group in `campaignGroup`, and [Creatives](./creatives.md) hold their campaign in `campaign`, each as a URN such as `urn:li:sponsoredAccount:{id}`. [Ad Analytics](./ad-analytics.md) goes one step further: it has no campaign or creative column at all, only `pivotValues`, an array of the URNs the row is grouped by. A URN is not the same string as an `id` (`urn:li:sponsoredCampaign:123` against `123`), but the number inside it is the `id`, so the bundle draws each of those columns as a join to the table it points at: Campaigns to Ad Accounts and to Campaign Groups, Campaign Groups to Ad Accounts, Creatives to Campaigns and to Ad Accounts. Ad Analytics joins to Creatives, Campaigns, Campaign Groups and Ad Accounts through `pivotValues`, which holds only the URN of the entity the row is grouped by, so a given row matches one of the four. Each join says in its note that the column holds the URN; extract the identifier from it (`REGEXP_EXTRACT(col, r'[^:]+$')` in BigQuery) before you match in SQL.
 
   Two caution notes apply. Budget and unit cost fields in Campaigns and Campaign Groups are JSON objects, and the amounts in them are strings. In Ad Analytics the `viral` fields count the same metric on viral impressions, those that come from users sharing sponsored content with their own network, and viral impressions are not counted as regular impressions.
 tags: ["owox", "index", "connector", "linkedin-ads"]
@@ -25,7 +14,7 @@ sources:
     title: "OWOX Data Marts — LinkedIn Ads connector source"
 ---
 
-5 tables, 175 fields, 0 joins.
+5 tables, 175 fields, 9 joins.
 
 | Data Mart | Fields | Description |
 |-----------|--------|-------------|

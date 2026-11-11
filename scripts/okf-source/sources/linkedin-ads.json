@@ -1,6 +1,6 @@
 {
   "vendorName": "LinkedIn Marketing API",
-  "description": "What the OWOX Data Marts LinkedIn Ads connector loads, and how the pieces fit together. A LinkedIn ad account holds campaign groups, campaign groups hold campaigns, and campaigns hold creatives. The connector loads the settings of the account, its campaign groups, campaigns and creatives as current-state tables, one row per entity, and the daily performance as one time-series table, [Ad Analytics](./ad-analytics.md).\n\nLinkedIn refers to its entities by URN, not by the plain ID in each table's own `id` column. [Campaigns](./campaigns.md) hold their account in `account` and their group in `campaignGroup`, and [Creatives](./creatives.md) hold their campaign in `campaign`, each as a URN such as `urn:li:sponsoredAccount:{id}`. [Ad Analytics](./ad-analytics.md) goes one step further: it has no campaign or creative column at all, only `pivotValues`, an array of the URNs the row is grouped by. Because a URN is not the same string as an `id`, this bundle draws no joins between the tables: a join on the columns as they are matches nothing. Strip the prefix first. The part after the last colon is the identifier, which is what the target's `id` holds (both are text), for example in BigQuery:\n\n```sql\nSELECT cr.id AS creative_id, c.name AS campaign_name, g.name AS campaign_group_name\nFROM creatives AS cr\nJOIN campaigns AS c\n  ON REGEXP_EXTRACT(cr.campaign, r'[^:]+$') = c.id\nJOIN campaign_groups AS g\n  ON REGEXP_EXTRACT(c.campaignGroup, r'[^:]+$') = g.id\n```\n\nThe same `REGEXP_EXTRACT(account, r'[^:]+$')` links `account` on Campaigns, Campaign Groups and Creatives to `id` in Ad Accounts. The strip is the only step; the table names above are the destination tables you chose in the data warehouse.\n\nTwo caution notes apply. Budget and unit cost fields in Campaigns and Campaign Groups are JSON objects, and the amounts in them are strings. In Ad Analytics the `viral` fields count the same metric on viral impressions, those that come from users sharing sponsored content with their own network, and viral impressions are not counted as regular impressions.",
+  "description": "What the OWOX Data Marts LinkedIn Ads connector loads, and how the pieces fit together. A LinkedIn ad account holds campaign groups, campaign groups hold campaigns, and campaigns hold creatives. The connector loads the settings of the account, its campaign groups, campaigns and creatives as current-state tables, one row per entity, and the daily performance as one time-series table, [Ad Analytics](./ad-analytics.md).\n\nLinkedIn refers to its entities by URN, not by the plain ID in each table's own `id` column. [Campaigns](./campaigns.md) hold their account in `account` and their group in `campaignGroup`, and [Creatives](./creatives.md) hold their campaign in `campaign`, each as a URN such as `urn:li:sponsoredAccount:{id}`. [Ad Analytics](./ad-analytics.md) goes one step further: it has no campaign or creative column at all, only `pivotValues`, an array of the URNs the row is grouped by. A URN is not the same string as an `id` (`urn:li:sponsoredCampaign:123` against `123`), but the number inside it is the `id`, so the bundle draws each of those columns as a join to the table it points at: Campaigns to Ad Accounts and to Campaign Groups, Campaign Groups to Ad Accounts, Creatives to Campaigns and to Ad Accounts. Ad Analytics joins to Creatives, Campaigns, Campaign Groups and Ad Accounts through `pivotValues`, which holds only the URN of the entity the row is grouped by, so a given row matches one of the four. Each join says in its note that the column holds the URN; extract the identifier from it (`REGEXP_EXTRACT(col, r'[^:]+$')` in BigQuery) before you match in SQL.\n\nTwo caution notes apply. Budget and unit cost fields in Campaigns and Campaign Groups are JSON objects, and the amounts in them are strings. In Ad Analytics the `viral` fields count the same metric on viral impressions, those that come from users sharing sponsored content with their own network, and viral impressions are not counted as regular impressions.",
   "questions": [
     "Which campaigns are active, and which objective type does each pursue?",
     "How do impressions, clicks and cost in local currency move day by day across the account?",
@@ -48,5 +48,123 @@
       ]
     }
   },
-  "joins": []
+  "joins": [
+    {
+      "from": "Campaigns",
+      "to": "Ad Accounts",
+      "on": [
+        [
+          "account",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad account the campaign belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-campaigns (account: \"URN identifying the advertising account associated with the campaign. This value is immutable once set. Example: urn:li:sponsoredAccount:{id}.\")"
+    },
+    {
+      "from": "Campaigns",
+      "to": "Campaign Groups",
+      "on": [
+        [
+          "campaignGroup",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign group the campaign sits in; the value is a URN such as urn:li:sponsoredCampaignGroup:{id}. The column holds the URN, so it matches the id inside it, not the whole string.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-campaigns (campaignGroup: \"URN identifying the campaign group associated with the campaign.\"; example \"urn:li:sponsoredCampaignGroup:635137195\")"
+    },
+    {
+      "from": "Campaign Groups",
+      "to": "Ad Accounts",
+      "on": [
+        [
+          "account",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad account the campaign group belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-campaign-groups (account: \"URN identifying the advertising account associated with the campaign group.\"), the same URN form as in https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-campaigns"
+    },
+    {
+      "from": "Creatives",
+      "to": "Campaigns",
+      "on": [
+        [
+          "campaign",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign the creative runs in; the value is a URN such as urn:li:sponsoredCampaign:{id}. The column holds the URN, so it matches the id inside it, not the whole string.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-creatives (campaign: \"URN identifying the campaign associated with the creative\"; example \"urn:li:sponsoredCampaign:360035215\")"
+    },
+    {
+      "from": "Creatives",
+      "to": "Ad Accounts",
+      "on": [
+        [
+          "account",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad account the creative belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-creatives (account: \"URN identifying the advertising account associated with the creative. This field is read-only.\")"
+    },
+    {
+      "from": "Ad Analytics",
+      "to": "Creatives",
+      "on": [
+        [
+          "pivotValues",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The creative of rows grouped by creative: pivotValues is an array of URNs, one per pivot of the row, and the URN of the creative is the one that matches the id. The array holds the whole URN, so match the id inside it. A row grouped by another entity holds that entity's URN instead and matches none here.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/ads-reporting (\"pivotValues\": [\"urn:li:sponsoredCampaign:1234567\"]; \"The URNs returned in the pivotValues field can be resolved ... using the APIs in API URN Resolution.\"); the connector requests the pivots CREATIVE, CAMPAIGN, CAMPAIGN_GROUP and ACCOUNT"
+    },
+    {
+      "from": "Ad Analytics",
+      "to": "Campaigns",
+      "on": [
+        [
+          "pivotValues",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign of rows grouped by campaign: pivotValues is an array of URNs, one per pivot of the row, and the URN of the campaign is the one that matches the id. The array holds the whole URN, so match the id inside it. A row grouped by another entity holds that entity's URN instead and matches none here.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/ads-reporting (\"pivotValues\": [\"urn:li:sponsoredCampaign:1234567\"]; \"The URNs returned in the pivotValues field can be resolved ... using the APIs in API URN Resolution.\"); the connector requests the pivots CREATIVE, CAMPAIGN, CAMPAIGN_GROUP and ACCOUNT"
+    },
+    {
+      "from": "Ad Analytics",
+      "to": "Campaign Groups",
+      "on": [
+        [
+          "pivotValues",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The campaign group of rows grouped by campaign group: pivotValues is an array of URNs, one per pivot of the row, and the URN of the campaign group is the one that matches the id. The array holds the whole URN, so match the id inside it. A row grouped by another entity holds that entity's URN instead and matches none here.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/ads-reporting (\"pivotValues\": [\"urn:li:sponsoredCampaign:1234567\"]; \"The URNs returned in the pivotValues field can be resolved ... using the APIs in API URN Resolution.\"); the connector requests the pivots CREATIVE, CAMPAIGN, CAMPAIGN_GROUP and ACCOUNT"
+    },
+    {
+      "from": "Ad Analytics",
+      "to": "Ad Accounts",
+      "on": [
+        [
+          "pivotValues",
+          "id"
+        ]
+      ],
+      "cardinality": "N:1",
+      "note": "The ad account of rows grouped by ad account: pivotValues is an array of URNs, one per pivot of the row, and the URN of the ad account is the one that matches the id. The array holds the whole URN, so match the id inside it. A row grouped by another entity holds that entity's URN instead and matches none here.",
+      "source": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/ads-reporting (\"pivotValues\": [\"urn:li:sponsoredCampaign:1234567\"]; \"The URNs returned in the pivotValues field can be resolved ... using the APIs in API URN Resolution.\"); the connector requests the pivots CREATIVE, CAMPAIGN, CAMPAIGN_GROUP and ACCOUNT"
+    }
+  ]
 }
