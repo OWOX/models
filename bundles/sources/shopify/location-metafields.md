@@ -1,0 +1,49 @@
+---
+title: "Location Metafields"
+description: |
+  One row per metafield attached to locations: namespace, key, value, type, and the owner (`ownerId`, `ownerType`) with creation and update times. A metafield is a custom field a merchant or app adds to a Shopify resource; its value is stored as text whatever its type.
+
+  `ownerId` is the `id` of the row in Locations that the metafield belongs to. The connector reads the first 250 metafields per owner.
+tags: ["owox", "connector", "shopify"]
+type: "OWOX Data Mart"
+sources:
+  - id: "owox-connector"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/Shopify/ShopifyAPIReference/metafieldsFields.js"
+    title: "OWOX Data Marts Shopify connector — Location Metafields endpoint (`metafield-locations`)"
+    last_modified: 2026-08-07
+  - id: "vendor-reference"
+    resource: "https://shopify.dev/docs/api/admin-graphql/2026-07/objects/Metafield"
+    title: "Shopify Admin GraphQL API reference — Location Metafields"
+---
+
+## Connector endpoint
+
+- **Endpoint:** Shopify · `metafield-locations`
+- **Default destination table:** `shopify_metafield_locations`
+- **Last updated:** 2026-08-07 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([d5df95935](https://github.com/OWOX/owox-data-marts/commit/d5df95935e329451cbb627615bd723508ab3e339))
+- **Shopify Admin GraphQL API version:** 2026-07
+- **Unique keys:** `id`
+- **Time series:** no, one current row per key
+
+# Schema
+
+| Column | Type | Alias | Description |
+|--------|------|-------|-------------|
+| `id` | STRING | ID | PK. A globally-unique ID. |
+| `namespace` | STRING | Namespace | The namespace of the metafield. |
+| `key` | STRING | Key | The key of the metafield. |
+| `value` | STRING | Value | The value of the metafield. |
+| `type` | STRING | Type | The type of the metafield. |
+| `ownerId` | STRING | Owner ID | The ID of the owner resource. FK to [Locations](./locations.md) |
+| `ownerType` | STRING | Owner Type | The type of the owner resource. |
+| `createdAt` | TIMESTAMP | Created At | The date and time when the metafield was created. |
+| `updatedAt` | TIMESTAMP | Updated At | The date and time when the metafield was last updated. |
+
+# Example Questions
+
+- Which metafield namespaces and keys exist on `locations`, and how many rows does each have?
+- Which `locations` have a given metafield set, and to what value?
+
+## Joins
+
+- [Locations](./locations.md) — `ownerId = id` [N:1] — The location the metafield is attached to.

@@ -1,15 +1,15 @@
 ---
-title: "Campaign Insights"
+title: "Ad Insights by Campaign"
 description: |
   Daily performance at the campaign level, requested from Meta at that level so that reach and frequency are deduplicated across the campaign's ad sets and ads — these numbers match Meta Ads Manager. It is the right source for campaign reach, frequency and budget pacing; it should not be joined row to row with the ad-level tables, which describe the same delivery in more detail.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields-by-campaign.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields-by-campaign.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad Insights by Campaign endpoint (`ad-account/insights-by-campaign`)"
     last_modified: 2026-09-16
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights"
     title: "Meta Marketing API reference — Ad Insights by Campaign"
 ---
@@ -18,9 +18,10 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account/insights-by-campaign`
 - **Default destination table:** `facebook_ads_ad_account_insights_by_campaign`
-- **Last updated:** 2026-09-16 — last change to this endpoint's fields in the connector ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-09-16 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `campaign_id`, `date_start`, `date_stop`
+- **Time series:** yes, loaded by date range
 
 # Schema
 

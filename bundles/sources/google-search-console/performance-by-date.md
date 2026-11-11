@@ -5,9 +5,6 @@ description: |
 tags: ["owox", "connector", "google-search-console"]
 type: "OWOX Data Mart"
 sources:
-  - id: "owox-connector"
-    resource: "https://developers.google.com/webmaster-tools/v1/searchanalytics/query"
-    title: "OWOX Data Marts — Google Search Console custom connector (GoogleSearchConsole, 8 nodes) on the Search Console API v1"
   - id: "vendor-reference"
     resource: "https://developers.google.com/webmaster-tools/v1/searchanalytics/query"
     title: "Google Search Console API reference — Performance by date"
@@ -17,25 +14,26 @@ sources:
 
 - **Endpoint:** Google Search Console · `performance_by_date`
 - **Default destination table:** `search_console_by_date`
+- **Manifest version:** 1.0
 - **Unique keys:** `site_url`, `search_type`, `date`
-- **Loads:** a dated snapshot per run window (`incremental: range`)
+- **Time series:** yes, one row per key per `date`
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `site_url` | STRING | Site URL | PK. FK to [Properties](./properties.md). The property, stamped from the Search Console property parameter. Key column together with search_type and the dimensions. |
-| `search_type` | STRING | Search Type | PK. Search type the row belongs to (web, image, video, news, discover, googleNews), stamped from the Search type parameter. |
+| `ctr` | FLOAT | CTR | clicks / impressions for the row, 0 to 1. Never average this column; recompute SUM(clicks)/SUM(impressions) in SQL. |
 | `date` | DATE | Date | PK. Day in Pacific Time, as Search Console reports it. |
 | `clicks` | INTEGER | Clicks | Clicks from Google Search results to the property for this row. |
-| `impressions` | INTEGER | Impressions | Times a result for the property was shown to a user (an impression counts once a result is on a page the user viewed, scrolling not required). |
-| `ctr` | FLOAT | CTR | clicks / impressions for the row, 0 to 1. Never average this column; recompute SUM(clicks)/SUM(impressions) in SQL. |
 | `position` | FLOAT | Position | Average top position of the property's results in this row, 1 = first. Weight by impressions in SQL: SUM(position*impressions)/SUM(impressions). |
+| `site_url` | STRING | Site URL | PK. The property, stamped from the Search Console property parameter. Key column together with search_type and the dimensions. FK to [Properties](./properties.md) |
+| `impressions` | INTEGER | Impressions | Times a result for the property was shown to a user (an impression counts once a result is on a page the user viewed, scrolling not required). |
+| `search_type` | STRING | Search Type | PK. Search type the row belongs to (web, image, video, news, discover, googleNews), stamped from the Search type parameter. |
 
 # Example Questions
 
 - Is organic traffic down because impressions fell, position worsened or CTR dropped, week over week?
-- What were the property's clicks and impressions for each of the last 16 months, before the bulk export existed?
+- What were the `property`'s clicks and impressions for each of the last 16 months, before the bulk export existed?
 
 ## Joins
 

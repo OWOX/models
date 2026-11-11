@@ -3,15 +3,15 @@ title: "Ad Insights"
 description: |
   The base performance table: no breakdown, so each ad-day appears once. Start here for spend, clicks, conversions and ROAS by campaign, ad set or ad.
 
-  One row per ad per day, as Meta reports it. Spend, impressions and clicks add up across ads, days and breakdown values; **reach, frequency and every `unique_*` metric do not** — they count people, and a person who saw two ads is one person, so summing them overstates the audience. Take reach from [Ad Set Insights](./ad-set-insights.md) or [Campaign Insights](./campaign-insights.md), where Meta deduplicates it. Conversions follow the attribution window of the request; since January 2026 Meta no longer returns the 7-day and 28-day view windows, so older history pulled with them will not match a fresh pull.
+  One row per ad per day, as Meta reports it. Spend, impressions and clicks add up across ads and days; **reach, frequency and every `unique_*` metric do not** — they count people, and a person who saw two ads is one person, so summing them overstates the audience. Take reach from [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) or [Ad Insights by Campaign](./ad-insights-by-campaign.md), where Meta deduplicates it. Conversions follow the attribution window of the request; since January 2026 Meta no longer returns the 7-day and 28-day view windows, so older history pulled with them will not match a fresh pull.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad Insights endpoint (`ad-account/insights`)"
     last_modified: 2026-09-16
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights"
     title: "Meta Marketing API reference — Ad Insights"
 ---
@@ -20,9 +20,10 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account/insights`
 - **Default destination table:** `facebook_ads_ad_account_insights`
-- **Last updated:** 2026-09-16 — last change to this endpoint's fields in the connector ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-09-16 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `ad_id`, `date_start`, `date_stop`
+- **Time series:** yes, loaded by date range
 
 # Schema
 
@@ -138,7 +139,7 @@ sources:
 ## Joins
 
 - [Ads](./ads.md) — `ad_id = id` [N:1] — The ad behind the row; absent once the ad has been deleted or archived.
-  - [Ad's Account](./ad-account.md) — The same account, reached through the ad.
+  - [Ad's Account](./ad-account.md) — The same account as Ad Account, but empty once the ad is deleted or archived.
   - [Ad's Current Creative](./ad-creatives.md) — The creative the ad runs now — not necessarily the one that ran on this day.
     - [Creative's Account](./ad-account.md) — The account whose library holds the creative.
 - [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the spend was charged to.

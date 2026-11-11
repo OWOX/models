@@ -8,10 +8,10 @@ tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-ads.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-ads.js"
     title: "OWOX Data Marts Facebook Ads connector — Ads endpoint (`ad-account/ads`)"
     last_modified: 2026-05-18
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads"
     title: "Meta Marketing API reference — Ads"
 ---
@@ -20,9 +20,10 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account/ads`
 - **Default destination table:** `facebook_ads_ad_account_ads`
-- **Last updated:** 2026-05-18 — last change to this endpoint's fields in the connector ([8a33aca18](https://github.com/OWOX/owox-data-marts/commit/8a33aca183b6dbff95532a723e27803026ba94d9))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-05-18 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([8a33aca18](https://github.com/OWOX/owox-data-marts/commit/8a33aca183b6dbff95532a723e27803026ba94d9))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `id`
+- **Time series:** no, one current row per key
 
 # Schema
 
@@ -62,5 +63,5 @@ sources:
 ## Joins
 
 - [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the ad belongs to.
-- [Ad Creatives](./ad-creatives.md) — `creative_id = id` [N:1] — The creative the ad runs now; one creative can serve several ads.
+- [Ad Creatives](./ad-creatives.md) — `creative_id = id` [N:1] — The creative the ad runs as of the last load; one creative can serve several ads.
   - [Creative's Account](./ad-account.md) — The account whose library holds the creative.

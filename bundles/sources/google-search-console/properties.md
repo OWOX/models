@@ -5,9 +5,6 @@ description: |
 tags: ["owox", "connector", "google-search-console"]
 type: "OWOX Data Mart"
 sources:
-  - id: "owox-connector"
-    resource: "https://developers.google.com/webmaster-tools/v1/searchanalytics/query"
-    title: "OWOX Data Marts — Google Search Console custom connector (GoogleSearchConsole, 8 nodes) on the Search Console API v1"
   - id: "vendor-reference"
     resource: "https://developers.google.com/webmaster-tools/v1/sites/list"
     title: "Google Search Console API reference — Properties"
@@ -17,7 +14,9 @@ sources:
 
 - **Endpoint:** Google Search Console · `sites`
 - **Default destination table:** `search_console_sites`
+- **Manifest version:** 1.0
 - **Unique keys:** `site_url`
+- **Time series:** no, one current row per key
 
 # Schema
 

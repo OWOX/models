@@ -1,15 +1,15 @@
 ---
-title: "Ad Object (formerly Ad Group)"
+title: "Ad"
 description: |
-  The older view of the same ads (Meta's API still calls an ad an "ad group"). It overlaps [Ads](./ads.md) almost entirely and adds a few fields — review feedback, schedule, bid amount, tracking specs and flattened creative fields. Prefer [Ads](./ads.md) unless you need one of those. Like [Ads](./ads.md), it lists only ads that still exist.
+  The older view of the same ads (Meta's API still calls an ad an "ad group"). It carries the same ads as [Ads](./ads.md), since the connector reads both from the account's ads list, and adds a few fields — review feedback, schedule, bid amount, tracking specs and flattened creative fields. Prefer [Ads](./ads.md) unless you need one of those. Like [Ads](./ads.md), it lists only ads that still exist.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-group-fields.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-group-fields.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad endpoint (`ad-group`)"
     last_modified: 2026-05-29
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/adgroup/"
     title: "Meta Marketing API reference — Ad"
 ---
@@ -18,16 +18,17 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-group`
 - **Default destination table:** `facebook_ads_ad_group`
-- **Last updated:** 2026-05-29 — last change to this endpoint's fields in the connector ([353810d2b](https://github.com/OWOX/owox-data-marts/commit/353810d2bc085efba2a026bc9840d95dc1a360f4))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-05-29 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([353810d2b](https://github.com/OWOX/owox-data-marts/commit/353810d2bc085efba2a026bc9840d95dc1a360f4))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `id`
+- **Time series:** no, one current row per key
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. The ad's ID — the same value as in Ads. |
-| `account_id` | STRING | Account ID | The ad account the ad belongs to. FK to [Ad Account](./ad-account.md) |
+| `id` | STRING | ID | PK. The ad's ID — the same value as in Ads. FK to [Ads](./ads.md) |
+| `account_id` | STRING | Account ID | The ad account the ad belongs to. |
 | `ad_active_time` | STRING | Ad Active Time | The time from when the ad was recently active |
 | `ad_review_feedback` | STRING | Ad Review Feedback | The review feedback for this ad after it is reviewed. Stored as a JSON string. |
 | `ad_schedule_end_time` | DATETIME | Ad Schedule End Time | An optional parameter that defines the end time of an individual ad. If no end time is defined, the ad will run on the campaign’s schedule. |
@@ -41,7 +42,7 @@ sources:
 | `configured_status` | STRING | Configured Status | The configured status of the ad. Use status instead of this field. |
 | `conversion_domain` | STRING | Conversion Domain | The domain where conversions happen. The field is no longer required for creation or update since June 2023. Note that this field should contain only the first and second level domains, and not the full URL. For example facebook.com. |
 | `created_time` | DATETIME | Created Time | Time when the ad was created. |
-| `creative_id` | STRING | Creative ID | The creative the ad runs now. FK to [Ad Creatives](./ad-creatives.md) |
+| `creative_id` | STRING | Creative ID | The creative the ad runs now. |
 | `creative_effective_object_story_id` | STRING | Creative Effective Object Story ID | The ID of a page post to use in an ad, regardless of whether its an organic or unpublished page post |
 | `creative_name` | STRING | Creative Name | Name of the ad creative as seen in the ad accounts library |
 | `creative_object_story_spec` | STRING | Creative Object Story Spec | Object story spec containing page_id and other details |
@@ -67,6 +68,7 @@ sources:
 
 ## Joins
 
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the ad belongs to.
-- [Ad Creatives](./ad-creatives.md) — `creative_id = id` [N:1] — The creative the ad runs now.
-  - [Creative's Account](./ad-account.md) — The account whose library holds the creative.
+- [Ads](./ads.md) — `id = id` [1:1] — The same ad, read through Meta's ad reference; both tables list the ads of the account.
+  - [Ad's Account](./ad-account.md) — The account this ad belongs to.
+  - [Ad's Current Creative](./ad-creatives.md) — The creative this ad runs as of the last load of Ads.
+    - [Creative's Account](./ad-account.md) — The account whose library holds the creative.

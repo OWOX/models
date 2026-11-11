@@ -5,9 +5,6 @@ description: |
 tags: ["owox", "connector", "stripe"]
 type: "OWOX Data Mart"
 sources:
-  - id: "owox-connector"
-    resource: "https://docs.stripe.com/api"
-    title: "OWOX Data Marts — Stripe custom connector (Stripe, 14 nodes) on the Stripe REST API, Stripe-Version 2024-06-20"
   - id: "vendor-reference"
     resource: "https://docs.stripe.com/api/invoices"
     title: "Stripe API reference — Invoices"
@@ -17,44 +14,46 @@ sources:
 
 - **Endpoint:** Stripe · `invoices`
 - **Default destination table:** `stripe_invoices`
+- **Manifest version:** 1.0
+- **Stripe API version:** 2024-06-20
 - **Unique keys:** `id`
-- **Loads:** a dated snapshot per run window (`incremental: range`)
+- **Time series:** yes, loaded by date range
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `id` | STRING | ID | PK. Stripe object id, unique across the account. |
-| `account_id` | STRING | Account ID | Your Stripe account id (acct_…) as entered in the connector; lets several Stripe accounts share one table. |
-| `livemode` | BOOLEAN | Livemode | true for live-mode objects, false for test mode. |
-| `created` | TIMESTAMP | Created | When Stripe created the object (UTC). The field the daily window filters on. |
-| `customer` | STRING | Customer | FK to [Customers](./customers.md). Customer id (cus_). Join to customers. |
-| `subscription` | STRING | Subscription | FK to [Subscriptions](./subscriptions.md). Subscription id (sub_) when the invoice bills a subscription. Join to subscriptions. |
-| `status` | STRING | Status | draft, open, paid, uncollectible or void. |
-| `number` | STRING | Number | Invoice number shown to the customer. |
-| `billing_reason` | STRING | Billing Reason | subscription_create, subscription_cycle, subscription_update, manual, upcoming, … |
-| `collection_method` | STRING | Collection Method | charge_automatically or send_invoice. |
-| `currency` | STRING | Currency | Three-letter ISO currency code, lowercase. |
-| `period_start` | TIMESTAMP | Period Start | Start of the usage period the invoice covers. |
-| `period_end` | TIMESTAMP | Period End | End of the usage period. |
-| `due_date` | TIMESTAMP | Due Date | When payment is due (send_invoice collection). |
-| `paid_at` | TIMESTAMP | Paid At | When the invoice was paid. |
-| `finalized_at` | TIMESTAMP | Finalized At | When the invoice was finalized. |
-| `voided_at` | TIMESTAMP | Voided At | When the invoice was voided. |
-| `amount_due` | INTEGER | Amount Due | Amount still to collect when finalized in the smallest currency unit (cents for USD). |
-| `amount_paid` | INTEGER | Amount Paid | Amount paid in the smallest currency unit (cents for USD). |
-| `amount_remaining` | INTEGER | Amount Remaining | Amount outstanding in the smallest currency unit (cents for USD). |
-| `subtotal` | INTEGER | Subtotal | Sum of line items before discounts and tax in the smallest currency unit (cents for USD). |
-| `total` | INTEGER | Total | Total after discounts and tax in the smallest currency unit (cents for USD). |
 | `tax` | INTEGER | Tax | Tax amount in the smallest currency unit (cents for USD). |
-| `starting_balance` | INTEGER | Starting Balance | Customer balance applied at creation in the smallest currency unit (cents for USD). |
-| `charge` | STRING | Charge | FK to [Charges](./charges.md). Charge id (ch_) that paid it. Join to charges. |
-| `payment_intent` | STRING | Payment Intent | Payment intent id (pi_). |
-| `attempt_count` | INTEGER | Attempt Count | Number of payment attempts made. |
-| `attempted` | BOOLEAN | Attempted | Whether payment was attempted. |
 | `paid` | BOOLEAN | Paid | Whether the invoice is paid. |
+| `total` | INTEGER | Total | Total after discounts and tax in the smallest currency unit (cents for USD). |
+| `charge` | STRING | Charge | Charge id (ch_) that paid it. Join to charges. FK to [Charges](./charges.md) |
+| `number` | STRING | Number | Invoice number shown to the customer. |
+| `status` | STRING | Status | draft, open, paid, uncollectible or void. |
+| `created` | INTEGER | Created | When Stripe created the object, as Unix time in seconds (UTC); TIMESTAMP_SECONDS(created) in SQL. The field the daily window filters on. |
+| `paid_at` | INTEGER | Paid At | When the invoice was paid, as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `currency` | STRING | Currency | Three-letter ISO currency code, lowercase. |
+| `customer` | STRING | Customer | Customer id (cus_). Join to customers. FK to [Customers](./customers.md) |
+| `due_date` | INTEGER | Due Date | When payment is due (send_invoice collection), as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `livemode` | BOOLEAN | Livemode | true for live-mode objects, false for test mode. |
+| `metadata` | STRING | Metadata | Metadata object as a JSON string. |
+| `subtotal` | INTEGER | Subtotal | Sum of line items before discounts and tax in the smallest currency unit (cents for USD). |
+| `attempted` | BOOLEAN | Attempted | Whether payment was attempted. |
+| `voided_at` | INTEGER | Voided At | When the invoice was voided, as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `account_id` | STRING | Account ID | Your Stripe account id (acct_…) as entered in the connector; lets several Stripe accounts share one table. |
+| `amount_due` | INTEGER | Amount Due | Amount still to collect when finalized in the smallest currency unit (cents for USD). |
+| `period_end` | INTEGER | Period End | End of the usage period, as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `amount_paid` | INTEGER | Amount Paid | Amount paid in the smallest currency unit (cents for USD). |
+| `finalized_at` | INTEGER | Finalized At | When the invoice was finalized, as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `period_start` | INTEGER | Period Start | Start of the usage period the invoice covers, as Unix time in seconds (UTC); use TIMESTAMP_SECONDS() in SQL. |
+| `subscription` | STRING | Subscription | Subscription id (sub_) when the invoice bills a subscription. Join to subscriptions. FK to [Subscriptions](./subscriptions.md) |
+| `attempt_count` | INTEGER | Attempt Count | Number of payment attempts made. |
+| `billing_reason` | STRING | Billing Reason | subscription_create, subscription_cycle, subscription_update, manual, upcoming, … |
+| `payment_intent` | STRING | Payment Intent | Payment intent id (pi_). |
+| `amount_remaining` | INTEGER | Amount Remaining | Amount outstanding in the smallest currency unit (cents for USD). |
+| `starting_balance` | INTEGER | Starting Balance | Customer balance applied at creation in the smallest currency unit (cents for USD). |
+| `collection_method` | STRING | Collection Method | charge_automatically or send_invoice. |
 | `hosted_invoice_url` | STRING | Hosted Invoice URL | Link to the hosted invoice page. |
-| `metadata` | JSON | Metadata | Metadata object as a JSON string. |
 
 # Example Questions
 
@@ -64,6 +63,13 @@ sources:
 
 ## Joins
 
-- [Customers](./customers.md) — `customer = id` [N:1]
+- [Customers](./customers.md) — `customer = id` [N:1] — The customer who is billed.
 - [Subscriptions](./subscriptions.md) — `subscription = id` [N:1] — Set for subscription invoices.
+  - [Subscriptions Customers](./customers.md)
 - [Charges](./charges.md) — `charge = id` [N:1] — The charge that paid it.
+  - [Charges Balance transactions](./balance-transactions.md)
+    - [Charges Balance transactions Payouts](./payouts.md)
+    - [Charges Balance transactions Refunds](./refunds.md)
+  - [Charges Customers](./customers.md)
+  - [Charges Payment intents](./payment-intents.md)
+    - [Charges Payment intents Customers](./customers.md)

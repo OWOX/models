@@ -6,10 +6,10 @@ tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-user-fields.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-user-fields.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad Account User endpoint (`ad-account-user`)"
     last_modified: 2026-05-18
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account-user"
     title: "Meta Marketing API reference — Ad Account User"
 ---
@@ -18,9 +18,10 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account-user`
 - **Default destination table:** `facebook_ads_ad_account_user`
-- **Last updated:** 2026-05-18 — last change to this endpoint's fields in the connector ([8a33aca18](https://github.com/OWOX/owox-data-marts/commit/8a33aca183b6dbff95532a723e27803026ba94d9))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-05-18 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([8a33aca18](https://github.com/OWOX/owox-data-marts/commit/8a33aca183b6dbff95532a723e27803026ba94d9))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `id`
+- **Time series:** no, one current row per key
 
 # Schema
 
@@ -37,4 +38,4 @@ sources:
 
 ## Joins
 
-- [Ad Account](./ad-account.md) — `id = id` [1:1] — As requested today, this row is the account itself.
+- [Ad Account](./ad-account.md) — `id = id` [1:1] — As the connector requests it, this row is the account itself.

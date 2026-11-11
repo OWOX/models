@@ -5,42 +5,40 @@ description: |
 tags: ["owox", "connector", "quickbooks"]
 type: "OWOX Data Mart"
 sources:
-  - id: "owox-connector"
-    resource: "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/account"
-    title: "OWOX Data Marts — QuickBooks Online custom connector (QuickBooksOnline, 26 nodes) on the Intuit Accounting API v3, minorversion 75"
   - id: "vendor-reference"
     resource: "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/report-entities/agedpayables"
-    title: "Intuit QuickBooks Online API reference — A/P Aging Summary report"
+    title: "Intuit QuickBooks Online Accounting API reference — A/P Aging Summary report"
 ---
 
 ## Connector endpoint
 
-- **Endpoint:** QuickBooks Online · `aged_payables`
+- **Endpoint:** QuickBooks · `aged_payables`
 - **Default destination table:** `quickbooks_report_aged_payables`
+- **Manifest version:** 1.1
 - **Unique keys:** `realm_id`, `report_name`, `start_period`, `end_period`
-- **Loads:** a dated snapshot per run window (`incremental: range`)
+- **Time series:** yes, loaded by date range
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). |
-| `report_name` | STRING | Report Name | PK. |
-| `report_time` | TIMESTAMP | Report Time | When QuickBooks produced the snapshot. |
+| `currency` | STRING | Currency | Currency code the report amounts are in. |
+| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. FK to [Company info](./company-info.md) |
+| `end_period` | DATE | End Period | PK. Last day of the reporting period. |
+| `report_name` | STRING | Report Name | PK. Name of the QuickBooks report, for example ProfitAndLoss. |
+| `report_rows` | STRING | Report Rows | Nested Section/Data rows as JSON. Flatten in SQL; ColData.id is the Account/Customer/Vendor Id. Stored as a JSON string. |
+| `report_time` | DATETIME | Report Time | When QuickBooks produced the snapshot. |
 | `report_basis` | STRING | Report Basis | Cash or Accrual (absent on aging reports). |
-| `start_period` | DATE | Start Period | PK. |
-| `end_period` | DATE | End Period | PK. |
-| `summarize_columns_by` | STRING | Summarize Columns By | |
-| `currency` | STRING | Currency | |
-| `header_options` | JSON | Header Options | Name/Value pairs; NoReportData=true means an empty report. |
-| `report_rows` | JSON | Report Rows | Nested Section/Data rows as JSON. Flatten in SQL; ColData.id is the Account/Customer/Vendor Id. |
-| `report_columns` | JSON | Report Columns | Column metadata (ColTitle, ColType) as JSON; index-aligned with every ColData array. |
+| `start_period` | DATE | Start Period | PK. First day of the reporting period. |
+| `header_options` | STRING | Header Options | Name/Value pairs; NoReportData=true means an empty report. Stored as a JSON string. |
+| `report_columns` | STRING | Report Columns | Column metadata (ColTitle, ColType) as JSON; index-aligned with every ColData array. Stored as a JSON string. |
+| `summarize_columns_by` | STRING | Summarize Columns By | How the report columns are split, for example Total, Month or Customers. |
 
 # Example Questions
 
-- How much do we owe, in which aging bucket, by vendor?
-- Which vendor balances are past 60 days?
+- How much do we owe, in which aging bucket, by `vendor`?
+- Which `vendor` balances are past 60 days?
 
 ## Joins
 
-- [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — One snapshot row per report period; the figures are inside `report_rows`.
+- [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the report snapshot belongs to. One snapshot row per report period; the figures are inside report_rows.

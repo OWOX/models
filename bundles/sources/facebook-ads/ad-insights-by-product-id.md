@@ -3,15 +3,15 @@ title: "Ad Insights by Product ID"
 description: |
   The same ad-day, split by catalog product. It is filled only for catalog ads — Advantage+ catalog and other dynamic product formats; other ads have no product to report.
 
-  One row per ad per day, as Meta reports it. Spend, impressions and clicks add up across ads, days and breakdown values; **reach, frequency and every `unique_*` metric do not** — they count people, and a person who saw two ads is one person, so summing them overstates the audience. Take reach from [Ad Set Insights](./ad-set-insights.md) or [Campaign Insights](./campaign-insights.md), where Meta deduplicates it. Conversions follow the attribution window of the request; since January 2026 Meta no longer returns the 7-day and 28-day view windows, so older history pulled with them will not match a fresh pull.
+  One row per ad, per day, per catalog product, as Meta reports it. Spend, impressions and clicks add up across ads, days and breakdown values; **reach, frequency and every `unique_*` metric do not** — they count people, and a person who saw two ads is one person, so summing them overstates the audience. Take reach from [Ad Insights by Ad Set](./ad-insights-by-ad-set.md) or [Ad Insights by Campaign](./ad-insights-by-campaign.md), where Meta deduplicates it. Conversions follow the attribution window of the request; since January 2026 Meta no longer returns the 7-day and 28-day view windows, so older history pulled with them will not match a fresh pull.
 tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields-by-product-id.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-insights-fields-by-product-id.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad Insights by Product ID endpoint (`ad-account/insights-by-product-id`)"
     last_modified: 2026-09-16
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account/insights"
     title: "Meta Marketing API reference — Ad Insights by Product ID"
 ---
@@ -20,21 +20,22 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account/insights-by-product-id`
 - **Default destination table:** `facebook_ads_ad_account_insights_by_product_id`
-- **Last updated:** 2026-09-16 — last change to this endpoint's fields in the connector ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-09-16 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([3f005422b](https://github.com/OWOX/owox-data-marts/commit/3f005422b6226dd020a5c7ac74278023c33595dc))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `ad_id`, `date_start`, `date_stop`, `product_id`
+- **Time series:** yes, loaded by date range
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `account_currency` | STRING | Account Currency | Currency that is used by your ad account. |
-| `account_id` | STRING | Account ID | The ad account the row belongs to. FK to [Ad Account](./ad-account.md) |
+| `account_id` | STRING | Account ID | The ad account the row belongs to. |
 | `account_name` | STRING | Account Name | The name of your ad account, which groups your advertising activity. Your ad account includes your campaigns, ads and billing. |
 | `action_values` | STRING | Action Values | The total value of all conversions attributed to your ads. Stored as a JSON string. |
 | `actions` | STRING | Actions | The total number of actions people took that are attributed to your ads. Actions may include engagement, clicks or conversions. Stored as a JSON string. |
 | `ad_click_actions` | STRING | Ad Click Actions | Actions taken by people who clicked the ad. Stored as a JSON string. |
-| `ad_id` | STRING | Ad ID | PK. The ad this row reports on. FK to [Ads](./ads.md) |
+| `ad_id` | STRING | Ad ID | PK. The ad this row reports on. FK to [Ad Insights](./ad-insights.md) |
 | `ad_impression_actions` | STRING | Ad Impression Actions | Actions taken by people who saw the ad. Stored as a JSON string. |
 | `ad_name` | STRING | Ad Name | The name of the ad you're viewing in reporting. |
 | `adset_id` | STRING | Ad Set ID | The ad set of the ad. This connector loads no ad set table, so it has no join target; the name is on the row as `adset_name`. |
@@ -80,8 +81,8 @@ sources:
 | `cpp` | FLOAT | CPP | The average cost to reach 1,000 people. This metric is estimated. |
 | `created_time` | STRING | Created Time | When the object this row describes was created, as Meta reports it. |
 | `ctr` | FLOAT | CTR | The percentage of times people saw your ad and performed a click (all). |
-| `date_start` | DATE | Date Start | PK. The day the row reports on; equal to `date_stop`, because the connector requests one day at a time. |
-| `date_stop` | DATE | Date Stop | PK. The day the row reports on; equal to `date_start`. |
+| `date_start` | DATE | Date Start | PK. The day the row reports on; equal to `date_stop`, because the connector requests one day at a time. FK to [Ad Insights](./ad-insights.md) |
+| `date_stop` | DATE | Date Stop | PK. The day the row reports on; equal to `date_start`. FK to [Ad Insights](./ad-insights.md) |
 | `dda_countby_convs` | FLOAT | DDA Countby Convs | Conversions counted by Meta's data-driven attribution. |
 | `dda_results` | STRING | DDA Results | Results counted by Meta's data-driven attribution. Stored as a JSON string. |
 | `frequency` | FLOAT | Frequency | The average number of times each person saw your ad. This metric is estimated. |
@@ -138,8 +139,9 @@ sources:
 
 ## Joins
 
-- [Ads](./ads.md) — `ad_id = id` [N:1] — The ad behind the row; absent once the ad has been deleted or archived.
-  - [Ad's Account](./ad-account.md) — The same account, reached through the ad.
-  - [Ad's Current Creative](./ad-creatives.md) — The creative the ad runs now — not necessarily the one that ran on this day.
-    - [Creative's Account](./ad-account.md) — The account whose library holds the creative.
-- [Ad Account](./ad-account.md) — `account_id = account_id` [N:1] — The account the spend was charged to.
+- [Ad Insights](./ad-insights.md) — `ad_id = ad_id` AND `date_start = date_start` AND `date_stop = date_stop` [N:1] — The whole ad-day this row is one slice of.
+  - [Account Charged](./ad-account.md) — The account charged for the whole ad-day this row is one slice of.
+  - [Ad Behind This Row](./ads.md) — The ad this slice reports on; absent once the ad has been deleted or archived.
+    - [Ad's Account](./ad-account.md) — The same account as Account Charged, but empty once the ad is deleted or archived; prefer Account Charged.
+    - [Ad's Current Creative](./ad-creatives.md) — The creative the ad runs now — not necessarily the one that ran on this day.
+      - [Creative's Account](./ad-account.md) — The account whose library holds the creative.
