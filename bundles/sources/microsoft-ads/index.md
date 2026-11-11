@@ -40,3 +40,7 @@ sources:
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![Microsoft Ads model diagram](../../res/screens/sources/microsoft-ads.svg)

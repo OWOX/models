@@ -70,4 +70,4 @@ One click opens this model in a free OWOX canvas you can poke around in — no a
 
 ## Model preview
 
-![QuickBooks Online model diagram](../../res/screens/sources/quickbooks.svg)
+![QuickBooks model diagram](../../res/screens/sources/quickbooks.svg)

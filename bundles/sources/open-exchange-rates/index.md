@@ -36,3 +36,7 @@ sources:
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![Open Exchange Rates model diagram](../../res/screens/sources/open-exchange-rates.svg)
