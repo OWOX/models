@@ -5,9 +5,6 @@ description: |
 tags: ["owox", "connector", "google-search-console"]
 type: "OWOX Data Mart"
 sources:
-  - id: "owox-connector"
-    resource: "https://developers.google.com/webmaster-tools/v1/searchanalytics/query"
-    title: "OWOX Data Marts — Google Search Console custom connector (GoogleSearchConsole, 8 nodes) on the Search Console API v1"
   - id: "vendor-reference"
     resource: "https://developers.google.com/webmaster-tools/v1/searchanalytics/query"
     title: "Google Search Console API reference — Performance by page"
@@ -17,21 +14,22 @@ sources:
 
 - **Endpoint:** Google Search Console · `performance_by_page`
 - **Default destination table:** `search_console_by_page`
+- **Manifest version:** 1.0
 - **Unique keys:** `site_url`, `search_type`, `date`, `page`
-- **Loads:** a dated snapshot per run window (`incremental: range`)
+- **Time series:** yes, one row per key per `date`
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `site_url` | STRING | Site URL | PK. FK to [Properties](./properties.md). The property, stamped from the Search Console property parameter. Key column together with search_type and the dimensions. |
-| `search_type` | STRING | Search Type | PK. Search type the row belongs to (web, image, video, news, discover, googleNews), stamped from the Search type parameter. |
-| `date` | DATE | Date | PK. FK to [Performance by date](./performance-by-date.md). Day in Pacific Time, as Search Console reports it. |
+| `ctr` | FLOAT | CTR | clicks / impressions for the row, 0 to 1. Never average this column; recompute SUM(clicks)/SUM(impressions) in SQL. |
+| `date` | DATE | Date | PK. Day in Pacific Time, as Search Console reports it. FK to [Performance by date](./performance-by-date.md) |
 | `page` | STRING | Page | PK. The final URL Google linked to, after redirects, as Search Console records it. |
 | `clicks` | INTEGER | Clicks | Clicks from Google Search results to the property for this row. |
-| `impressions` | INTEGER | Impressions | Times a result for the property was shown to a user (an impression counts once a result is on a page the user viewed, scrolling not required). |
-| `ctr` | FLOAT | CTR | clicks / impressions for the row, 0 to 1. Never average this column; recompute SUM(clicks)/SUM(impressions) in SQL. |
 | `position` | FLOAT | Position | Average top position of the property's results in this row, 1 = first. Weight by impressions in SQL: SUM(position*impressions)/SUM(impressions). |
+| `site_url` | STRING | Site URL | PK. The property, stamped from the Search Console property parameter. Key column together with search_type and the dimensions. FK to [Properties](./properties.md) |
+| `impressions` | INTEGER | Impressions | Times a result for the property was shown to a user (an impression counts once a result is on a page the user viewed, scrolling not required). |
+| `search_type` | STRING | Search Type | PK. Search type the row belongs to (web, image, video, news, discover, googleNews), stamped from the Search type parameter. FK to [Performance by date](./performance-by-date.md) |
 
 # Example Questions
 
@@ -40,5 +38,6 @@ sources:
 
 ## Joins
 
-- [Properties](./properties.md) — `site_url = site_url` [N:1]
-- [Performance by date](./performance-by-date.md) — `site_url = site_url`, `search_type = search_type`, `date = date` [N:1] — Same site_url and search_type: pages roll up to the day total.
+- [Properties](./properties.md) — `site_url = site_url` [N:1] — The property the rows were read for.
+- [Performance by date](./performance-by-date.md) — `site_url = site_url` AND `search_type = search_type` AND `date = date` [N:1] — Same site_url and search_type; Google counts impressions per page, so page impressions can exceed the day total.
+  - [Performance by date Properties](./properties.md)

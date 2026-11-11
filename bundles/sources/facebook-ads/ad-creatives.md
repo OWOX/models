@@ -8,10 +8,10 @@ tags: ["owox", "connector", "facebook-ads"]
 type: "OWOX Data Mart"
 sources:
   - id: "owox-connector"
-    resource: "https://github.com/OWOX/owox-data-marts/blob/7703667ccad8022f2fc89f8ddc1d27a125c219e0/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-creatives.js"
+    resource: "https://github.com/OWOX/owox-data-marts/blob/a3766e5bc1053780a65b259d9515bedec3c9d782/packages/connectors/src/Sources/FacebookMarketing/MarketingAPIReference/ad-account-creatives.js"
     title: "OWOX Data Marts Facebook Ads connector — Ad Creatives endpoint (`ad-account/adcreatives`)"
     last_modified: 2026-09-28
-  - id: "meta-reference"
+  - id: "vendor-reference"
     resource: "https://developers.facebook.com/docs/marketing-api/reference/ad-account/adcreatives"
     title: "Meta Marketing API reference — Ad Creatives"
 ---
@@ -20,9 +20,10 @@ sources:
 
 - **Endpoint:** Facebook Ads · `ad-account/adcreatives`
 - **Default destination table:** `facebook_ads_ad_account_adcreatives`
-- **Last updated:** 2026-09-28 — last change to this endpoint's fields in the connector ([3de731ea8](https://github.com/OWOX/owox-data-marts/commit/3de731ea89fa5701d5f45624a3fa5789e2df3e53))
-- **Meta Graph API version:** v26.0
+- **Last updated:** 2026-09-28 — last change to this endpoint's entry in the connector's fields schema, or to the file that declares its fields ([3de731ea8](https://github.com/OWOX/owox-data-marts/commit/3de731ea89fa5701d5f45624a3fa5789e2df3e53))
+- **Meta Marketing API version:** v26.0
 - **Unique keys:** `id`
+- **Time series:** no, one current row per key
 
 # Schema
 

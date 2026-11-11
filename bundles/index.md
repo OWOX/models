@@ -28,8 +28,21 @@ Generated 2026-10-20T20:05:44Z.
 
 ## Data sources
 
+- [Bank of Canada](./sources/bank-of-canada/index.md) — 1 concept(s)
+- [Criteo Ads](./sources/criteo-ads/index.md) — 4 concept(s)
 - [Facebook Ads](./sources/facebook-ads/index.md) — 15 concept(s)
+- [GitHub](./sources/github/index.md) — 3 concept(s)
+- [Google Ads](./sources/google-ads/index.md) — 9 concept(s)
 - [Google Search Console](./sources/google-search-console/index.md) — 8 concept(s)
-- [QuickBooks Online](./sources/quickbooks/index.md) — 26 concept(s)
+- [LinkedIn Ads](./sources/linkedin-ads/index.md) — 8 concept(s)
+- [LinkedIn Pages](./sources/linkedin-pages/index.md) — 2 concept(s)
+- [Microsoft Ads](./sources/microsoft-ads/index.md) — 3 concept(s)
+- [Open Exchange Rates](./sources/open-exchange-rates/index.md) — 1 concept(s)
+- [Open Holidays](./sources/open-holidays/index.md) — 1 concept(s)
+- [QuickBooks](./sources/quickbooks/index.md) — 26 concept(s)
+- [Reddit Ads](./sources/reddit-ads/index.md) — 18 concept(s)
+- [Shopify](./sources/shopify/index.md) — 25 concept(s)
 - [Stripe](./sources/stripe/index.md) — 14 concept(s)
+- [TikTok Ads](./sources/tiktok-ads/index.md) — 7 concept(s)
+- [X Ads](./sources/x-ads/index.md) — 10 concept(s)
 
