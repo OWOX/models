@@ -54,10 +54,16 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
     // FK columns already used per target, so parallel keyless joins recover distinct columns.
     const usedFk = new Map<string, Set<string>>();
     let lastJoin: (typeof raw)[number] | null = null;
+    // Set once a `- Description:` sub-bullet filled lastJoin: it wins over inline text,
+    // and only the first sub-bullet counts.
+    let subBulletSeen = false;
     for (const ln of body.split("\n")) {
       const dm = ln.match(/^\s{2,}- Description:\s*(.+)$/);
-      if (dm) { if (lastJoin && !lastJoin.description) lastJoin.description = dm[1].trim(); continue; }
-      lastJoin = null;
+      if (dm) {
+        if (lastJoin && !subBulletSeen) { lastJoin.description = dm[1].trim(); subBulletSeen = true; }
+        continue;
+      }
+      lastJoin = null; subBulletSeen = false;
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
       if (!m) continue;
       const am = m[2].match(/^as\s+`([^`]+)`\s*(?:—|--)?\s*/);
@@ -69,7 +75,13 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
       const cm = rest.match(/\[(1:1|1:N|N:1|N:N)\]/);
       const cardinality = cm ? (cm[1] as Cardinality) : undefined;
       const keyPart = cm ? rest.slice(0, cm.index) : rest.split(/\s(?:—|--)\s/)[0];
-      let keys = [...keyPart.matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)].map(g => ({ left: g[1].trim(), right: g[2].trim() }));
+      const keyMatches = [...keyPart.matchAll(/`([^`]+?)\s*=\s*([^`]+?)`/g)];
+      let keys = keyMatches.map(g => ({ left: g[1].trim(), right: g[2].trim() }));
+      // The description is the text after the last structural marker — the cardinality
+      // tag, or without one the last key. A line with neither carries no description.
+      const lastKey = keyMatches[keyMatches.length - 1];
+      const descStart = cm ? cm.index! + cm[0].length : lastKey ? lastKey.index! + lastKey[0].length : -1;
+      const description = descStart >= 0 ? rest.slice(descStart).replace(/^[\s—–-]+/, "").trim() || undefined : undefined;
       if (keys.length === 0) {
         // Faithful-OWOX join: recover from a `FK to [Target]` note + target PK.
         const targetTitle = nodes.find(n => n.key === toKey)?.title ?? "";
@@ -79,7 +91,7 @@ export function parseBundle(rawFiles: Record<string, string>): ModelGraph {
         const rightPk = pkByKey.get(toKey);
         if (fkCol && rightPk) { keys = [{ left: fkCol.name, right: rightPk }]; used.add(fkCol.name); usedFk.set(toKey, used); }
       }
-      lastJoin = { from: fromKey, to: toKey, keys, cardinality, alias };
+      lastJoin = { from: fromKey, to: toKey, keys, cardinality, alias, ...(description ? { description } : {}) };
       raw.push(lastJoin);
     }
   }

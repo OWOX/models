@@ -14,10 +14,11 @@ export interface VerifiedBundle {
 }
 
 /** Parse the top-level bundles/index.md. Each bundle is a markdown list link to
- *  a sub-folder index (`[Title](./folder/index.md) — N concept(s)`). External
- *  (http) links are skipped; the count is optional. */
+ *  a sub-folder index (`[Title](./folder/index.md) — N concept(s)`); the folder
+ *  may be nested, as data-source bundles are (`./sources/stripe/index.md`).
+ *  External (http) links are skipped; the count is optional. */
 export function parseBundlesIndex(md: string): VerifiedBundle[] {
-  const re = /\[([^\]]+)\]\(\s*\.\/([^/)]+)\/index\.md\s*\)(?:[^\n]*?(\d+)\s*concept)?/gi;
+  const re = /\[([^\]]+)\]\(\s*\.\/((?:[^/)\s]+\/)*?[^/)\s]+)\/index\.md\s*\)(?:[^\n]*?(\d+)\s*concept)?/gi;
   const out: VerifiedBundle[] = [];
   for (let m = re.exec(md); m; m = re.exec(md)) {
     out.push({ title: m[1].trim(), folder: m[2].trim(), martCount: m[3] ? Number(m[3]) : null });

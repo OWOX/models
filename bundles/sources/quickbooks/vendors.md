@@ -5,41 +5,43 @@ description: |
 tags: ["owox", "connector", "quickbooks"]
 type: "OWOX Data Mart"
 sources:
+  - id: "owox-connector"
+    resource: "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/account"
+    title: "OWOX Data Marts — QuickBooks Online custom connector (QuickBooksOnline, 26 nodes) on the Intuit Accounting API v3, minorversion 75"
   - id: "vendor-reference"
     resource: "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/vendor"
-    title: "Intuit QuickBooks Online Accounting API reference — vendor"
+    title: "Intuit QuickBooks Online API reference — Vendors"
 ---
 
 ## Connector endpoint
 
-- **Endpoint:** QuickBooks · `vendor`
+- **Endpoint:** QuickBooks Online · `vendor`
 - **Default destination table:** `quickbooks_vendor`
 - **Unique keys:** `realm_id`, `id`
-- **Time series:** no, one current row per key
 
 # Schema
 
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
-| `id` | STRING | ID | PK. QuickBooks entity Id (string). Primary key together with realm_id. |
-| `realm_id` | STRING | Realm ID | PK. Company (realm) id, stamped from the RealmId parameter. |
+| `id` | STRING | ID | PK. QuickBooks entity Id (string). |
+| `realm_id` | STRING | Realm ID | PK. FK to [Company info](./company-info.md). Company (realm) id, stamped from the RealmId parameter. |
 | `sync_token` | STRING | Sync Token | Version counter; changes on every edit. |
-| `create_time` | TIMESTAMP | Create Time | When the record was created in QuickBooks (UTC timestamp). |
+| `create_time` | TIMESTAMP | Create Time | |
 | `last_updated_time` | TIMESTAMP | Last Updated Time | Incremental cursor. |
-| `display_name` | STRING | Display Name | Name shown on forms and lists, unique across customers, vendors and employees in the company. |
-| `company_name` | STRING | Company Name | Business name of the vendor. |
-| `primary_email` | STRING | Primary Email | Primary email address of the vendor. |
-| `primary_phone` | STRING | Primary Phone | Primary phone number of the vendor. |
+| `display_name` | STRING | Display Name | |
+| `company_name` | STRING | Company Name | |
+| `primary_email` | STRING | Primary Email | |
+| `primary_phone` | STRING | Primary Phone | |
 | `balance` | FLOAT | Balance | Open A/P balance owed to the vendor. |
-| `currency_id` | STRING | Currency ID | Currency code of the document, for example USD; empty when multicurrency is off. |
-| `currency_name` | STRING | Currency Name | Currency name that goes with currency_id, for example United States Dollar. |
-| `vendor_1099` | BOOLEAN | Vendor 1099 | True when the vendor is tracked for 1099 tax reporting. |
-| `acct_num` | STRING | Acct Num | Account number the vendor uses for the company; optional and can be empty. |
-| `term_id` | STRING | Term ID | Id of the payment terms agreed with the vendor; joins to the QuickBooks terms list. |
-| `term_name` | STRING | Term Name | Name of the payment terms that term_id points to. |
-| `bill_addr_country` | STRING | Bill Addr Country | Country of the vendor's billing address. |
-| `bill_addr` | JSON | Bill Addr | Billing address as JSON: line1 to line5, city, country subdivision, postal code and country. |
-| `active` | BOOLEAN | Active | True when the record is active; false when it has been made inactive (QuickBooks never hard-deletes lists). |
+| `currency_id` | STRING | Currency ID | |
+| `currency_name` | STRING | Currency Name | |
+| `vendor_1099` | BOOLEAN | Vendor 1099 | |
+| `acct_num` | STRING | Acct Num | |
+| `term_id` | STRING | Term ID | |
+| `term_name` | STRING | Term Name | |
+| `bill_addr_country` | STRING | Bill Addr Country | |
+| `bill_addr` | JSON | Bill Addr | |
+| `active` | BOOLEAN | Active | |
 
 # Example Questions
 
@@ -48,5 +50,4 @@ sources:
 
 ## Joins
 
-- [Company info](./company-info.md) — `realm_id = realm_id` [N:1] — The company the row belongs to.
-  - Description: The company the row belongs to.
+- [Company info](./company-info.md) — `realm_id = realm_id` [N:1]
