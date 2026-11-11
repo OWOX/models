@@ -7,9 +7,7 @@
     "dev:web": "pnpm --filter @mc/web dev",
     "build": "pnpm --filter @mc/okf build && pnpm --filter @mc/web build && pnpm --filter @mc/server build",
     "serve": "lsof -ti:3111 | xargs kill -9 2>/dev/null; pnpm build && PORT=3111 pnpm --filter @mc/server start",
-    "test": "pnpm -r test",
-    "okf:source": "node scripts/okf-source/generate.mjs",
-    "test:scripts": "vitest run scripts"
+    "test": "pnpm -r test"
   },
   "engines": {
     "node": ">=20"
