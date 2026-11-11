@@ -117,7 +117,12 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>,
         const alias = (forward ? e.alias : e.reverseAlias)
           || (resolved && resolved !== defaultJoinAlias(other.title || other.key, other.key) ? resolved : undefined);
         const as = alias ? ` as \`${alias}\`` : "";
-        const desc = forward && e.description?.trim() ? `\n  - Description: ${e.description.replace(/\s*\n\s*/g, " ").trim()}` : "";
+        // The description goes inline after the last marker, on the source line only.
+        // A line with neither keys nor cardinality has no marker to anchor it, so there
+        // it stays in the `- Description:` sub-bullet the parser also reads.
+        const text = forward && e.description?.trim() ? e.description.replace(/\s*\n\s*/g, " ").trim() : "";
+        const anchored = keys.length > 0 || !!card;
+        const desc = !text ? "" : anchored ? ` — ${text}` : `\n  - Description: ${text}`;
         return `- [${other.title}](./${slugByKey.get(otherKey)}.md)${as} — ${cond}${suffix}${desc}`;
       }).join("\n") + "\n"
     : "";

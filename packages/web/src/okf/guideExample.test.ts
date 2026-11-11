@@ -84,8 +84,7 @@ SUM(total) / NULLIF(COUNT(DISTINCT id), 0)
 \`\`\`
 
 ## Joins
-- [Customers](./customers.md) as \`customers\` — \`customer_id = id\` [N:1]
-  - Description: Each order belongs to one customer
+- [Customers](./customers.md) as \`customers\` — \`customer_id = id\` [N:1] — Each order belongs to one customer
 
 <!-- shop/order-items.md -->
 ---

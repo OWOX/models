@@ -178,8 +178,8 @@ describe("okf join description", () => {
   });
   it("round-trips a description on the forward line only", () => {
     const files = serializeBundle(g(true), "Demo").files;
-    expect(files["demo/facebook-ads.md"]).toContain("\n  - Description: Each ad belongs to one campaign\n");
-    expect(files["demo/campaigns.md"]).not.toContain("Description:");
+    expect(files["demo/facebook-ads.md"]).toContain("`campaign_id = id` [N:1] — Each ad belongs to one campaign\n");
+    expect(files["demo/campaigns.md"]).not.toContain("Each ad belongs");
     const back = parseBundle(files);
     expect(back.edges).toHaveLength(1);
     expect(back.edges[0].description).toBe("Each ad belongs to one campaign");
