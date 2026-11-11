@@ -32,6 +32,15 @@ describe("parseBundlesIndex", () => {
     expect(parseBundlesIndex(TOP_INDEX).some(b => b.title === "Docs")).toBe(false);
   });
 
+  it("reads a bundle in a sub-folder, such as bundles/sources/<slug>", () => {
+    const md = "- [Stripe](./sources/stripe/index.md) — 14 concept(s)\n";
+    expect(parseBundlesIndex(md)).toEqual([{ title: "Stripe", folder: "sources/stripe", martCount: 14 }]);
+  });
+
+  it("builds the GitHub URL of a bundle in a sub-folder", () => {
+    expect(bundleGithubUrl("sources/stripe")).toBe("https://github.com/OWOX/models/tree/main/bundles/sources/stripe");
+  });
+
   it("returns null martCount when the row has no count", () => {
     const md = "- [Retail](./retail/index.md)\n";
     expect(parseBundlesIndex(md)).toEqual([{ title: "Retail", folder: "retail", martCount: null }]);
