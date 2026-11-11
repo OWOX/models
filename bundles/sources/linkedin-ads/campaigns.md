@@ -61,3 +61,10 @@ sources:
 - Which campaigns are active, and which objective type does each pursue?
 - Which cost type does each campaign use, and what is its unit cost?
 - Which campaigns have offsite delivery enabled?
+
+## Joins
+
+- [Ad Accounts](./ad-accounts.md) — `account = id` [N:1] — The ad account the campaign belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+  - Description: The ad account the campaign belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+- [Campaign Groups](./campaign-groups.md) — `campaignGroup = id` [N:1] — The campaign group the campaign sits in; the value is a URN such as urn:li:sponsoredCampaignGroup:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+  - Description: The campaign group the campaign sits in; the value is a URN such as urn:li:sponsoredCampaignGroup:{id}. The column holds the URN, so it matches the id inside it, not the whole string.

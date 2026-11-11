@@ -46,3 +46,10 @@ sources:
 - Which creatives are intended to be active but are not serving, and what holds them back?
 - Which creatives were modified most recently, and by whom?
 - How many creatives does each campaign URN have?
+
+## Joins
+
+- [Campaigns](./campaigns.md) — `campaign = id` [N:1] — The campaign the creative runs in; the value is a URN such as urn:li:sponsoredCampaign:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+  - Description: The campaign the creative runs in; the value is a URN such as urn:li:sponsoredCampaign:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+- [Ad Accounts](./ad-accounts.md) — `account = id` [N:1] — The ad account the creative belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+  - Description: The ad account the creative belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.

@@ -46,3 +46,8 @@ sources:
 - Which campaign groups are active, and what objective type does each have?
 - Which campaign groups have a daily budget, and how large is it?
 - How many campaign groups are test groups?
+
+## Joins
+
+- [Ad Accounts](./ad-accounts.md) — `account = id` [N:1] — The ad account the campaign group belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
+  - Description: The ad account the campaign group belongs to; the value is a URN such as urn:li:sponsoredAccount:{id}. The column holds the URN, so it matches the id inside it, not the whole string.
