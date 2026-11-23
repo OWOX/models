@@ -18,7 +18,7 @@ description: |
   what a channel produced.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T17:02:13.000Z
+timestamp: 2026-11-23T11:59:52.000Z
 ---
 
 # Schema

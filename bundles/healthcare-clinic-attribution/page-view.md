@@ -18,7 +18,7 @@ description: |
   it as zero understates how long the site was read for.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T10:37:52.000Z
+timestamp: 2026-11-23T11:59:51.000Z
 ---
 
 # Schema

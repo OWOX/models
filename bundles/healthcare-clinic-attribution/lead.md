@@ -20,7 +20,7 @@ description: |
   at the consultations attached to it, not at this field.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T10:37:54.000Z
+timestamp: 2026-11-23T12:01:43.000Z
 ---
 
 # Schema
@@ -28,7 +28,7 @@ timestamp: 2026-10-15T10:37:54.000Z
 | Column | Type | Alias | Description |
 |--------|------|-------|-------------|
 | `lead_id` | STRING | Lead ID | PK. The CRM's own reference for the enquiry, issued when the first form or call arrives. It is a number in the CRM, carried here as a fixed-width string of digits so that sorting by it always follows the order the records were issued. |
-| `person_id` | STRING | Person ID | The human this enquiry belongs to, which is what ties a named enquiry back to the anonymous browsing and advertising that preceded it. FK to [Person](./person.md) |
+| `person_id` | STRING | Person ID | The human this enquiry belongs to, which is what ties a named enquiry back to the anonymous browsing and advertising that preceded it. Empty when the enquiry came by telephone from someone never seen online — a call placed straight from a search result or a map listing — which is a fact about the enquiry rather than missing data; its channel is then read from the number dialled on its [call](./call.md). FK to [Person](./person.md) |
 | `first_name` | STRING | Lead First Name | Given name as the enquirer supplied it, which is what the practice has to work with — it need not match any later clinical record. |
 | `last_name` | STRING | Lead Last Name | Family name as the enquirer supplied it. |
 | `email` | STRING | Email | Email address given at the enquiry. Empty when the person only ever telephoned and left no address. |
