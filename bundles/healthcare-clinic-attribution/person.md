@@ -19,7 +19,7 @@ description: |
   co-founder.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T10:37:53.000Z
+timestamp: 2026-11-23T11:59:48.000Z
 ---
 
 # Schema

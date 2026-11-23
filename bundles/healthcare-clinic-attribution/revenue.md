@@ -20,7 +20,7 @@ description: |
   history rather than a single purchase.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T17:02:12.000Z
+timestamp: 2026-11-23T11:59:53.000Z
 ---
 
 # Schema

@@ -19,7 +19,7 @@ description: |
   that carry no campaign at all, the normal state for direct and organic arrivals.
 tags: ["owox"]
 type: "OWOX Data Mart"
-timestamp: 2026-10-15T10:37:52.000Z
+timestamp: 2026-11-23T11:59:50.000Z
 ---
 
 # Schema
