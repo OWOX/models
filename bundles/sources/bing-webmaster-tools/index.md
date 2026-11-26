@@ -38,3 +38,7 @@ type: "index"
 One click opens this model in a free OWOX canvas you can poke around in — no account needed.
 
 <!-- OWOX:GENERATED:END -->
+
+## Model preview
+
+![Bing Webmaster Tools model diagram](../../res/screens/sources/bing-webmaster-tools.svg)
