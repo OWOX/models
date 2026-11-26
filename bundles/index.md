@@ -29,6 +29,8 @@ Generated 2026-11-23T12:03:43Z.
 ## Data sources
 
 - [Bank of Canada](./sources/bank-of-canada/index.md) — 1 concept(s)
+- [Bing Webmaster Tools](./sources/bing-webmaster-tools/index.md) — 4 concept(s)
+- [Cloudflare Analytics](./sources/cloudflare-analytics/index.md) — 9 concept(s)
 - [Criteo Ads](./sources/criteo-ads/index.md) — 4 concept(s)
 - [Facebook Ads](./sources/facebook-ads/index.md) — 15 concept(s)
 - [GitHub](./sources/github/index.md) — 3 concept(s)
